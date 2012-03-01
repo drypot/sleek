@@ -12,25 +12,20 @@ _lang.addInit(function (callback) {
 
 	if (!param.configPath) {
 		console.log('configuration file passed.');
-		callback();
-		return;
+		return callback();
 	}
 
-	_fs.readFile(param.configPath, fileHandler);
+	new _xml2js.Parser().parseString(_fs.readFileSync(param.configPath, 'utf8'), function (err, config) {
+		if (err) throw err;
 
-	function fileHandler(err, data) {
-		_should.ifError(err);
-		new _xml2js.Parser().parseString(data, xmlHandler);
-	}
+		config.roleList = _.map(config.role, function (el) { return el["@"]; });
+		delete config.role;
 
-	function xmlHandler(err, xml) {
-		_should.ifError(err);
-		xml.roleList = _.map(xml.role, function (el) { return el["@"]; });
-		delete xml.role;
-		xml.categoryList = _.map(xml.category, function (el) { return el["@"]; });
-		delete xml.category;
-		_.extend(exports, xml);
+		config.categoryList = _.map(config.category, function (el) { return el["@"]; });
+		delete config.category;
+
+		_.extend(exports, config);
 		console.info('configuration file loaded: ' + param.configPath);
 		callback(err);
-	}
+	});
 });
