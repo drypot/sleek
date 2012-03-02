@@ -2,6 +2,7 @@
 <config>
 
 	<siteTitle>sleek test</siteTitle>
+
 	<inDev>true</inDev>
 
 	<appServerPort>8010</appServerPort>
@@ -10,7 +11,7 @@
 	<fileServerUrl>http://sleekfile:8080</fileServerUrl>
 	<fileServerRoot>/Users/drypot/data/sleek/upload-file/sleek</fileServerRoot>
 
-	<dbName>sleek-test</dbName>
+	<mongoDbName>sleek-test</mongoDbName>
 
 	<role name="user" hash="$2a$10$ku7nymS.1CPd8jMttYXZMe4wVWweWr1EqaYst75tzimQh2iAAqvZW"/>
 	<role name="cheater" hash="$2a$10$UujeEPUXiV/ipq9Cl3htK.KrWLKHdxQcM5VFCBoxBV5pdNG3C2Exy"/>

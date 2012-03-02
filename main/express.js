@@ -1,6 +1,7 @@
 var _ = require('underscore');
 var _should = require('should');
 var _express = require('express');
+var _redisStore = require('connect-redis')(_express);
 
 var _lang = require('./lang');
 var _config = require("./config");
@@ -18,7 +19,7 @@ _lang.addInit(function (callback) {
 
 	ex.configure(function () {
 		ex.use(_express.cookieParser('jfkldassev'));
-		ex.use(_express.session());
+		ex.use(_express.session({store: new _redisStore()}));
 		ex.use(_express.bodyParser());
 		ex.use(ex.router);
 	});
@@ -84,10 +85,11 @@ _lang.addInit(function (callback) {
 	// post
 
 	ex.post('/api/insert-thread', assertRoleAny, parseQuery, parsePostForm, function (req, res, next) {
+		var role = req.session.role;
 		var form = req.params.postForm;
 		var errors = [];
 
-		if (!req.session.role.getCategory(req.query.categoryId).writable) {
+		if (!role.getCategory(req.query.categoryId).writable) {
 			return res.json(400, NOT_AUTHORIZED);
 		}
 
@@ -103,10 +105,11 @@ _lang.addInit(function (callback) {
 	});
 
 	ex.post('/api/insert-reply', assertRoleAny, parseQuery, parsePostForm, prepareThread, function (req, res) {
+		var role = req.session.role;
 		var form = req.params.postForm;
 		var errors = [];
 
-		if (!req.session.role.getCategory(thread.categoryId).writable) {
+		if (!role.getCategory(thread.categoryId).writable) {
 			return res.json(400, NOT_AUTHORIZED);
 		}
 
@@ -121,7 +124,8 @@ _lang.addInit(function (callback) {
 	});
 
 	ex.get('/api/find-thread-list', assertRoleAny, parseQuery, function (req, res) {
-		if (!req.session.role.getCategory(req.query.categoryId).readable) {
+		var role = req.session.role;
+		if (!role.getCategory(req.query.categoryId).readable) {
 			return res.json(400, NOT_AUTHORIZED);
 		}
 
@@ -131,7 +135,8 @@ _lang.addInit(function (callback) {
 
 
 	ex.get('/api/find-thread', assertRoleAny, parseQuery, function (req, res) {
-		if (!req.session.role.getCategory(req.query.categoryId).readable) {
+		var role = req.session.role;
+		if (!role.getCategory(req.query.categoryId).readable) {
 			return res.json(400, NOT_AUTHORIZED);
 		}
 
@@ -140,7 +145,8 @@ _lang.addInit(function (callback) {
 	});
 
 	ex.get('/api/find-post', assertRoleAny, parseQuery, function (req, res) {
-		if (!req.session.role.getCategory(req.query.categoryId).readable) {
+		var role = req.session.role;
+		if (!role.getCategory(req.query.categoryId).readable) {
 			return res.json(400, NOT_AUTHORIZED);
 		}
 
@@ -155,14 +161,13 @@ _lang.addInit(function (callback) {
 		var form = req.params.postForm;
 		var errors = [];
 
-		if (!req.session.role.getCategory(thread.categoryId).writable) {
+		if (!role.getCategory(thread.categoryId).writable) {
 			return res.json(400, NOT_AUTHORIZED);
 		}
-		if (hasTitle && !req.session.role.getCategory(form.categoryId).writable) {
+		if (hasTitle && !role.getCategory(form.categoryId).writable) {
 			return res.json(400, NOT_AUTHORIZED);
 		}
-		if (!_.include(req.session.postList, req.query.postId) &&
-			!role.getCategory(thread.categoryId).editable) {
+		if (!_.include(req.session.postList, req.query.postId) && !role.getCategory(thread.categoryId).editable) {
 			return res.json(400, NOT_AUTHORIZED);
 		}
 
@@ -187,11 +192,7 @@ _lang.addInit(function (callback) {
 
 	ex.post('/api/auth/login', function (req, res) {
 		if (_auth.loginByPassword(req, req.body.password)) {
-			res.json({
-				role: {
-					name: req.session.role.name
-				}
-			});
+			res.json({ role: { name: req.session.role.name } });
 		} else {
 			res.json(400, {error: 'login failed'});
 		}

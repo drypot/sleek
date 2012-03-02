@@ -16,11 +16,11 @@ var db;
 
 _lang.addInit(function (callback) {
 	var param = {};
-	param.dbName = _config.dbName;
+	param.mongoDbName = _config.mongoDbName;
 	_.extend(param, exports.initParam);
 
 	mongolian = exports.mongolian = new _mongolian();
-	db = exports.db = mongolian.db(param.dbName);
+	db = exports.db = mongolian.db(param.mongoDbName);
 	if (param.dropDatabase) {
 		db.dropDatabase();
 	}

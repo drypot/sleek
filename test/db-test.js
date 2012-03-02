@@ -3,7 +3,7 @@ var _should = require('should');
 var _lang = require('../main/lang');
 var _db = require('../main/db');
 
-_db.initParam = { dbName: "sleek-test", dropDatabase: true };
+_db.initParam = { mongoDbName: "sleek-test", dropDatabase: true };
 _lang.runInit();
 
 describe('db', function () {

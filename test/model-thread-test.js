@@ -4,7 +4,7 @@ var _lang = require('../main/lang');
 var _db = require('../main/db');
 var _thread = require('../main/model/thread');
 
-_db.initParam = { dbName: "sleek-test", dropDatabase: true };
+_db.initParam = { mongoDbName: "sleek-test", dropDatabase: true };
 
 var now = new Date();
 var col;
