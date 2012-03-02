@@ -21,22 +21,145 @@ before(function () {
 	urlBase = "http://localhost:" + _config.appServerPort;
 });
 
-function loginAsUser(callback) {
-	_request.post({
-		url: urlBase + '/api/auth/login',
-		body: {password: '1'}
-	}, callback);
-}
+describe("parseQuery", function () {
+	it("can parse params", function (done) {
+		_request.get({
+			url: urlBase + '/api/test/parse-query',
+			qs: {
+				categoryId: 10, threadId: 20, postId: 30
+			}
+		}, function (err, res, body) {
+			res.should.status(200);
+			body.categoryId.should.equal(10);
+			body.threadId.should.equal(20);
+			body.postId.should.equal(30);
+			done(err);
+		});
+	});
+	it("can supply defaults", function (done) {
+		_request.get({
+			url: urlBase + '/api/test/parse-query'
+		}, function (err, res, body) {
+			res.should.status(200);
+			body.categoryId.should.equal(0);
+			body.threadId.should.equal(0);
+			body.postId.should.equal(0);
+			done(err);
+		});
+	});
+});
 
-function loginAsAdmin(callback) {
-	_request.post({
-		url: urlBase + '/api/auth/login',
-		body: {password: '3'}
-	}, callback);
-}
+
+describe("parsePostForm", function () {
+	it("it can parse form", function (done) {
+		_request.post({
+			url: urlBase + '/api/test/parse-post-form',
+			qs: {
+				categoryId: 10, threadId: 20, postId: 30
+			},
+			body: {
+				categoryId: 100, userName: ' snow man ',
+				title: ' cool thread ', text: ' cool text ',
+				visible: true,
+				delFiles: ['file1', 'file2']
+			}
+		}, function (err, res, body) {
+			res.should.status(200);
+			body.now.should.ok;
+			body.threadId.should.equal(20);
+			body.postId.should.equal(30);
+			body.categoryId.should.equal(100);
+			body.userName.should.equal('snow man');
+			body.title.should.equal('cool thread');
+			body.text.should.equal('cool text');
+			body.visible.should.equal(true);
+			body.delFiles.should.eql(['file1', 'file2']);
+			done(err);
+		});
+	});
+});
 
 
-xdescribe("thread", function () {
+describe("thread validation", function () {
+	it("should success", function (done) {
+		_request.post({
+			url: urlBase + '/api/test/validate-post-form-thread',
+			body: { title: ' cool thread ' }
+		}, function (err, res, body) {
+			res.should.status(200);
+			body.errors.should.ok;
+			body.errors.should.length(0);
+			done(err);
+		});
+	});
+	it("should fail with empty title", function (done) {
+		_request.post({
+			url: urlBase + '/api/test/validate-post-form-thread',
+			body: { title: '  ' }
+		}, function (err, res, body) {
+			res.should.status(200);
+			body.errors.should.ok;
+			body.errors.should.length(1);
+			done(err);
+		});
+	});
+	it("should fail with big title", function (done) {
+		_request.post({
+			url: urlBase + '/api/test/validate-post-form-thread',
+			body: { title: ' big title title title title title title title title title title title title title title title title title title title title title title title title title title title title ' }
+		}, function (err, res, body) {
+			res.should.status(200);
+			body.errors.should.ok;
+			body.errors.should.length(1);
+			done(err);
+		});
+	});
+});
+
+describe("post validation", function () {
+	it("should success", function (done) {
+		_request.post({
+			url: urlBase + '/api/test/validate-post-form-post',
+			body: { userName: ' snow man ' }
+		}, function (err, res, body) {
+			res.should.status(200);
+			body.errors.should.ok;
+			body.errors.should.length(0);
+			done(err);
+		});
+	});
+	it("should fail with empty userName", function (done) {
+		_request.post({
+			url: urlBase + '/api/test/validate-post-form-post',
+			body: { userName: ' ' }
+		}, function (err, res, body) {
+			res.should.status(200);
+			body.errors.should.ok;
+			body.errors.should.length(1);
+			done(err);
+		});
+	});
+	it("should fail with big userName", function (done) {
+		_request.post({
+			url: urlBase + '/api/test/validate-post-form-post',
+			body: { userName: '123456789012345678901234567890123' }
+		}, function (err, res, body) {
+			res.should.status(200);
+			body.errors.should.ok;
+			body.errors.should.length(1);
+			done(err);
+		});
+	});
+});
+
+
+describe("insert-thread", function () {
+
+	it("should fail when not logged in", function () {
+	});
+});
+
+describe("thread", function () {
 	var samples = [
 		{ categoryId: 101, userName: 'snowman', title: 'title 1', text: 'text 1' },
 		{ categoryId: 101, userName: 'snowman', title: 'title 2', text: 'text 2' },
