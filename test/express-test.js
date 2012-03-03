@@ -23,15 +23,22 @@ before(function (next) {
 	});
 	_lang.addAfterInit(function (next) {
 		urlBase = "http://localhost:" + _config.appServerPort;
+		next();
 	});
 	_lang.runInit(next);
 });
 
+function post(url, body, next) {
+	if (_.isFunction(body)) {
+		next = body;
+		body = null;
+	}
+	_request.post({ url: urlBase + url, body: body }, next);
+}
+
 describe('hello', function () {
-	it('should return "hello"', function (next) {
-		_request.get({
-			url: urlBase + '/api/hello'
-		}, function (err, res, body) {
+	it('should success', function (next) {
+		post('/api/hello', function (err, res, body) {
 			res.should.status(200);
 			body.should.equal('hello');
 			next(err);
@@ -39,32 +46,16 @@ describe('hello', function () {
 	});
 });
 
-describe('ping', function () {
-	it('should ok', function (next) {
-		_request.post({
-			url: urlBase + '/api/ping'
-		}, function (err, res, body) {
-			res.should.status(200);
-			body.should.equal('ok');
-			next(err);
-		});
-	});
-});
-
 describe('session', function () {
 	it('can save value', function (next) {
-		_request.post({
-			url: urlBase + '/api/test/session-set', body: { value: 'book217'}
-		}, function (err, res, body) {
+		post('/api/test/set-session-var', {value: 'book217'}, function (err, res, body) {
 			res.should.status(200);
 			body.should.equal('ok');
 			next(err);
 		});
 	});
 	it('can read value', function (next) {
-		_request.get({
-			url: urlBase + '/api/test/session-get'
-		}, function (err, res, body) {
+		post('/api/test/get-session-var', function (err, res, body) {
 			res.should.status(200);
 			body.should.equal('book217');
 			next(err);
@@ -75,20 +66,14 @@ describe('session', function () {
 describe('auth', function () {
 	describe("login", function () {
 		it('should success', function (next) {
-			_request.post({
-				url: urlBase + '/api/auth/login',
-				body: { password: '1' }
-			}, function (err, res, body) {
+			post('/api/auth/login', {password: '1'}, function (err, res, body) {
 				res.should.status(200);
 				body.role.name.should.equal('user');
 				next(err);
 			});
 		});
 		it('should fail with wrong password', function (next) {
-			_request.post({
-				url: urlBase + '/api/auth/login',
-				body: {password: 'xxx'}
-			}, function (err, res, body) {
+			post('/api/auth/login', {password: 'xxx'}, function (err, res, body) {
 				res.should.status(400);
 				body.error.should.equal(ERR_LOGIN_FAILED);
 				next(err);
@@ -97,9 +82,7 @@ describe('auth', function () {
 	});
 	describe("logout", function () {
 		it("should success", function (next) {
-			_request.post({
-				url: urlBase + '/api/auth/logout'
-			}, function (err, res, body) {
+			post('/api/auth/logout', function (err, res, body) {
 				res.should.status(200);
 				next(err);
 			});
@@ -110,44 +93,33 @@ describe('auth', function () {
 			_request.post({ url: urlBase + '/api/auth/logout' }, next);
 		})
 		it('should fail before login', function (next) {
-			_request.get({
-				url: urlBase + '/api/test/assert-role-any'
-			}, function (err, res, body) {
+			post('/api/test/assert-role-any', function (err, res, body) {
 				res.should.status(400);
 				body.error.should.equal(ERR_LOGIN_FIRST);
 				next(err);
 			});
 		});
 		it('should success to login as user', function (next) {
-			_request.post({
-				url: urlBase + '/api/auth/login',
-				body: { password: '1' }
-			}, function (err, res, body) {
+			post('/api/auth/login', {password: '1'}, function (err, res, body) {
 				res.should.status(200);
 				body.role.name.should.equal('user');
 				next(err);
 			});
 		});
 		it('should success after login', function (next) {
-			_request.get({
-				url: urlBase + '/api/test/assert-role-any'
-			}, function (err, res, body) {
+			post('/api/test/assert-role-any', function (err, res, body) {
 				res.should.status(200);
 				next(err);
 			});
 		});
 		it('should success to login out', function (next) {
-			_request.post({
-				url: urlBase + '/api/auth/logout'
-			}, function (err, res, body) {
+			post('/api/auth/logout', function (err, res, body) {
 				res.should.status(200);
 				next(err);
 			});
 		});
 		it('should fail after logout', function (next) {
-			_request.get({
-				url: urlBase + '/api/test/assert-role-any'
-			}, function (err, res, body) {
+			post('/api/test/assert-role-any', function (err, res, body) {
 				res.should.status(400);
 				body.error.should.equal(ERR_LOGIN_FIRST);
 				next(err);
@@ -156,24 +128,20 @@ describe('auth', function () {
 	});
 	describe("assert-role-user", function () {
 		before(function (next) {
-			_request.post({ url: urlBase + '/api/auth/logout' }, next);
+			post('/api/auth/logout', next);
 		});
 		it('should fail before login', function (next) {
-			_request.get({
-				url: urlBase + '/api/test/assert-role-user'
-			}, function (err, res, body) {
+			post('/api/test/assert-role-user', function (err, res, body) {
 				res.should.status(400);
 				body.error.should.equal(ERR_LOGIN_FIRST);
 				next(err);
 			});
 		});
 		it('should success to login as user', function (next) {
-			_request.post({ url: urlBase + '/api/auth/login', body: { password: '1' } }, next);
+			post('/api/auth/login', {password: '1'}, next);
 		});
 		it('should success after login', function (next) {
-			_request.get({
-				url: urlBase + '/api/test/assert-role-user'
-			}, function (err, res, body) {
+			post('/api/test/assert-role-user', function (err, res, body) {
 				res.should.status(200);
 				body.should.equal('ok');
 				next(err);
@@ -182,36 +150,30 @@ describe('auth', function () {
 	});
 	describe("assert-role-admin", function () {
 		before(function (next) {
-			_request.post({ url: urlBase + '/api/auth/logout' }, next);
+			post('/api/auth/logout', next);
 		});
 		it('should fail before login', function (next) {
-			_request.get({
-				url: urlBase + '/api/test/assert-role-admin'
-			}, function (err, res, body) {
+			post('/api/test/assert-role-admin', function (err, res, body) {
 				res.should.status(400);
 				body.error.should.equal(ERR_LOGIN_FIRST);
 				next(err);
 			});
 		});
 		it('should success to login as user', function (next) {
-			_request.post({ url: urlBase + '/api/auth/login', body: { password: '1' } }, next);
+			post('/api/auth/login', {password: '1'}, next);
 		});
 		it('should fail with user permission', function (next) {
-			_request.get({
-				url: urlBase + '/api/test/assert-role-admin'
-			}, function (err, res, body) {
+			post('/api/test/assert-role-admin', function (err, res, body) {
 				res.should.status(400);
 				body.error.should.equal(ERR_NOT_AUTHORIZED);
 				next(err);
 			});
 		});
 		it('should success to login as admin', function (next) {
-			_request.post({ url: urlBase + '/api/auth/login', body: { password: '3' } }, next);
+			post('/api/auth/login', {password: '3'}, next);
 		});
 		it('should success with admin permission', function (next) {
-			_request.get({
-				url: urlBase + '/api/test/assert-role-admin'
-			}, function (err, res, body) {
+			post('/api/test/assert-role-admin', function (err, res, body) {
 				res.should.status(200);
 				next(err);
 			});
@@ -219,19 +181,14 @@ describe('auth', function () {
 	});
 });
 
-describe("category", function () {
+xdescribe("category", function () {
 	describe("user category", function () {
 		var cl;
 		before(function (next) {
-			_request.post({
-				url: urlBase + '/api/auth/login',
-				body: {password: '1'}
-			}, next);
+			post('/api/auth/login', {password: '1'}, next);
 		});
 		before(function (next) {
-			_request.get({
-				url: urlBase + '/api/category'
-			}, function (err, res, body) {
+			post('/api/category', function (err, res, body) {
 				res.should.status(200);
 				cl = body;
 				next(err);
@@ -255,15 +212,10 @@ describe("category", function () {
 	describe("admin category", function () {
 		var cl;
 		before(function (next) {
-			_request.post({
-				url: urlBase + '/api/auth/login',
-				body: {password: '3'}
-			}, next);
+			post('/api/auth/login', {password: '3'}, next);
 		});
 		before(function (next) {
-			_request.get({
-				url: urlBase + '/api/category'
-			}, function (err, res, body) {
+			post('/api/category', function (err, res, body) {
 				res.should.status(200);
 				cl = body;
 				next(err);

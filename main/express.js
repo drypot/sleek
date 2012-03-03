@@ -53,18 +53,18 @@ _lang.addInit(function (next) {
 		}
 	}
 
-	function parseQuery(req, res, next) {
-		req.query.categoryId = parseInt(req.query.categoryId || 0);
-		req.query.threadId = parseInt(req.query.threadId || 0);
-		req.query.postId = parseInt(req.query.postId || 0);
+	function parseParams(req, res, next) {
+		req.body.categoryId = parseInt(req.body.categoryId || 0);
+		req.body.threadId = parseInt(req.body.threadId || 0);
+		req.body.postId = parseInt(req.body.postId || 0);
 		next();
 	}
 
 	// post
 
-	ex.post('/api/insert-thread', assertLoggedIn, parseQuery, function (req, res, next) {
+	ex.post('/api/insert-thread', assertLoggedIn, parseParams, function (req, res, next) {
 		var role = _role.getByName(req.session.roleName);
-		var form = _postForm.make(req.query.threadId, req.query.postId, req.body, req.files);
+		var form = _postForm.make(req.body.threadId, req.body.postId, req.body, req.files);
 		var errors = [];
 
 		if (!role.categoryList[form.categoryId].writable) {
@@ -83,26 +83,31 @@ _lang.addInit(function (next) {
 	});
 
 	function prepareThread(req, res, next) {
-		_thread.findById(req.query.threadId, function (err, thread) {
-			if (err) throw err;
-			req.params.thread = thread;
-			next();
-		});
 	}
 
 	function preparePost(req, res, next) {
-		_post.findById(req.query.postId, function (err, post) {
+		_post.findById(req.body.postId, function (err, post) {
 			if (err) throw err;
 			req.params.post = post;
 			next();
 		});
 	}
 
-	ex.post('/api/insert-reply', assertLoggedIn, parseQuery, prepareThread, function (req, res) {
+	ex.post('/api/insert-reply', assertLoggedIn, parseParams, prepareThread, function (req, res) {
 		var role = _role.getByName(req.session.roleName);
-		var form = _postForm.make(req.query.threadId, req.query.postId, req.body, req.files);
+		var form = _postForm.make(req.body.threadId, req.body.postId, req.body, req.files);
 		var errors = [];
 
+		_async.waterfall([
+			function (next) {
+				_thread.findById(req.body.threadId, function (err, thread) {
+					if (err) throw err;
+					req.params.thread = thread;
+					next();
+				});
+
+			}
+		]);
 		if (!role.getCategory(thread.categoryId).writable) {
 			return res.json(400, { error: ERR_NOT_AUTHORIZED });
 		}
@@ -117,9 +122,9 @@ _lang.addInit(function (next) {
 		res.json(200, 'ok');
 	});
 
-	ex.get('/api/find-thread-list', assertLoggedIn, parseQuery, function (req, res) {
+	ex.post('/api/find-thread-list', assertLoggedIn, parseParams, function (req, res) {
 		var role = _role.getByName(req.session.roleName);
-		if (!role.getCategory(req.query.categoryId).readable) {
+		if (!role.getCategory(req.body.categoryId).readable) {
 			return res.json(400, { error: ERR_NOT_AUTHORIZED });
 		}
 
@@ -128,9 +133,9 @@ _lang.addInit(function (next) {
 	});
 
 
-	ex.get('/api/find-thread', assertLoggedIn, parseQuery, function (req, res) {
+	ex.post('/api/find-thread', assertLoggedIn, parseParams, function (req, res) {
 		var role = _role.getByName(req.session.roleName);
-		if (!role.getCategory(req.query.categoryId).readable) {
+		if (!role.getCategory(req.body.categoryId).readable) {
 			return res.json(400, { error: ERR_NOT_AUTHORIZED });
 		}
 
@@ -138,18 +143,18 @@ _lang.addInit(function (next) {
 //		return "post/view";
 	});
 
-	ex.get('/api/find-post', assertLoggedIn, parseQuery, function (req, res) {
+	ex.post('/api/find-post', assertLoggedIn, parseParams, function (req, res) {
 		var role = _role.getByName(req.session.roleName); ;
-		if (!role.getCategory(req.query.categoryId).readable) {
+		if (!role.getCategory(req.body.categoryId).readable) {
 			return res.json(400, { error: ERR_NOT_AUTHORIZED });
 		}
 
 //		return "post ...";
 	});
 
-	ex.put('/api/update-post', assertLoggedIn, parseQuery, prepareThread, preparePost, function (req, res) {
+	ex.put('/api/update-post', assertLoggedIn, parseParams, prepareThread, preparePost, function (req, res) {
 		var role = _role.getByName(req.session.roleName); ;
-		var form = _postForm.make(req.query.threadId, req.query.postId, req.body, req.files);
+		var form = _postForm.make(req.body.threadId, req.body.postId, req.body, req.files);
 		var thread = req.params.thread;
 		var post = req.params.post;
 		var hasTitle = thread.cdate === post.cdate;
@@ -161,7 +166,7 @@ _lang.addInit(function (next) {
 		if (hasTitle && !role.getCategory(form.categoryId).writable) {
 			return res.json(400, { error: ERR_NOT_AUTHORIZED });
 		}
-		if (!_.include(req.session.postList, req.query.postId) && !role.getCategory(thread.categoryId).editable) {
+		if (!_.include(req.session.postList, req.body.postId) && !role.getCategory(thread.categoryId).editable) {
 			return res.json(400, { error: ERR_NOT_AUTHORIZED });
 		}
 
@@ -198,7 +203,7 @@ _lang.addInit(function (next) {
 
 	// category
 
-	ex.get('/api/category', assertLoggedIn, function (req, res) {
+	ex.post('/api/category', assertLoggedIn, function (req, res) {
 		var role = _role.getByName(req.session.roleName);
 		res.json(role.categoryList);
 	});
@@ -210,63 +215,61 @@ _lang.addInit(function (next) {
 //		categoryService.init();
 	});
 
-	// ping
-
-	ex.post('/api/ping', function (req, res) {
-		res.json('ok');
-	});
-
 	// hello
 
-	ex.get('/api/hello', function (req, res) {
+	ex.post('/api/hello', function (req, res) {
 		res.json('hello');
 	});
 
-	// permission test support
+	//
+	// test support
+	//
 
-	ex.get('/api/test/assert-role-any', assertLoggedIn, function (req, res) {
-		res.json('ok');
-	});
+	// session
 
-	ex.get('/api/test/assert-role-user', assertLoggedIn, assertRole('user'), function (req, res) {
-		res.json('ok');
-	});
-
-	ex.get('/api/test/assert-role-admin', assertLoggedIn, assertRole('admin'), function (req, res) {
-		res.json('ok');
-	});
-
-	// session test support
-
-	ex.post('/api/test/session-set', function (req, res) {
+	ex.post('/api/test/set-session-var', function (req, res) {
 		req.session.test_var = req.body.value;
 		res.json('ok');
 	});
 
-	ex.get('/api/test/session-get', function (req, res) {
+	ex.post('/api/test/get-session-var', function (req, res) {
 		res.json(req.session.test_var);
 	});
 
-	// parser test support
+	// permission
 
-	ex.get('/api/test/parse-query', parseQuery, function (req, res) {
-		res.json(req.query);
+	ex.post('/api/test/assert-role-any', assertLoggedIn, function (req, res) {
+		res.json('ok');
 	});
 
-	ex.post('/api/test/parse-post-form', parseQuery, function (req, res) {
-		var form = _postForm.make(req.query.threadId, req.query.postId, req.body, req.files);
+	ex.post('/api/test/assert-role-user', assertLoggedIn, assertRole('user'), function (req, res) {
+		res.json('ok');
+	});
+
+	ex.post('/api/test/assert-role-admin', assertLoggedIn, assertRole('admin'), function (req, res) {
+		res.json('ok');
+	});
+
+	// parser
+
+	ex.post('/api/test/parse-query', parseParams, function (req, res) {
+		res.json(req.body);
+	});
+
+	ex.post('/api/test/parse-post-form', parseParams, function (req, res) {
+		var form = _postForm.make(req.body.threadId, req.body.postId, req.body, req.files);
 		res.json(form);
 	});
 
-	ex.post('/api/test/validate-post-form-thread', parseQuery, function (req, res) {
-		var form = _postForm.make(req.query.threadId, req.query.postId, req.body, req.files);
+	ex.post('/api/test/validate-post-form-thread', parseParams, function (req, res) {
+		var form = _postForm.make(req.body.threadId, req.body.postId, req.body, req.files);
 		var errors = [];
 		form.validateThread(errors);
 		res.json(200, { errors: errors });
 	});
 
-	ex.post('/api/test/validate-post-form-post', parseQuery, function (req, res) {
-		var form = _postForm.make(req.query.threadId, req.query.postId, req.body, req.files);
+	ex.post('/api/test/validate-post-form-post', parseParams, function (req, res) {
+		var form = _postForm.make(req.body.threadId, req.body.postId, req.body, req.files);
 		var errors = [];
 		form.validatePost(errors);
 		res.json(200, { errors: errors });

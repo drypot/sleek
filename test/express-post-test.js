@@ -28,14 +28,19 @@ before(function (next) {
 	_lang.runInit(next);
 });
 
+function post(url, body, next) {
+	if (_.isFunction(body)) {
+		next = body;
+		body = null;
+	}
+	_request.post({ url: urlBase + url, body: body }, next);
+}
+
+// express-post-test 재구현 todo
+
 describe("parseQuery", function () {
 	it("can parse params", function (next) {
-		_request.get({
-			url: urlBase + '/api/test/parse-query',
-			qs: {
-				categoryId: 10, threadId: 20, postId: 30
-			}
-		}, function (err, res, body) {
+		post('/api/test/parse-query', {categoryId: 10, threadId: 20, postId: 30}, function (err, res, body) {
 			res.should.status(200);
 			body.categoryId.should.equal(10);
 			body.threadId.should.equal(20);
@@ -44,9 +49,7 @@ describe("parseQuery", function () {
 		});
 	});
 	it("can supply defaults", function (next) {
-		_request.get({
-			url: urlBase + '/api/test/parse-query'
-		}, function (err, res, body) {
+		post('/api/test/parse-query', function (err, res, body) {
 			res.should.status(200);
 			body.categoryId.should.equal(0);
 			body.threadId.should.equal(0);
@@ -57,7 +60,7 @@ describe("parseQuery", function () {
 });
 
 
-describe("parsePostForm", function () {
+xdescribe("parsePostForm", function () {
 	it("can parse form", function (next) {
 		_request.post({
 			url: urlBase + '/api/test/parse-post-form',
@@ -86,7 +89,7 @@ describe("parsePostForm", function () {
 	});
 });
 
-describe("thread validation", function () {
+xdescribe("thread validation", function () {
 	it("should success", function (next) {
 		_request.post({
 			url: urlBase + '/api/test/validate-post-form-thread',
@@ -122,7 +125,7 @@ describe("thread validation", function () {
 	});
 });
 
-describe("post validation", function () {
+xdescribe("post validation", function () {
 	it("should success", function (next) {
 		_request.post({
 			url: urlBase + '/api/test/validate-post-form-post',
@@ -158,7 +161,7 @@ describe("post validation", function () {
 	});
 });
 
-describe("insert-thread", function () {
+xdescribe("insert-thread", function () {
 	before(function (next) {
 		_request.post({ url: urlBase + '/api/auth/logout' }, next);
 	});
@@ -216,7 +219,7 @@ describe("insert-thread", function () {
 	});
 });
 
-describe("insert-reply", function () {
+xdescribe("insert-reply", function () {
 	before(function (next) {
 		_request.post({ url: urlBase + '/api/auth/logout' }, next);
 	});
@@ -301,7 +304,7 @@ xdescribe("thread", function () {
 	});
 
 //	it("should return list", function (next) {
-//		_request.get({url: urlBase + '/api/thread'}, function (err, res, body) {
+//		_request.post({url: urlBase + '/api/thread'}, function (err, res, body) {
 //			res.should.status(200);
 //			next(err);
 //		});
