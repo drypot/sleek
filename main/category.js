@@ -7,14 +7,14 @@ var _role = require('./role');
 
 // init
 
-_lang.addInit(function (callback) {
+_lang.addInit(function (next) {
 	_.each(_config.categoryList, function (el) {
 		_.each(_role.roleList, function (role) {
 			var c = new Category(el, role.name);
 			if (c.readable) role.categoryList[c.id] = c;
 		});
 	});
-	callback();
+	next();
 });
 
 // Category.*

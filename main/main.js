@@ -10,9 +10,9 @@ process.on('uncaughtException', function (err) {
 	console.log( "[Inside 'uncaughtException' event] " + err.stack || err.message );
 });
 
-_lang.addBeforeInit(function (callback) {
+_lang.addBeforeInit(function (next) {
 	_config.initParam = { configPath: "config-dev/config-dev.xml" }
-	callback();
+	next();
 });
 _lang.runInit();
 

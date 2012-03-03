@@ -7,11 +7,11 @@ var _thread = require('../main/model/thread');
 var now = new Date();
 var col;
 
-before(function (done) {
-	_lang.addBeforeInit(function (callback) {
+before(function (next) {
+	_lang.addBeforeInit(function (next) {
 		_db.initParam = { mongoDbName: "sleek-test", dropDatabase: true };
-		callback();
-	});	_lang.runInit(done);
+		next();
+	});	_lang.runInit(next);
 });
 
 before(function () {
@@ -45,19 +45,19 @@ describe('thread collection', function () {
 	it('should be ok', function () {
 		col.should.be.ok;
 	});
-	it('should have no record', function (done) {
+	it('should have no record', function (next) {
 		col.count(function (err, count) {
 			_should.ifError(err);
 			count.should.equal(0);
-			done(err);
+			next(err);
 		})
 	});
-	it('should have index', function (done) {
+	it('should have index', function (next) {
 		col.indexes(function (err, indexList) {
 			_should.ifError(err);
 			indexList.should.be.instanceof(Array);
 			indexList.should.be.length(3);
-			done(err);
+			next(err);
 		});
 	});
 });
@@ -98,20 +98,20 @@ describe('thread data access', function () {
 			userName: 'snowman', title: 'cool thread 7'
 		});
 	});
-	function findOne(callback) {
+	function findOne(next) {
 		col.findOne({title: 'cool thread 7'}, function (err, obj) {
 			_thread.setProto(obj);
-			callback(err, obj);
+			next(err, obj);
 		});
 	}
-	it('can insert record', function (done) {
+	it('can insert record', function (next) {
 		col.count(function (err, count) {
 			_should.ifError(err);
 			count.should.equal(7);
-			done(err);
+			next(err);
 		});
 	});
-	it('can get by id', function (done) {
+	it('can get by id', function (next) {
 		findOne(function (err, obj) {
 			_should.ifError(err);
 			obj._id.should.ok;
@@ -120,11 +120,11 @@ describe('thread data access', function () {
 				_should.ifError(err);
 				thread2._id.should.equal(obj._id);
 				thread2.title.should.equal(obj.title);
-				done(err);
+				next(err);
 			});
 		});
 	});
-	it('can update record', function (done) {
+	it('can update record', function (next) {
 		findOne(function (err, obj) {
 			obj.userName = "fireman";
 			obj.hit = 17;
@@ -132,21 +132,21 @@ describe('thread data access', function () {
 			_thread.findById(obj._id, function (err, obj2) {
 				_should.ifError(err);
 				obj2.should.eql(obj);
-				done(err);
+				next(err);
 			});
 		});
 	});
-	it('can increase hit', function (done) {
+	it('can increase hit', function (next) {
 		findOne(function (err, obj) {
 			obj.updateHit();
 			_thread.findById(obj._id, function (err, obj2) {
 				_should.ifError(err);
 				obj2.hit.should.equal(obj.hit + 1);
-				done(err);
+				next(err);
 			});
 		});
 	});
-	it('can update lenth & udate', function (done) {
+	it('can update lenth & udate', function (next) {
 		findOne(function (err, obj) {
 			var now2 = new Date();
 			_thread.updateLength(obj._id, now2);
@@ -154,13 +154,13 @@ describe('thread data access', function () {
 				_should.ifError(err);
 				obj2.length.should.equal(obj.length + 1);
 				obj2.udate.should.eql(now2);
-				done(err);
+				next(err);
 			});
 		});
 	});
 
 	describe('list', function () {
-		it('can query all', function (done) {
+		it('can query all', function (next) {
 			_thread.findList(0, null, 99, function (err, list) {
 				_should.ifError(err);
 				list.should.length(7);
@@ -168,34 +168,34 @@ describe('thread data access', function () {
 				list[0].udate.should.above(list[1].udate);
 				list[1].udate.should.above(list[2].udate);
 				list[2].udate.should.above(list[3].udate);
-				done(err);
+				next(err);
 			})
 		});
-		it('can query with limited', function (done) {
+		it('can query with limited', function (next) {
 			_thread.findList(0, null, 3, function (err, list) {
 				_should.ifError(err);
 				list.should.length(3);
-				done(err);
+				next(err);
 			})
 		});
-		it('can query with lastUpdate', function (done) {
+		it('can query with lastUpdate', function (next) {
 			_thread.findList(0, new Date(20), 99, function (err, list) {
 				_should.ifError(err);
 				list.should.length(4);
 				list[0].udate.should.eql(new Date(20));
 				list[1].udate.should.eql(new Date(20));
 				list[2].udate.should.eql(new Date(11));
-				done(err);
+				next(err);
 			})
 		});
-		it('can query with categoryId', function (done) {
+		it('can query with categoryId', function (next) {
 			_thread.findList(101, null, 99, function (err, list) {
 				_should.ifError(err);
 				list.should.length(4);
 				_thread.findList(103, null, 99, function (err, list) {
 					_should.ifError(err);
 					list.should.length(2);
-					done(err);
+					next(err);
 				})
 			})
 		});

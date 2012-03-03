@@ -7,12 +7,12 @@ var _post = require('../main/model/post');
 var now = new Date();
 var col;
 
-before(function (done) {
-	_lang.addBeforeInit(function (callback) {
+before(function (next) {
+	_lang.addBeforeInit(function (next) {
 		_db.initParam = { mongoDbName: "sleek-test", dropDatabase: true };
-		callback();
+		next();
 	});
-	_lang.runInit(done);
+	_lang.runInit(next);
 })
 
 before(function () {
@@ -74,19 +74,19 @@ describe('post collection', function () {
 	it('should be ok', function () {
 		col.should.be.ok;
 	});
-	it('should have no record', function (done) {
+	it('should have no record', function (next) {
 		col.count(function (err, count) {
 			_should.ifError(err);
 			count.should.equal(0);
-			done(err);
+			next(err);
 		})
 	});
-	it('should have index', function (done) {
+	it('should have index', function (next) {
 		col.indexes(function (err, indexList) {
 			_should.ifError(err);
 			indexList.should.be.instanceof(Array);
 			indexList.should.be.length(2);
-			done(err);
+			next(err);
 		});
 	});
 });
@@ -119,20 +119,20 @@ describe('post data access', function () {
 			userName: 'snowman', text: 'cool post 22'
 		});
 	});
-	function findOne(callback) {
+	function findOne(next) {
 		col.findOne({text: 'cool post 21'}, function (err, obj) {
 			_post.setProto(obj);
-			callback(err, obj);
+			next(err, obj);
 		});
 	}
-	it('can insert record', function (done) {
+	it('can insert record', function (next) {
 		col.count(function (err, count) {
 			_should.ifError(err);
 			count.should.equal(5);
-			done(err);
+			next(err);
 		});
 	});
-	it('can get by id', function (done) {
+	it('can get by id', function (next) {
 		findOne(function (err, obj) {
 			_should.ifError(err);
 			obj._id.should.ok;
@@ -142,11 +142,11 @@ describe('post data access', function () {
 				obj2.should.sameProto(_post.make({}));
 				obj2._id.should.equal(obj._id);
 				obj2.text.should.equal(obj.text);
-				done(err);
+				next(err);
 			});
 		});
 	});
-	it('can update record', function (done) {
+	it('can update record', function (next) {
 		findOne(function (err, obj) {
 			obj.userName = "fireman";
 			obj.hit = 17;
@@ -154,34 +154,34 @@ describe('post data access', function () {
 			_post.findById(obj._id, function (err, obj2) {
 				_should.ifError(err);
 				obj2.should.eql(obj);
-				done(err);
+				next(err);
 			});
 		});
 	});
 
 	describe('list', function () {
-		it('can be queried', function (done) {
+		it('can be queried', function (next) {
 			_post.findList(1000, function (err, list) {
 				_should.ifError(err);
 				list.should.length(3);
 				list[0].should.sameProto(_post.make({}));
-				done(err);
+				next(err);
 			})
 		});
-		it('can be queried 2', function (done) {
+		it('can be queried 2', function (next) {
 			_post.findList(1010, function (err, list) {
 				_should.ifError(err);
 				list.should.length(2);
 				list[0].should.sameProto(_post.make({}));
-				done(err);
+				next(err);
 			})
 		});
-		it('should be sorted', function (done) {
+		it('should be sorted', function (next) {
 			_post.findList(1000, function (err, list) {
 				_should.ifError(err);
 				list[0].cdate.should.below(list[1].cdate);
 				list[1].cdate.should.below(list[2].cdate);
-				done(err);
+				next(err);
 			})
 		});
 

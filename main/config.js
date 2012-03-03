@@ -7,12 +7,12 @@ var _xml2js = require('xml2js');
 
 var _lang = require('./lang');
 
-_lang.addInit(function (callback) {
+_lang.addInit(function (next) {
 	var param = _.extend({}, exports.initParam);
 
 	if (!param.configPath) {
 		console.log('configuration file passed.');
-		return callback();
+		return next();
 	}
 
 	new _xml2js.Parser().parseString(_fs.readFileSync(param.configPath, 'utf8'), function (err, config) {
@@ -26,6 +26,6 @@ _lang.addInit(function (callback) {
 
 		_.extend(exports, config);
 		console.info('configuration file loaded: ' + param.configPath);
-		callback(err);
+		next(err);
 	});
 });

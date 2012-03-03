@@ -14,7 +14,7 @@ var DBRef = exports.DBRef = _mongolian.DBRef;
 var mongolian;
 var db;
 
-_lang.addInit(function (callback) {
+_lang.addInit(function (next) {
 	var param = {};
 	param.mongoDbName = _config.mongoDbName;
 	_.extend(param, exports.initParam);
@@ -26,17 +26,17 @@ _lang.addInit(function (callback) {
 	}
 	extendCursorProto();
 	console.info('db initialized: ' + db.name);
-	callback(null);
+	next(null);
 });
 
 function extendCursorProto() {
 	var proto = db.collection("postThread").find().__proto__;
-	proto.toArrayWithProto = function (proto, callback) {
+	proto.toArrayWithProto = function (proto, next) {
 		this.toArray(function (err, list) {
 			for (var i = 0, len = list.length; i < len; ++i) {
 				list[i].__proto__ = proto;
 			}
-			callback(err, list);
+			next(err, list);
 		});
 	}
 }

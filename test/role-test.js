@@ -5,12 +5,12 @@ var _lang = require('../main/lang');
 var _config = require("../main/config");
 var _role = require('../main/role');
 
-before(function (done) {
-	_lang.addBeforeInit(function (callback) {
+before(function (next) {
+	_lang.addBeforeInit(function (next) {
 		_config.initParam = { configPath: "config-dev/config-dev.xml" }
-		callback();
+		next();
 	});
-	_lang.runInit(done);
+	_lang.runInit(next);
 });
 
 describe('role object', function () {

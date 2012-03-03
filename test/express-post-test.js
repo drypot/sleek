@@ -8,15 +8,6 @@ var _config = require("../main/config");
 var _db = require('../main/db');
 var _express = require("../main/express");
 
-before(function (done) {
-	_lang.addBeforeInit(function (callback) {
-		_config.initParam = { configPath: "config-dev/config-dev.xml" }
-		_db.initParam = { mongoDbName: "sleek-test", dropDatabase: true };
-		callback();
-	});
-	_lang.runInit(done);
-});
-
 var ERR_LOGIN_FIRST = 'login first';
 var ERR_LOGIN_FAILED = 'login failed';
 var ERR_NOT_AUTHORIZED = 'not authorized';
@@ -24,12 +15,21 @@ var ERR_INVALID_DATA = 'invalid data';
 
 var urlBase;
 
-before(function () {
-	urlBase = "http://localhost:" + _config.appServerPort;
+before(function (next) {
+	_lang.addBeforeInit(function (next) {
+		_config.initParam = { configPath: "config-dev/config-dev.xml" }
+		_db.initParam = { mongoDbName: "sleek-test", dropDatabase: true };
+		next();
+	});
+	_lang.addAfterInit(function (next) {
+		urlBase = "http://localhost:" + _config.appServerPort;
+		next();
+	});
+	_lang.runInit(next);
 });
 
 describe("parseQuery", function () {
-	it("can parse params", function (done) {
+	it("can parse params", function (next) {
 		_request.get({
 			url: urlBase + '/api/test/parse-query',
 			qs: {
@@ -40,10 +40,10 @@ describe("parseQuery", function () {
 			body.categoryId.should.equal(10);
 			body.threadId.should.equal(20);
 			body.postId.should.equal(30);
-			done(err);
+			next(err);
 		});
 	});
-	it("can supply defaults", function (done) {
+	it("can supply defaults", function (next) {
 		_request.get({
 			url: urlBase + '/api/test/parse-query'
 		}, function (err, res, body) {
@@ -51,14 +51,14 @@ describe("parseQuery", function () {
 			body.categoryId.should.equal(0);
 			body.threadId.should.equal(0);
 			body.postId.should.equal(0);
-			done(err);
+			next(err);
 		});
 	});
 });
 
 
 describe("parsePostForm", function () {
-	it("can parse form", function (done) {
+	it("can parse form", function (next) {
 		_request.post({
 			url: urlBase + '/api/test/parse-post-form',
 			qs: {
@@ -81,13 +81,13 @@ describe("parsePostForm", function () {
 			body.text.should.equal('cool text');
 			body.visible.should.equal(true);
 			body.delFiles.should.eql(['file1', 'file2']);
-			done(err);
+			next(err);
 		});
 	});
 });
 
 describe("thread validation", function () {
-	it("should success", function (done) {
+	it("should success", function (next) {
 		_request.post({
 			url: urlBase + '/api/test/validate-post-form-thread',
 			body: { title: ' cool thread ' }
@@ -95,10 +95,10 @@ describe("thread validation", function () {
 			res.should.status(200);
 			body.errors.should.ok;
 			body.errors.should.length(0);
-			done(err);
+			next(err);
 		});
 	});
-	it("should fail with empty title", function (done) {
+	it("should fail with empty title", function (next) {
 		_request.post({
 			url: urlBase + '/api/test/validate-post-form-thread',
 			body: { title: '  ' }
@@ -106,10 +106,10 @@ describe("thread validation", function () {
 			res.should.status(200);
 			body.errors.should.ok;
 			body.errors.should.length(1);
-			done(err);
+			next(err);
 		});
 	});
-	it("should fail with big title", function (done) {
+	it("should fail with big title", function (next) {
 		_request.post({
 			url: urlBase + '/api/test/validate-post-form-thread',
 			body: { title: ' big title title title title title title title title title title title title title title title title title title title title title title title title title title title title ' }
@@ -117,13 +117,13 @@ describe("thread validation", function () {
 			res.should.status(200);
 			body.errors.should.ok;
 			body.errors.should.length(1);
-			done(err);
+			next(err);
 		});
 	});
 });
 
 describe("post validation", function () {
-	it("should success", function (done) {
+	it("should success", function (next) {
 		_request.post({
 			url: urlBase + '/api/test/validate-post-form-post',
 			body: { userName: ' snow man ' }
@@ -131,10 +131,10 @@ describe("post validation", function () {
 			res.should.status(200);
 			body.errors.should.ok;
 			body.errors.should.length(0);
-			done(err);
+			next(err);
 		});
 	});
-	it("should fail with empty userName", function (done) {
+	it("should fail with empty userName", function (next) {
 		_request.post({
 			url: urlBase + '/api/test/validate-post-form-post',
 			body: { userName: ' ' }
@@ -142,10 +142,10 @@ describe("post validation", function () {
 			res.should.status(200);
 			body.errors.should.ok;
 			body.errors.should.length(1);
-			done(err);
+			next(err);
 		});
 	});
-	it("should fail with big userName", function (done) {
+	it("should fail with big userName", function (next) {
 		_request.post({
 			url: urlBase + '/api/test/validate-post-form-post',
 			body: { userName: '123456789012345678901234567890123' }
@@ -153,46 +153,46 @@ describe("post validation", function () {
 			res.should.status(200);
 			body.errors.should.ok;
 			body.errors.should.length(1);
-			done(err);
+			next(err);
 		});
 	});
 });
 
 describe("insert-thread", function () {
-	before(function (done) {
-		_request.post({ url: urlBase + '/api/auth/logout' }, done);
+	before(function (next) {
+		_request.post({ url: urlBase + '/api/auth/logout' }, next);
 	});
-	it("should fail when not logged in", function (done) {
+	it("should fail when not logged in", function (next) {
 		_request.post({
 			url: urlBase + '/api/insert-thread',
 			body: { categoryId: 101, userName: 'snowman', title: 'title 1', text: 'text 1' }
 		}, function (err, res, body) {
 			res.should.status(400);
 			body.error.should.equal(ERR_LOGIN_FIRST);
-			done(err);
+			next(err);
 		});
 	});
-	it('should success to login as user', function (done) {
-		_request.post({ url: urlBase + '/api/auth/login', body: { password: '1' } }, done);
+	it('should success to login as user', function (next) {
+		_request.post({ url: urlBase + '/api/auth/login', body: { password: '1' } }, next);
 	});
-	it("should success", function (done) {
+	it("should success", function (next) {
 		_request.post({
 			url: urlBase + '/api/insert-thread',
 			body: { categoryId: 101, userName: 'snowman', title: 'title 1', text: 'text 1' }
 		}, function (err, res, body) {
 			res.should.status(200);
 			body.should.have.property('threadId');
-			done(err);
+			next(err);
 		});
 	});
-	it("should fail with invalid categoryId", function (done) {
+	it("should fail with invalid categoryId", function (next) {
 		_request.post({
 			url: urlBase + '/api/insert-thread',
 			body: { categoryId: 10100, userName: 'snowman', title: 'title 1', text: 'text 1' }
 		}, function (err, res, body) {
 			res.should.status(200);
 			body.should.have.property('threadId');
-			done(err);
+			next(err);
 		});
 	});
 
@@ -209,25 +209,25 @@ xdescribe("thread", function () {
 		{ categoryId: 104, userName: 'snowman', title: 'title 7', text: 'text 7' }
 	];
 
-	before(function (done) {
-		loginAsUser(done);
+	before(function (next) {
+		loginAsUser(next);
 	});
-	it('can add new thread', function (done) {
-		_async.forEachSeries(samples, function (item, done) {
+	it('can add new thread', function (next) {
+		_async.forEachSeries(samples, function (item, next) {
 			_request.post({
 				url: urlBase + '/api/thread'
 				, body: item
 			}, function (err, res, body) {
 				res.should.status(200);
-				done(err);
+				next(err);
 			});
-		}, done);
+		}, next);
 	});
 
-//	it("should return list", function (done) {
+//	it("should return list", function (next) {
 //		_request.get({url: urlBase + '/api/thread'}, function (err, res, body) {
 //			res.should.status(200);
-//			done(err);
+//			next(err);
 //		});
 //	});
 });

@@ -8,11 +8,11 @@ var _config = require("./config");
 var fileServerUrl;
 var fileServerRoot;
 
-_lang.addInit(function (callback) {
+_lang.addInit(function (next) {
 	fileServerUrl = _config.fileServerUrl;
 	fileServerRoot = _config.fileServerRoot;
 	logger.info("file server root: " + fileServerRoot);
-	callback();
+	next();
 });
 
 

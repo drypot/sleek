@@ -17,7 +17,7 @@ var ERR_LOGIN_FAILED = 'login failed';
 var ERR_NOT_AUTHORIZED = 'not authorized';
 var ERR_INVALID_DATA = 'invalid data';
 
-_lang.addInit(function (callback) {
+_lang.addInit(function (next) {
 	var ex = _express();
 
 	ex.configure(function () {
@@ -276,5 +276,5 @@ _lang.addInit(function (callback) {
 
 	ex.listen(_config.appServerPort);
 	console.info("express listening on port: %d", _config.appServerPort);
-	callback();
+	next();
 });

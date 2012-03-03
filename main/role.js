@@ -9,11 +9,11 @@ var roleList = exports.roleList = {};
 
 // init
 
-_lang.addInit(function (callback) {
+_lang.addInit(function (next) {
 	_.each(_config.roleList, function (role) {
 		roleList[role.name] = new Role(role);
 	});
-	callback();
+	next();
 });
 
 // Role.*

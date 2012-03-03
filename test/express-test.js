@@ -8,15 +8,6 @@ var _config = require("../main/config");
 var _db = require('../main/db');
 var _express = require("../main/express");
 
-before(function (done) {
-	_lang.addBeforeInit(function (callback) {
-		_config.initParam = { configPath: "config-dev/config-dev.xml" }
-		_db.initParam = { mongoDbName: "sleek-test", dropDatabase: true };
-		callback();
-	});
-	_lang.runInit(done);
-});
-
 var ERR_LOGIN_FIRST = 'login first';
 var ERR_LOGIN_FAILED = 'login failed';
 var ERR_NOT_AUTHORIZED = 'not authorized';
@@ -24,197 +15,205 @@ var ERR_INVALID_DATA = 'invalid data';
 
 var urlBase;
 
-before(function () {
-	urlBase = "http://localhost:" + _config.appServerPort;
+before(function (next) {
+	_lang.addBeforeInit(function (next) {
+		_config.initParam = { configPath: "config-dev/config-dev.xml" }
+		_db.initParam = { mongoDbName: "sleek-test", dropDatabase: true };
+		next();
+	});
+	_lang.addAfterInit(function (next) {
+		urlBase = "http://localhost:" + _config.appServerPort;
+	});
+	_lang.runInit(next);
 });
 
 describe('hello', function () {
-	it('should return "hello"', function (done) {
+	it('should return "hello"', function (next) {
 		_request.get({
 			url: urlBase + '/api/hello'
 		}, function (err, res, body) {
 			res.should.status(200);
 			body.should.equal('hello');
-			done(err);
+			next(err);
 		});
 	});
 });
 
 describe('ping', function () {
-	it('should ok', function (done) {
+	it('should ok', function (next) {
 		_request.post({
 			url: urlBase + '/api/ping'
 		}, function (err, res, body) {
 			res.should.status(200);
 			body.should.equal('ok');
-			done(err);
+			next(err);
 		});
 	});
 });
 
 describe('session', function () {
-	it('can save value', function (done) {
+	it('can save value', function (next) {
 		_request.post({
 			url: urlBase + '/api/test/session-set', body: { value: 'book217'}
 		}, function (err, res, body) {
 			res.should.status(200);
 			body.should.equal('ok');
-			done(err);
+			next(err);
 		});
 	});
-	it('can read value', function (done) {
+	it('can read value', function (next) {
 		_request.get({
 			url: urlBase + '/api/test/session-get'
 		}, function (err, res, body) {
 			res.should.status(200);
 			body.should.equal('book217');
-			done(err);
+			next(err);
 		});
 	});
 });
 
 describe('auth', function () {
 	describe("login", function () {
-		it('should success', function (done) {
+		it('should success', function (next) {
 			_request.post({
 				url: urlBase + '/api/auth/login',
 				body: { password: '1' }
 			}, function (err, res, body) {
 				res.should.status(200);
 				body.role.name.should.equal('user');
-				done(err);
+				next(err);
 			});
 		});
-		it('should fail with wrong password', function (done) {
+		it('should fail with wrong password', function (next) {
 			_request.post({
 				url: urlBase + '/api/auth/login',
 				body: {password: 'xxx'}
 			}, function (err, res, body) {
 				res.should.status(400);
 				body.error.should.equal(ERR_LOGIN_FAILED);
-				done(err);
+				next(err);
 			});
 		});
 	});
 	describe("logout", function () {
-		it("should success", function (done) {
+		it("should success", function (next) {
 			_request.post({
 				url: urlBase + '/api/auth/logout'
 			}, function (err, res, body) {
 				res.should.status(200);
-				done(err);
+				next(err);
 			});
 		});
 	});
 	describe("assert-role-any", function () {
-		before(function (done) {
-			_request.post({ url: urlBase + '/api/auth/logout' }, done);
+		before(function (next) {
+			_request.post({ url: urlBase + '/api/auth/logout' }, next);
 		})
-		it('should fail before login', function (done) {
+		it('should fail before login', function (next) {
 			_request.get({
 				url: urlBase + '/api/test/assert-role-any'
 			}, function (err, res, body) {
 				res.should.status(400);
 				body.error.should.equal(ERR_LOGIN_FIRST);
-				done(err);
+				next(err);
 			});
 		});
-		it('should success to login as user', function (done) {
+		it('should success to login as user', function (next) {
 			_request.post({
 				url: urlBase + '/api/auth/login',
 				body: { password: '1' }
 			}, function (err, res, body) {
 				res.should.status(200);
 				body.role.name.should.equal('user');
-				done(err);
+				next(err);
 			});
 		});
-		it('should success after login', function (done) {
+		it('should success after login', function (next) {
 			_request.get({
 				url: urlBase + '/api/test/assert-role-any'
 			}, function (err, res, body) {
 				res.should.status(200);
-				done(err);
+				next(err);
 			});
 		});
-		it('should success to login out', function (done) {
+		it('should success to login out', function (next) {
 			_request.post({
 				url: urlBase + '/api/auth/logout'
 			}, function (err, res, body) {
 				res.should.status(200);
-				done(err);
+				next(err);
 			});
 		});
-		it('should fail after logout', function (done) {
+		it('should fail after logout', function (next) {
 			_request.get({
 				url: urlBase + '/api/test/assert-role-any'
 			}, function (err, res, body) {
 				res.should.status(400);
 				body.error.should.equal(ERR_LOGIN_FIRST);
-				done(err);
+				next(err);
 			});
 		});
 	});
 	describe("assert-role-user", function () {
-		before(function (done) {
-			_request.post({ url: urlBase + '/api/auth/logout' }, done);
+		before(function (next) {
+			_request.post({ url: urlBase + '/api/auth/logout' }, next);
 		});
-		it('should fail before login', function (done) {
+		it('should fail before login', function (next) {
 			_request.get({
 				url: urlBase + '/api/test/assert-role-user'
 			}, function (err, res, body) {
 				res.should.status(400);
 				body.error.should.equal(ERR_LOGIN_FIRST);
-				done(err);
+				next(err);
 			});
 		});
-		it('should success to login as user', function (done) {
-			_request.post({ url: urlBase + '/api/auth/login', body: { password: '1' } }, done);
+		it('should success to login as user', function (next) {
+			_request.post({ url: urlBase + '/api/auth/login', body: { password: '1' } }, next);
 		});
-		it('should success after login', function (done) {
+		it('should success after login', function (next) {
 			_request.get({
 				url: urlBase + '/api/test/assert-role-user'
 			}, function (err, res, body) {
 				res.should.status(200);
 				body.should.equal('ok');
-				done(err);
+				next(err);
 			});
 		});
 	});
 	describe("assert-role-admin", function () {
-		before(function (done) {
-			_request.post({ url: urlBase + '/api/auth/logout' }, done);
+		before(function (next) {
+			_request.post({ url: urlBase + '/api/auth/logout' }, next);
 		});
-		it('should fail before login', function (done) {
+		it('should fail before login', function (next) {
 			_request.get({
 				url: urlBase + '/api/test/assert-role-admin'
 			}, function (err, res, body) {
 				res.should.status(400);
 				body.error.should.equal(ERR_LOGIN_FIRST);
-				done(err);
+				next(err);
 			});
 		});
-		it('should success to login as user', function (done) {
-			_request.post({ url: urlBase + '/api/auth/login', body: { password: '1' } }, done);
+		it('should success to login as user', function (next) {
+			_request.post({ url: urlBase + '/api/auth/login', body: { password: '1' } }, next);
 		});
-		it('should fail with user permission', function (done) {
+		it('should fail with user permission', function (next) {
 			_request.get({
 				url: urlBase + '/api/test/assert-role-admin'
 			}, function (err, res, body) {
 				res.should.status(400);
 				body.error.should.equal(ERR_NOT_AUTHORIZED);
-				done(err);
+				next(err);
 			});
 		});
-		it('should success to login as admin', function (done) {
-			_request.post({ url: urlBase + '/api/auth/login', body: { password: '3' } }, done);
+		it('should success to login as admin', function (next) {
+			_request.post({ url: urlBase + '/api/auth/login', body: { password: '3' } }, next);
 		});
-		it('should success with admin permission', function (done) {
+		it('should success with admin permission', function (next) {
 			_request.get({
 				url: urlBase + '/api/test/assert-role-admin'
 			}, function (err, res, body) {
 				res.should.status(200);
-				done(err);
+				next(err);
 			});
 		});
 	});
@@ -223,19 +222,19 @@ describe('auth', function () {
 describe("category", function () {
 	describe("user category", function () {
 		var cl;
-		before(function (done) {
+		before(function (next) {
 			_request.post({
 				url: urlBase + '/api/auth/login',
 				body: {password: '1'}
-			}, done);
+			}, next);
 		});
-		before(function (done) {
+		before(function (next) {
 			_request.get({
 				url: urlBase + '/api/category'
 			}, function (err, res, body) {
 				res.should.status(200);
 				cl = body;
-				done(err);
+				next(err);
 			});
 		});
 		it("should ok", function () {
@@ -255,19 +254,19 @@ describe("category", function () {
 	});
 	describe("admin category", function () {
 		var cl;
-		before(function (done) {
+		before(function (next) {
 			_request.post({
 				url: urlBase + '/api/auth/login',
 				body: {password: '3'}
-			}, done);
+			}, next);
 		});
-		before(function (done) {
+		before(function (next) {
 			_request.get({
 				url: urlBase + '/api/category'
 			}, function (err, res, body) {
 				res.should.status(200);
 				cl = body;
-				done(err);
+				next(err);
 			});
 		});
 		it("should ok", function () {

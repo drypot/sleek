@@ -18,9 +18,9 @@ exports.addAfterInit = function (func) {
 	afterList.push(func);
 }
 
-exports.runInit = function (callback) {
+exports.runInit = function (next) {
 	var all = beforeList.concat(initList, afterList);
-	_async.series(all, callback);
+	_async.series(all, next);
 }
 
 exports.method = function (con, methodName, func) {

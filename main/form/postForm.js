@@ -70,20 +70,20 @@ form.updateThread = function (thread) {
 
 form.updatePost = function (role, post) {
 	_async.series({
-//		delFiles: function (done) {
-//			done()
+//		delFiles: function (next) {
+//			next()
 //		},
-//		saveFiles: functino (done) {
+//		saveFiles: functino (next) {
 //
 //		},
-		updatePost: function (done) {
+		updatePost: function (next) {
 			post.userName = this.userName;
 			post.text = this.text;
 			if (role.categoryList[this.categoryId].editable) {
 				post.visible = this.visible;
 			}
 			post.update();
-			done();
+			next();
 		}
 
 		//	searchService.updatePost(thread, post);

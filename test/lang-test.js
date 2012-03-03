@@ -3,14 +3,14 @@ var _should = require('should');
 
 var _lang = require('../main/lang');
 
-_lang.addInit(function (callback) {
+_lang.addInit(function (next) {
 	console.log('first init');
-	callback();
+	next();
 });
 
-_lang.addInit(function (callback) {
+_lang.addInit(function (next) {
 	console.log('second init');
-	callback();
+	next();
 });
 
 before(function () {

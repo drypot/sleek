@@ -7,13 +7,13 @@ var _db = require('../db');
 var col;
 var idSeed;
 
-_lang.addInit(function (callback) {
+_lang.addInit(function (next) {
 	col = exports.col = _db.db.collection("post");
 	col.ensureIndex({threadId: 1, cdate: 1});
 	col.find({}, {_id: 1}).sort({_id: -1}).limit(1).next(function (err, obj) {
 		idSeed = obj ? obj._id : 0;
 		console.info('post id seed: ' + idSeed);
-		callback(err);
+		next(err);
 	});
 });
 
@@ -34,12 +34,12 @@ _lang.method(post, 'setNewId', function () {
 	this._id = ++idSeed;
 });
 
-_lang.method(post, 'insert', function (callback) {
-	col.insert(this, callback);
+_lang.method(post, 'insert', function (next) {
+	col.insert(this, next);
 });
 
-_lang.method(post, 'update', function (callback) {
-	col.save(this, callback);
+_lang.method(post, 'update', function (next) {
+	col.save(this, next);
 });
 
 _lang.method(post, 'addFileName', function (name) {
@@ -74,15 +74,15 @@ var setProto = exports.setProto = function (obj) {
 	obj.__proto__ = post;
 }
 
-exports.findById = function (id, callback) {
+exports.findById = function (id, next) {
 	return col.findOne({_id: id}, function (err, obj) {
-		if (err) callback(err, obj);
+		if (err) next(err, obj);
 		setProto(obj);
-		callback(err, obj);
+		next(err, obj);
 	});
 }
 
-exports.findList = function (threadId, callback) {
-	col.find({threadId: threadId}).sort({cdate: 1}).toArrayWithProto(post, callback);
+exports.findList = function (threadId, next) {
+	col.find({threadId: threadId}).sort({cdate: 1}).toArrayWithProto(post, next);
 }
 
