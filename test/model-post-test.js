@@ -4,12 +4,14 @@ var _lang = require('../main/lang');
 var _db = require('../main/db');
 var _post = require('../main/model/post');
 
-_db.initParam = { mongoDbName: "sleek-test", dropDatabase: true };
-
 var now = new Date();
 var col;
 
 before(function (done) {
+	_lang.addBeforeInit(function (callback) {
+		_db.initParam = { mongoDbName: "sleek-test", dropDatabase: true };
+		callback();
+	});
 	_lang.runInit(done);
 })
 

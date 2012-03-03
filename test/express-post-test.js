@@ -8,10 +8,12 @@ var _config = require("../main/config");
 var _db = require('../main/db');
 var _express = require("../main/express");
 
-_config.initParam = { configPath: "config-dev/config-dev.xml" }
-_db.initParam = { mongoDbName: "sleek-test", dropDatabase: true };
-
 before(function (done) {
+	_lang.addBeforeInit(function (callback) {
+		_config.initParam = { configPath: "config-dev/config-dev.xml" }
+		_db.initParam = { mongoDbName: "sleek-test", dropDatabase: true };
+		callback();
+	});
 	_lang.runInit(done);
 });
 
@@ -173,13 +175,23 @@ describe("insert-thread", function () {
 	it('should success to login as user', function (done) {
 		_request.post({ url: urlBase + '/api/auth/login', body: { password: '1' } }, done);
 	});
-	it("should fail with invalid title", function (done) {
+	it("should success", function (done) {
 		_request.post({
 			url: urlBase + '/api/insert-thread',
-			body: { categoryId: 101, userName: 'snowman', title: ' ', text: 'text 1' }
+			body: { categoryId: 101, userName: 'snowman', title: 'title 1', text: 'text 1' }
 		}, function (err, res, body) {
 			res.should.status(200);
-			body.error.should.equal(ERR_INVALID_DATA);
+			body.should.have.property('threadId');
+			done(err);
+		});
+	});
+	it("should fail with invalid categoryId", function (done) {
+		_request.post({
+			url: urlBase + '/api/insert-thread',
+			body: { categoryId: 10100, userName: 'snowman', title: 'title 1', text: 'text 1' }
+		}, function (err, res, body) {
+			res.should.status(200);
+			body.should.have.property('threadId');
 			done(err);
 		});
 	});

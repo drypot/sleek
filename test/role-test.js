@@ -5,9 +5,11 @@ var _lang = require('../main/lang');
 var _config = require("../main/config");
 var _role = require('../main/role');
 
-_config.initParam = { configPath: "config-dev/config-dev.xml" }
-
 before(function (done) {
+	_lang.addBeforeInit(function (callback) {
+		_config.initParam = { configPath: "config-dev/config-dev.xml" }
+		callback();
+	});
 	_lang.runInit(done);
 });
 

@@ -8,10 +8,12 @@ var _config = require("../main/config");
 var _db = require('../main/db');
 var _express = require("../main/express");
 
-_config.initParam = { configPath: "config-dev/config-dev.xml" }
-_db.initParam = { mongoDbName: "sleek-test", dropDatabase: true };
-
 before(function (done) {
+	_lang.addBeforeInit(function (callback) {
+		_config.initParam = { configPath: "config-dev/config-dev.xml" }
+		_db.initParam = { mongoDbName: "sleek-test", dropDatabase: true };
+		callback();
+	});
 	_lang.runInit(done);
 });
 

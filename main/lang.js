@@ -2,14 +2,25 @@ var _ = require('underscore');
 var _should = require('should');
 var _async = require("async");
 
-var initFuncList = [];
+var initList = [];
+var beforeList = [];
+var afterList = [];
 
 exports.addInit = function (func) {
-	initFuncList.push(func);
+	initList.push(func);
+}
+
+exports.addBeforeInit = function (func) {
+	beforeList.push(func);
+}
+
+exports.addAfterInit = function (func) {
+	afterList.push(func);
 }
 
 exports.runInit = function (callback) {
-	_async.series(initFuncList, callback);
+	var all = beforeList.concat(initList, afterList);
+	_async.series(all, callback);
 }
 
 exports.method = function (con, methodName, func) {
