@@ -24,7 +24,6 @@ _lang.addInit(function (callback) {
 		ex.use(_express.cookieParser('jfkldassev'));
 		ex.use(_express.session({store: new _redisStore()}));
 		ex.use(_express.bodyParser());
-		ex.use(prepareSessionRole);
 		ex.use(ex.router);
 	});
 
@@ -36,22 +35,10 @@ _lang.addInit(function (callback) {
 		ex.use(_express.errorHandler());
 	});
 
-	// middleware
-
-	// 할일: params 대신에 무슨 변수 쓸지 고민
-
-	function prepareSessionRole(req, res, next) {
-		var roleName = req.session.roleName;
-		if (roleName) {
-			req.params.role = _role.getByName(roleName);
-		}
-		next();
-	}
-
 	// pipe
 
 	function assertLoggedIn(req, res, next) {
-		if (!req.params.role) {
+		if (!req.session.roleName) {
 			return res.json(400, { error: ERR_LOGIN_FIRST });
 		}
 		next();
@@ -59,7 +46,7 @@ _lang.addInit(function (callback) {
 
 	function assertRole(roleName) {
 		return function(req, res, next) {
-			if (req.params.role.name !== roleName) {
+			if (req.session.roleName !== roleName) {
 				return res.json(400, { error: ERR_NOT_AUTHORIZED });
 			}
 			next();
@@ -92,7 +79,7 @@ _lang.addInit(function (callback) {
 	// post
 
 	ex.post('/api/insert-thread', assertLoggedIn, parseQuery, function (req, res, next) {
-		var role = req.params.role;
+		var role = _role.getByName(req.session.roleName);
 		var form = _postForm.make(req.query.threadId, req.query.postId, req.body, req.files);
 		var errors = [];
 
@@ -112,7 +99,7 @@ _lang.addInit(function (callback) {
 	});
 
 	ex.post('/api/insert-reply', assertLoggedIn, parseQuery, prepareThread, function (req, res) {
-		var role = req.params.role;
+		var role = _role.getByName(req.session.roleName);
 		var form = _postForm.make(req.query.threadId, req.query.postId, req.body, req.files);
 		var errors = [];
 
@@ -131,7 +118,7 @@ _lang.addInit(function (callback) {
 	});
 
 	ex.get('/api/find-thread-list', assertLoggedIn, parseQuery, function (req, res) {
-		var role = req.params.role;
+		var role = _role.getByName(req.session.roleName);
 		if (!role.getCategory(req.query.categoryId).readable) {
 			return res.json(400, { error: ERR_NOT_AUTHORIZED });
 		}
@@ -142,7 +129,7 @@ _lang.addInit(function (callback) {
 
 
 	ex.get('/api/find-thread', assertLoggedIn, parseQuery, function (req, res) {
-		var role = req.params.role;
+		var role = _role.getByName(req.session.roleName);
 		if (!role.getCategory(req.query.categoryId).readable) {
 			return res.json(400, { error: ERR_NOT_AUTHORIZED });
 		}
@@ -152,7 +139,7 @@ _lang.addInit(function (callback) {
 	});
 
 	ex.get('/api/find-post', assertLoggedIn, parseQuery, function (req, res) {
-		var role = req.params.role;
+		var role = _role.getByName(req.session.roleName); ;
 		if (!role.getCategory(req.query.categoryId).readable) {
 			return res.json(400, { error: ERR_NOT_AUTHORIZED });
 		}
@@ -161,7 +148,7 @@ _lang.addInit(function (callback) {
 	});
 
 	ex.put('/api/update-post', assertLoggedIn, parseQuery, prepareThread, preparePost, function (req, res) {
-		var role = req.params.role;
+		var role = _role.getByName(req.session.roleName); ;
 		var form = _postForm.make(req.query.threadId, req.query.postId, req.body, req.files);
 		var thread = req.params.thread;
 		var post = req.params.post;
@@ -201,7 +188,7 @@ _lang.addInit(function (callback) {
 		if (!_auth.loginByPassword(req, req.body.password)) {
 			return res.json(400, { error: ERR_LOGIN_FAILED });
 		}
-		res.json({ role: { name: req.params.role.name } });
+		res.json({ role: { name: req.session.roleName } });
 	});
 
 	ex.post('/api/auth/logout', function (req, res) {
@@ -212,7 +199,8 @@ _lang.addInit(function (callback) {
 	// category
 
 	ex.get('/api/category', assertLoggedIn, function (req, res) {
-		res.json(req.params.role.categoryList);
+		var role = _role.getByName(req.session.roleName);
+		res.json(role.categoryList);
 	});
 
 	// admin
