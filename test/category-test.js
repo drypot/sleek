@@ -35,26 +35,14 @@ describe('category', function () {
 	});
 });
 
-describe('dummy category', function () {
+describe('non existing category', function () {
 	var d;
 	before(function () {
-		d = _role.roleList['user'].getCategory(-999);
+		d = _role.roleList['user'].categoryList[-999];
 	});
 	it('should be ok', function () {
-		d.should.ok;
+		_should.equal(d, undefined);
 	});
-	it('should have no name', function () {
-		d.name.should.not.ok;
-	});
-	it('is not readable', function () {
-		d.readable.should.not.ok;
-	})
-	it('is not writable', function () {
-		d.writable.should.not.ok;
-	})
-	it('is not editable', function () {
-		d.editable.should.not.ok;
-	})
 });
 
 describe('category of user', function () {
@@ -65,7 +53,7 @@ describe('category of user', function () {
 	describe('all', function () {
 		var c;
 		before(function () {
-			c = role.getCategory(0);
+			c = role.categoryList[0];
 		});
 		it('should be ok', function () {
 			c.should.ok;
@@ -89,7 +77,7 @@ describe('category of user', function () {
 	describe('freetalk', function () {
 		var c;
 		before(function () {
-			c = role.getCategory(100);
+			c = role.categoryList[100];
 		});
 		it('should be ok', function () {
 			c.should.ok;
@@ -113,13 +101,10 @@ describe('category of user', function () {
 	describe('cheat', function () {
 		var c;
 		before(function () {
-			c = role.getCategory(60);
+			c = role.categoryList[60];
 		});
 		it('should be ok', function () {
-			c.should.ok;
-		});
-		it('should be dummy', function () {
-			c.name.should.not.ok;
+			_should.equal(undefined, c);
 		});
 	});
 });
@@ -132,7 +117,7 @@ describe('category of admin', function () {
 	describe('all', function () {
 		var c;
 		before(function () {
-			c = role.getCategory(0);
+			c = role.categoryList[0];
 		});
 		it('should be ok', function () {
 			c.should.ok;
@@ -156,7 +141,7 @@ describe('category of admin', function () {
 	describe('freetalk', function () {
 		var c;
 		before(function () {
-			c = role.getCategory(100);
+			c = role.categoryList[100];
 		});
 		it('should be ok', function () {
 			c.should.ok;
@@ -180,7 +165,7 @@ describe('category of admin', function () {
 	describe('cheat', function () {
 		var c;
 		before(function () {
-			c = role.getCategory(60);
+			c = role.categoryList[60];
 		});
 		it('should be ok', function () {
 			c.should.ok;

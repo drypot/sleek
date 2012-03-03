@@ -16,10 +16,6 @@ _lang.addInit(function (callback) {
 	callback();
 });
 
-// role 의 init 등록 이후에 category 의 init 가 등록되어야 한다.
-
-var _category = require('./category');
-
 // Role.*
 
 exports.make = function (obj) {
@@ -37,11 +33,6 @@ var role = Role.prototype;
 role.checkPassword = function (password) {
 	return _bcrypt.compareSync(password, this.hash);
 };
-
-
-role.getCategory = function (categoryId) {
-	return this.categoryList[categoryId] || _category.dummyCategory;
-}
 
 // _role.*
 

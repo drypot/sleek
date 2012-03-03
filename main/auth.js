@@ -9,8 +9,9 @@ exports.loginByPassword = function (req, password) {
 	if (!role) {
 		return false;
 	}
-	req.session.role = role;
+	req.session.roleName = role.name;
 	req.session.postList = [];
+	req.params.role = role;
 	if (req.cookies.lv3) {
 		res.clearCookie('lv3');
 		res.clearCookie('lv');

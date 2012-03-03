@@ -33,5 +33,3 @@ var Category = exports.Category = function (obj, roleName) {
 	this.writable = (obj.write || '').split(' ').indexOf(roleName) >= 0;
 	this.editable = (obj.edit || '').split(' ').indexOf(roleName) >= 0;
 }
-
-var dummyCategory = exports.dummyCategory = new Category({id: -10, name: ''});

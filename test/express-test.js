@@ -15,6 +15,11 @@ before(function (done) {
 	_lang.runInit(done);
 });
 
+var ERR_LOGIN_FIRST = 'login first';
+var ERR_LOGIN_FAILED = 'login failed';
+var ERR_NOT_AUTHORIZED = 'not authorized';
+var ERR_INVALID_DATA = 'invalid data';
+
 var urlBase;
 
 before(function () {
@@ -84,7 +89,7 @@ describe('auth', function () {
 				body: {password: 'xxx'}
 			}, function (err, res, body) {
 				res.should.status(400);
-				body.error.should.equal('login failed');
+				body.error.should.equal(ERR_LOGIN_FAILED);
 				done(err);
 			});
 		});
@@ -108,7 +113,7 @@ describe('auth', function () {
 				url: urlBase + '/api/test/assert-role-any'
 			}, function (err, res, body) {
 				res.should.status(400);
-				body.error.should.equal('login first');
+				body.error.should.equal(ERR_LOGIN_FIRST);
 				done(err);
 			});
 		});
@@ -143,7 +148,7 @@ describe('auth', function () {
 				url: urlBase + '/api/test/assert-role-any'
 			}, function (err, res, body) {
 				res.should.status(400);
-				body.error.should.equal('login first');
+				body.error.should.equal(ERR_LOGIN_FIRST);
 				done(err);
 			});
 		});
@@ -157,7 +162,7 @@ describe('auth', function () {
 				url: urlBase + '/api/test/assert-role-user'
 			}, function (err, res, body) {
 				res.should.status(400);
-				body.error.should.equal('login first');
+				body.error.should.equal(ERR_LOGIN_FIRST);
 				done(err);
 			});
 		});
@@ -183,7 +188,7 @@ describe('auth', function () {
 				url: urlBase + '/api/test/assert-role-admin'
 			}, function (err, res, body) {
 				res.should.status(400);
-				body.error.should.equal('login first');
+				body.error.should.equal(ERR_LOGIN_FIRST);
 				done(err);
 			});
 		});
@@ -195,7 +200,7 @@ describe('auth', function () {
 				url: urlBase + '/api/test/assert-role-admin'
 			}, function (err, res, body) {
 				res.should.status(400);
-				body.error.should.equal('not authorized');
+				body.error.should.equal(ERR_NOT_AUTHORIZED);
 				done(err);
 			});
 		});

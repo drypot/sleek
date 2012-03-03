@@ -15,6 +15,11 @@ before(function (done) {
 	_lang.runInit(done);
 });
 
+var ERR_LOGIN_FIRST = 'login first';
+var ERR_LOGIN_FAILED = 'login failed';
+var ERR_NOT_AUTHORIZED = 'not authorized';
+var ERR_INVALID_DATA = 'invalid data';
+
 var urlBase;
 
 before(function () {
@@ -51,7 +56,7 @@ describe("parseQuery", function () {
 
 
 describe("parsePostForm", function () {
-	it("it can parse form", function (done) {
+	it("can parse form", function (done) {
 		_request.post({
 			url: urlBase + '/api/test/parse-post-form',
 			qs: {
@@ -78,7 +83,6 @@ describe("parsePostForm", function () {
 		});
 	});
 });
-
 
 describe("thread validation", function () {
 	it("should success", function (done) {
@@ -152,14 +156,37 @@ describe("post validation", function () {
 	});
 });
 
-
 describe("insert-thread", function () {
-
-	it("should fail when not logged in", function () {
+	before(function (done) {
+		_request.post({ url: urlBase + '/api/auth/logout' }, done);
 	});
+	it("should fail when not logged in", function (done) {
+		_request.post({
+			url: urlBase + '/api/insert-thread',
+			body: { categoryId: 101, userName: 'snowman', title: 'title 1', text: 'text 1' }
+		}, function (err, res, body) {
+			res.should.status(400);
+			body.error.should.equal(ERR_LOGIN_FIRST);
+			done(err);
+		});
+	});
+	it('should success to login as user', function (done) {
+		_request.post({ url: urlBase + '/api/auth/login', body: { password: '1' } }, done);
+	});
+	it("should fail with invalid title", function (done) {
+		_request.post({
+			url: urlBase + '/api/insert-thread',
+			body: { categoryId: 101, userName: 'snowman', title: ' ', text: 'text 1' }
+		}, function (err, res, body) {
+			res.should.status(200);
+			body.error.should.equal(ERR_INVALID_DATA);
+			done(err);
+		});
+	});
+
 });
 
-describe("thread", function () {
+xdescribe("thread", function () {
 	var samples = [
 		{ categoryId: 101, userName: 'snowman', title: 'title 1', text: 'text 1' },
 		{ categoryId: 101, userName: 'snowman', title: 'title 2', text: 'text 2' },
