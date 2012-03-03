@@ -190,12 +190,88 @@ describe("insert-thread", function () {
 			url: urlBase + '/api/insert-thread',
 			body: { categoryId: 10100, userName: 'snowman', title: 'title 1', text: 'text 1' }
 		}, function (err, res, body) {
+			res.should.status(500);
+			next(err);
+		});
+	});
+	it("should fail with invalid title", function (next) {
+		_request.post({
+			url: urlBase + '/api/insert-thread',
+			body: { categoryId: 101, userName: 'snowman', title: ' ', text: 'text 1' }
+		}, function (err, res, body) {
+			res.should.status(400);
+			body.error.should.equal(ERR_INVALID_DATA);
+			next(err);
+		});
+	});
+	it("should fail with invalid userName", function (next) {
+		_request.post({
+			url: urlBase + '/api/insert-thread',
+			body: { categoryId: 101, userName: ' ', title: 'title 1', text: 'text 1' }
+		}, function (err, res, body) {
+			res.should.status(400);
+			body.error.should.equal(ERR_INVALID_DATA);
+			next(err);
+		});
+	});
+});
+
+describe("insert-reply", function () {
+	before(function (next) {
+		_request.post({ url: urlBase + '/api/auth/logout' }, next);
+	});
+	it("should fail when not logged in", function (next) {
+		_request.post({
+			url: urlBase + '/api/insert-thread',
+			body: { categoryId: 101, userName: 'snowman', title: 'title 1', text: 'text 1' }
+		}, function (err, res, body) {
+			res.should.status(400);
+			body.error.should.equal(ERR_LOGIN_FIRST);
+			next(err);
+		});
+	});
+	xit('should success to login as user', function (next) {
+		_request.post({ url: urlBase + '/api/auth/login', body: { password: '1' } }, next);
+	});
+	xit("should success", function (next) {
+		_request.post({
+			url: urlBase + '/api/insert-thread',
+			body: { categoryId: 101, userName: 'snowman', title: 'title 1', text: 'text 1' }
+		}, function (err, res, body) {
 			res.should.status(200);
 			body.should.have.property('threadId');
 			next(err);
 		});
 	});
-
+	xit("should fail with invalid categoryId", function (next) {
+		_request.post({
+			url: urlBase + '/api/insert-thread',
+			body: { categoryId: 10100, userName: 'snowman', title: 'title 1', text: 'text 1' }
+		}, function (err, res, body) {
+			res.should.status(500);
+			next(err);
+		});
+	});
+	xit("should fail with invalid title", function (next) {
+		_request.post({
+			url: urlBase + '/api/insert-thread',
+			body: { categoryId: 101, userName: 'snowman', title: ' ', text: 'text 1' }
+		}, function (err, res, body) {
+			res.should.status(400);
+			body.error.should.equal(ERR_INVALID_DATA);
+			next(err);
+		});
+	});
+	xit("should fail with invalid userName", function (next) {
+		_request.post({
+			url: urlBase + '/api/insert-thread',
+			body: { categoryId: 101, userName: ' ', title: 'title 1', text: 'text 1' }
+		}, function (err, res, body) {
+			res.should.status(400);
+			body.error.should.equal(ERR_INVALID_DATA);
+			next(err);
+		});
+	});
 });
 
 xdescribe("thread", function () {
