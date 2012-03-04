@@ -54,6 +54,9 @@ _lang.addInit(function (next) {
 	}
 
 	function parseParams(req, res, next) {
+		if (!req.body) {
+			req.body = {};
+		}
 		req.body.categoryId = parseInt(req.body.categoryId || 0);
 		req.body.threadId = parseInt(req.body.threadId || 0);
 		req.body.postId = parseInt(req.body.postId || 0);
@@ -64,7 +67,7 @@ _lang.addInit(function (next) {
 
 	ex.post('/api/insert-thread', assertLoggedIn, parseParams, function (req, res, next) {
 		var role = _role.getByName(req.session.roleName);
-		var form = _postForm.make(req.body.threadId, req.body.postId, req.body, req.files);
+		var form = _postForm.make(req);
 		var errors = [];
 
 		if (!role.categoryList[form.categoryId].writable) {
@@ -95,7 +98,7 @@ _lang.addInit(function (next) {
 
 	ex.post('/api/insert-reply', assertLoggedIn, parseParams, prepareThread, function (req, res) {
 		var role = _role.getByName(req.session.roleName);
-		var form = _postForm.make(req.body.threadId, req.body.postId, req.body, req.files);
+		var form = _postForm.make(req);
 		var errors = [];
 
 		_async.waterfall([
@@ -154,7 +157,7 @@ _lang.addInit(function (next) {
 
 	ex.put('/api/update-post', assertLoggedIn, parseParams, prepareThread, preparePost, function (req, res) {
 		var role = _role.getByName(req.session.roleName); ;
-		var form = _postForm.make(req.body.threadId, req.body.postId, req.body, req.files);
+		var form = _postForm.make(req);
 		var thread = req.params.thread;
 		var post = req.params.post;
 		var hasTitle = thread.cdate === post.cdate;
@@ -250,29 +253,10 @@ _lang.addInit(function (next) {
 		res.json('ok');
 	});
 
-	// parser
+	// parseParams
 
-	ex.post('/api/test/parse-query', parseParams, function (req, res) {
+	ex.post('/api/test/parse-params', parseParams, function (req, res) {
 		res.json(req.body);
-	});
-
-	ex.post('/api/test/parse-post-form', parseParams, function (req, res) {
-		var form = _postForm.make(req.body.threadId, req.body.postId, req.body, req.files);
-		res.json(form);
-	});
-
-	ex.post('/api/test/validate-post-form-thread', parseParams, function (req, res) {
-		var form = _postForm.make(req.body.threadId, req.body.postId, req.body, req.files);
-		var errors = [];
-		form.validateThread(errors);
-		res.json(200, { errors: errors });
-	});
-
-	ex.post('/api/test/validate-post-form-post', parseParams, function (req, res) {
-		var form = _postForm.make(req.body.threadId, req.body.postId, req.body, req.files);
-		var errors = [];
-		form.validatePost(errors);
-		res.json(200, { errors: errors });
 	});
 
 	// start listening

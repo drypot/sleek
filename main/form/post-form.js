@@ -5,11 +5,11 @@ var _lang = require('./../lang');
 var _thread = require("./../model/thread");
 var _post = require("./../model/post");
 
-exports.make = function (threadId, postId, body, files) {
-	return new PostForm(threadId, postId, body, files);
+exports.make = function (req) {
+	return new PostForm(req);
 }
 
-var PostForm = function (threadId, postId, body, files) {
+var PostForm = function (req) {
 	this.now = new Date();
 	this.threadId = threadId;
 	this.postId = postId;

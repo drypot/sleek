@@ -3,21 +3,29 @@ var _should = require('should');
 
 var _lang = require('../main/lang');
 
-_lang.addInit(function (next) {
-	console.log('first init');
-	next();
-});
-
-_lang.addInit(function (next) {
-	console.log('second init');
-	next();
-});
-
-before(function () {
-	_lang.runInit(function () {
-		console.log('after init');
+describe('initList', function () {
+	var a = [];
+	before(function () {
+		_lang.addInit(function (next) {
+			a.push(2);
+			next();
+		});
+		_lang.addAfterInit(function (next) {
+			a.push(3);
+			next();
+		});
+		_lang.addBeforeInit(function (next) {
+			a.push(1);
+			next();
+		});
+		_lang.runInit();
 	});
-});
+	it('should have 1, 2, 3', function () {
+		a[0].should.equal(1);
+		a[1].should.equal(2);
+		a[2].should.equal(3);
+	})
+})
 
 describe('merge', function () {
 	var src = {
@@ -33,4 +41,34 @@ describe('merge', function () {
 		tar.f2.should.equal(2);
 		_should.equal(undefined, tar.f3);
 	})
-})
+});
+
+describe('p', function () {
+	it('should return value', function () {
+		_lang.p({x: 'def'}, 'x', 'abc').should.equal('def');
+	});
+	it('should return default for non existing property', function () {
+		_lang.p({y: 'def'}, 'x', 'abc').should.equal('abc');
+	});
+	it('should return default for null obj', function () {
+		_lang.p(null, 'x', 'abc').should.equal('abc');
+	});
+});
+
+describe('intp', function () {
+	it('should return value', function () {
+		_lang.intp({x: '10'}, 'x', 30).should.equal(10);
+	});
+	it('should return value', function () {
+		_lang.intp({x: 10}, 'x', 30).should.equal(10);
+	});
+	it('should return default for NaN', function () {
+		_lang.intp({x: 'def'}, 'x', 30).should.equal(30);
+	});
+	it('should return default for non existing property', function () {
+		_lang.intp({y: '10'}, 'x', 30).should.equal(30);
+	});
+	it('should return default for null obj', function () {
+		_lang.intp(null, 'x', 30).should.equal(30);
+	});
+});

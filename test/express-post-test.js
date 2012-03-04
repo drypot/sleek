@@ -36,11 +36,9 @@ function post(url, body, next) {
 	_request.post({ url: urlBase + url, body: body }, next);
 }
 
-// express-post-test 재구현 todo
-
-describe("parseQuery", function () {
+describe("parseParams", function () {
 	it("can parse params", function (next) {
-		post('/api/test/parse-query', {categoryId: 10, threadId: 20, postId: 30}, function (err, res, body) {
+		post('/api/test/parse-params', {categoryId: 10, threadId: 20, postId: 30}, function (err, res, body) {
 			res.should.status(200);
 			body.categoryId.should.equal(10);
 			body.threadId.should.equal(20);
@@ -49,7 +47,7 @@ describe("parseQuery", function () {
 		});
 	});
 	it("can supply defaults", function (next) {
-		post('/api/test/parse-query', function (err, res, body) {
+		post('/api/test/parse-params', function (err, res, body) {
 			res.should.status(200);
 			body.categoryId.should.equal(0);
 			body.threadId.should.equal(0);
@@ -60,106 +58,6 @@ describe("parseQuery", function () {
 });
 
 
-xdescribe("parsePostForm", function () {
-	it("can parse form", function (next) {
-		_request.post({
-			url: urlBase + '/api/test/parse-post-form',
-			qs: {
-				categoryId: 10, threadId: 20, postId: 30
-			},
-			body: {
-				categoryId: 100, userName: ' snow man ',
-				title: ' cool thread ', text: ' cool text ',
-				visible: true,
-				delFiles: ['file1', 'file2']
-			}
-		}, function (err, res, body) {
-			res.should.status(200);
-			body.now.should.ok;
-			body.threadId.should.equal(20);
-			body.postId.should.equal(30);
-			body.categoryId.should.equal(100);
-			body.userName.should.equal('snow man');
-			body.title.should.equal('cool thread');
-			body.text.should.equal('cool text');
-			body.visible.should.equal(true);
-			body.delFiles.should.eql(['file1', 'file2']);
-			next(err);
-		});
-	});
-});
-
-xdescribe("thread validation", function () {
-	it("should success", function (next) {
-		_request.post({
-			url: urlBase + '/api/test/validate-post-form-thread',
-			body: { title: ' cool thread ' }
-		}, function (err, res, body) {
-			res.should.status(200);
-			body.errors.should.ok;
-			body.errors.should.length(0);
-			next(err);
-		});
-	});
-	it("should fail with empty title", function (next) {
-		_request.post({
-			url: urlBase + '/api/test/validate-post-form-thread',
-			body: { title: '  ' }
-		}, function (err, res, body) {
-			res.should.status(200);
-			body.errors.should.ok;
-			body.errors.should.length(1);
-			next(err);
-		});
-	});
-	it("should fail with big title", function (next) {
-		_request.post({
-			url: urlBase + '/api/test/validate-post-form-thread',
-			body: { title: ' big title title title title title title title title title title title title title title title title title title title title title title title title title title title title ' }
-		}, function (err, res, body) {
-			res.should.status(200);
-			body.errors.should.ok;
-			body.errors.should.length(1);
-			next(err);
-		});
-	});
-});
-
-xdescribe("post validation", function () {
-	it("should success", function (next) {
-		_request.post({
-			url: urlBase + '/api/test/validate-post-form-post',
-			body: { userName: ' snow man ' }
-		}, function (err, res, body) {
-			res.should.status(200);
-			body.errors.should.ok;
-			body.errors.should.length(0);
-			next(err);
-		});
-	});
-	it("should fail with empty userName", function (next) {
-		_request.post({
-			url: urlBase + '/api/test/validate-post-form-post',
-			body: { userName: ' ' }
-		}, function (err, res, body) {
-			res.should.status(200);
-			body.errors.should.ok;
-			body.errors.should.length(1);
-			next(err);
-		});
-	});
-	it("should fail with big userName", function (next) {
-		_request.post({
-			url: urlBase + '/api/test/validate-post-form-post',
-			body: { userName: '123456789012345678901234567890123' }
-		}, function (err, res, body) {
-			res.should.status(200);
-			body.errors.should.ok;
-			body.errors.should.length(1);
-			next(err);
-		});
-	});
-});
 
 xdescribe("insert-thread", function () {
 	before(function (next) {

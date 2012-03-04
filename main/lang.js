@@ -38,7 +38,6 @@ exports.merge = function (tar, src, props) {
 	return tar;
 }
 
-
 _should.Assertion.prototype.sameProto = function (_class, desc) {
 	this.assert(
 		_class.__proto__ === this.obj.__proto__
@@ -46,4 +45,18 @@ _should.Assertion.prototype.sameProto = function (_class, desc) {
 		, 'expected prototype to no equal ' + (desc ? " | " + desc : "")
 	);
 	return this;
+}
+
+exports.p = function (obj, prop, def) {
+	if (!obj) return def;
+	if (!_.has(obj, prop)) return def;
+	return obj[prop];
+}
+
+exports.intp = function (obj, prop, def) {
+	if (!obj) return def;
+	if (!_.has(obj, prop)) return def;
+	var i = parseInt(obj[prop]);
+	if (isNaN(i)) return def;
+	return i;
 }
