@@ -60,3 +60,16 @@ exports.intp = function (obj, prop, def) {
 	if (isNaN(i)) return def;
 	return i;
 }
+
+exports.strp = function (obj, prop, def) {
+	if (!obj) return def;
+	if (!_.has(obj, prop)) return def;
+	return String(obj[prop]).trim();
+}
+
+exports.boolp = function (obj, prop, def) {
+	if (!obj) return def;
+	if (!_.has(obj, prop)) return def;
+	var v = obj[prop];
+	return v === true || v === 'true';
+}

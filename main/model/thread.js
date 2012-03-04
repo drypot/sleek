@@ -58,6 +58,10 @@ _lang.method(thread, 'updateHit', function (next) {
 	col.update({_id: this._id}, {$inc: {hit: 1}}, next);
 });
 
+_lang.method(thread, 'updateLength', function (now, next) {
+	col.update({_id: this.threadId}, {$inc: {length: 1}, $set: {udate: now}}, next);
+});
+
 // _thread.*
 
 exports.findById = function (id, next) {
@@ -68,9 +72,6 @@ exports.findById = function (id, next) {
 	});
 }
 
-exports.updateLength = function (threadId, now, next) {
-	col.update({_id: threadId}, {$inc: {length: 1}, $set: {udate: now}}, next);
-}
 
 //exports.getCount = function (next) {
 //	col.count(next);

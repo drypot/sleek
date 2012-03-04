@@ -72,3 +72,52 @@ describe('intp', function () {
 		_lang.intp(null, 'x', 30).should.equal(30);
 	});
 });
+
+describe('strp', function () {
+	it('should return value', function () {
+		_lang.strp({x: 'def'}, 'x', 'abc').should.equal('def');
+	});
+	it('should return value casted as string', function () {
+		_lang.strp({x: 10}, 'x', 'abc').should.equal('10');
+	});
+	it('should return trimed value', function () {
+		_lang.strp({x: ' def '}, 'x', 'abc').should.equal('def');
+	});
+	it('should return default for non existing property', function () {
+		_lang.strp({y: 'def'}, 'x', 'abc').should.equal('abc');
+	});
+	it('should return default for null obj', function () {
+		_lang.strp(null, 'x', 'abc').should.equal('abc');
+	});
+});
+
+describe('boolp', function () {
+	it('should return value', function () {
+		_lang.boolp({x: 'true'}, 'x', true).should.equal(true);
+	});
+	it('should return value', function () {
+		_lang.boolp({x: true}, 'x', true).should.equal(true);
+	});
+	it('should return value', function () {
+		_lang.boolp({x: 'false'}, 'x', true).should.equal(false);
+	});
+	it('should return value', function () {
+		_lang.boolp({x: false}, 'x', true).should.equal(false);
+	});
+	it('should return default for non existing property', function () {
+		_lang.boolp({y: true}, 'x', true).should.equal(true);
+	});
+	it('should return default for non existing property', function () {
+		_lang.boolp({y: true}, 'x', false).should.equal(false);
+	});
+	it('should return default for non existing property', function () {
+		_lang.boolp({y: false}, 'x', true).should.equal(true);
+	});
+	it('should return default for null obj', function () {
+		_lang.boolp(null, 'x', true).should.equal(true);
+	});
+	it('should return default for null obj', function () {
+		_lang.boolp(null, 'x', false).should.equal(false);
+	});
+});
+
