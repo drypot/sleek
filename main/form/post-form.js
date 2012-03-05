@@ -1,5 +1,6 @@
 var _ = require('underscore');
 var _should = require('should');
+var _async = require('async');
 
 var _lang = require('../lang');
 var _thread = require('../model/thread');
@@ -65,9 +66,10 @@ form.findThread = function (next) {
 }
 
 form.findThreadAndPost = function (next) {
+	var that = this;
 	_thread.findById(this.threadId, function (err, thread) {
 		if (err) throw err;
-		_post.findById(this.postId, function (err, post) {
+		_post.findById(that.postId, function (err, post) {
 			next(err, thread, post);
 		});
 	});
@@ -77,19 +79,20 @@ form.findThreadAndPost = function (next) {
 
 form.createThread = function (postList) {
 	var thread = this._insertThread();
-	this._insertPost(thread, postList);
+	this._insertPost(thread._id, postList);
 	return thread._id;
 }
 
-form.createReply = function (thread, postList) {
-	var post = this._insertPost(thread, postList);
-	thread.updateLength(this.now);
+form.createReply = function (postList) {
+	var post = this._insertPost(this.threadId, postList);
+	_thread.updateLength(this.threadId, this.now);
 	return post._id;
 }
 
 form._insertThread = function () {
 	var thread = _thread.make({
-		categoryId: this.categoryId, hit: 0, length: 1, cdate: this.now, udate: this.now,
+		categoryId: this.categoryId,
+		hit: 0, length: 1, cdate: this.now, udate: this.now,
 		userName: this.userName, title: this.title
 	});
 	thread.setNewId();
@@ -97,9 +100,10 @@ form._insertThread = function () {
 	return thread;
 }
 
-form._insertPost = function (thread, postList) {
+form._insertPost = function (threadId, postList) {
 	var post = _post.make({
-		threadId: thread._id, cdate: this.now, visible: true,
+		threadId: threadId,
+		cdate: this.now, visible: true,
 		userName: this.userName, text: this.text
 	});
 	post.setNewId();
@@ -112,11 +116,11 @@ form._insertPost = function (thread, postList) {
 
 // update
 
-form.update = function (thread, post, isFirst, isCategoryEditable) {
-	if (isFirst) {
+form.update = function (thread, post, shouldUpdateThread, categoryEditable) {
+	if (shouldUpdateThread) {
 		this._updateThread(thread);
 	}
-	this._updatePost(post, isCategoryEditable)
+	this._updatePost(post, categoryEditable)
 }
 
 form._updateThread = function (thread) {
@@ -126,7 +130,8 @@ form._updateThread = function (thread) {
 	thread.update();
 }
 
-form._updatePost = function (post, isCategoryEditable) {
+form._updatePost = function (post, caategoryEditable) {
+	var that = this;
 	_async.series({
 //		delFiles: function (next) {
 //			next()
@@ -135,10 +140,10 @@ form._updatePost = function (post, isCategoryEditable) {
 //
 //		},
 		updatePost: function (next) {
-			post.userName = this.userName;
-			post.text = this.text;
-			if (isCategoryEditable) {
-				post.visible = this.visible;
+			post.userName = that.userName;
+			post.text = that.text;
+			if (caategoryEditable) {
+				post.visible = that.visible;
 			}
 			post.update();
 			next();

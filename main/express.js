@@ -122,7 +122,7 @@ _lang.addInit(function (next) {
 				return res.json(400, { error: ERR_INVALID_DATA, errors: errors });
 			}
 
-			var id = form.createReply(thread, req.session.postList);
+			var id = form.createReply(req.session.postList);
 			res.json(200, {postId: id});
 		});
 	});
@@ -133,21 +133,21 @@ _lang.addInit(function (next) {
 		var errors = [];
 
 		form.findThreadAndPost(function (err, thread, post) {
-			var isFirst = thread.cdate === post.cdate;
+			var shouldUpdateThread = thread.cdate === post.cdate;
 			var category = role.categoryList[thread.categoryId];
 
 			if (!category.writable ||
 				!(_.include(req.session.postList, form.postId) || category.editable) ||
-				(isFirst && !role.categoryList[form.categoryId].writable)) {
+				(shouldUpdateThread && !role.categoryList[form.categoryId].writable)) {
 				return res.json(400, { error: ERR_NOT_AUTHORIZED });
 			}
 
-			form.validateUpdate(isFirst, errors);
+			form.validateUpdate(shouldUpdateThread, errors);
 			if (errors.length) {
 				return res.json(400, { error: ERR_INVALID_DATA, errors: errors });
 			}
 
-			form.update(thread, post, isFirst, category.editable);
+			form.update(thread, post, shouldUpdateThread, category.editable);
 			res.json(200, 'ok');
 		});
 	});
