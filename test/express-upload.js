@@ -21,7 +21,7 @@ before(function (next) {
 
 describe('upload', function () {
 	it('should success', function (next) {
-		_childp.execFile('/usr/bin/curl', ['-F', 'file=@test-data/1.jpg', 'localhost:8010/api/test/upload'], null, function (err, stdout, stderr) {
+		_childp.execFile('/usr/bin/curl', ['-F', 'file=@test-data/1.jpg', '-F', 'file=@test-data/2.jpg', 'localhost:8010/api/test/upload'], null, function (err, stdout, stderr) {
 			var file = JSON.parse(stdout)[0];
 			file.name.should.equal('1.jpg');
 			_should.ok(!_path.existsSync(file.path));

@@ -43,8 +43,8 @@ _lang.addInit(function (next) {
 		next();
 
 		function remove(file) {
-			//console.log('delete: ' + file.path);
-			_fs.unlinkSync(file.path);
+			console.log('delete: ' + file.path);
+			_fs.unlink(file.path);
 		}
 
 		_.each(req.files, function (file) {
@@ -107,7 +107,7 @@ _lang.addInit(function (next) {
 //		return "post ...";
 	});
 
-	ex.post('/api/create-thread', assertLoggedIn, function (req, res, next) {
+	ex.post('/api/create-thread', assertLoggedIn, function (req, res) {
 		var role = _role.getByName(req.session.roleName);
 		var form = _postForm.make(req);
 		var errors = [];
