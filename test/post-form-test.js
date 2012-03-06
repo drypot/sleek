@@ -82,7 +82,7 @@ describe("validate create reply", function () {
 		}};
 		var form = _form.make(req);
 		var errors = [];
-		form.validateCreateReply(errors);
+		form.validateCreatePost(errors);
 		errors.should.length(0);
 	});
 	it("should fail with empty userName", function () {
@@ -91,7 +91,7 @@ describe("validate create reply", function () {
 		}};
 		var form = _form.make(req);
 		var errors = [];
-		form.validateCreateReply(errors);
+		form.validateCreatePost(errors);
 		errors.length.should.above(0);
 		errors[0].userName.should.equal(ERR_FILL_USERNAME);
 	});
@@ -101,7 +101,7 @@ describe("validate create reply", function () {
 		}};
 		var form = _form.make(req);
 		var errors = [];
-		form.validateCreateReply(errors);
+		form.validateCreatePost(errors);
 		errors.length.should.above(0);
 		errors[0].userName.should.equal(ERR_SHORTEN_USERNAME);
 	});
@@ -195,7 +195,7 @@ describe("thread io", function () {
 					userName: 'snow man 2', text: 'cool text 2'
 				}};
 				var form = _form.make(req);
-				postId = form.createReply(postList);
+				postId = form.createPost(postList);
 				postId.should.ok;
 				postId.should.equal(postList[1]);
 			});

@@ -6,10 +6,11 @@
 	<inDev>true</inDev>
 
 	<appServerPort>8010</appServerPort>
+
 	<uploadMax>512</uploadMax>
+	<uploadDir>/Users/drypot/data/sleek/upload-file/sleek</uploadDir>
 
 	<fileServerUrl>http://sleekfile:8080</fileServerUrl>
-	<fileServerRoot>/Users/drypot/data/sleek/upload-file/sleek</fileServerRoot>
 
 	<mongoDbName>sleek-test</mongoDbName>
 

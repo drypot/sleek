@@ -38,12 +38,12 @@ form.validateCreateThread = function (errors) {
 	this._validatePost(errors);
 }
 
-form.validateCreateReply = function (errors) {
+form.validateCreatePost = function (errors) {
 	this._validatePost(errors);
 }
 
-form.validateUpdate = function (isFirst, errors) {
-	if (isFirst) {
+form.validateUpdate = function (shouldUpdateThread, errors) {
+	if (shouldUpdateThread) {
 		this._validateThread(errors);
 	}
 	this._validatePost(errors);
@@ -83,7 +83,7 @@ form.createThread = function (postList) {
 	return thread._id;
 }
 
-form.createReply = function (postList) {
+form.createPost = function (postList) {
 	var post = this._insertPost(this.threadId, postList);
 	_thread.updateLength(this.threadId, this.now);
 	return post._id;

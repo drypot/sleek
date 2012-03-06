@@ -1,6 +1,6 @@
 var _ = require('underscore');
 var _should = require('should');
-var _request = require('request').defaults({json: true});
+var _request = require('request');
 var _async = require('async');
 
 var _lang = require('../main/lang');
@@ -33,7 +33,7 @@ function post(url, body, next) {
 		next = body;
 		body = null;
 	}
-	_request.post({ url: urlBase + url, body: body }, next);
+	_request.post({ url: urlBase + url, body: body, json: true }, next);
 }
 
 describe('hello', function () {
@@ -90,7 +90,7 @@ describe('auth', function () {
 	});
 	describe("assert-role-any", function () {
 		before(function (next) {
-			_request.post({ url: urlBase + '/api/auth/logout' }, next);
+			post('/api/auth/logout', next);
 		})
 		it('should fail before login', function (next) {
 			post('/api/test/assert-role-any', function (err, res, body) {

@@ -2,15 +2,16 @@ var _ = require('underscore');
 var _should = require('should');
 var _express = require('express');
 var _redisStore = require('connect-redis')(_express);
+var _fs = require('fs');
 
 var _lang = require('./lang');
 var _config = require('./config');
 var _role = require('./role');
 var _category = require('./category');
 var _auth = require('./auth');
-var _thread = require('model/thread');
-var _post = require('model/post');
-var _postForm = require('form/post-form')
+var _thread = require('./model/thread');
+var _post = require('./model/post');
+var _postForm = require('./form/post-form')
 
 var ERR_LOGIN_FIRST = 'login first';
 var ERR_LOGIN_FAILED = 'login failed';
@@ -23,7 +24,8 @@ _lang.addInit(function (next) {
 	ex.configure(function () {
 		ex.use(_express.cookieParser('jfkldassev'));
 		ex.use(_express.session({store: new _redisStore()}));
-		ex.use(_express.bodyParser());
+		ex.use(_express.bodyParser({uploadDir: _config.uploadDir + '/tmp'}));
+		ex.use(removeTmpFile);
 		ex.use(ex.router);
 	});
 
@@ -36,6 +38,23 @@ _lang.addInit(function (next) {
 	});
 
 	// pipe
+
+	function removeTmpFile(req, res, next) {
+		next();
+
+		function remove(file) {
+			//console.log('delete: ' + file.path);
+			_fs.unlinkSync(file.path);
+		}
+
+		_.each(req.files, function (file) {
+			if (_.isArray(file)) {
+				_.each(file, remove);
+			} else {
+				remove(file);
+			}
+		});
+	}
 
 	function assertLoggedIn(req, res, next) {
 		if (!req.session.roleName) {
@@ -106,7 +125,7 @@ _lang.addInit(function (next) {
 		res.json(200, {threadId: id});
 	});
 
-	ex.post('/api/create-reply', assertLoggedIn, parseParams, prepareThread, function (req, res) {
+	ex.post('/api/create-post', assertLoggedIn, function (req, res) {
 		var role = _role.getByName(req.session.roleName);
 		var form = _postForm.make(req);
 		var errors = [];
@@ -117,12 +136,12 @@ _lang.addInit(function (next) {
 				return res.json(400, { error: ERR_NOT_AUTHORIZED });
 			}
 
-			form.validateCreateReply(errors);
+			form.validateCreatePost(errors);
 			if (errors.length) {
 				return res.json(400, { error: ERR_INVALID_DATA, errors: errors });
 			}
 
-			var id = form.createReply(req.session.postList);
+			var id = form.createPost(req.session.postList);
 			res.json(200, {postId: id});
 		});
 	});
@@ -186,33 +205,65 @@ _lang.addInit(function (next) {
 		res.json('hello');
 	});
 
-	//
 	// test support
-	//
 
-	// session
+	ex.configure('development', function () {
+		// session
 
-	ex.post('/api/test/set-session-var', function (req, res) {
-		req.session.test_var = req.body.value;
-		res.json('ok');
-	});
+		ex.post('/api/test/set-session-var', function (req, res) {
+			req.session.test_var = req.body.value;
+			res.json('ok');
+		});
 
-	ex.post('/api/test/get-session-var', function (req, res) {
-		res.json(req.session.test_var);
-	});
+		ex.post('/api/test/get-session-var', function (req, res) {
+			res.json(req.session.test_var);
+		});
 
-	// permission
+		// permission
 
-	ex.post('/api/test/assert-role-any', assertLoggedIn, function (req, res) {
-		res.json('ok');
-	});
+		ex.post('/api/test/assert-role-any', assertLoggedIn, function (req, res) {
+			res.json('ok');
+		});
 
-	ex.post('/api/test/assert-role-user', assertLoggedIn, assertRole('user'), function (req, res) {
-		res.json('ok');
-	});
+		ex.post('/api/test/assert-role-user', assertLoggedIn, assertRole('user'), function (req, res) {
+			res.json('ok');
+		});
 
-	ex.post('/api/test/assert-role-admin', assertLoggedIn, assertRole('admin'), function (req, res) {
-		res.json('ok');
+		ex.post('/api/test/assert-role-admin', assertLoggedIn, assertRole('admin'), function (req, res) {
+			res.json('ok');
+		});
+
+		// upload
+
+		ex.post('/api/test/upload', function (req, res) {
+			var files = [];
+			//console.log(require('util').inspect(req.files));
+			if (_.isArray(req.files.file)) {
+				_.each(req.files.file, function (e) {
+					files.push({size: e.size, path: e.path, name: e.name, filename: e.filename});
+				})
+			} else if (req.files.file) {
+				var e = req.files.file;
+				files.push({size: e.size, path: e.path, name: e.name, filename: e.filename});
+			}
+			res.json(files);
+		});
+
+//		// get the temporary location of the file
+//		var tmp_path = req.files.thumbnail.path;
+//		// set where the file should actually exists - in this case it is in the "images" directory
+//		var target_path = './public/images/' + req.files.thumbnail.name;
+//		// move the file from the temporary location to the intended location
+//		fs.rename(tmp_path, target_path, function(err) {
+//			if (err) throw err;
+//			// delete the temporary file, so that the explicitly set temporary upload dir does not get filled with unwanted files
+//			fs.unlink(tmp_path, function() {
+//				if (err) throw err;
+//				res.send('File uploaded to: ' + target_path + ' - ' + req.files.thumbnail.size + ' bytes');
+//			});
+//		});
+//
+
 	});
 
 	// start listening
