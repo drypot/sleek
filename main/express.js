@@ -20,13 +20,23 @@ var ERR_INVALID_DATA = 'invalid data';
 
 _lang.addInit(function (next) {
 	var ex = _express();
+	var uploadDir = _config.uploadDir + '/tmp';
+
+	console.log('upload directory: ' + uploadDir);
+
+	_fs.readdir(uploadDir, function (err, files) {
+		_.each(files, function (file) {
+			_fs.unlink(uploadDir + '/' + file);
+		});
+	});
 
 	ex.configure(function () {
 		ex.use(_express.cookieParser('jfkldassev'));
 		ex.use(_express.session({store: new _redisStore()}));
-		ex.use(_express.bodyParser({uploadDir: _config.uploadDir + '/tmp'}));
-		ex.use(removeTmpFile);
+		ex.use(_express.bodyParser({uploadDir: uploadDir}));
 		ex.use(ex.router);
+		//ex.use(removeTmpFile);
+		//ex.use(function () {});
 	});
 
 	ex.configure('development', function () {
@@ -39,22 +49,22 @@ _lang.addInit(function (next) {
 
 	// pipe
 
-	function removeTmpFile(req, res, next) {
-		next();
-
-		function remove(file) {
-			console.log('delete: ' + file.path);
-			_fs.unlink(file.path);
-		}
-
-		_.each(req.files, function (file) {
-			if (_.isArray(file)) {
-				_.each(file, remove);
-			} else {
-				remove(file);
-			}
-		});
-	}
+//	function removeTmpFile(req, res, next) {
+//		console.log(req.path);
+//		function remove(file) {
+//			console.log('delete: ' + file.path);
+//			_fs.unlink(file.path);
+//		}
+//
+//		_.each(req.files, function (file) {
+//			if (_.isArray(file)) {
+//				_.each(file, remove);
+//			} else {
+//				remove(file);
+//			}
+//		});
+//		next();
+//	}
 
 	function assertLoggedIn(req, res, next) {
 		if (!req.session.roleName) {

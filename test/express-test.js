@@ -31,7 +31,7 @@ before(function (next) {
 function post(url, body, next) {
 	if (_.isFunction(body)) {
 		next = body;
-		body = null;
+		body = {};
 	}
 	_request.post({ url: urlBase + url, body: body, json: true }, next);
 }
@@ -181,7 +181,7 @@ describe('auth', function () {
 	});
 });
 
-xdescribe("category", function () {
+describe("category", function () {
 	describe("user category", function () {
 		var cl;
 		before(function (next) {
