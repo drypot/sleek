@@ -19,11 +19,13 @@ before(function (next) {
 	_lang.runInit(next);
 });
 
-describe('upload', function () {
+xdescribe('upload', function () {
 	it('should success', function (next) {
 		_childp.execFile('/usr/bin/curl', ['-F', 'file=@test-data/1.jpg', '-F', 'file=@test-data/2.jpg', 'localhost:8010/api/test/upload'], null, function (err, stdout, stderr) {
-			var file = JSON.parse(stdout)[0];
-			file.name.should.equal('1.jpg');
+			var file1 = JSON.parse(stdout)[0];
+			var file2 = JSON.parse(stdout)[0];
+			file1.name.should.equal('1.jpg');
+			file2.name.should.equal('2.jpg');
 			//_should.ok(!_path.existsSync(file.path));
 			next(err);
 		});
@@ -37,4 +39,13 @@ describe('upload', function () {
 	});
 });
 
-//
+describe("post file upload", function () {
+	it("should success", function (next) {
+		_childp.execFile('/usr/bin/curl', ['-F', 'file=@test-data/1.jpg', '-F', 'file=@test-data/2.jpg', 'localhost:8010/api/test/create-thread-with-file'], null, function (err, stdout, stderr) {
+			var postId = JSON.parse(stdout).postId;
+			_should.ok(_path.existsSync(_config.uploadDir + '/post/' + Math.floor(postId / 10000) + '/1.jpg'));
+			_should.ok(_path.existsSync(_config.uploadDir + '/post/' + Math.floor(postId / 10000) + '/2.jpg'));
+			next(err);
+		});
+	});
+});

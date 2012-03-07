@@ -16,7 +16,7 @@ _lang.addInit(function (next) {
 	}
 
 	new _xml2js.Parser().parseString(_fs.readFileSync(param.configPath, 'utf8'), function (err, config) {
-		if (err) throw err;
+		if (err) return next(err);
 
 		config.roleList = _.map(config.role, function (el) { return el["@"]; });
 		delete config.role;
@@ -26,6 +26,6 @@ _lang.addInit(function (next) {
 
 		_.extend(exports, config);
 		console.info('configuration file loaded: ' + param.configPath);
-		next(err);
+		next();
 	});
 });

@@ -149,7 +149,7 @@ describe('thread data access', function () {
 	it('can update lenth & udate', function (next) {
 		findOne(function (err, obj) {
 			var now2 = new Date();
-			_thread.updateLength(obj._id, now2);
+			obj.updateLength(now2);
 			_thread.findById(obj._id, function (err, obj2) {
 				_should.ifError(err);
 				obj2.length.should.equal(obj.length + 1);

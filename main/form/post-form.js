@@ -1,6 +1,7 @@
 var _ = require('underscore');
 var _should = require('should');
 var _async = require('async');
+var _util = require('util');
 
 var _lang = require('../lang');
 var _thread = require('../model/thread');
@@ -68,7 +69,7 @@ form.findThread = function (next) {
 form.findThreadAndPost = function (next) {
 	var that = this;
 	_thread.findById(this.threadId, function (err, thread) {
-		if (err) throw err;
+		if (err) return next(err);
 		_post.findById(that.postId, function (err, post) {
 			next(err, thread, post);
 		});
@@ -77,19 +78,25 @@ form.findThreadAndPost = function (next) {
 
 // create
 
-form.createThread = function (postList) {
-	var thread = this._insertThread();
-	this._insertPost(thread._id, postList);
-	return thread._id;
+form.createThread = function (next) {
+	var _this = this;
+	_this._insertThread(function (err, thread) {
+		_this._insertPost(thread, function (err, post) {
+			next(err, thread, post);
+		});
+	});
 }
 
-form.createPost = function (postList) {
-	var post = this._insertPost(this.threadId, postList);
-	_thread.updateLength(this.threadId, this.now);
-	return post._id;
+form.createPost = function (thread, next) {
+	var _this = this;
+	_this._insertPost(thread, function (err, post) {
+		if (err) return next(err);
+		thread.updateLength(_this.now);
+		next(err, post);
+	});
 }
 
-form._insertThread = function () {
+form._insertThread = function (next) {
 	var thread = _thread.make({
 		categoryId: this.categoryId,
 		hit: 0, length: 1, cdate: this.now, udate: this.now,
@@ -97,57 +104,49 @@ form._insertThread = function () {
 	});
 	thread.setNewId();
 	thread.insert();
-	return thread;
+	next(null, thread);
 }
 
-form._insertPost = function (threadId, postList) {
+form._insertPost = function (thread, next) {
 	var post = _post.make({
-		threadId: threadId,
+		threadId: thread._id,
 		cdate: this.now, visible: true,
 		userName: this.userName, text: this.text
 	});
 	post.setNewId();
-//	fileService.savePostFile(post, req.getFiles("file"));
-	post.insert();
-	postList.push(post._id);
-//	searchService.newPost(thread, post);
-	return post;
+	post.insert(this.files && this.files.file, function (err) {
+		if (err) return next(err);
+		next(err, post);
+	});
 }
 
 // update
 
-form.update = function (thread, post, shouldUpdateThread, categoryEditable) {
+form.update = function (thread, post, shouldUpdateThread, categoryEditable, next) {
+	var _this = this;
 	if (shouldUpdateThread) {
-		this._updateThread(thread);
+		_this._updateThread(thread, function (err) {
+			if (err) return next(err);
+			_this._updatePost(post, categoryEditable, next);
+		});
+	} else {
+		_this._updatePost(post, categoryEditable, next);
 	}
-	this._updatePost(post, categoryEditable)
 }
 
-form._updateThread = function (thread) {
+form._updateThread = function (thread, next) {
 	thread.categoryId = this.categoryId;
 	thread.title = this.title;
 	thread.userName = this.userName;
 	thread.update();
+	next();
 }
 
-form._updatePost = function (post, caategoryEditable) {
-	var that = this;
-	_async.series({
-//		delFiles: function (next) {
-//			next()
-//		},
-//		saveFiles: functino (next) {
-//
-//		},
-		updatePost: function (next) {
-			post.userName = that.userName;
-			post.text = that.text;
-			if (caategoryEditable) {
-				post.visible = that.visible;
-			}
-			post.update();
-			next();
-		}
-//		searchService.updatePost(thread, post);
-	});
+form._updatePost = function (post, categoryEditable, next) {
+	post.userName = this.userName;
+	post.text = this.text;
+	if (categoryEditable) {
+		post.visible = this.visible;
+	}
+	post.update(this.files && this.files.file, this.delFiles, next);
 }

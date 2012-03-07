@@ -20,7 +20,10 @@ exports.addAfterInit = function (func) {
 
 exports.runInit = function (next) {
 	var all = beforeList.concat(initList, afterList);
-	_async.series(all, next);
+	_async.series(all, function (err) {
+		if (err) throw err;
+		next();
+	});
 }
 
 exports.method = function (con, methodName, func) {

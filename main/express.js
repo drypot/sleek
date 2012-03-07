@@ -40,7 +40,7 @@ _lang.addInit(function (next) {
 	});
 
 	ex.configure('development', function () {
-		ex.use(_express.errorHandler({ dumpExceptions: true, showStack: true }));
+		ex.use(_express.errorHandler({dumpExceptions: true, showStack: true}));
 	});
 
 	ex.configure('production', function () {
@@ -68,7 +68,7 @@ _lang.addInit(function (next) {
 
 	function assertLoggedIn(req, res, next) {
 		if (!req.session.roleName) {
-			return res.json(400, { error: ERR_LOGIN_FIRST });
+			return res.json(400, {error: ERR_LOGIN_FIRST});
 		}
 		next();
 	}
@@ -76,7 +76,7 @@ _lang.addInit(function (next) {
 	function assertRole(roleName) {
 		return function(req, res, next) {
 			if (req.session.roleName !== roleName) {
-				return res.json(400, { error: ERR_NOT_AUTHORIZED });
+				return res.json(400, {error: ERR_NOT_AUTHORIZED});
 			}
 			next();
 		}
@@ -89,7 +89,7 @@ _lang.addInit(function (next) {
 		var categoryId = _lang.intp(body, 'categoryId', 0);
 
 		if (!role.categoryList[categoryId].readable) {
-			return res.json(400, { error: ERR_NOT_AUTHORIZED });
+			return res.json(400, {error: ERR_NOT_AUTHORIZED});
 		}
 //		return "post/list";
 	});
@@ -99,7 +99,7 @@ _lang.addInit(function (next) {
 		var categoryId = _lang.intp(body, 'categoryId', 0);
 
 		if (!role.categoryList[categoryId].readable) {
-			return res.json(400, { error: ERR_NOT_AUTHORIZED });
+			return res.json(400, {error: ERR_NOT_AUTHORIZED});
 		}
 
 //		postContext.updateThreadHit();
@@ -111,7 +111,7 @@ _lang.addInit(function (next) {
 		var categoryId = _lang.intp(body, 'categoryId', 0);
 
 		if (!role.categoryList[categoryId].readable) {
-			return res.json(400, { error: ERR_NOT_AUTHORIZED });
+			return res.json(400, {error: ERR_NOT_AUTHORIZED});
 		}
 
 //		return "post ...";
@@ -123,16 +123,19 @@ _lang.addInit(function (next) {
 		var errors = [];
 
 		if (!role.categoryList[form.categoryId].writable) {
-			return res.json(400, { error: ERR_NOT_AUTHORIZED });
+			return res.json(400, {error: ERR_NOT_AUTHORIZED});
 		}
 
 		form.validateCreateThread(errors);
 		if (errors.length) {
-			return res.json(400, { error: ERR_INVALID_DATA, errors: errors });
+			return res.json(400, {error: ERR_INVALID_DATA, errors: errors});
 		}
 
-		var id = form.createThread(req.session.postList);
-		res.json(200, {threadId: id});
+		form.createThread(function (err, thread, post) {
+			if (err) throw err;
+			req.session.postList.push(post._id);
+			res.json(200, {threadId: thread._id, postId: post._id});
+		});
 	});
 
 	ex.post('/api/create-post', assertLoggedIn, function (req, res) {
@@ -143,16 +146,19 @@ _lang.addInit(function (next) {
 		form.findThread(function (err, thread) {
 			if (err) throw err;
 			if (!role.categoryList[thread.categoryId].writable) {
-				return res.json(400, { error: ERR_NOT_AUTHORIZED });
+				return res.json(400, {error: ERR_NOT_AUTHORIZED});
 			}
 
 			form.validateCreatePost(errors);
 			if (errors.length) {
-				return res.json(400, { error: ERR_INVALID_DATA, errors: errors });
+				return res.json(400, {error: ERR_INVALID_DATA, errors: errors});
 			}
 
-			var id = form.createPost(req.session.postList);
-			res.json(200, {postId: id});
+			form.createPost(thread, function (err, post) {
+				if (err) throw err;
+				req.session.postList.push(post._id);
+				res.json(200, {postId: post._id});
+			});
 		});
 	});
 
@@ -162,22 +168,26 @@ _lang.addInit(function (next) {
 		var errors = [];
 
 		form.findThreadAndPost(function (err, thread, post) {
+			if (err) throw err;
+
 			var shouldUpdateThread = thread.cdate === post.cdate;
 			var category = role.categoryList[thread.categoryId];
 
 			if (!category.writable ||
 				!(_.include(req.session.postList, form.postId) || category.editable) ||
 				(shouldUpdateThread && !role.categoryList[form.categoryId].writable)) {
-				return res.json(400, { error: ERR_NOT_AUTHORIZED });
+				return res.json(400, {error: ERR_NOT_AUTHORIZED});
 			}
 
 			form.validateUpdate(shouldUpdateThread, errors);
 			if (errors.length) {
-				return res.json(400, { error: ERR_INVALID_DATA, errors: errors });
+				return res.json(400, {error: ERR_INVALID_DATA, errors: errors});
 			}
 
-			form.update(thread, post, shouldUpdateThread, category.editable);
-			res.json(200, 'ok');
+			form.update(thread, post, shouldUpdateThread, category.editable, function (err) {
+				if (err) throw err;
+				res.json(200, 'ok');
+			});
 		});
 	});
 
@@ -247,11 +257,10 @@ _lang.addInit(function (next) {
 
 		ex.post('/api/test/upload', function (req, res) {
 			var files = [];
-			//console.log(require('util').inspect(req.files));
 			if (_.isArray(req.files.file)) {
 				_.each(req.files.file, function (e) {
 					files.push({size: e.size, path: e.path, name: e.name, filename: e.filename});
-				})
+				});
 			} else if (req.files.file) {
 				var e = req.files.file;
 				files.push({size: e.size, path: e.path, name: e.name, filename: e.filename});
@@ -259,20 +268,13 @@ _lang.addInit(function (next) {
 			res.json(files);
 		});
 
-//		// get the temporary location of the file
-//		var tmp_path = req.files.thumbnail.path;
-//		// set where the file should actually exists - in this case it is in the "images" directory
-//		var target_path = './public/images/' + req.files.thumbnail.name;
-//		// move the file from the temporary location to the intended location
-//		fs.rename(tmp_path, target_path, function(err) {
-//			if (err) throw err;
-//			// delete the temporary file, so that the explicitly set temporary upload dir does not get filled with unwanted files
-//			fs.unlink(tmp_path, function() {
-//				if (err) throw err;
-//				res.send('File uploaded to: ' + target_path + ' - ' + req.files.thumbnail.size + ' bytes');
-//			});
-//		});
-//
+		ex.post('/api/test/create-thread-with-file', function (req, res) {
+			var form = _postForm.make(req);
+			form.createThread(function (err, thread, post) {
+				if (err) throw err;
+				res.json(200, {threadId: thread._id, postId: post._id});
+			});
+		});
 
 	});
 

@@ -58,11 +58,15 @@ _lang.method(thread, 'updateHit', function (next) {
 	col.update({_id: this._id}, {$inc: {hit: 1}}, next);
 });
 
+_lang.method(thread, 'updateLength', function (now, next) {
+	col.update({_id: this._id}, {$inc: {length: 1}, $set: {udate: now}}, next);
+});
+
 // _thread.*
 
 exports.findById = function (id, next) {
 	return col.findOne({_id: id}, function (err, obj) {
-		if (err) next(err, obj);
+		if (err) return next(err);
 		setProto(obj);
 		next(err, obj);
 	});
@@ -93,6 +97,6 @@ exports.findList = function (categoryId, lastUdate, limit, next) {
 	}
 }
 
-exports.updateLength = function (threadId, now, next) {
-	col.update({_id: threadId}, {$inc: {length: 1}, $set: {udate: now}}, next);
-}
+//exports.updateLength = function (threadId, now, next) {
+//	col.update({_id: threadId}, {$inc: {length: 1}, $set: {udate: now}}, next);
+//}

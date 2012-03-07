@@ -26,7 +26,7 @@ _lang.addInit(function (next) {
 	}
 	extendCursorProto();
 	console.info('db initialized: ' + db.name);
-	next(null);
+	next();
 });
 
 function extendCursorProto() {

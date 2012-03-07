@@ -8,7 +8,7 @@
 	<appServerPort>8010</appServerPort>
 
 	<uploadMax>512</uploadMax>
-	<uploadDir>/Users/drypot/data/sleek/upload-file/sleek</uploadDir>
+	<uploadDir>/Users/drypot/data/sleek/upload/sleek</uploadDir>
 
 	<fileServerUrl>http://sleekfile:8080</fileServerUrl>
 
