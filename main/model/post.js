@@ -14,19 +14,12 @@ var idSeed;
 _lang.addInit(function (next) {
 	col = exports.col = _db.db.collection("post");
 	col.ensureIndex({threadId: 1, cdate: 1});
-	_async.series([
-		function (next) {
-			col.find({}, {_id: 1}).sort({_id: -1}).limit(1).next(function (err, obj) {
-				if (err) return next(err);
-				idSeed = obj ? obj._id : 0;
-				console.info('post id seed: ' + idSeed);
-				next();
-			});
-		},
-		function (next) {
-			_lang.mkdirs(_config.uploadDir, 'post', next);
-		}
-	], next);
+	col.find({}, {_id: 1}).sort({_id: -1}).limit(1).next(function (err, obj) {
+		if (err) return next(err);
+		idSeed = obj ? obj._id : 0;
+		console.info('post id seed: ' + idSeed);
+		next();
+	});
 });
 
 var Post = function (obj) {
@@ -61,13 +54,10 @@ _lang.method(post, '_saveFile', function (file, next) {
 
 	function saveOne(file, next) {
 		if (file.size) {
-			var dir = _config.uploadDir + '/post/' + Math.floor(_this._id / 10000);
-			var path = dir + '/' + file.name;
-			_lang.mkdirs(dir, 0755, function (err) {
-				if (err && err.code !== 'EEXIST') return next(err);
-				_fs.rename(file.path, path, function (err) {
+			_lang.mkdirs(_config.uploadDir, 'post', Math.floor(_this._id / 10000), function (err, dir) {
+				if (err) return next(err);
+				_fs.rename(file.path, dir + '/' + file.name, function (err) {
 					if (err) return next(err);
-					console.log('post ' + _this._id + ': ' + path);
 					if (!_this.file) _this.file = [];
 					_this.file.push(file.name);
 					next();
@@ -77,7 +67,6 @@ _lang.method(post, '_saveFile', function (file, next) {
 	}
 
 	if (!file) {
-		console.log('post ' + _this._id + ': no file');
 		return next();
 	}
 	if (_.isArray(file)) {

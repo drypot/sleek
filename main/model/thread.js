@@ -66,7 +66,7 @@ _lang.method(thread, 'updateLength', function (now, next) {
 
 exports.findById = function (id, next) {
 	return col.findOne({_id: id}, function (err, obj) {
-		if (err) return next(err);
+			if (err) return next(err);
 		setProto(obj);
 		next(err, obj);
 	});

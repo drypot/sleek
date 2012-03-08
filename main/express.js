@@ -1,5 +1,6 @@
 var _ = require('underscore');
 var _should = require('should');
+var _async = require('async');
 var _express = require('express');
 var _redisStore = require('connect-redis')(_express);
 var _fs = require('fs');
@@ -17,6 +18,17 @@ var ERR_LOGIN_FIRST = 'login first';
 var ERR_LOGIN_FAILED = 'login failed';
 var ERR_NOT_AUTHORIZED = 'not authorized';
 var ERR_INVALID_DATA = 'invalid data';
+
+_lang.addInit(function (next) {
+	_async.series([
+		function (next) {
+			_lang.mkdirs(_config.uploadDir, 'tmp', next);
+		},
+		function (next) {
+			_lang.mkdirs(_config.uploadDir, 'post', next);
+		}
+	], next);
+});
 
 _lang.addInit(function (next) {
 	var ex = _express();
