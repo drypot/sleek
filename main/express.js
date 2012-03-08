@@ -117,7 +117,7 @@ _lang.addInit(function (next) {
 //		return "post ...";
 	});
 
-	ex.post('/api/create-thread', assertLoggedIn, function (req, res) {
+	ex.post('/api/create-thread', assertLoggedIn, function (req, res, next) {
 		var role = _role.getByName(req.session.roleName);
 		var form = _postForm.make(req);
 		var errors = [];
@@ -132,19 +132,19 @@ _lang.addInit(function (next) {
 		}
 
 		form.createThread(function (err, thread, post) {
-			if (err) throw err;
+			if (err) return next(err);
 			req.session.postList.push(post._id);
 			res.json(200, {threadId: thread._id, postId: post._id});
 		});
 	});
 
-	ex.post('/api/create-post', assertLoggedIn, function (req, res) {
+	ex.post('/api/create-post', assertLoggedIn, function (req, res, next) {
 		var role = _role.getByName(req.session.roleName);
 		var form = _postForm.make(req);
 		var errors = [];
 
 		form.findThread(function (err, thread) {
-			if (err) throw err;
+			if (err) return next(err);
 			if (!role.categoryList[thread.categoryId].writable) {
 				return res.json(400, {error: ERR_NOT_AUTHORIZED});
 			}
@@ -155,20 +155,20 @@ _lang.addInit(function (next) {
 			}
 
 			form.createPost(thread, function (err, post) {
-				if (err) throw err;
+				if (err) return next(err);
 				req.session.postList.push(post._id);
 				res.json(200, {postId: post._id});
 			});
 		});
 	});
 
-	ex.put('/api/update-post', assertLoggedIn, function (req, res) {
+	ex.put('/api/update-post', assertLoggedIn, function (req, res, next) {
 		var role = _role.getByName(req.session.roleName);
 		var form = _postForm.make(req);
 		var errors = [];
 
 		form.findThreadAndPost(function (err, thread, post) {
-			if (err) throw err;
+			if (err) return next(err);
 
 			var shouldUpdateThread = thread.cdate === post.cdate;
 			var category = role.categoryList[thread.categoryId];
@@ -185,7 +185,7 @@ _lang.addInit(function (next) {
 			}
 
 			form.update(thread, post, shouldUpdateThread, category.editable, function (err) {
-				if (err) throw err;
+				if (err) return next(err);
 				res.json(200, 'ok');
 			});
 		});
@@ -268,10 +268,10 @@ _lang.addInit(function (next) {
 			res.json(files);
 		});
 
-		ex.post('/api/test/create-thread-with-file', function (req, res) {
+		ex.post('/api/test/create-thread-with-file', function (req, res, next) {
 			var form = _postForm.make(req);
 			form.createThread(function (err, thread, post) {
-				if (err) throw err;
+				if (err) return next(err);
 				res.json(200, {threadId: thread._id, postId: post._id});
 			});
 		});

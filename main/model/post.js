@@ -24,10 +24,7 @@ _lang.addInit(function (next) {
 			});
 		},
 		function (next) {
-			_fs.mkdir(_config.uploadDir + '/post', 0755, function (err) {
-				if (err && err.code !== 'EEXIST') return next(err);
-				next();
-			});
+			_lang.mkdirs(_config.uploadDir, 'post', next);
 		}
 	], next);
 });
@@ -66,7 +63,7 @@ _lang.method(post, '_saveFile', function (file, next) {
 		if (file.size) {
 			var dir = _config.uploadDir + '/post/' + Math.floor(_this._id / 10000);
 			var path = dir + '/' + file.name;
-			_fs.mkdir(dir, 0755, function (err) {
+			_lang.mkdirs(dir, 0755, function (err) {
 				if (err && err.code !== 'EEXIST') return next(err);
 				_fs.rename(file.path, path, function (err) {
 					if (err) return next(err);
