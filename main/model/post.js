@@ -2,7 +2,6 @@ var _ = require('underscore');
 var _should = require('should');
 var _async = require('async');
 var _fs = require('fs');
-var _path = require('path');
 
 var _lang = require('../lang');
 var _config = require("../config");
@@ -22,6 +21,12 @@ _lang.addInit(function (next) {
 	});
 });
 
+// Post
+
+exports.make = function (obj) {
+	return new Post(obj);
+}
+
 var Post = function (obj) {
 //	int _id;
 //	int threadId;
@@ -33,39 +38,35 @@ var Post = function (obj) {
 	_.extend(this, obj);
 }
 
-var post = Post.prototype;
+// _post.*
 
-_lang.method(post, 'setNewId', function () {
-	this._id = ++idSeed;
-});
+exports.setNewId = function (post) {
+	post._id = ++idSeed;
+}
 
-_lang.method(post, 'insert', function (file, next) {
-	var _this = this;
-	_this._saveFile(file, function (err) {
+exports.insert = function (post, file, next) {
+	saveFile(post, file, function (err) {
 		if (err) return next(err);
-		col.insert(_this);
+		col.insert(post);
 		//searchService.newPost(thread, post);
 		next();
 	});
-});
+}
 
-_lang.method(post, '_saveFile', function (file, next) {
-	var _this = this;
-
+var saveFile = function (post, file, next) {
 	function saveOne(file, next) {
 		if (file.size) {
-			_lang.mkdirs(_config.uploadDir, 'post', Math.floor(_this._id / 10000), function (err, dir) {
+			_lang.mkdirs(_config.uploadDir, 'post', Math.floor(post._id / 10000), function (err, dir) {
 				if (err) return next(err);
 				_fs.rename(file.path, dir + '/' + file.name, function (err) {
 					if (err) return next(err);
-					if (!_this.file) _this.file = [];
-					_this.file.push(file.name);
+					if (!post.file) post.file = [];
+					post.file.push(file.name);
 					next();
 				});
 			});
 		}
 	}
-
 	if (!file) {
 		return next();
 	}
@@ -73,71 +74,44 @@ _lang.method(post, '_saveFile', function (file, next) {
 		return _async.forEachSeries(file, saveOne, next);
 	}
 	saveOne(file, next);
-});
+}
 
 //form._deleteFiles = function (next) {
-//	console.log('delete postId: ' + this.postId);
-//	console.log(_util.inspect(this.delFiles));
+//	console.log('delete postId: ' + post.postId);
+//	console.log(_util.inspect(post.delFiles));
 //	next();
 //}
 
 
-_lang.method(post, 'update', function (file, delFiles, next) {
-	col.save(this, next);
-});
+exports.update = function (post, file, delFiles, next) {
+	col.save(post, next);
+}
 
 // 	_async.series([
 
 //		function (next) {
-//			_this._deleteFiles(next);
+//			post._deleteFiles(next);
 //		},
 //		function (next) {
-//			_this._saveFiles(next);
+//			post._saveFiles(next);
 //		},
 
 //		searchService.updatePost(thread, post);
 
-_lang.method(post, 'addFileName', function (name) {
-	if (!this.fileNameList) {
-		this.fileNameList = [];
-	}
-	this.fileNameList.push(name);
-});
-
-_lang.method(post, 'removeFileName', function (name) {
-	if (this.fileNameList) {
-		this.fileNameList = _.without(this.fileNameList, name);
-		if (this.fileNameList.length == 0) {
-			delete this.fileNameList;
-		}
-	}
-});
-
-//dpc.method(Post, 'hasFile', function () {
-//	return this.fileNameList && this.fileNameList.length;
+//exports.removeFileName', function (name) {
+//	if (post.fileNameList) {
+//		post.fileNameList = _.without(post.fileNameList, name);
+//		if (post.fileNameList.length == 0) {
+//			delete post.fileNameList;
+//		}
+//	}
 //});
-
-//dpc.method(Post, 'isFirstPost', function (thread) {
-//	return this.cdate - thread.cdate == 0;
-//});
-
-exports.make = function (obj) {
-	return new Post(obj);
-}
-
-var setProto = exports.setProto = function (obj) {
-	obj.__proto__ = post;
-}
 
 exports.findById = function (id, next) {
-	return col.findOne({_id: id}, function (err, obj) {
-		if (err) return next(err);
-		setProto(obj);
-		next(err, obj);
-	});
+	return col.findOne({_id: id}, next);
 }
 
-exports.findList = function (threadId, next) {
-	col.find({threadId: threadId}).sort({cdate: 1}).toArrayWithProto(post, next);
+exports.findByThreadId = function (threadId, next) {
+	col.find({threadId: threadId}).sort({cdate: 1}).toArray(next);
 }
 

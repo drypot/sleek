@@ -24,19 +24,19 @@ _lang.addInit(function (next) {
 	if (param.dropDatabase) {
 		db.dropDatabase();
 	}
-	extendCursorProto();
+//	extendCursorProto();
 	console.info('db initialized: ' + db.name);
 	next();
 });
 
-function extendCursorProto() {
-	var proto = db.collection("postThread").find().__proto__;
-	proto.toArrayWithProto = function (proto, next) {
-		this.toArray(function (err, list) {
-			for (var i = 0, len = list.length; i < len; ++i) {
-				list[i].__proto__ = proto;
-			}
-			next(err, list);
-		});
-	}
-}
+//function extendCursorProto() {
+//	var proto = db.collection("postThread").find().__proto__;
+//	proto.toArrayWithProto = function (proto, next) {
+//		this.toArray(function (err, list) {
+//			for (var i = 0, len = list.length; i < len; ++i) {
+//				list[i].__proto__ = proto;
+//			}
+//			next(err, list);
+//		});
+//	}
+//}

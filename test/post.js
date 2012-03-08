@@ -1,4 +1,6 @@
+var _ = require('underscore');
 var _should = require('should');
+var _async = require('async');
 
 var _lang = require('../main/lang');
 var _db = require('../main/db');
@@ -19,7 +21,7 @@ before(function () {
 	col = _post.col;
 });
 
-describe('post object', function () {
+describe('post object,', function () {
 	it('can be created', function () {
 		var post = _post.make({
 			threadId: 123,
@@ -34,154 +36,114 @@ describe('post object', function () {
 	it('can set new id', function () {
 		var post = _post.make({});
 		post.should.not.have.property('_id');
-		post.setNewId();
+		_post.setNewId(post);
 		post.should.have.property('_id');
 		post._id.should.be.a('number');
 	});
-
-	describe('fileNameList', function () {
-		var post = _post.make({});
-		it('should be null', function () {
-			post.should.not.have.property('fileNameList');
-		})
-		it('can add filename', function () {
-			post.addFileName('file1');
-			post.should.have.property('fileNameList');
-			post.fileNameList[0].should.eql('file1');
-		});
-		it('can add filename again', function () {
-			post.addFileName('file2');
-			post.fileNameList[1].should.eql('file2');
-		});
-		it('can remove filename', function () {
-			post.removeFileName('file1');
-			post.should.have.property('fileNameList');
-			post.fileNameList.should.length(1);
-		});
-		it ('can remove none existing filename', function () {
-			post.removeFileName('file1');
-			post.should.have.property('fileNameList');
-			post.fileNameList.should.length(1);
-		});
-		it ('can remove last filename', function () {
-			post.removeFileName('file2');
-			post.should.not.have.property('fileNameList');
-		});
-	});
 });
 
-describe('post collection', function () {
+describe('post collection,', function () {
 	it('should be ok', function () {
 		col.should.be.ok;
 	});
 	it('should have no record', function (next) {
 		col.count(function (err, count) {
-			_should.ifError(err);
+			if (err) return next(err);
 			count.should.equal(0);
-			next(err);
+			next();
 		})
 	});
 	it('should have index', function (next) {
 		col.indexes(function (err, indexList) {
-			_should.ifError(err);
+			if (err) return next(err);
 			indexList.should.be.instanceof(Array);
 			indexList.should.be.length(2);
-			next(err);
+			next();
 		});
 	});
 });
 
-describe('post data access', function () {
-	before(function () {
-		function insertPost(pojo) {
-			var obj = _post.make(pojo);
-			obj.setNewId();
-			obj.insert();
-		}
-		insertPost({
-			threadId: 1000, cdate: new Date(10), visible: true,
-			userName: 'snowman', text: 'cool post 11'
-		});
-		insertPost({
-			threadId: 1000, cdate: new Date(20), visible: true,
-			userName: 'snowman', text: 'cool post 12',
-		});
-		insertPost({
-			threadId: 1000, cdate: new Date(30), visible: false,
-			userName: 'snowman', text: 'cool post 13',
-		});
-		insertPost({
-			threadId: 1010, cdate: new Date(10), visible: true,
-			userName: 'snowman', text: 'cool post 21'
-		});
-		insertPost({
-			threadId: 1010, cdate: new Date(20), visible: true,
-			userName: 'snowman', text: 'cool post 22'
-		});
+describe('post data access,', function () {
+	var prevPost;
+	before(function (next) {
+		_async.forEachSeries([
+			{
+				threadId: 1000, cdate: new Date(10), visible: true,
+				userName: 'snowman', text: 'cool post 11'
+			},
+			{
+				threadId: 1000, cdate: new Date(20), visible: true,
+				userName: 'snowman', text: 'cool post 12',
+			},
+			{
+				threadId: 1000, cdate: new Date(30), visible: false,
+				userName: 'snowman', text: 'cool post 13',
+			},
+			{
+				threadId: 1010, cdate: new Date(10), visible: true,
+				userName: 'snowman', text: 'cool post 21'
+			},
+			{
+				threadId: 1010, cdate: new Date(20), visible: true,
+				userName: 'snowman', text: 'cool post 22'
+			}
+		], function (obj, next) {
+			var post = _post.make(obj);
+			_post.setNewId(post);
+			_post.insert(post, null, function (err) {
+				if (post.text === 'cool post 21') prevPost = post;
+				next();
+			});
+		}, next);
 	});
-	function findOne(next) {
-		col.findOne({text: 'cool post 21'}, function (err, obj) {
-			_post.setProto(obj);
-			next(err, obj);
-		});
-	}
 	it('can insert record', function (next) {
 		col.count(function (err, count) {
-			_should.ifError(err);
+			if (err) return next(err);
 			count.should.equal(5);
-			next(err);
+			next();
 		});
 	});
 	it('can get by id', function (next) {
-		findOne(function (err, obj) {
-			_should.ifError(err);
-			obj._id.should.ok;
-			obj._id.should.be.a('number');
-			_post.findById(obj._id, function (err, obj2) {
-				_should.ifError(err);
-				obj2.should.sameProto(_post.make({}));
-				obj2._id.should.equal(obj._id);
-				obj2.text.should.equal(obj.text);
-				next(err);
-			});
+		_post.findById(prevPost._id, function (err, post) {
+			if (err) return next(err);
+			post._id.should.equal(prevPost._id);
+			post.text.should.equal(prevPost.text);
+			next();
 		});
 	});
 	it('can update record', function (next) {
-		findOne(function (err, obj) {
-			obj.userName = "fireman";
-			obj.hit = 17;
-			obj.update();
-			_post.findById(obj._id, function (err, obj2) {
-				_should.ifError(err);
-				obj2.should.eql(obj);
-				next(err);
+		prevPost.userName = "fireman";
+		prevPost.hit = 17;
+		_post.update(prevPost, null, null, function (err) {
+			_post.findById(prevPost._id, function (err, post) {
+				if (err) return next();
+				post.should.eql(prevPost);
+				next();
 			});
 		});
 	});
 
-	describe('list', function () {
+	describe('list,', function () {
 		it('can be queried', function (next) {
-			_post.findList(1000, function (err, list) {
-				_should.ifError(err);
+			_post.findByThreadId(1000, function (err, list) {
+				if (err) return next();
 				list.should.length(3);
-				list[0].should.sameProto(_post.make({}));
-				next(err);
+				next();
 			})
 		});
 		it('can be queried 2', function (next) {
-			_post.findList(1010, function (err, list) {
-				_should.ifError(err);
+			_post.findByThreadId(1010, function (err, list) {
+				if (err) return next();
 				list.should.length(2);
-				list[0].should.sameProto(_post.make({}));
-				next(err);
+				next();
 			})
 		});
 		it('should be sorted', function (next) {
-			_post.findList(1000, function (err, list) {
-				_should.ifError(err);
+			_post.findByThreadId(1000, function (err, list) {
+				if (err) return next();
 				list[0].cdate.should.below(list[1].cdate);
 				list[1].cdate.should.below(list[2].cdate);
-				next(err);
+				next();
 			})
 		});
 

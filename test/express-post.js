@@ -175,7 +175,7 @@ xdescribe("insert-reply", function () {
 	});
 });
 
-xdescribe("thread", function () {
+xdescribe("dao", function () {
 	var samples = [
 		{ categoryId: 101, userName: 'snowman', title: 'title 1', text: 'text 1' },
 		{ categoryId: 101, userName: 'snowman', title: 'title 2', text: 'text 2' },

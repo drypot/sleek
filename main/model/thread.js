@@ -24,10 +24,6 @@ exports.make = function (obj) {
 	return new Thread(obj);
 }
 
-var setProto = exports.setProto = function (obj) {
-	obj.__proto__ = thread;
-}
-
 var Thread = function (obj) {
 //	int _id;
 //	int categoryId;
@@ -40,38 +36,47 @@ var Thread = function (obj) {
 	_.extend(this, obj);
 }
 
-var thread = Thread.prototype;
+// _thread.*;
 
-_lang.method(thread, 'setNewId', function () {
-	this._id = ++idSeed;
-});
-
-_lang.method(thread, 'insert', function (next) {
-	col.insert(this, next);
-});
-
-_lang.method(thread, 'update', function (next) {
-	col.save(this, next);
-});
-
-_lang.method(thread, 'updateHit', function (next) {
-	col.update({_id: this._id}, {$inc: {hit: 1}}, next);
-});
-
-_lang.method(thread, 'updateLength', function (now, next) {
-	col.update({_id: this._id}, {$inc: {length: 1}, $set: {udate: now}}, next);
-});
-
-// _thread.*
-
-exports.findById = function (id, next) {
-	return col.findOne({_id: id}, function (err, obj) {
-			if (err) return next(err);
-		setProto(obj);
-		next(err, obj);
-	});
+exports.setNewId = function (thread) {
+	thread._id = ++idSeed;
 }
 
+exports.insert = function (thread, next) {
+	col.insert(thread, next);
+}
+
+exports.update = function (thread, next) {
+	col.save(thread, next);
+}
+
+exports.updateHit = function (thread, next) {
+	col.update({_id: thread._id}, {$inc: {hit: 1}}, next);
+}
+
+exports.updateLength = function (thread, now, next) {
+	col.update({_id: thread._id}, {$inc: {length: 1}, $set: {udate: now}}, next);
+}
+
+exports.findById = function (id, next) {
+	return col.findOne({_id: id}, next);
+}
+
+exports.find = function (categoryId, lastUdate, limit, next) {
+	if (!categoryId) {
+		if (!lastUdate) {
+			col.find().sort({udate: -1}).limit(limit).toArray(next);
+		} else {
+			col.find({udate: {$lte: lastUdate}}).sort({udate: -1}).limit(limit).toArray(next);
+		}
+	} else {
+		if (!lastUdate) {
+			col.find({categoryId: categoryId}).sort({udate: -1}).limit(limit).toArray(next);
+		} else {
+			col.find({categoryId: categoryId, udate: {$lte: lastUdate}}).sort({udate: -1}).limit(limit).toArray(next);
+		}
+	}
+}
 
 //exports.getCount = function (next) {
 //	col.count(next);
@@ -81,22 +86,3 @@ exports.findById = function (id, next) {
 //	col.find({categoryId: categoryId}).count(next);
 //}
 
-exports.findList = function (categoryId, lastUdate, limit, next) {
-	if (!categoryId) {
-		if (!lastUdate) {
-			col.find().sort({udate: -1}).limit(limit).toArrayWithProto(thread, next);
-		} else {
-			col.find({udate: {$lte: lastUdate}}).sort({udate: -1}).limit(limit).toArrayWithProto(thread, next);
-		}
-	} else {
-		if (!lastUdate) {
-			col.find({categoryId: categoryId}).sort({udate: -1}).limit(limit).toArrayWithProto(thread, next);
-		} else {
-			col.find({categoryId: categoryId, udate: {$lte: lastUdate}}).sort({udate: -1}).limit(limit).toArrayWithProto(thread, next);
-		}
-	}
-}
-
-//exports.updateLength = function (threadId, now, next) {
-//	col.update({_id: threadId}, {$inc: {length: 1}, $set: {udate: now}}, next);
-//}
