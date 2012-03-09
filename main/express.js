@@ -12,23 +12,13 @@ var _category = require('./category');
 var _auth = require('./auth');
 var _thread = require('./model/thread');
 var _post = require('./model/post');
-var _postForm = require('./form/post-form')
+var _postForm = require('./form/post-form');
+var _upload = require('./upload');
 
 var ERR_LOGIN_FIRST = 'login first';
 var ERR_LOGIN_FAILED = 'login failed';
 var ERR_NOT_AUTHORIZED = 'not authorized';
 var ERR_INVALID_DATA = 'invalid data';
-
-_lang.addInit(function (next) {
-	_async.series([
-		function (next) {
-			_lang.mkdirs(_config.uploadDir, 'tmp', next);
-		},
-		function (next) {
-			_lang.mkdirs(_config.uploadDir, 'post', next);
-		}
-	], next);
-});
 
 _lang.addInit(function (next) {
 	var ex = _express();
@@ -267,24 +257,17 @@ _lang.addInit(function (next) {
 
 		// upload
 
-		ex.post('/api/test/upload', function (req, res) {
-			var files = [];
-			if (_.isArray(req.files.file)) {
-				_.each(req.files.file, function (e) {
-					files.push({size: e.size, path: e.path, name: e.name, filename: e.filename});
-				});
-			} else if (req.files.file) {
-				var e = req.files.file;
-				files.push({size: e.size, path: e.path, name: e.name, filename: e.filename});
-			}
-			res.json(files);
+		ex.post('/api/test/upload-post-file', function (req, res, next) {
+			_upload.savePostFile({_id: parseInt(req.body.postId)}, req.files.file, function (err, filename) {
+				if (err) return next(err);
+				res.json(200, filename);
+			});
 		});
 
-		ex.post('/api/test/create-thread-with-file', function (req, res, next) {
-			var form = _postForm.make(req);
-			form.createThread(function (err, thread, post) {
+		ex.post('/api/test/delete-post-file', function (req, res, next) {
+			_upload.deletePostFile({_id: parseInt(req.body.postId)}, req.body.delFile, function (err, filename) {
 				if (err) return next(err);
-				res.json(200, {threadId: thread._id, postId: post._id});
+				res.json(200, filename);
 			});
 		});
 

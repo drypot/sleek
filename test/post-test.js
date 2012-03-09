@@ -25,7 +25,7 @@ describe('post object,', function () {
 	it('can be created', function () {
 		var post = _post.make({
 			threadId: 123,
-			userName: 'snowman',
+			username : 'snowman',
 			text: 'cool text',
 			cdate: now,
 			visible: true
@@ -69,23 +69,23 @@ describe('post data access,', function () {
 		_async.forEachSeries([
 			{
 				threadId: 1000, cdate: new Date(10), visible: true,
-				userName: 'snowman', text: 'cool post 11'
+				username : 'snowman', text: 'cool post 11'
 			},
 			{
 				threadId: 1000, cdate: new Date(20), visible: true,
-				userName: 'snowman', text: 'cool post 12',
+				username : 'snowman', text: 'cool post 12',
 			},
 			{
 				threadId: 1000, cdate: new Date(30), visible: false,
-				userName: 'snowman', text: 'cool post 13',
+				username : 'snowman', text: 'cool post 13',
 			},
 			{
 				threadId: 1010, cdate: new Date(10), visible: true,
-				userName: 'snowman', text: 'cool post 21'
+				username : 'snowman', text: 'cool post 21'
 			},
 			{
 				threadId: 1010, cdate: new Date(20), visible: true,
-				userName: 'snowman', text: 'cool post 22'
+				username : 'snowman', text: 'cool post 22'
 			}
 		], function (obj, next) {
 			var post = _post.make(obj);
@@ -112,7 +112,7 @@ describe('post data access,', function () {
 		});
 	});
 	it('can update record', function (next) {
-		prevPost.userName = "fireman";
+		prevPost.username  = "fireman";
 		prevPost.hit = 17;
 		_post.update(prevPost, null, null, function (err) {
 			_post.findById(prevPost._id, function (err, post) {

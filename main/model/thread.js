@@ -31,7 +31,7 @@ var Thread = function (obj) {
 //	int length;
 //	DateTime cdate;
 //	DateTime udate;
-//	String userName;
+//	String username ;
 //	String title;
 	_.extend(this, obj);
 }

@@ -29,7 +29,7 @@ describe('thread object,', function () {
 			length: 5,
 			cdate: now,
 			udate: now,
-			userName: 'snowman',
+			username : 'snowman',
 			title: 'cool thread'
 		});
 		thread.categoryId.should.equal(101);
@@ -76,31 +76,31 @@ describe('thread data access', function () {
 		}
 		insertThread({
 			categoryId: 101, hit: 10, length: 5, cdate: new Date(10), udate: new Date(10),
-			userName: 'snowman', title: 'cool thread 1'
+			username : 'snowman', title: 'cool thread 1'
 		});
 		insertThread({
 			categoryId: 101, hit: 10, length: 5, cdate: new Date(10), udate: new Date(11),
-			userName: 'snowman', title: 'cool thread 2'
+			username : 'snowman', title: 'cool thread 2'
 		});
 		insertThread({
 			categoryId: 101, hit: 10, length: 5, cdate: new Date(10), udate: new Date(20),
-			userName: 'snowman', title: 'cool thread 3'
+			username : 'snowman', title: 'cool thread 3'
 		});
 		insertThread({
 			categoryId: 101, hit: 10, length: 5, cdate: new Date(10), udate: new Date(20),
-			userName: 'snowman', title: 'cool thread 4'
+			username : 'snowman', title: 'cool thread 4'
 		});
 		insertThread({
 			categoryId: 103, hit: 10, length: 5, cdate: new Date(10), udate: new Date(30),
-			userName: 'snowman', title: 'cool thread 5'
+			username : 'snowman', title: 'cool thread 5'
 		});
 		insertThread({
 			categoryId: 103, hit: 10, length: 5, cdate: new Date(10), udate: new Date(40),
-			userName: 'snowman', title: 'cool thread 6'
+			username : 'snowman', title: 'cool thread 6'
 		});
 		prevThread = insertThread({
 			categoryId: 104, hit: 10, length: 5, cdate: new Date(10), udate: new Date(50),
-			userName: 'snowman', title: 'cool thread 7'
+			username : 'snowman', title: 'cool thread 7'
 		});
 	});
 	it('can insert record', function (next) {
@@ -119,7 +119,7 @@ describe('thread data access', function () {
 		});
 	});
 	it('can update record', function (next) {
-		prevThread.userName = "fireman";
+		prevThread.username  = "fireman";
 		prevThread.hit = 17;
 		_thread.update(prevThread);
 		_thread.findById(prevThread._id, function (err, thread) {

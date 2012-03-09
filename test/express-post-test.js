@@ -66,7 +66,7 @@ xdescribe("insert-thread", function () {
 	it("should fail when not logged in", function (next) {
 		_request.post({
 			url: urlBase + '/api/insert-thread',
-			body: { categoryId: 101, userName: 'snowman', title: 'title 1', text: 'text 1' }
+			body: { categoryId: 101, username : 'snowman', title: 'title 1', text: 'text 1' }
 		}, function (err, res, body) {
 			res.should.status(400);
 			body.error.should.equal(ERR_LOGIN_FIRST);
@@ -79,7 +79,7 @@ xdescribe("insert-thread", function () {
 	it("should success", function (next) {
 		_request.post({
 			url: urlBase + '/api/insert-thread',
-			body: { categoryId: 101, userName: 'snowman', title: 'title 1', text: 'text 1' }
+			body: { categoryId: 101, username : 'snowman', title: 'title 1', text: 'text 1' }
 		}, function (err, res, body) {
 			res.should.status(200);
 			body.should.have.property('threadId');
@@ -89,7 +89,7 @@ xdescribe("insert-thread", function () {
 	it("should fail with invalid categoryId", function (next) {
 		_request.post({
 			url: urlBase + '/api/insert-thread',
-			body: { categoryId: 10100, userName: 'snowman', title: 'title 1', text: 'text 1' }
+			body: { categoryId: 10100, username : 'snowman', title: 'title 1', text: 'text 1' }
 		}, function (err, res, body) {
 			res.should.status(500);
 			next(err);
@@ -98,17 +98,17 @@ xdescribe("insert-thread", function () {
 	it("should fail with invalid title", function (next) {
 		_request.post({
 			url: urlBase + '/api/insert-thread',
-			body: { categoryId: 101, userName: 'snowman', title: ' ', text: 'text 1' }
+			body: { categoryId: 101, username : 'snowman', title: ' ', text: 'text 1' }
 		}, function (err, res, body) {
 			res.should.status(400);
 			body.error.should.equal(ERR_INVALID_DATA);
 			next(err);
 		});
 	});
-	it("should fail with invalid userName", function (next) {
+	it("should fail with invalid username ", function (next) {
 		_request.post({
 			url: urlBase + '/api/insert-thread',
-			body: { categoryId: 101, userName: ' ', title: 'title 1', text: 'text 1' }
+			body: { categoryId: 101, username : ' ', title: 'title 1', text: 'text 1' }
 		}, function (err, res, body) {
 			res.should.status(400);
 			body.error.should.equal(ERR_INVALID_DATA);
@@ -124,7 +124,7 @@ xdescribe("insert-reply", function () {
 	it("should fail when not logged in", function (next) {
 		_request.post({
 			url: urlBase + '/api/insert-thread',
-			body: { categoryId: 101, userName: 'snowman', title: 'title 1', text: 'text 1' }
+			body: { categoryId: 101, username : 'snowman', title: 'title 1', text: 'text 1' }
 		}, function (err, res, body) {
 			res.should.status(400);
 			body.error.should.equal(ERR_LOGIN_FIRST);
@@ -137,7 +137,7 @@ xdescribe("insert-reply", function () {
 	xit("should success", function (next) {
 		_request.post({
 			url: urlBase + '/api/insert-thread',
-			body: { categoryId: 101, userName: 'snowman', title: 'title 1', text: 'text 1' }
+			body: { categoryId: 101, username : 'snowman', title: 'title 1', text: 'text 1' }
 		}, function (err, res, body) {
 			res.should.status(200);
 			body.should.have.property('threadId');
@@ -147,7 +147,7 @@ xdescribe("insert-reply", function () {
 	xit("should fail with invalid categoryId", function (next) {
 		_request.post({
 			url: urlBase + '/api/insert-thread',
-			body: { categoryId: 10100, userName: 'snowman', title: 'title 1', text: 'text 1' }
+			body: { categoryId: 10100, username : 'snowman', title: 'title 1', text: 'text 1' }
 		}, function (err, res, body) {
 			res.should.status(500);
 			next(err);
@@ -156,17 +156,17 @@ xdescribe("insert-reply", function () {
 	xit("should fail with invalid title", function (next) {
 		_request.post({
 			url: urlBase + '/api/insert-thread',
-			body: { categoryId: 101, userName: 'snowman', title: ' ', text: 'text 1' }
+			body: { categoryId: 101, username : 'snowman', title: ' ', text: 'text 1' }
 		}, function (err, res, body) {
 			res.should.status(400);
 			body.error.should.equal(ERR_INVALID_DATA);
 			next(err);
 		});
 	});
-	xit("should fail with invalid userName", function (next) {
+	xit("should fail with invalid username ", function (next) {
 		_request.post({
 			url: urlBase + '/api/insert-thread',
-			body: { categoryId: 101, userName: ' ', title: 'title 1', text: 'text 1' }
+			body: { categoryId: 101, username : ' ', title: 'title 1', text: 'text 1' }
 		}, function (err, res, body) {
 			res.should.status(400);
 			body.error.should.equal(ERR_INVALID_DATA);
@@ -177,13 +177,13 @@ xdescribe("insert-reply", function () {
 
 xdescribe("dao", function () {
 	var samples = [
-		{ categoryId: 101, userName: 'snowman', title: 'title 1', text: 'text 1' },
-		{ categoryId: 101, userName: 'snowman', title: 'title 2', text: 'text 2' },
-		{ categoryId: 101, userName: 'snowman', title: 'title 3', text: 'text 3' },
-		{ categoryId: 101, userName: 'snowman', title: 'title 4', text: 'text 4' },
-		{ categoryId: 103, userName: 'snowman', title: 'title 5', text: 'text 5' },
-		{ categoryId: 103, userName: 'snowman', title: 'title 6', text: 'text 6' },
-		{ categoryId: 104, userName: 'snowman', title: 'title 7', text: 'text 7' }
+		{ categoryId: 101, username : 'snowman', title: 'title 1', text: 'text 1' },
+		{ categoryId: 101, username : 'snowman', title: 'title 2', text: 'text 2' },
+		{ categoryId: 101, username : 'snowman', title: 'title 3', text: 'text 3' },
+		{ categoryId: 101, username : 'snowman', title: 'title 4', text: 'text 4' },
+		{ categoryId: 103, username : 'snowman', title: 'title 5', text: 'text 5' },
+		{ categoryId: 103, username : 'snowman', title: 'title 6', text: 'text 6' },
+		{ categoryId: 104, username : 'snowman', title: 'title 7', text: 'text 7' }
 	];
 
 	before(function (next) {

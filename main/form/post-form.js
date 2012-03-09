@@ -22,12 +22,12 @@ var PostForm = function (req) {
 	this.threadId = _lang.intp(body, 'threadId', 0);
 	this.postId = _lang.intp(body, 'postId', 0);
 	this.categoryId = _lang.intp(body, 'categoryId', 0);
-	this.userName = _lang.strp(body, 'userName', '');
+	this.username  = _lang.strp(body, 'username', '');
 	this.title = _lang.strp(body, 'title', '');
 	this.text = _lang.strp(body, 'text', '');
 	this.visible = _lang.boolp(body, 'visible', true);
-	this.delFiles = body.delFiles;
-	this.files = req.files;
+	this.delFile = body.delFile;
+	this.file = req.files && req.files.file;
 }
 
 var form = PostForm.prototype;
@@ -56,8 +56,8 @@ form._validateThread = function (errors) {
 }
 
 form._validatePost = function (errors) {
-	if (!this.userName) errors.push({userName: ERR_FILL_USERNAME});
-	if (this.userName.length > 32) errors.push({userName: ERR_SHORTEN_USERNAME});
+	if (!this.username ) errors.push({username : ERR_FILL_USERNAME});
+	if (this.username .length > 32) errors.push({username : ERR_SHORTEN_USERNAME});
 }
 
 // find
@@ -100,7 +100,7 @@ form._insertThread = function (next) {
 	var thread = _thread.make({
 		categoryId: this.categoryId,
 		hit: 0, length: 1, cdate: this.now, udate: this.now,
-		userName: this.userName, title: this.title
+		username : this.username , title: this.title
 	});
 	thread.setNewId();
 	thread.insert();
@@ -111,10 +111,10 @@ form._insertPost = function (thread, next) {
 	var post = _post.make({
 		threadId: thread._id,
 		cdate: this.now, visible: true,
-		userName: this.userName, text: this.text
+		username : this.username , text: this.text
 	});
 	post.setNewId();
-	post.insert(this.files && this.files.file, function (err) {
+	post.insert(this.file, function (err) {
 		if (err) return next(err);
 		next(err, post);
 	});
@@ -137,16 +137,16 @@ form.update = function (thread, post, shouldUpdateThread, categoryEditable, next
 form._updateThread = function (thread, next) {
 	thread.categoryId = this.categoryId;
 	thread.title = this.title;
-	thread.userName = this.userName;
+	thread.username  = this.username ;
 	thread.update();
 	next();
 }
 
 form._updatePost = function (post, categoryEditable, next) {
-	post.userName = this.userName;
+	post.username  = this.username ;
 	post.text = this.text;
 	if (categoryEditable) {
 		post.visible = this.visible;
 	}
-	post.update(this.files && this.files.file, this.delFiles, next);
+	post.update(this.file, this.delFile, next);
 }

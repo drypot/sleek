@@ -32,7 +32,7 @@ var Post = function (obj) {
 //	int threadId;
 //	DateTime cdate;
 //	boolean visible;
-//	String userName;
+//	String username ;
 //	String text;
 //	List<String> fileNameList; file;
 	_.extend(this, obj);
@@ -78,12 +78,12 @@ var saveFile = function (post, file, next) {
 
 //form._deleteFiles = function (next) {
 //	console.log('delete postId: ' + post.postId);
-//	console.log(_util.inspect(post.delFiles));
+//	console.log(_util.inspect(post.delFile));
 //	next();
 //}
 
 
-exports.update = function (post, file, delFiles, next) {
+exports.update = function (post, file, delFile, next) {
 	col.save(post, next);
 }
 
