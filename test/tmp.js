@@ -38,4 +38,16 @@ function testAsyncMap2() {
 	);
 }
 
-testAsyncMap2();
+function testWithout() {
+	console.log(_.without([1, 2, 3], [3, 4, 5]));
+	console.log(_.without([], [3, 4, 5]));
+	console.log(_.without(undefined, [3, 4, 5]));
+}
+
+function testUnion() {
+	var abc = {};
+	console.log(_.union(abc.def, [1, 2, 3]));
+	console.log(_.union(abc.def || [], [1, 2, 3]));
+}
+
+testUnion();

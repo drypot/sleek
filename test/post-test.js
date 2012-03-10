@@ -1,8 +1,10 @@
 var _ = require('underscore');
 var _should = require('should');
 var _async = require('async');
+var _path = require('path');
 
 var _lang = require('../main/lang');
+var _config = require("../main/config");
 var _db = require('../main/db');
 var _post = require('../main/model/post');
 
@@ -11,6 +13,7 @@ var col;
 
 before(function (next) {
 	_lang.addBeforeInit(function (next) {
+		_config.initParam = { configPath: "config-dev/config-dev.xml" };
 		_db.initParam = { mongoDbName: "sleek-test", dropDatabase: true };
 		next();
 	});
@@ -19,27 +22,6 @@ before(function (next) {
 
 before(function () {
 	col = _post.col;
-});
-
-describe('post object,', function () {
-	it('can be created', function () {
-		var post = _post.make({
-			threadId: 123,
-			username : 'snowman',
-			text: 'cool text',
-			cdate: now,
-			visible: true
-		});
-		post.threadId.should.equal(123);
-		post.text.should.equal('cool text');
-	});
-	it('can set new id', function () {
-		var post = _post.make({});
-		post.should.not.have.property('_id');
-		_post.setNewId(post);
-		post.should.have.property('_id');
-		post._id.should.be.a('number');
-	});
 });
 
 describe('post collection,', function () {
@@ -63,9 +45,30 @@ describe('post collection,', function () {
 	});
 });
 
-describe('post data access,', function () {
+describe('post,', function () {
+	it('can make post', function () {
+		var post = {
+			threadId: 123,
+			username : 'snowman',
+			text: 'cool text',
+			cdate: now,
+			visible: true
+		};
+		post.threadId.should.equal(123);
+		post.text.should.equal('cool text');
+	});
+	it('can make new id', function () {
+		var post = {};
+		post.should.not.have.property('_id');
+		_post.setNewId(post);
+		post.should.have.property('_id');
+		post._id.should.be.a('number');
+	});
+});
+
+describe('post db,', function () {
 	var prevPost;
-	before(function (next) {
+	it('can insert records', function (next) {
 		_async.forEachSeries([
 			{
 				threadId: 1000, cdate: new Date(10), visible: true,
@@ -87,8 +90,7 @@ describe('post data access,', function () {
 				threadId: 1010, cdate: new Date(20), visible: true,
 				username : 'snowman', text: 'cool post 22'
 			}
-		], function (obj, next) {
-			var post = _post.make(obj);
+		], function (post, next) {
 			_post.setNewId(post);
 			_post.insert(post, null, function (err) {
 				if (post.text === 'cool post 21') prevPost = post;
@@ -96,14 +98,14 @@ describe('post data access,', function () {
 			});
 		}, next);
 	});
-	it('can insert record', function (next) {
+	it('can count records', function (next) {
 		col.count(function (err, count) {
 			if (err) return next(err);
 			count.should.equal(5);
 			next();
 		});
 	});
-	it('can get by id', function (next) {
+	it('can find post by id', function (next) {
 		_post.findById(prevPost._id, function (err, post) {
 			if (err) return next(err);
 			post._id.should.equal(prevPost._id);
@@ -111,7 +113,7 @@ describe('post data access,', function () {
 			next();
 		});
 	});
-	it('can update record', function (next) {
+	it('can update', function (next) {
 		prevPost.username  = "fireman";
 		prevPost.hit = 17;
 		_post.update(prevPost, null, null, function (err) {
@@ -122,30 +124,91 @@ describe('post data access,', function () {
 			});
 		});
 	});
+	describe('find by thread id', function () {
+		it('should return posts', function (next) {
+			_post.findByThreadId(1000, function (err, post) {
+				if (err) return next();
+				post.should.length(3);
+				next();
+			})
+		});
+		it('should return posts, 2', function (next) {
+			_post.findByThreadId(1010, function (err, post) {
+				if (err) return next();
+				post.should.length(2);
+				next();
+			})
+		});
+		it('should return sorted', function (next) {
+			_post.findByThreadId(1000, function (err, post) {
+				if (err) return next();
+				post[0].cdate.should.below(post[1].cdate);
+				post[1].cdate.should.below(post[2].cdate);
+				next();
+			})
+		});
+	});
+});
 
-	describe('list,', function () {
-		it('can be queried', function (next) {
-			_post.findByThreadId(1000, function (err, list) {
-				if (err) return next();
-				list.should.length(3);
-				next();
-			})
+describe('post file,', function () {
+	var prevPost;
+	it('can insert post without file', function (next) {
+		var post = {};
+		_post.setNewId(post);
+		_post.insert(post, null, function (err) {
+			post.should.not.property('file');
+			next(err);
 		});
-		it('can be queried 2', function (next) {
-			_post.findByThreadId(1010, function (err, list) {
-				if (err) return next();
-				list.should.length(2);
-				next();
-			})
+	});
+	it('can save file', function (next) {
+		var post = prevPost = {
+			threadId: 1010, cdate: new Date(20), visible: true,
+			username : 'snowman', text: 'cool post 22',
+		};
+		var file = [
+			{size: 10, name: '1.jpg', __skip:true},
+			{size: 10, name: '2.jpg', __skip:true},
+			{size: 10, name: '3.jpg', __skip:true}
+		];
+		_post.setNewId(post);
+		_post.insert(post, file, function (err) {
+			post.should.property('file');
+			post.file.should.length(3);
+			post.file.should.include('1.jpg');
+			post.file.should.include('2.jpg');
+			post.file.should.include('3.jpg');
+			next();
 		});
-		it('should be sorted', function (next) {
-			_post.findByThreadId(1000, function (err, list) {
-				if (err) return next();
-				list[0].cdate.should.below(list[1].cdate);
-				list[1].cdate.should.below(list[2].cdate);
-				next();
-			})
+	});
+	it('can delete file', function (next) {
+		var post = prevPost;
+		var delFile = ['2.jpg', '3.jpg', '4.jpg'];
+		_post.update(post, null, delFile, function (err) {
+			post.file.should.length(1);
+			post.file.should.include('1.jpg');
+			next(err);
 		});
-
-	}); // describe('list'
-}); // describe('Post data access'
+	});
+	it('can delete & save file', function (next) {
+		var post = prevPost;
+		var file = [
+			{size: 10, name: '1.jpg', __skip:true},
+			{size: 10, name: '2.jpg', __skip:true}
+		];
+		var delFile = ['1.jpg'];
+		_post.update(post, file, delFile, function (err) {
+			post.file.should.length(2);
+			post.file.should.include('1.jpg');
+			post.file.should.include('2.jpg');
+			next(err);
+		});
+	});
+	it('can delete all', function (next) {
+		var post = prevPost;
+		var delFile = ['1.jpg', '2.jpg'];
+		_post.update(post, null, delFile, function (err) {
+			_should(!post.file);
+			next(err);
+		});
+	});
+});

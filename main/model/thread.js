@@ -18,13 +18,8 @@ _lang.addInit(function (next) {
 	});
 });
 
-// Thread
+// thread
 
-exports.make = function (obj) {
-	return new Thread(obj);
-}
-
-var Thread = function (obj) {
 //	int _id;
 //	int categoryId;
 //	int hit;
@@ -33,8 +28,6 @@ var Thread = function (obj) {
 //	DateTime udate;
 //	String username ;
 //	String title;
-	_.extend(this, obj);
-}
 
 // _thread.*;
 

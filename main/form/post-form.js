@@ -97,22 +97,22 @@ form.createPost = function (thread, next) {
 }
 
 form._insertThread = function (next) {
-	var thread = _thread.make({
+	var thread = {
 		categoryId: this.categoryId,
 		hit: 0, length: 1, cdate: this.now, udate: this.now,
 		username : this.username , title: this.title
-	});
+	};
 	thread.setNewId();
 	thread.insert();
 	next(null, thread);
 }
 
 form._insertPost = function (thread, next) {
-	var post = _post.make({
+	var post = {
 		threadId: thread._id,
 		cdate: this.now, visible: true,
 		username : this.username , text: this.text
-	});
+	};
 	post.setNewId();
 	post.insert(this.file, function (err) {
 		if (err) return next(err);

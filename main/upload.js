@@ -18,7 +18,11 @@ _lang.addInit(function (next) {
 	], next);
 });
 
-exports.savePostFile = function (post, file, next /* (err, fileName) */) {
+var getPostDir = exports.getPostDir = function (post) {
+	return _config.uploadDir + '/post/' + Math.floor(post._id / 10000) + '/' + post._id
+}
+
+exports.savePostFile = function (post, file, next /* (err, saved) */) {
 	if (!file) return next();
 	_lang.mkdirs(_config.uploadDir, 'post', Math.floor(post._id / 10000), post._id, function (err, dir) {
 		if (err) return next(err);
@@ -26,35 +30,44 @@ exports.savePostFile = function (post, file, next /* (err, fileName) */) {
 	});
 }
 
-function saveFile(dir, file, next /* (err, fileName) */) {
+var saveFile = function (dir, file, next /* (err, saved) */) {
+	var saved = [];
 	if (!_.isArray(file)) file = [file];
-	_async.mapSeries(
+	_async.forEachSeries(
 		file,
 		function (file, next) {
-			if (!file.size) next();
-			_fs.rename(file.path, dir + '/' + file.name, function (err) {
-				next(err, file.name);
-			});
+			if (!file.size) return next();
+			saved.push(file.name);
+			if (file.__skip) return next();
+			_fs.rename(file.path, dir + '/' + file.name, next);
 		},
-		next
+		function (err) {
+			next(err, saved);
+		}
 	);
 }
 
-exports.deletePostFile = function (post, delFile, next /* (err, fileNames) */) {
-	deleteFile(_config.uploadDir + '/post/' + Math.floor(post._id / 10000) + '/' + post._id, delFile, next);
+exports.deletePostFile = function (post, delFile, next /* (err, deleted) */) {
+	if (!delFile) return next();
+	deleteFile(getPostDir(post), delFile, next);
 }
 
-function deleteFile(dir, delFile, next /* (err, fileNames) */) {
-	_async.mapSeries(
+var deleteFile = function (dir, delFile, next /* (err, deleted) */) {
+	var deleted = [];
+	_async.forEachSeries(
 		delFile,
-		function (file, next) {
-			var basename = _path.basename(file)
+		function (delFile, next) {
+			var basename = _path.basename(delFile)
 			var path = dir + '/' + basename;
 			//console.log('deleting: ' + path);
+			deleted.push(basename);
 			_fs.unlink(path, function (err) {
-				next(err, basename);
+				if (err && err.code !== 'ENOENT') return next(err);
+				next();
 			});
 		},
-		next
+		function (err) {
+			next(err, deleted);
+		}
 	);
 }

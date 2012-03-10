@@ -198,7 +198,7 @@ describe("thread io,", function () {
 					threadId: prevThreadId,
 					username : 'snow man 2', text: 'cool text 2'
 				}};
-				var thread = _thread.make({_id: prevThreadId});
+				var thread = {_id: prevThreadId};
 				var form = _form.make(req);
 				form.createPost(thread, function (err, post) {
 					post.should.ok;

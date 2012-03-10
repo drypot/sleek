@@ -27,7 +27,7 @@ describe('role list', function () {
 		_role.getByName('user').should.be.ok;
 		_role.getByName('cheater').should.be.ok;
 		_role.getByName('admin').should.be.ok;
-		_should.ok(!_role.getByName('xxx'));
+		_should(!_role.getByName('xxx'));
 	});
 	it('have user role', function () {
 		var role = _role.getByName('user');
@@ -51,6 +51,6 @@ describe('role list', function () {
 		_role.getByPassword('1').name.should.equal('user');
 		_role.getByPassword('2').name.should.equal('cheater');
 		_role.getByPassword('3').name.should.equal('admin');
-		_should.ok(!_role.getByPassword('x'));
+		_should(!_role.getByPassword('x'));
 	})
 });

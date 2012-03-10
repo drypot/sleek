@@ -6,6 +6,7 @@ var _fs = require('fs');
 var _lang = require('../lang');
 var _config = require("../config");
 var _db = require('../db');
+var _upload = require('../upload');
 
 var col;
 var idSeed;
@@ -21,13 +22,8 @@ _lang.addInit(function (next) {
 	});
 });
 
-// Post
+// post
 
-exports.make = function (obj) {
-	return new Post(obj);
-}
-
-var Post = function (obj) {
 //	int _id;
 //	int threadId;
 //	DateTime cdate;
@@ -35,8 +31,6 @@ var Post = function (obj) {
 //	String username ;
 //	String text;
 //	List<String> fileNameList; file;
-	_.extend(this, obj);
-}
 
 // _post.*
 
@@ -45,67 +39,31 @@ exports.setNewId = function (post) {
 }
 
 exports.insert = function (post, file, next) {
-	saveFile(post, file, function (err) {
+	_upload.savePostFile(post, file, function (err, saved) {
 		if (err) return next(err);
+		if (saved) post.file = saved;
 		col.insert(post);
 		//searchService.newPost(thread, post);
 		next();
 	});
 }
 
-var saveFile = function (post, file, next) {
-	function saveOne(file, next) {
-		if (file.size) {
-			_lang.mkdirs(_config.uploadDir, 'post', Math.floor(post._id / 10000), function (err, dir) {
-				if (err) return next(err);
-				_fs.rename(file.path, dir + '/' + file.name, function (err) {
-					if (err) return next(err);
-					if (!post.file) post.file = [];
-					post.file.push(file.name);
-					next();
-				});
-			});
-		}
-	}
-	if (!file) {
-		return next();
-	}
-	if (_.isArray(file)) {
-		return _async.forEachSeries(file, saveOne, next);
-	}
-	saveOne(file, next);
-}
-
-//form._deleteFiles = function (next) {
-//	console.log('delete postId: ' + post.postId);
-//	console.log(_util.inspect(post.delFile));
-//	next();
-//}
-
-
 exports.update = function (post, file, delFile, next) {
-	col.save(post, next);
+	_upload.deletePostFile(post, delFile, function (err, deleted) {
+		if (err) return next(err);
+		if (deleted) {
+			post.file = _.without(post.file, deleted);
+			if (post.file.length == 0) delete post.file;
+		}
+		_upload.savePostFile(post, file, function (err, saved) {
+			if (err) return next(err);
+			if (saved) post.file = _.union(post.file || [], saved);
+			col.save(post);
+			//searchService.newPost(thread, post);
+			next();
+		});
+	})
 }
-
-// 	_async.series([
-
-//		function (next) {
-//			post._deleteFiles(next);
-//		},
-//		function (next) {
-//			post._saveFiles(next);
-//		},
-
-//		searchService.updatePost(thread, post);
-
-//exports.removeFileName', function (name) {
-//	if (post.fileNameList) {
-//		post.fileNameList = _.without(post.fileNameList, name);
-//		if (post.fileNameList.length == 0) {
-//			delete post.fileNameList;
-//		}
-//	}
-//});
 
 exports.findById = function (id, next) {
 	return col.findOne({_id: id}, next);
@@ -114,4 +72,3 @@ exports.findById = function (id, next) {
 exports.findByThreadId = function (threadId, next) {
 	col.find({threadId: threadId}).sort({cdate: 1}).toArray(next);
 }
-

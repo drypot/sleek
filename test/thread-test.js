@@ -23,7 +23,7 @@ before(function () {
 
 describe('thread object,', function () {
 	it('can be created', function () {
-		var thread = _thread.make({
+		var thread = {
 			categoryId: 101,
 			hit: 10,
 			length: 5,
@@ -31,12 +31,12 @@ describe('thread object,', function () {
 			udate: now,
 			username : 'snowman',
 			title: 'cool thread'
-		});
+		};
 		thread.categoryId.should.equal(101);
 		thread.title.should.equal('cool thread');
 	});
 	it('can be set new id', function () {
-		var thread = _thread.make({});
+		var thread = {};
 		thread.should.not.have.property('_id');
 		_thread.setNewId(thread);
 		thread.should.have.property('_id');
@@ -68,8 +68,7 @@ describe('thread collection,', function () {
 describe('thread data access', function () {
 	var prevThread;
 	before(function () {
-		function insertThread(pojo) {
-			var thread = _thread.make(pojo);
+		function insertThread(thread) {
 			_thread.setNewId(thread);
 			_thread.insert(thread);
 			return thread;
