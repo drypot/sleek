@@ -5,9 +5,9 @@ var _fs = require("fs");
 var _ = require("underscore");
 var _xml2js = require('xml2js');
 
-var _lang = require('./lang');
+var _l = require('./l');
 
-_lang.addInit(function (next) {
+_l.addInit(function (next) {
 	var param = _.extend({}, exports.initParam);
 
 	if (!param.configPath) {

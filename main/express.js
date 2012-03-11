@@ -5,7 +5,7 @@ var _express = require('express');
 var _redisStore = require('connect-redis')(_express);
 var _fs = require('fs');
 
-var _lang = require('./lang');
+var _l = require('./l');
 var _config = require('./config');
 var _role = require('./role');
 var _category = require('./category');
@@ -20,7 +20,7 @@ var ERR_LOGIN_FAILED = 'login failed';
 var ERR_NOT_AUTHORIZED = 'not authorized';
 var ERR_INVALID_DATA = 'invalid data';
 
-_lang.addInit(function (next) {
+_l.addInit(function (next) {
 	var ex = _express();
 	var uploadDir = _config.uploadDir + '/tmp';
 
@@ -88,7 +88,7 @@ _lang.addInit(function (next) {
 
 	ex.post('/api/send-thread-list', assertLoggedIn, function (req, res) {
 		var role = _role.getByName(req.session.roleName);
-		var categoryId = _lang.intp(body, 'categoryId', 0);
+		var categoryId = _l.intp(body, 'categoryId', 0);
 
 		if (!role.categoryList[categoryId].readable) {
 			return res.json(400, {error: ERR_NOT_AUTHORIZED});
@@ -98,7 +98,7 @@ _lang.addInit(function (next) {
 
 	ex.post('/api/send-thread', assertLoggedIn, function (req, res) {
 		var role = _role.getByName(req.session.roleName);
-		var categoryId = _lang.intp(body, 'categoryId', 0);
+		var categoryId = _l.intp(body, 'categoryId', 0);
 
 		if (!role.categoryList[categoryId].readable) {
 			return res.json(400, {error: ERR_NOT_AUTHORIZED});
@@ -110,7 +110,7 @@ _lang.addInit(function (next) {
 
 	ex.post('/api/send-post', assertLoggedIn, function (req, res) {
 		var role = _role.getByName(req.session.roleName); ;
-		var categoryId = _lang.intp(body, 'categoryId', 0);
+		var categoryId = _l.intp(body, 'categoryId', 0);
 
 		if (!role.categoryList[categoryId].readable) {
 			return res.json(400, {error: ERR_NOT_AUTHORIZED});
@@ -128,12 +128,12 @@ _lang.addInit(function (next) {
 			return res.json(400, {error: ERR_NOT_AUTHORIZED});
 		}
 
-		form.validateCreateThread(errors);
+		form.validateHead(errors);
 		if (errors.length) {
 			return res.json(400, {error: ERR_INVALID_DATA, errors: errors});
 		}
 
-		form.createThread(function (err, thread, post) {
+		form.createHead(function (err, thread, post) {
 			if (err) return next(err);
 			req.session.postList.push(post._id);
 			res.json(200, {threadId: thread._id, postId: post._id});
@@ -151,12 +151,12 @@ _lang.addInit(function (next) {
 				return res.json(400, {error: ERR_NOT_AUTHORIZED});
 			}
 
-			form.validateCreatePost(errors);
+			form.validateReply(errors);
 			if (errors.length) {
 				return res.json(400, {error: ERR_INVALID_DATA, errors: errors});
 			}
 
-			form.createPost(thread, function (err, post) {
+			form.createReply(thread, function (err, post) {
 				if (err) return next(err);
 				req.session.postList.push(post._id);
 				res.json(200, {postId: post._id});

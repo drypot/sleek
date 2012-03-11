@@ -3,7 +3,7 @@ var _should = require('should');
 var _async = require('async');
 
 
-var _lang = require('../main/lang');
+var _l = require('../main/l');
 var _db = require('../main/db');
 var _thread = require('../main/model/thread');
 
@@ -11,10 +11,10 @@ var now = new Date();
 var col;
 
 before(function (next) {
-	_lang.addBeforeInit(function (next) {
+	_l.addBeforeInit(function (next) {
 		_db.initParam = { mongoDbName: "sleek-test", dropDatabase: true };
 		next();
-	});	_lang.runInit(next);
+	});	_l.runInit(next);
 });
 
 before(function () {
@@ -29,7 +29,7 @@ describe('thread object,', function () {
 			length: 5,
 			cdate: now,
 			udate: now,
-			username : 'snowman',
+			userName : 'snowman',
 			title: 'cool thread'
 		};
 		thread.categoryId.should.equal(101);
@@ -75,31 +75,31 @@ describe('thread data access', function () {
 		}
 		insertThread({
 			categoryId: 101, hit: 10, length: 5, cdate: new Date(10), udate: new Date(10),
-			username : 'snowman', title: 'cool thread 1'
+			userName : 'snowman', title: 'cool thread 1'
 		});
 		insertThread({
 			categoryId: 101, hit: 10, length: 5, cdate: new Date(10), udate: new Date(11),
-			username : 'snowman', title: 'cool thread 2'
+			userName : 'snowman', title: 'cool thread 2'
 		});
 		insertThread({
 			categoryId: 101, hit: 10, length: 5, cdate: new Date(10), udate: new Date(20),
-			username : 'snowman', title: 'cool thread 3'
+			userName : 'snowman', title: 'cool thread 3'
 		});
 		insertThread({
 			categoryId: 101, hit: 10, length: 5, cdate: new Date(10), udate: new Date(20),
-			username : 'snowman', title: 'cool thread 4'
+			userName : 'snowman', title: 'cool thread 4'
 		});
 		insertThread({
 			categoryId: 103, hit: 10, length: 5, cdate: new Date(10), udate: new Date(30),
-			username : 'snowman', title: 'cool thread 5'
+			userName : 'snowman', title: 'cool thread 5'
 		});
 		insertThread({
 			categoryId: 103, hit: 10, length: 5, cdate: new Date(10), udate: new Date(40),
-			username : 'snowman', title: 'cool thread 6'
+			userName : 'snowman', title: 'cool thread 6'
 		});
 		prevThread = insertThread({
 			categoryId: 104, hit: 10, length: 5, cdate: new Date(10), udate: new Date(50),
-			username : 'snowman', title: 'cool thread 7'
+			userName : 'snowman', title: 'cool thread 7'
 		});
 	});
 	it('can insert record', function (next) {
@@ -118,7 +118,7 @@ describe('thread data access', function () {
 		});
 	});
 	it('can update record', function (next) {
-		prevThread.username  = "fireman";
+		prevThread.userName  = "fireman";
 		prevThread.hit = 17;
 		_thread.update(prevThread);
 		_thread.findById(prevThread._id, function (err, thread) {

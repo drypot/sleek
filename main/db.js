@@ -3,7 +3,7 @@ var _should = require('should');
 var _async = require("async");
 var _mongolian = require("mongolian");
 
-var _lang = require('./lang');
+var _l = require('./l');
 var _config = require('./config');
 
 var Long = exports.Long = _mongolian.Long;
@@ -14,7 +14,7 @@ var DBRef = exports.DBRef = _mongolian.DBRef;
 var mongolian;
 var db;
 
-_lang.addInit(function (next) {
+_l.addInit(function (next) {
 	var param = {};
 	param.mongoDbName = _config.mongoDbName;
 	_.extend(param, exports.initParam);

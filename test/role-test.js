@@ -1,16 +1,16 @@
 var _ = require('underscore');
 var _should = require('should');
 
-var _lang = require('../main/lang');
+var _l = require('../main/l');
 var _config = require("../main/config");
 var _role = require('../main/role');
 
 before(function (next) {
-	_lang.addBeforeInit(function (next) {
+	_l.addBeforeInit(function (next) {
 		_config.initParam = { configPath: "config-dev/config-dev.xml" }
 		next();
 	});
-	_lang.runInit(next);
+	_l.runInit(next);
 });
 
 describe('role object', function () {
@@ -32,20 +32,20 @@ describe('role list', function () {
 	it('have user role', function () {
 		var role = _role.getByName('user');
 		role.name.should.equal('user');
-		role.checkPassword('1').should.ok;
-		role.checkPassword('x').should.not.ok;
+		_role.checkPassword(role, '1').should.ok;
+		_role.checkPassword(role, 'x').should.not.ok;
 	});
 	it('have cheater role', function () {
 		var role = _role.getByName('cheater');
 		role.name.should.equal('cheater');
-		role.checkPassword('2').should.ok;
-		role.checkPassword('x').should.not.ok;
+		_role.checkPassword(role, '2').should.ok;
+		_role.checkPassword(role, 'x').should.not.ok;
 	});
 	it('have admin role', function () {
 		var role = _role.getByName('admin');
 		role.name.should.equal('admin');
-		role.checkPassword('3').should.ok;
-		role.checkPassword('x').should.not.ok;
+		_role.checkPassword(role, '3').should.ok;
+		_role.checkPassword(role, 'x').should.not.ok;
 	});
 	it('can return role by password', function () {
 		_role.getByPassword('1').name.should.equal('user');

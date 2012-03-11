@@ -1,13 +1,13 @@
 var _should = require('should');
 
-var _lang = require('../main/lang');
+var _l = require('../main/l');
 var _db = require('../main/db');
 
-_lang.addBeforeInit(function (next) {
+_l.addBeforeInit(function (next) {
 	_db.initParam = { mongoDbName: "sleek-test", dropDatabase: true };
 	next();
 });
-_lang.runInit();
+_l.runInit();
 
 describe('db', function () {
 	it('should be ok', function () {

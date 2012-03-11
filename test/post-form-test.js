@@ -1,12 +1,9 @@
 var _ = require('underscore');
 var _should = require('should');
-var _request = require('request').defaults({json: true});
-var _async = require('async');
 
-var _lang = require('../main/lang');
+var _l = require('../main/l');
 var _config = require("../main/config");
 var _db = require('../main/db');
-var _thread = require('../main/model/thread');
 var _form = require('../main/form/post-form');
 
 var ERR_FILL_TITLE = '제목을 입력해 주십시오.';
@@ -15,213 +12,208 @@ var ERR_FILL_USERNAME = '필명을 입력해 주십시오.';
 var ERR_SHORTEN_USERNAME = '필명을 줄여 주십시오.';
 
 before(function (next) {
-	_lang.addBeforeInit(function (next) {
+	_l.addBeforeInit(function (next) {
 		_config.initParam = { configPath: "config-dev/config-dev.xml" }
 		_db.initParam = { mongoDbName: "sleek-test", dropDatabase: true };
 		next();
 	});
-	_lang.runInit(next);
+	_l.runInit(next);
 });
 
-
-describe("form make,", function () {
-	it("should success", function () {
+describe("form,", function () {
+	it("can make form", function () {
 		var req = { body: {
 			threadId: 20, postId: 30, categoryId: 100,
-			username : ' snow man ', title: ' cool thread ', text: ' cool text ',
+			userName : ' snow man ', title: ' cool thread ', text: ' cool text ',
 			visible: true, delFile: ['file1', 'file2']
 		}};
 		var form = _form.make(req);
 		form.threadId.should.equal(20);
 		form.postId.should.equal(30);
 		form.categoryId.should.equal(100);
-		form.username .should.equal('snow man');
+		form.userName .should.equal('snow man');
 		form.title.should.equal('cool thread');
 		form.text.should.equal('cool text');
-		form.visible.should.equal(true);
+		form.visible.should.true;
 		form.delFile.should.eql(['file1', 'file2']);
 	});
 });
 
-describe("validate create thread,", function () {
-	it("should success", function () {
+describe("head validation,", function () {
+	it("should be ok", function () {
 		var req = { body: {
-			title: ' cool thread ', username : ' snow man '
+			title: ' cool thread ', userName : ' snow man '
 		}};
 		var form = _form.make(req);
 		var errors = [];
-		form.validateCreateThread(errors);
+		_form.validateHead(form, errors);
 		errors.should.length(0);
 	});
 	it("should fail with empty title", function () {
 		var req = { body: {
-			title: ' ', username : ' snow man '
+			title: ' ', userName : ' snow man '
 		}};
 		var form = _form.make(req);
 		var errors = [];
-		form.validateCreateThread(errors);
-		errors.length.should.above(0);
+		_form.validateHead(form, errors);
+		errors.length.should.ok;
 		errors[0].title.should.equal(ERR_FILL_TITLE);
 	});
 	it("should fail with big title", function () {
 		var req = { body: {
 			title: 'big title title title title title title title title title title title title title title title title title title title title title title title title title title title title',
-			username : ' snow man '
+			userName : ' snow man '
 		}};
 		var form = _form.make(req);
 		var errors = [];
-		form.validateCreateThread(errors);
-		errors.length.should.above(0);
+		_form.validateHead(form, errors);
+		errors.length.should.ok;
 		errors[0].title.should.equal(ERR_SHORTEN_TITLE);
 	});
 });
 
-describe("validate create post,", function () {
-	it("should success", function () {
+describe("reply validation,", function () {
+	it("should be ok", function () {
 		var req = { body: {
-			username : ' snow man '
+			userName : ' snow man '
 		}};
 		var form = _form.make(req);
 		var errors = [];
-		form.validateCreatePost(errors);
+		_form.validateReply(form, errors);
 		errors.should.length(0);
 	});
-	it("should fail with empty username ", function () {
+	it("should fail with empty userName ", function () {
 		var req = { body: {
-			username : ' '
+			userName : ' '
 		}};
 		var form = _form.make(req);
 		var errors = [];
-		form.validateCreatePost(errors);
-		errors.length.should.above(0);
-		errors[0].username .should.equal(ERR_FILL_USERNAME);
+		_form.validateReply(form, errors);
+		errors.length.should.ok;
+		errors[0].userName .should.equal(ERR_FILL_USERNAME);
 	});
-	it("should fail with big username ", function () {
+	it("should fail with big userName ", function () {
 		var req = { body: {
-			username : '123456789012345678901234567890123'
+			userName : '123456789012345678901234567890123'
 		}};
 		var form = _form.make(req);
 		var errors = [];
-		form.validateCreatePost(errors);
-		errors.length.should.above(0);
-		errors[0].username .should.equal(ERR_SHORTEN_USERNAME);
+		_form.validateReply(form, errors);
+		errors.length.should.ok;
+		errors[0].userName .should.equal(ERR_SHORTEN_USERNAME);
 	});
 });
 
-describe("thread io,", function () {
-	describe("create thread,", function () {
+describe("create head,", function () {
+	var req = { body: {
+		categoryId: 100,
+		userName : ' snow man ', title: ' cool thread ', text: ' cool text '
+	}};
+	var prevThreadId;
+	var prevPostId;
+	var form = _form.make(req);
+	it("can create head", function () {
+		_form.createHead(form, function (err, thread, post) {
+			thread.should.ok;
+			thread._id.should.ok;
+			post.should.ok;
+			post._id.should.ok;
+			prevThreadId = thread._id;
+			prevPostId = post._id;
+		});
+	});
+	it("can find thread", function (next) {
 		var req = { body: {
-			categoryId: 100,
-			username : ' snow man ', title: ' cool thread ', text: ' cool text '
+			threadId: prevThreadId
 		}};
-		var prevThreadId;
-		var prevPostId;
 		var form = _form.make(req);
-		it("should success", function () {
-			form.createThread(function (err, thread, post) {
-				thread.should.ok;
-				thread._id.should.above(0);
-				post.should.ok;
-				post._id.should.above(0);
-				prevThreadId = thread._id;
-				prevPostId = post._id;
-			});
+		_form.findThread(form, function (err, thread) {
+			thread.should.ok;
+			thread._id.should.equal(prevThreadId);
+			thread.categoryId.should.equal(100);
+			thread.userName .should.equal('snow man');
+			thread.title.should.equal('cool thread');
+			next(err);
 		});
-		describe("find thread,", function () {
-			it("should success", function (next) {
-				var req = { body: {
-					threadId: prevThreadId
-				}};
-				var form = _form.make(req);
-				form.findThread(function (err, thread) {
-					thread.should.ok;
-					thread._id.should.equal(prevThreadId);
-					thread.categoryId.should.equal(100);
-					thread.username .should.equal('snow man');
-					thread.title.should.equal('cool thread');
+	});
+	it("can find thread and post", function (next) {
+		var req = { body: {
+			threadId: prevThreadId, postId: prevPostId
+		}};
+		var form = _form.make(req);
+		_form.findThreadAndPost(form, function (err, thread, post) {
+			thread.should.ok;
+			thread._id.should.equal(prevThreadId);
+			thread.categoryId.should.equal(100);
+			thread.userName .should.equal('snow man');
+			thread.title.should.equal('cool thread');
+			post.should.ok;
+			post.userName .should.equal('snow man');
+			post.text.should.equal('cool text');
+			next(err);
+		});
+	});
+	it("can update head", function (next) {
+		var req = { body: {
+			threadId: prevThreadId, postId: prevPostId,
+			categoryId: 103,
+			userName : 'snowman h2', title: 'cool thread h2', text: 'cool text h2'
+		}};
+		var form = _form.make(req);
+		_form.findThreadAndPost(form, function (err, thread, post) {
+			_form.updateHead(form, thread, post, true, function (err) {
+				_form.findThreadAndPost(form, function (err, thread, post) {
+					thread.categoryId.should.equal(103);
+					thread.userName .should.equal('snowman h2');
+					thread.title.should.equal('cool thread h2');
+					post.userName .should.equal('snowman h2');
+					post.text.should.equal('cool text h2');
 					next(err);
 				});
 			});
 		});
-		describe("find thread and post,", function () {
-			it("should success", function (next) {
-				var req = { body: {
-					threadId: prevThreadId, postId: prevPostId
-				}};
-				var form = _form.make(req);
-				form.findThreadAndPost(function (err, thread, post) {
-					thread.should.ok;
-					thread._id.should.equal(prevThreadId);
-					thread.categoryId.should.equal(100);
-					thread.username .should.equal('snow man');
-					thread.title.should.equal('cool thread');
-					post.should.ok;
-					post.username .should.equal('snow man');
-					post.text.should.equal('cool text');
+	});
+	it("can create reply", function (next) {
+		var req = { body: {
+			threadId: prevThreadId,
+			userName : 'snowman 2', text: 'cool text 2'
+		}};
+		var thread = {_id: prevThreadId};
+		var form = _form.make(req);
+		_form.createReply(form, thread, function (err, post) {
+			post.should.ok;
+			prevPostId = post._id;
+			next(err);
+		});
+	});
+	it("can find reply", function (next) {
+		var req = { body: {
+			threadId: prevThreadId, postId: prevPostId
+		}};
+		var form = _form.make(req);
+		_form.findThreadAndPost(form, function (err, thread, post) {
+			post._id.should.equal(prevPostId);
+			post.userName .should.equal('snowman 2');
+			post.text.should.equal('cool text 2');
+			next(err);
+		});
+	});
+	it("can update reply", function (next) {
+		var req = { body: {
+			threadId: prevThreadId, postId: prevPostId,
+			categoryId: 103,
+			userName : 'snowman r2', text: 'cool text r2'
+		}};
+		var form = _form.make(req);
+		_form.findThreadAndPost(form, function (err, thread, post) {
+			_form.updateReply(form, post, true, function (err) {
+				_form.findThreadAndPost(form, function (err, thread, post) {
+					post.userName.should.equal('snowman r2');
+					post.text.should.equal('cool text r2');
 					next(err);
 				});
 			});
 		});
-		describe("update,", function () {
-			it("shoud success", function (next) {
-				var req = { body: {
-					threadId: prevThreadId, postId: prevPostId,
-					categoryId: 103,
-					username : 'snowman u1', title: 'cool thread u1', text: 'cool text u1'
-				}};
-				var form = _form.make(req);
-				form.findThreadAndPost(function (err, thread, post) {
-					form.update(thread, post, true, true, function (err) {
-						var req = { body: {
-							threadId: prevThreadId, postId: prevPostId
-						}};
-						var form2 = _form.make(req);
-						form2.findThreadAndPost(function (err, thread, post) {
-							thread.should.ok;
-							thread._id.should.equal(prevThreadId);
-							thread.categoryId.should.equal(103);
-							thread.username .should.equal('snowman u1');
-							thread.title.should.equal('cool thread u1');
-							post.should.ok;
-							post._id.should.equal(prevPostId);
-							post.username .should.equal('snowman u1');
-							post.text.should.equal('cool text u1');
-							next(err);
-						});
-					});
-				});
-			});
-		});
-		describe("create post,", function () {
-			it("should success", function () {
-				var req = { body: {
-					threadId: prevThreadId,
-					username : 'snow man 2', text: 'cool text 2'
-				}};
-				var thread = {_id: prevThreadId};
-				var form = _form.make(req);
-				form.createPost(thread, function (err, post) {
-					post.should.ok;
-					prevPostId = post._id;
-				});
-			});
-			describe("find post,", function () {
-				it("should success", function (next) {
-					var req = { body: {
-						threadId: prevThreadId, postId: prevPostId
-					}};
-					var form = _form.make(req);
-					form.findThreadAndPost(function (err, thread, post) {
-						post.should.ok;
-						post._id.should.equal(prevPostId);
-						post.username .should.equal('snow man 2');
-						post.text.should.equal('cool text 2');
-						next(err);
-					});
-				});
-			});
-		});
-
-	}); // create thread
-}); // thread io
+	});
+}); // create thread
 

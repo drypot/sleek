@@ -4,16 +4,16 @@ var _async = require('async');
 var _fs = require('fs');
 var _path = require('path');
 
-var _lang = require('./lang');
+var _l = require('./l');
 var _config = require('./config');
 
-_lang.addInit(function (next) {
+_l.addInit(function (next) {
 	_async.series([
 		function (next) {
-			_lang.mkdirs(_config.uploadDir, 'tmp', next);
+			_l.mkdirs(_config.uploadDir, 'tmp', next);
 		},
 		function (next) {
-			_lang.mkdirs(_config.uploadDir, 'post', next);
+			_l.mkdirs(_config.uploadDir, 'post', next);
 		}
 	], next);
 });
@@ -24,7 +24,7 @@ var getPostDir = exports.getPostDir = function (post) {
 
 exports.savePostFile = function (post, file, next /* (err, saved) */) {
 	if (!file) return next();
-	_lang.mkdirs(_config.uploadDir, 'post', Math.floor(post._id / 10000), post._id, function (err, dir) {
+	_l.mkdirs(_config.uploadDir, 'post', Math.floor(post._id / 10000), post._id, function (err, dir) {
 		if (err) return next(err);
 		saveFile(dir, file, next);
 	});

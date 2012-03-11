@@ -3,7 +3,7 @@ var _should = require('should');
 var _async = require('async');
 var _fs = require('fs');
 
-var _lang = require('../lang');
+var _l = require('../l');
 var _config = require("../config");
 var _db = require('../db');
 var _upload = require('../upload');
@@ -11,7 +11,7 @@ var _upload = require('../upload');
 var col;
 var idSeed;
 
-_lang.addInit(function (next) {
+_l.addInit(function (next) {
 	col = exports.col = _db.db.collection("post");
 	col.ensureIndex({threadId: 1, cdate: 1});
 	col.find({}, {_id: 1}).sort({_id: -1}).limit(1).next(function (err, obj) {
@@ -28,7 +28,7 @@ _lang.addInit(function (next) {
 //	int threadId;
 //	DateTime cdate;
 //	boolean visible;
-//	String username ;
+//	String userName ;
 //	String text;
 //	List<String> fileNameList; file;
 

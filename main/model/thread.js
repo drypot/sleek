@@ -1,13 +1,13 @@
 var _ = require('underscore');
 var _should = require('should');
 
-var _lang = require('../lang');
+var _l = require('../l');
 var _db = require('../db');
 
 var col;
 var idSeed;
 
-_lang.addInit(function (next) {
+_l.addInit(function (next) {
 	col = exports.col = _db.db.collection("postThread");
 	col.ensureIndex({categoryId: 1, udate: -1});
 	col.ensureIndex({udate: -1});
@@ -26,7 +26,7 @@ _lang.addInit(function (next) {
 //	int length;
 //	DateTime cdate;
 //	DateTime udate;
-//	String username ;
+//	String userName ;
 //	String title;
 
 // _thread.*;

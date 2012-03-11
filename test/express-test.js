@@ -3,7 +3,7 @@ var _should = require('should');
 var _request = require('request');
 var _async = require('async');
 
-var _lang = require('../main/lang');
+var _l = require('../main/l');
 var _config = require("../main/config");
 var _db = require('../main/db');
 var _express = require("../main/express");
@@ -16,16 +16,16 @@ var ERR_INVALID_DATA = 'invalid data';
 var urlBase;
 
 before(function (next) {
-	_lang.addBeforeInit(function (next) {
+	_l.addBeforeInit(function (next) {
 		_config.initParam = { configPath: "config-dev/config-dev.xml" }
 		_db.initParam = { mongoDbName: "sleek-test", dropDatabase: true };
 		next();
 	});
-	_lang.addAfterInit(function (next) {
+	_l.addAfterInit(function (next) {
 		urlBase = "http://localhost:" + _config.appServerPort;
 		next();
 	});
-	_lang.runInit(next);
+	_l.runInit(next);
 });
 
 function post(url, body, next) {

@@ -2,48 +2,44 @@ var _ = require('underscore');
 var _should = require('should');
 var _bcrypt = require('bcrypt');
 
-var _lang = require('./lang');
+var _l = require('./l');
 var _config = require("./config");
 
-var roleList = exports.roleList = {};
+var roleList = {};
 
 // init
 
-_lang.addInit(function (next) {
+_l.addInit(function (next) {
 	_.each(_config.roleList, function (role) {
-		roleList[role.name] = new Role(role);
+		roleList[role.name] = make(role);
 	});
 	next();
 });
 
-// Role.*
-
-exports.make = function (obj) {
-	return new Role(obj);
-}
-
-var Role = function (obj) {
-	this.name = obj.name;
-	this.hash = obj.hash;
-	this.categoryList = {};
-}
-
-var role = Role.prototype;
-
-role.checkPassword = function (password) {
-	return _bcrypt.compareSync(password, this.hash);
-};
-
 // _role.*
 
-exports.getByName = function (roleName) {
-	return _.find(roleList, function (role) {
-		return role.name === roleName;
-	});
+var make = exports.make = function (obj) {
+	return {
+		name: obj.name,
+		hash: obj.hash,
+		category: {}
+	}
+}
+
+var checkPassword = exports.checkPassword = function (role, password) {
+	return _bcrypt.compareSync(password, role.hash);
+};
+
+exports.getByName = function (rolename) {
+	return roleList[rolename];
 };
 
 exports.getByPassword = function (password) {
 	return _.find(roleList, function (role) {
-		return role.checkPassword(password);
+		return checkPassword(role, password);
 	});
 };
+
+exports.each = function (func) {
+	_.each(roleList, func);
+}

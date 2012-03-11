@@ -3,7 +3,7 @@ var _should = require('should');
 var _async = require('async');
 var _path = require('path');
 
-var _lang = require('../main/lang');
+var _l = require('../main/l');
 var _config = require("../main/config");
 var _db = require('../main/db');
 var _post = require('../main/model/post');
@@ -12,12 +12,12 @@ var now = new Date();
 var col;
 
 before(function (next) {
-	_lang.addBeforeInit(function (next) {
+	_l.addBeforeInit(function (next) {
 		_config.initParam = { configPath: "config-dev/config-dev.xml" };
 		_db.initParam = { mongoDbName: "sleek-test", dropDatabase: true };
 		next();
 	});
-	_lang.runInit(next);
+	_l.runInit(next);
 })
 
 before(function () {
@@ -49,7 +49,7 @@ describe('post,', function () {
 	it('can make post', function () {
 		var post = {
 			threadId: 123,
-			username : 'snowman',
+			userName : 'snowman',
 			text: 'cool text',
 			cdate: now,
 			visible: true
@@ -72,23 +72,23 @@ describe('post db,', function () {
 		_async.forEachSeries([
 			{
 				threadId: 1000, cdate: new Date(10), visible: true,
-				username : 'snowman', text: 'cool post 11'
+				userName : 'snowman', text: 'cool post 11'
 			},
 			{
 				threadId: 1000, cdate: new Date(20), visible: true,
-				username : 'snowman', text: 'cool post 12',
+				userName : 'snowman', text: 'cool post 12',
 			},
 			{
 				threadId: 1000, cdate: new Date(30), visible: false,
-				username : 'snowman', text: 'cool post 13',
+				userName : 'snowman', text: 'cool post 13',
 			},
 			{
 				threadId: 1010, cdate: new Date(10), visible: true,
-				username : 'snowman', text: 'cool post 21'
+				userName : 'snowman', text: 'cool post 21'
 			},
 			{
 				threadId: 1010, cdate: new Date(20), visible: true,
-				username : 'snowman', text: 'cool post 22'
+				userName : 'snowman', text: 'cool post 22'
 			}
 		], function (post, next) {
 			_post.setNewId(post);
@@ -114,7 +114,7 @@ describe('post db,', function () {
 		});
 	});
 	it('can update', function (next) {
-		prevPost.username  = "fireman";
+		prevPost.userName  = "fireman";
 		prevPost.hit = 17;
 		_post.update(prevPost, null, null, function (err) {
 			_post.findById(prevPost._id, function (err, post) {
@@ -163,7 +163,7 @@ describe('post file,', function () {
 	it('can save file', function (next) {
 		var post = prevPost = {
 			threadId: 1010, cdate: new Date(20), visible: true,
-			username : 'snowman', text: 'cool post 22',
+			userName : 'snowman', text: 'cool post 22',
 		};
 		var file = [
 			{size: 10, name: '1.jpg', __skip:true},

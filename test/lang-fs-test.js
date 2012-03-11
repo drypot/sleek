@@ -3,7 +3,7 @@ var _should = require('should');
 var _fs = require('fs');
 var _path = require('path');
 
-var _lang = require('../main/lang');
+var _l = require('../main/l');
 
 var base = '/Users/drypot/tmp/node-test'
 
@@ -30,13 +30,13 @@ describe("test sub,", function () {
 
 describe('mkdirs,', function () {
 	it('can make sub1', function (next) {
-		_lang.mkdirs(base, 'sub1', function (err) {
+		_l.mkdirs(base, 'sub1', function (err) {
 			_should(_path.existsSync(base + '/sub1'));
 			next();
 		});
 	});
 	it('can make sub2', function (next) {
-		_lang.mkdirs(base, 'sub1', 'sub2', function (err, dir) {
+		_l.mkdirs(base, 'sub1', 'sub2', function (err, dir) {
 			dir.should.equal(base + '/sub1/sub2');
 			_should(_path.existsSync(dir));
 			next();

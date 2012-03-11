@@ -1,7 +1,7 @@
 var _ = require('underscore');
 var _should = require('should');
 
-var _lang = require('./lang');
+var _l = require('./l');
 var _role = require('./role');
 
 exports.loginByPassword = function (req, password) {
