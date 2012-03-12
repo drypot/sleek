@@ -10,9 +10,7 @@ var _config = require('./config');
 var _role = require('./role');
 var _category = require('./category');
 var _auth = require('./auth');
-var _thread = require('./model/thread');
-var _post = require('./model/post');
-var _postForm = require('./form/post-form');
+var _form = require('./form/post-form');
 var _upload = require('./upload');
 
 var ERR_LOGIN_FIRST = 'login first';
@@ -86,21 +84,21 @@ _l.addInit(function (next) {
 
 	// post
 
-	ex.post('/api/send-thread-list', assertLoggedIn, function (req, res) {
+	ex.post('/api/get-thread-list', assertLoggedIn, function (req, res) {
 		var role = _role.getByName(req.session.roleName);
 		var categoryId = _l.intp(body, 'categoryId', 0);
 
-		if (!role.categoryList[categoryId].readable) {
+		if (!role.category[categoryId].readable) {
 			return res.json(400, {error: ERR_NOT_AUTHORIZED});
 		}
 //		return "post/list";
 	});
 
-	ex.post('/api/send-thread', assertLoggedIn, function (req, res) {
+	ex.post('/api/get-thread', assertLoggedIn, function (req, res) {
 		var role = _role.getByName(req.session.roleName);
 		var categoryId = _l.intp(body, 'categoryId', 0);
 
-		if (!role.categoryList[categoryId].readable) {
+		if (!role.category[categoryId].readable) {
 			return res.json(400, {error: ERR_NOT_AUTHORIZED});
 		}
 
@@ -108,23 +106,23 @@ _l.addInit(function (next) {
 //		return "post/view";
 	});
 
-	ex.post('/api/send-post', assertLoggedIn, function (req, res) {
+	ex.post('/api/get-post', assertLoggedIn, function (req, res) {
 		var role = _role.getByName(req.session.roleName); ;
 		var categoryId = _l.intp(body, 'categoryId', 0);
 
-		if (!role.categoryList[categoryId].readable) {
+		if (!role.category[categoryId].readable) {
 			return res.json(400, {error: ERR_NOT_AUTHORIZED});
 		}
 
 //		return "post ...";
 	});
 
-	ex.post('/api/create-thread', assertLoggedIn, function (req, res, next) {
+	ex.post('/api/create-head', assertLoggedIn, function (req, res, next) {
 		var role = _role.getByName(req.session.roleName);
-		var form = _postForm.make(req);
+		var form = _form.make(req);
 		var errors = [];
 
-		if (!role.categoryList[form.categoryId].writable) {
+		if (!role.category[form.categoryId].writable) {
 			return res.json(400, {error: ERR_NOT_AUTHORIZED});
 		}
 
@@ -135,19 +133,19 @@ _l.addInit(function (next) {
 
 		form.createHead(function (err, thread, post) {
 			if (err) return next(err);
-			req.session.postList.push(post._id);
+			req.session.post.push(post._id);
 			res.json(200, {threadId: thread._id, postId: post._id});
 		});
 	});
 
-	ex.post('/api/create-post', assertLoggedIn, function (req, res, next) {
+	ex.post('/api/create-reply', assertLoggedIn, function (req, res, next) {
 		var role = _role.getByName(req.session.roleName);
-		var form = _postForm.make(req);
+		var form = _form.make(req);
 		var errors = [];
 
 		form.findThread(function (err, thread) {
 			if (err) return next(err);
-			if (!role.categoryList[thread.categoryId].writable) {
+			if (!role.category[thread.categoryId].writable) {
 				return res.json(400, {error: ERR_NOT_AUTHORIZED});
 			}
 
@@ -158,35 +156,62 @@ _l.addInit(function (next) {
 
 			form.createReply(thread, function (err, post) {
 				if (err) return next(err);
-				req.session.postList.push(post._id);
+				req.session.post.push(post._id);
 				res.json(200, {postId: post._id});
 			});
 		});
 	});
 
-	ex.put('/api/update-post', assertLoggedIn, function (req, res, next) {
+	ex.put('/api/update-head', assertLoggedIn, function (req, res, next) {
 		var role = _role.getByName(req.session.roleName);
-		var form = _postForm.make(req);
+		var form = _form.make(req);
 		var errors = [];
 
 		form.findThreadAndPost(function (err, thread, post) {
 			if (err) return next(err);
 
-			var shouldUpdateThread = thread.cdate === post.cdate;
-			var category = role.categoryList[thread.categoryId];
+			var isHead = thread.cdate === post.cdate;
+			var category = role.category[thread.categoryId];
+			var newCategory = role.category[form.categoryId];
 
-			if (!category.writable ||
-				!(_.include(req.session.postList, form.postId) || category.editable) ||
-				(shouldUpdateThread && !role.categoryList[form.categoryId].writable)) {
+			if (!isHead) return res.json(400, {error: ERR_INVALID_DATA});
+
+			if (!category.writable || !newCategory.writable || (!_.include(req.session.post, form.postId) && !category.editable)) {
 				return res.json(400, {error: ERR_NOT_AUTHORIZED});
 			}
 
-			form.validateUpdate(shouldUpdateThread, errors);
+			_form.validateHead(form, errors);
 			if (errors.length) {
 				return res.json(400, {error: ERR_INVALID_DATA, errors: errors});
 			}
 
-			form.update(thread, post, shouldUpdateThread, category.editable, function (err) {
+			_form.updateHead(form, thread, post, category.editable, function (err) {
+				if (err) return next(err);
+				res.json(200, 'ok');
+			});
+		});
+	});
+
+	ex.put('/api/update-reply', assertLoggedIn, function (req, res, next) {
+		var role = _role.getByName(req.session.roleName);
+		var form = _form.make(req);
+		var errors = [];
+
+		_form.findThreadAndPost(form, function (err, thread, post) {
+			if (err) return next(err);
+
+			var category = role.category[thread.categoryId];
+
+			if (!category.writable || (!_.include(req.session.post, form.postId) && !category.editable)) {
+				return res.json(400, {error: ERR_NOT_AUTHORIZED});
+			}
+
+			_form.validateReply(form, errors);
+			if (errors.length) {
+				return res.json(400, {error: ERR_INVALID_DATA, errors: errors});
+			}
+
+			_form.updateReply(form, thread, post, function (err) {
 				if (err) return next(err);
 				res.json(200, 'ok');
 			});

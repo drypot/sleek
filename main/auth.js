@@ -10,7 +10,7 @@ exports.loginByPassword = function (req, password) {
 		return false;
 	}
 	req.session.roleName = role.name;
-	req.session.postList = [];
+	req.session.post = [];
 	req.params.role = role;
 	if (req.cookies.lv3) {
 		res.clearCookie('lv3');
