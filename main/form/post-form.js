@@ -12,50 +12,58 @@ var ERR_SHORTEN_TITLE = '제목을 줄여 주십시오.';
 var ERR_FILL_USERNAME = '필명을 입력해 주십시오.';
 var ERR_SHORTEN_USERNAME = '필명을 줄여 주십시오.';
 
-exports.make = function (req) {
+// PostForm
+
+var PostForm = function (req) {
 	var body = req.body;
-	return {
-		now: new Date(),
-		threadId: _l.intp(body, 'threadId', 0),
-		postId: _l.intp(body, 'postId', 0),
-		categoryId: _l.intp(body, 'categoryId', 0),
-		userName : _l.strp(body, 'userName', ''),
-		title: _l.strp(body, 'title', ''),
-		text: _l.strp(body, 'text', ''),
-		visible: _l.boolp(body, 'visible', true),
-		delFile: body.delFile,
-		file: req.files && req.files.file
-	};
+	this.now = new Date();
+	this.threadId = _l.intp(body, 'threadId', 0);
+	this.postId = _l.intp(body, 'postId', 0);
+	this.categoryId = _l.intp(body, 'categoryId', 0);
+	this.userName  = _l.strp(body, 'userName', '');
+	this.title = _l.strp(body, 'title', '');
+	this.text = _l.strp(body, 'text', '');
+	this.visible = _l.boolp(body, 'visible', true);
+	this.delFile = body.delFile;
+	this.file = req.files && req.files.file;
 }
+
+exports.make = function (req) {
+	return new PostForm(req);
+}
+
+var proto = PostForm.prototype;
 
 // validate
 
-exports.validateHead = function (form, errors) {
-	validateThread(form, errors);
-	validatePost(form, errors);
+proto.validateHead = function (errors) {
+	this._validateThread(errors);
+	this._validatePost(errors);
 }
 
-exports.validateReply = function (form, errors) {
-	validatePost(form, errors);
+proto.validateReply = function (errors) {
+	this._validatePost(errors);
 }
 
-var validateThread = function (form, errors) {
-	if (!form.title) errors.push({title: ERR_FILL_TITLE});
-	if (form.title.length > 128) errors.push({title: ERR_SHORTEN_TITLE});
+proto._validateThread = function (errors) {
+	if (!this.title) errors.push({title: ERR_FILL_TITLE});
+	if (this.title.length > 128) errors.push({title: ERR_SHORTEN_TITLE});
 }
 
-var validatePost = function (form, errors) {
-	if (!form.userName ) errors.push({userName : ERR_FILL_USERNAME});
-	if (form.userName .length > 32) errors.push({userName : ERR_SHORTEN_USERNAME});
+proto._validatePost = function (errors) {
+	if (!this.userName) errors.push({userName : ERR_FILL_USERNAME});
+	if (this.userName .length > 32) errors.push({userName : ERR_SHORTEN_USERNAME});
 }
 
 // find
 
-exports.findThread = function (form, next) {
+proto.findThread = function (next) {
+	var form = this;
 	_thread.findById(form.threadId, next);
 }
 
-exports.findThreadAndPost = function (form, next) {
+proto.findThreadAndPost = function (next) {
+	var form = this;
 	_thread.findById(form.threadId, function (err, thread) {
 		if (err) return next(err);
 		_post.findById(form.postId, function (err, post) {
@@ -66,23 +74,26 @@ exports.findThreadAndPost = function (form, next) {
 
 // create
 
-exports.createHead = function (form, next) {
-	insertThread(form, function (err, thread) {
-		insertPost(form, thread, function (err, post) {
+proto.createHead = function (next) {
+	var form = this;
+	form._insertThread(function (err, thread) {
+		form._insertPost(thread, function (err, post) {
 			next(err, thread, post);
 		});
 	});
 }
 
-exports.createReply = function (form, thread, next) {
-	insertPost(form, thread, function (err, post) {
+proto.createReply = function (thread, next) {
+	var form = this;
+	form._insertPost(thread, function (err, post) {
 		if (err) return next(err);
 		_thread.updateLength(thread, form.now);
 		next(err, post);
 	});
 }
 
-var insertThread = function (form, next) {
+proto._insertThread = function (next) {
+	var form = this;
 	var thread = {
 		categoryId: form.categoryId,
 		hit: 0, length: 1, cdate: form.now, udate: form.now,
@@ -93,7 +104,8 @@ var insertThread = function (form, next) {
 	next(null, thread);
 }
 
-var insertPost = function (form, thread, next) {
+proto._insertPost = function (thread, next) {
+	var form = this;
 	var post = {
 		threadId: thread._id,
 		cdate: form.now, visible: true,
@@ -107,18 +119,21 @@ var insertPost = function (form, thread, next) {
 
 // update
 
-exports.updateHead = function (form, thread, post, categoryEditable, next) {
-	updateThread(form, thread, function (err) {
+proto.updateHead = function (thread, post, categoryEditable, next) {
+	var form = this;
+	form._updateThread(thread, function (err) {
 		if (err) return next(err);
-		updatePost(form, post, categoryEditable, next);
+		form._updatePost(post, categoryEditable, next);
 	});
 }
 
-exports.updateReply = function (form, post, categoryEditable, next) {
-	updatePost(form, post, categoryEditable, next);
+proto.updateReply = function (post, categoryEditable, next) {
+	var form = this;
+	form._updatePost(post, categoryEditable, next);
 }
 
-var updateThread = function (form, thread, next) {
+proto._updateThread = function (thread, next) {
+	var form = this;
 	thread.categoryId = form.categoryId;
 	thread.title = form.title;
 	thread.userName  = form.userName ;
@@ -126,7 +141,8 @@ var updateThread = function (form, thread, next) {
 	next();
 }
 
-var updatePost = function (form, post, categoryEditable, next) {
+proto._updatePost = function (post, categoryEditable, next) {
+	var form = this;
 	post.userName  = form.userName ;
 	post.text = form.text;
 	if (categoryEditable) {
@@ -134,3 +150,4 @@ var updatePost = function (form, post, categoryEditable, next) {
 	}
 	_post.update(post, form.file, form.delFile, next);
 }
+

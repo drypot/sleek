@@ -46,7 +46,7 @@ describe("head validation,", function () {
 		}};
 		var form = _form.make(req);
 		var errors = [];
-		_form.validateHead(form, errors);
+		form.validateHead(errors);
 		errors.should.length(0);
 	});
 	it("should fail with empty title", function () {
@@ -55,7 +55,7 @@ describe("head validation,", function () {
 		}};
 		var form = _form.make(req);
 		var errors = [];
-		_form.validateHead(form, errors);
+		form.validateHead(errors);
 		errors.length.should.ok;
 		errors[0].title.should.equal(ERR_FILL_TITLE);
 	});
@@ -66,7 +66,7 @@ describe("head validation,", function () {
 		}};
 		var form = _form.make(req);
 		var errors = [];
-		_form.validateHead(form, errors);
+		form.validateHead(errors);
 		errors.length.should.ok;
 		errors[0].title.should.equal(ERR_SHORTEN_TITLE);
 	});
@@ -79,7 +79,7 @@ describe("reply validation,", function () {
 		}};
 		var form = _form.make(req);
 		var errors = [];
-		_form.validateReply(form, errors);
+		form.validateReply(errors);
 		errors.should.length(0);
 	});
 	it("should fail with empty userName ", function () {
@@ -88,7 +88,7 @@ describe("reply validation,", function () {
 		}};
 		var form = _form.make(req);
 		var errors = [];
-		_form.validateReply(form, errors);
+		form.validateReply(errors);
 		errors.length.should.ok;
 		errors[0].userName .should.equal(ERR_FILL_USERNAME);
 	});
@@ -98,7 +98,7 @@ describe("reply validation,", function () {
 		}};
 		var form = _form.make(req);
 		var errors = [];
-		_form.validateReply(form, errors);
+		form.validateReply(errors);
 		errors.length.should.ok;
 		errors[0].userName .should.equal(ERR_SHORTEN_USERNAME);
 	});
@@ -113,7 +113,7 @@ describe("create head,", function () {
 	var prevPostId;
 	var form = _form.make(req);
 	it("can create head", function () {
-		_form.createHead(form, function (err, thread, post) {
+		form.createHead(function (err, thread, post) {
 			thread.should.ok;
 			thread._id.should.ok;
 			post.should.ok;
@@ -127,7 +127,7 @@ describe("create head,", function () {
 			threadId: prevThreadId
 		}};
 		var form = _form.make(req);
-		_form.findThread(form, function (err, thread) {
+		form.findThread(function (err, thread) {
 			thread.should.ok;
 			thread._id.should.equal(prevThreadId);
 			thread.categoryId.should.equal(100);
@@ -141,7 +141,7 @@ describe("create head,", function () {
 			threadId: prevThreadId, postId: prevPostId
 		}};
 		var form = _form.make(req);
-		_form.findThreadAndPost(form, function (err, thread, post) {
+		form.findThreadAndPost(function (err, thread, post) {
 			thread.should.ok;
 			thread._id.should.equal(prevThreadId);
 			thread.categoryId.should.equal(100);
@@ -160,9 +160,9 @@ describe("create head,", function () {
 			userName : 'snowman h2', title: 'cool thread h2', text: 'cool text h2'
 		}};
 		var form = _form.make(req);
-		_form.findThreadAndPost(form, function (err, thread, post) {
-			_form.updateHead(form, thread, post, true, function (err) {
-				_form.findThreadAndPost(form, function (err, thread, post) {
+		form.findThreadAndPost(function (err, thread, post) {
+			form.updateHead(thread, post, true, function (err) {
+				form.findThreadAndPost(function (err, thread, post) {
 					thread.categoryId.should.equal(103);
 					thread.userName .should.equal('snowman h2');
 					thread.title.should.equal('cool thread h2');
@@ -180,7 +180,7 @@ describe("create head,", function () {
 		}};
 		var thread = {_id: prevThreadId};
 		var form = _form.make(req);
-		_form.createReply(form, thread, function (err, post) {
+		form.createReply(thread, function (err, post) {
 			post.should.ok;
 			prevPostId = post._id;
 			next(err);
@@ -191,7 +191,7 @@ describe("create head,", function () {
 			threadId: prevThreadId, postId: prevPostId
 		}};
 		var form = _form.make(req);
-		_form.findThreadAndPost(form, function (err, thread, post) {
+		form.findThreadAndPost(function (err, thread, post) {
 			post._id.should.equal(prevPostId);
 			post.userName .should.equal('snowman 2');
 			post.text.should.equal('cool text 2');
@@ -205,9 +205,9 @@ describe("create head,", function () {
 			userName : 'snowman r2', text: 'cool text r2'
 		}};
 		var form = _form.make(req);
-		_form.findThreadAndPost(form, function (err, thread, post) {
-			_form.updateReply(form, post, true, function (err) {
-				_form.findThreadAndPost(form, function (err, thread, post) {
+		form.findThreadAndPost(function (err, thread, post) {
+			form.updateReply(post, true, function (err) {
+				form.findThreadAndPost(function (err, thread, post) {
 					post.userName.should.equal('snowman r2');
 					post.text.should.equal('cool text r2');
 					next(err);

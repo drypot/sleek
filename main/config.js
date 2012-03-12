@@ -17,13 +17,8 @@ _l.addInit(function (next) {
 
 	new _xml2js.Parser().parseString(_fs.readFileSync(param.configPath, 'utf8'), function (err, config) {
 		if (err) return next(err);
-
-		config.roleList = _.map(config.role, function (el) { return el["@"]; });
-		delete config.role;
-
-		config.categoryList = _.map(config.category, function (el) { return el["@"]; });
-		delete config.category;
-
+		config.role = _.map(config.role, function (el) { return el["@"]; });
+		config.category = _.map(config.category, function (el) { return el["@"]; });
 		_.extend(exports, config);
 		console.info('configuration file loaded: ' + param.configPath);
 		next();

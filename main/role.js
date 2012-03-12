@@ -5,41 +5,47 @@ var _bcrypt = require('bcrypt');
 var _l = require('./l');
 var _config = require("./config");
 
-var roleList = {};
+var role = {};
 
 // init
 
 _l.addInit(function (next) {
-	_.each(_config.roleList, function (role) {
-		roleList[role.name] = make(role);
+	_.each(_config.role, function (x) {
+		role[x.name] = new Role(x);
 	});
 	next();
 });
 
-// _role.*
+// Role
 
-var make = exports.make = function (obj) {
-	return {
-		name: obj.name,
-		hash: obj.hash,
-		category: {}
-	}
+var Role = function (obj) {
+	this.name = obj.name;
+	this.hash = obj.hash;
+	this.category = {};
 }
 
-var checkPassword = exports.checkPassword = function (role, password) {
-	return _bcrypt.compareSync(password, role.hash);
+var proto = Role.prototype;
+
+proto.checkPassword = function (password) {
+	return _bcrypt.compareSync(password, this.hash);
 };
 
-exports.getByName = function (rolename) {
-	return roleList[rolename];
+// _role.*
+
+exports.make = function (x) {
+	return new Role(x);
+}
+
+exports.getByName = function (roleName) {
+	return role[roleName];
 };
 
 exports.getByPassword = function (password) {
-	return _.find(roleList, function (role) {
-		return checkPassword(role, password);
+	return _.find(role, function (role) {
+		return role.checkPassword(password);
 	});
 };
 
 exports.each = function (func) {
-	_.each(roleList, func);
+	_.each(role, func);
 }

@@ -32,20 +32,20 @@ describe('role list', function () {
 	it('have user role', function () {
 		var role = _role.getByName('user');
 		role.name.should.equal('user');
-		_role.checkPassword(role, '1').should.ok;
-		_role.checkPassword(role, 'x').should.not.ok;
+		role.checkPassword('1').should.ok;
+		role.checkPassword('x').should.not.ok;
 	});
 	it('have cheater role', function () {
 		var role = _role.getByName('cheater');
 		role.name.should.equal('cheater');
-		_role.checkPassword(role, '2').should.ok;
-		_role.checkPassword(role, 'x').should.not.ok;
+		role.checkPassword('2').should.ok;
+		role.checkPassword('x').should.not.ok;
 	});
 	it('have admin role', function () {
 		var role = _role.getByName('admin');
 		role.name.should.equal('admin');
-		_role.checkPassword(role, '3').should.ok;
-		_role.checkPassword(role, 'x').should.not.ok;
+		role.checkPassword('3').should.ok;
+		role.checkPassword('x').should.not.ok;
 	});
 	it('can return role by password', function () {
 		_role.getByPassword('1').name.should.equal('user');

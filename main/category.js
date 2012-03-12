@@ -8,10 +8,10 @@ var _role = require('./role');
 // init
 
 _l.addInit(function (next) {
-	_.each(_config.categoryList, function (el) {
-		_role.each(function (role) {
-			var c = make(el, role.name);
-			if (c.readable) role.category[c.id] = c;
+	_.each(_config.category, function (cx) {
+		_role.each(function (rx) {
+			var c = new Category(cx, rx.name);
+			if (c.readable) rx.category[c.id] = c;
 		});
 	});
 	next();
@@ -19,16 +19,19 @@ _l.addInit(function (next) {
 
 // Category.*
 
-var make = exports.make = function (obj, roleName) {
-	var id = parseInt(obj.id || obj.categoryId)
-	return {
-		id: id,
-		name: obj.name,
-		all: id == 0,
-		sep: !!obj.sep,
-		newLine: !!obj.newLine,
-		readable: _.include((obj.read || '').split(' '), roleName),
-		writable: _.include((obj.write || '').split(' '), roleName),
-		editable: _.include((obj.edit || '').split(' '), roleName)
-	};
+var Category = function (x, roleName) {
+	this.id = parseInt(x.id || x.categoryId);
+	this.name = x.name;
+	this.all = this.id == 0;
+	this.sep = !!x.sep;
+	this.newLine = !!x.newLine;
+	this.readable = _.include((x.read || '').split(' '), roleName);
+	this.writable = _.include((x.write || '').split(' '), roleName);
+	this.editable = _.include((x.edit || '').split(' '), roleName);
+}
+
+// _category.*
+
+exports.make = function (x, roleName) {
+	return new Category(x, roleName);
 }
