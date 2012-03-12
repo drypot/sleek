@@ -209,9 +209,9 @@ _l.addInit(function (next) {
 
 	// category
 
-	ex.post('/api/category', assertLoggedIn, function (req, res) {
+	ex.post('/api/get-category', assertLoggedIn, function (req, res) {
 		var role = _role.getByName(req.session.roleName);
-		res.json(role.categoryList);
+		res.json(role && role.category);
 	});
 
 	// admin

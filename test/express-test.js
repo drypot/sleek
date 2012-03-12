@@ -36,8 +36,8 @@ function post(url, body, next) {
 	_request.post({ url: urlBase + url, body: body, json: true }, next);
 }
 
-describe('hello', function () {
-	it('should success', function (next) {
+describe('hello,', function () {
+	it('can send hello', function (next) {
 		post('/api/hello', function (err, res, body) {
 			res.should.status(200);
 			body.should.equal('hello');
@@ -47,14 +47,14 @@ describe('hello', function () {
 });
 
 describe('session', function () {
-	it('can save value', function (next) {
+	it('can save session value', function (next) {
 		post('/api/test/set-session-var', {value: 'book217'}, function (err, res, body) {
 			res.should.status(200);
 			body.should.equal('ok');
 			next(err);
 		});
 	});
-	it('can read value', function (next) {
+	it('can get session value', function (next) {
 		post('/api/test/get-session-var', function (err, res, body) {
 			res.should.status(200);
 			body.should.equal('book217');
@@ -63,62 +63,58 @@ describe('session', function () {
 	});
 });
 
-describe('auth', function () {
-	describe("login", function () {
-		it('should success', function (next) {
-			post('/api/auth/login', {password: '1'}, function (err, res, body) {
-				res.should.status(200);
-				body.role.name.should.equal('user');
-				next(err);
-			});
-		});
-		it('should fail with wrong password', function (next) {
-			post('/api/auth/login', {password: 'xxx'}, function (err, res, body) {
-				res.should.status(400);
-				body.error.should.equal(ERR_LOGIN_FAILED);
-				next(err);
-			});
+describe('auth,', function () {
+	it('can login as user', function (next) {
+		post('/api/auth/login', {password: '1'}, function (err, res, body) {
+			res.should.status(200);
+			body.role.name.should.equal('user');
+			next(err);
 		});
 	});
-	describe("logout", function () {
-		it("should success", function (next) {
-			post('/api/auth/logout', function (err, res, body) {
-				res.should.status(200);
-				next(err);
-			});
+	it('can not login with wrong password', function (next) {
+		post('/api/auth/login', {password: 'xxx'}, function (err, res, body) {
+			res.should.status(400);
+			body.error.should.equal(ERR_LOGIN_FAILED);
+			next(err);
 		});
 	});
-	describe("assert-role-any", function () {
-		before(function (next) {
+	it("can logout", function (next) {
+		post('/api/auth/logout', function (err, res, body) {
+			res.should.status(200);
+			next(err);
+		});
+	});
+	describe("/api/test/assert-role-any", function () {
+		it('can logout', function (next) {
 			post('/api/auth/logout', next);
 		})
-		it('should fail before login', function (next) {
+		it('can not access before login', function (next) {
 			post('/api/test/assert-role-any', function (err, res, body) {
 				res.should.status(400);
 				body.error.should.equal(ERR_LOGIN_FIRST);
 				next(err);
 			});
 		});
-		it('should success to login as user', function (next) {
+		it('can login as user', function (next) {
 			post('/api/auth/login', {password: '1'}, function (err, res, body) {
 				res.should.status(200);
 				body.role.name.should.equal('user');
 				next(err);
 			});
 		});
-		it('should success after login', function (next) {
+		it('can access assertLoggedIn after login', function (next) {
 			post('/api/test/assert-role-any', function (err, res, body) {
 				res.should.status(200);
 				next(err);
 			});
 		});
-		it('should success to login out', function (next) {
+		it('can logout', function (next) {
 			post('/api/auth/logout', function (err, res, body) {
 				res.should.status(200);
 				next(err);
 			});
 		});
-		it('should fail after logout', function (next) {
+		it('can not access assertLoggedIn after logout', function (next) {
 			post('/api/test/assert-role-any', function (err, res, body) {
 				res.should.status(400);
 				body.error.should.equal(ERR_LOGIN_FIRST);
@@ -126,21 +122,21 @@ describe('auth', function () {
 			});
 		});
 	});
-	describe("assert-role-user", function () {
-		before(function (next) {
+	describe("/api/test/assert-role-user", function () {
+		it('can logout', function (next) {
 			post('/api/auth/logout', next);
 		});
-		it('should fail before login', function (next) {
+		it('can not access before login', function (next) {
 			post('/api/test/assert-role-user', function (err, res, body) {
 				res.should.status(400);
 				body.error.should.equal(ERR_LOGIN_FIRST);
 				next(err);
 			});
 		});
-		it('should success to login as user', function (next) {
+		it('can login as user', function (next) {
 			post('/api/auth/login', {password: '1'}, next);
 		});
-		it('should success after login', function (next) {
+		it('can access after login', function (next) {
 			post('/api/test/assert-role-user', function (err, res, body) {
 				res.should.status(200);
 				body.should.equal('ok');
@@ -148,31 +144,31 @@ describe('auth', function () {
 			});
 		});
 	});
-	describe("assert-role-admin", function () {
-		before(function (next) {
+	describe("/api/test/assert-role-admin", function () {
+		it('can logout', function (next) {
 			post('/api/auth/logout', next);
 		});
-		it('should fail before login', function (next) {
+		it('can not access before login', function (next) {
 			post('/api/test/assert-role-admin', function (err, res, body) {
 				res.should.status(400);
 				body.error.should.equal(ERR_LOGIN_FIRST);
 				next(err);
 			});
 		});
-		it('should success to login as user', function (next) {
+		it('can login as user', function (next) {
 			post('/api/auth/login', {password: '1'}, next);
 		});
-		it('should fail with user permission', function (next) {
+		it('can not access as user', function (next) {
 			post('/api/test/assert-role-admin', function (err, res, body) {
 				res.should.status(400);
 				body.error.should.equal(ERR_NOT_AUTHORIZED);
 				next(err);
 			});
 		});
-		it('should success to login as admin', function (next) {
+		it('can login as admin', function (next) {
 			post('/api/auth/login', {password: '3'}, next);
 		});
-		it('should success with admin permission', function (next) {
+		it('can access as admin', function (next) {
 			post('/api/test/assert-role-admin', function (err, res, body) {
 				res.should.status(200);
 				next(err);
@@ -181,59 +177,55 @@ describe('auth', function () {
 	});
 });
 
-describe("category", function () {
-	describe("user category", function () {
-		var cl;
-		before(function (next) {
+describe("category,", function () {
+	describe("user category,", function () {
+		var c;
+		it('can login as user', function (next) {
 			post('/api/auth/login', {password: '1'}, next);
 		});
-		before(function (next) {
-			post('/api/category', function (err, res, body) {
+		it('can get category', function (next) {
+			post('/api/get-category', function (err, res, body) {
 				res.should.status(200);
-				cl = body;
+				c = body;
+				c.should.ok;
 				next(err);
 			});
 		});
-		it("should ok", function () {
-			cl.should.ok;
+		it('can get categroy 100', function () {
+			var cx = c[100];
+			cx.should.ok;
+			cx.should.property('name');
+			cx.should.property('readable');
+			cx.should.property('writable');
 		});
-		it('should have category 100', function () {
-			var c = cl[100];
-			c.should.ok;
-			c.should.property('name');
-			c.should.property('readable');
-			c.should.property('writable');
-		});
-		it('should not have category 40', function () {
-			var c = cl[40];
-			_should.equal(c, undefined);
+		it('can not get category 40', function () {
+			var cx = c[40];
+			_should(!cx);
 		});
 	});
 	describe("admin category", function () {
-		var cl;
-		before(function (next) {
+		var c;
+		it('can login as admin', function (next) {
 			post('/api/auth/login', {password: '3'}, next);
 		});
-		before(function (next) {
-			post('/api/category', function (err, res, body) {
+		it('can get category', function (next) {
+			post('/api/get-category', function (err, res, body) {
 				res.should.status(200);
-				cl = body;
+				c = body;
+				c.should.ok;
 				next(err);
 			});
 		});
-		it("should ok", function () {
-			cl.should.ok;
+		it('can get category 100', function () {
+			var cx = c[100];
+			cx.should.ok;
+			cx.should.property('name');
+			cx.should.property('readable');
+			cx.should.property('writable');
 		});
-		it('should have category 100', function () {
-			var c = cl[100];
-			c.should.ok;
-			c.should.property('name');
-			c.should.property('readable');
-			c.should.property('writable');
-		});
-		it('should have category 40', function () {
-			var c = cl[40];
-			c.should.ok;
+		it('can get category 40', function () {
+			var cx = c[40];
+			_should(cx);
 		});
 	});
 });
