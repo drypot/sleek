@@ -8,7 +8,7 @@ describe('crypot', function () {
 		var hash = _crypto.createHash('sha256');
 		hash.update(buf);
 		var d = hash.digest('base64');
-		d.should.eql('555BjkhiNWnXXip7Ca6I7Zt3sSakRbn/ncaYmgjvoHk=');
+		d.should.equal('555BjkhiNWnXXip7Ca6I7Zt3sSakRbn/ncaYmgjvoHk=');
 	});
 });
 

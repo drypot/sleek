@@ -34,19 +34,19 @@ function doPost(url, body, next) {
 	_request.post({ url: urlBase + url, body: body }, next);
 }
 
-describe("upload post file,", function () {
+describe("upload-post-file", function () {
 	var post = {_id: 10003};
 	var dir;
 	before(function () {
 		dir = _upload.getPostDir(post);
 	});
-	it("should not exists, 1.jpg", function () {
+	it("confirm 1.jpg not exists", function () {
 		_should(!_path.existsSync(dir + '/1.jpg'));
 	});
-	it("should not exists, 2.jpg", function () {
+	it("confirm 2.jpg not exists", function () {
 		_should(!_path.existsSync(dir + '/2.jpg'));
 	});
-	it("should success to upload two file", function (next) {
+	it("can upload two files", function (next) {
 		_childp.execFile('/usr/bin/curl', ['-F', 'postId=' + post._id, '-F', 'file=@test-data/1.jpg', '-F', 'file=@test-data/2.jpg', 'localhost:8010/api/test/upload-post-file'], null, function (err, stdout, stderr) {
 			var body = JSON.parse(stdout);
 			body.should.length(2);
@@ -55,7 +55,7 @@ describe("upload post file,", function () {
 			next(err);
 		});
 	});
-	it("should success to upload one file", function (next) {
+	it("can upload one file", function (next) {
 		_childp.execFile('/usr/bin/curl', ['-F', 'postId=' + post._id, '-F', 'file=@test-data/1.jpg', 'localhost:8010/api/test/upload-post-file'], null, function (err, stdout, stderr) {
 			var body = JSON.parse(stdout);
 			body.should.length(1);
@@ -63,30 +63,30 @@ describe("upload post file,", function () {
 			next(err);
 		});
 	});
-	it("should success to upload none", function (next) {
+	it("can upload none", function (next) {
 		_childp.execFile('/usr/bin/curl', ['-F', 'postId=' + post._id, 'localhost:8010/api/test/upload-post-file'], null, function (err, stdout, stderr) {
 			stdout.should.empty;
 			next(err);
 		});
 	});
-	it("should exists, 2.jpg", function () {
+	it("confirm 2.jpg exists", function () {
 		_should(_path.existsSync(dir + '/2.jpg'));
 	});
-	it("should exists, 1.jpg", function () {
+	it("confirm 1.jpg exists", function () {
 		_should(_path.existsSync(dir + '/1.jpg'));
 	});
 });
 
-describe("delete post file,", function () {
+describe("delete-post-file", function () {
 	var post = {_id: 10003};
 	var dir;
 	before(function () {
 		dir = _config.uploadDir + '/post/' + Math.floor(post._id / 10000) + '/' + post._id;
 	});
-	it("should exists, 1.jpg", function () {
+	it("confirm 1.jpg exists", function () {
 		_should(_path.existsSync(dir + '/1.jpg'));
 	});
-	it("should success to delete 1.jpg", function (next) {
+	it("can delete 1.jpg", function (next) {
 		doPost('/api/test/delete-post-file', {postId: post._id, delFile: ['1.jpg']}, function (err, res, body) {
 			res.should.status(200);
 			body.should.length(1);
@@ -94,13 +94,13 @@ describe("delete post file,", function () {
 			next(err);
 		});
 	});
-	it("should not exists, 1.jpg", function () {
+	it("confirm 1.jpg not exists", function () {
 		_should(!_path.existsSync(dir + '/1.jpg'));
 	});
-	it("should exists, 2.jpg", function () {
+	it("confirm 2.jpg exists", function () {
 		_should(_path.existsSync(dir + '/2.jpg'));
 	});
-	it("should success to delete 2.jpg", function (next) {
+	it("can delete 2.jpg", function (next) {
 		doPost('/api/test/delete-post-file', {postId: post._id, delFile: ['2.jpg']}, function (err, res, body) {
 			res.should.status(200);
 			body.should.length(1);
@@ -108,10 +108,10 @@ describe("delete post file,", function () {
 			next(err);
 		});
 	});
-	it("should not exists, 2.jpg", function () {
+	it("confirm 2.jpg not exists", function () {
 		_should(!_path.existsSync(dir + '/2.jpg'));
 	});
-	it("should success to delete 1.jpg again", function (next) {
+	it("can delete 1.jpg again", function (next) {
 		doPost('/api/test/delete-post-file', {postId: post._id, delFile: ['1.jpg']}, function (err, res, body) {
 			res.should.status(200);
 			body.should.length(1);
@@ -119,7 +119,7 @@ describe("delete post file,", function () {
 			next(err);
 		});
 	});
-	it("should success to delete none", function (next) {
+	it("can delete none", function (next) {
 		doPost('/api/test/delete-post-file', {postId: post._id}, function (err, res, body) {
 			res.should.status(200);
 			next(err);

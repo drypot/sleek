@@ -13,40 +13,43 @@ before(function (next) {
 	_l.runInit(next);
 });
 
-describe('role object', function () {
-	it('can be created', function () {
+describe('_role.make', function () {
+	it('can created role', function () {
 		var role = _role.make({name: 'user1', hash: 'xxx'});
 		role.should.ok;
 		role.name.should.equal('user1');
 		role.hash.should.equal('xxx');
 	});
-})
+});
 
-describe('role list', function () {
-	it('can return role by name', function () {
+describe('_role.getByName', function () {
+	it('can find role by name', function () {
 		_role.getByName('user').should.be.ok;
 		_role.getByName('cheater').should.be.ok;
 		_role.getByName('admin').should.be.ok;
 		_should(!_role.getByName('xxx'));
 	});
-	it('have user role', function () {
+	it('can find user role', function () {
 		var role = _role.getByName('user');
 		role.name.should.equal('user');
 		role.checkPassword('1').should.ok;
 		role.checkPassword('x').should.not.ok;
 	});
-	it('have cheater role', function () {
+	it('can find cheater role', function () {
 		var role = _role.getByName('cheater');
 		role.name.should.equal('cheater');
 		role.checkPassword('2').should.ok;
 		role.checkPassword('x').should.not.ok;
 	});
-	it('have admin role', function () {
+	it('can find admin role', function () {
 		var role = _role.getByName('admin');
 		role.name.should.equal('admin');
 		role.checkPassword('3').should.ok;
 		role.checkPassword('x').should.not.ok;
 	});
+});
+
+describe('_role.getByPassword', function () {
 	it('can return role by password', function () {
 		_role.getByPassword('1').name.should.equal('user');
 		_role.getByPassword('2').name.should.equal('cheater');

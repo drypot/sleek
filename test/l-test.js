@@ -5,7 +5,7 @@ var _l = require('../main/l');
 
 describe('initList', function () {
 	var a = [];
-	before(function () {
+	before(function (next) {
 		_l.addInit(function (next) {
 			a.push(2);
 			next();
@@ -18,7 +18,7 @@ describe('initList', function () {
 			a.push(1);
 			next();
 		});
-		_l.runInit();
+		_l.runInit(next);
 	});
 	it('should have 1, 2, 3', function () {
 		a[0].should.equal(1);
@@ -44,79 +44,43 @@ describe('merge', function () {
 });
 
 describe('p', function () {
-	it('should return value', function () {
+	it('should', function () {
 		_l.p({x: 'def'}, 'x', 'abc').should.equal('def');
-	});
-	it('should return default for non existing property', function () {
 		_l.p({y: 'def'}, 'x', 'abc').should.equal('abc');
-	});
-	it('should return default for null obj', function () {
 		_l.p(null, 'x', 'abc').should.equal('abc');
 	});
 });
 
 describe('intp', function () {
-	it('should return value', function () {
+	it('should', function () {
 		_l.intp({x: '10'}, 'x', 30).should.equal(10);
-	});
-	it('should return value', function () {
 		_l.intp({x: 10}, 'x', 30).should.equal(10);
-	});
-	it('should return default for NaN', function () {
 		_l.intp({x: 'def'}, 'x', 30).should.equal(30);
-	});
-	it('should return default for non existing property', function () {
 		_l.intp({y: '10'}, 'x', 30).should.equal(30);
-	});
-	it('should return default for null obj', function () {
 		_l.intp(null, 'x', 30).should.equal(30);
 	});
 });
 
 describe('strp', function () {
-	it('should return value', function () {
+	it('should', function () {
 		_l.strp({x: 'def'}, 'x', 'abc').should.equal('def');
-	});
-	it('should return value casted as string', function () {
 		_l.strp({x: 10}, 'x', 'abc').should.equal('10');
-	});
-	it('should return trimed value', function () {
 		_l.strp({x: ' def '}, 'x', 'abc').should.equal('def');
-	});
-	it('should return default for non existing property', function () {
 		_l.strp({y: 'def'}, 'x', 'abc').should.equal('abc');
-	});
-	it('should return default for null obj', function () {
 		_l.strp(null, 'x', 'abc').should.equal('abc');
 	});
 });
 
 describe('boolp', function () {
-	it('should return value', function () {
+	it('should', function () {
 		_l.boolp({x: 'true'}, 'x', true).should.equal(true);
-	});
-	it('should return value', function () {
 		_l.boolp({x: true}, 'x', true).should.equal(true);
-	});
-	it('should return value', function () {
 		_l.boolp({x: 'false'}, 'x', true).should.equal(false);
-	});
-	it('should return value', function () {
 		_l.boolp({x: false}, 'x', true).should.equal(false);
-	});
-	it('should return default for non existing property', function () {
 		_l.boolp({y: true}, 'x', true).should.equal(true);
-	});
-	it('should return default for non existing property', function () {
 		_l.boolp({y: true}, 'x', false).should.equal(false);
-	});
-	it('should return default for non existing property', function () {
 		_l.boolp({y: false}, 'x', true).should.equal(true);
-	});
-	it('should return default for null obj', function () {
 		_l.boolp(null, 'x', true).should.equal(true);
-	});
-	it('should return default for null obj', function () {
 		_l.boolp(null, 'x', false).should.equal(false);
 	});
 });

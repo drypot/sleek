@@ -14,7 +14,7 @@ before(function (next) {
 	_l.runInit(next);
 });
 
-describe('category,', function () {
+describe('make', function () {
 	it('can make category', function () {
 		var c = _category.make(
 			{categoryId: "0", name: "all", sep: "true", newLine: "true" },
@@ -24,152 +24,68 @@ describe('category,', function () {
 		c.id.should.equal(0);
 		c.name.should.equal('all');
 	});
-	it('should return undefined for non existing category', function () {
-		var d = _role.getByName('user').category[-999];
-		_should(!d);
-	});
 });
 
-describe('category of user,', function () {
+describe('category for user', function () {
 	var role;
 	before(function () {
 		role = _role.getByName('user');
 	});
-	describe('all,', function () {
-		var c;
-		before(function () {
-			c = role.category[0];
-		});
-		it('should be ok', function () {
-			c.should.ok;
-		});
-		it('should have name', function () {
-			c.name.should.equal('all');
-		});
-		it('should be all', function () {
-			c.all.should.be.ok;
-		});
-		it('should readable', function () {
-			c.readable.should.ok;
-		});
-		it('should writable', function () {
-			c.writable.should.ok;
-		});
-		it('should not editable', function () {
-			c.editable.should.not.ok;
-		})
+	it('has all category', function () {
+		var c = role.category[0];
+		c.should.ok;
+		c.name.should.equal('all');
+		c.all.should.be.ok;
+		c.readable.should.ok;
+		c.writable.should.ok;
+		c.editable.should.not.ok;
 	});
-	describe('freetalk,', function () {
-		var c;
-		before(function () {
-			c = role.category[100];
-		});
-		it('should be ok', function () {
-			c.should.ok;
-		});
-		it('should have name', function () {
-			c.name.should.equal('freetalk');
-		});
-		it('should not be all', function () {
-			c.all.should.not.ok;
-		});
-		it('should readable', function () {
-			c.readable.should.ok;
-		});
-		it('should writable', function () {
-			c.writable.should.ok;
-		});
-		it('should not editable', function () {
-			c.editable.should.not.ok;
-		})
+	it('has freetalk', function () {
+		var c = role.category[100];
+		c.should.ok;
+		c.name.should.equal('freetalk');
+		c.all.should.not.ok;
+		c.readable.should.ok;
+		c.writable.should.ok;
+		c.editable.should.not.ok;
 	});
-	describe('cheat,', function () {
-		var c;
-		before(function () {
-			c = role.category[60];
-		});
-		it('should be ok', function () {
-			_should.equal(undefined, c);
-		});
+	it('has cheat', function () {
+		var c = role.category[60];
+		_should(!c);
 	});
 });
 
-describe('category of admin,', function () {
+describe('category for admin', function () {
 	var role;
 	before(function () {
 		role = _role.getByName('admin');
 	});
-	describe('all,', function () {
-		var c;
-		before(function () {
-			c = role.category[0];
-		});
-		it('should be ok', function () {
-			c.should.ok;
-		});
-		it('should have name', function () {
-			c.name.should.equal('all');
-		});
-		it('should be all', function () {
-			c.all.should.be.ok;
-		});
-		it('should readable', function () {
-			c.readable.should.ok;
-		});
-		it('should writable', function () {
-			c.writable.should.ok;
-		});
-		it('should editable', function () {
-			c.editable.should.ok;
-		})
+	it('has all category', function () {
+		var c = role.category[0];
+		c.should.ok;
+		c.name.should.equal('all');
+		c.all.should.be.ok;
+		c.readable.should.ok;
+		c.writable.should.ok;
+		c.editable.should.ok;
 	});
-	describe('freetalk,', function () {
-		var c;
-		before(function () {
-			c = role.category[100];
-		});
-		it('should be ok', function () {
-			c.should.ok;
-		});
-		it('should have name', function () {
-			c.name.should.equal('freetalk');
-		});
-		it('should not be all', function () {
-			c.all.should.not.ok;
-		});
-		it('should readable', function () {
-			c.readable.should.ok;
-		});
-		it('should writable', function () {
-			c.writable.should.ok;
-		});
-		it('should editable', function () {
-			c.editable.should.ok;
-		})
+	it('has freetalk', function () {
+		var c = role.category[100];
+		c.should.ok;
+		c.name.should.equal('freetalk');
+		c.all.should.not.ok;
+		c.readable.should.ok;
+		c.writable.should.ok;
+		c.editable.should.ok;
 	});
-	describe('cheat,', function () {
-		var c;
-		before(function () {
-			c = role.category[60];
-		});
-		it('should be ok', function () {
-			c.should.ok;
-		});
-		it('should have name', function () {
-			c.name.should.equal('cheat');
-		});
-		it('should not be all', function () {
-			c.all.should.not.ok;
-		});
-		it('should readable', function () {
-			c.readable.should.ok;
-		});
-		it('should writable', function () {
-			c.writable.should.ok;
-		});
-		it('should editable', function () {
-			c.editable.should.ok;
-		})
+	it('has cheat', function () {
+		var c = role.category[60];
+		c.should.ok;
+		c.name.should.equal('cheat');
+		c.all.should.not.ok;
+		c.readable.should.ok;
+		c.writable.should.ok;
+		c.editable.should.ok;
 	});
 });
 

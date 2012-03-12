@@ -17,6 +17,7 @@ var ERR_LOGIN_FIRST = 'login first';
 var ERR_LOGIN_FAILED = 'login failed';
 var ERR_NOT_AUTHORIZED = 'not authorized';
 var ERR_INVALID_DATA = 'invalid data';
+var ERR_INVALID_CATEGORY = 'invalid category';
 
 _l.addInit(function (next) {
 	var ex = _express();
@@ -106,7 +107,7 @@ _l.addInit(function (next) {
 //		return "post/view";
 	});
 
-	ex.post('/api/get-post', assertLoggedIn, function (req, res) {
+	ex.post('/api/get-head & reply', assertLoggedIn, function (req, res) {
 		var role = _role.getByName(req.session.roleName); ;
 		var categoryId = _l.intp(body, 'categoryId', 0);
 
@@ -120,17 +121,18 @@ _l.addInit(function (next) {
 	ex.post('/api/create-head', assertLoggedIn, function (req, res, next) {
 		var role = _role.getByName(req.session.roleName);
 		var form = _form.make(req);
-		var errors = [];
+		var category = role.category[form.categoryId];
 
+		if (!category) {
+			return res.json(400, {error: ERR_INVALID_CATEGORY});
+		}
 		if (!role.category[form.categoryId].writable) {
 			return res.json(400, {error: ERR_NOT_AUTHORIZED});
 		}
-
-		form.validateHead(errors);
-		if (errors.length) {
-			return res.json(400, {error: ERR_INVALID_DATA, errors: errors});
+		form.validateHead();
+		if (form.error.length) {
+			return res.json(400, {error: ERR_INVALID_DATA, field: form.error});
 		}
-
 		form.createHead(function (err, thread, post) {
 			if (err) return next(err);
 			req.session.post.push(post._id);
@@ -141,19 +143,20 @@ _l.addInit(function (next) {
 	ex.post('/api/create-reply', assertLoggedIn, function (req, res, next) {
 		var role = _role.getByName(req.session.roleName);
 		var form = _form.make(req);
-		var errors = [];
-
 		form.findThread(function (err, thread) {
 			if (err) return next(err);
-			if (!role.category[thread.categoryId].writable) {
+			var category = role.category[thread.categoryId];
+			if (!category) {
+				return res.json(400, {error: ERR_INVALID_CATEGORY});
+			}
+			if (!category.writable) {
 				return res.json(400, {error: ERR_NOT_AUTHORIZED});
 			}
-
+			var errors = [];
 			form.validateReply(errors);
 			if (errors.length) {
-				return res.json(400, {error: ERR_INVALID_DATA, errors: errors});
+				return res.json(400, {error: ERR_INVALID_DATA, error: errors});
 			}
-
 			form.createReply(thread, function (err, post) {
 				if (err) return next(err);
 				req.session.post.push(post._id);
@@ -166,6 +169,10 @@ _l.addInit(function (next) {
 		var role = _role.getByName(req.session.roleName);
 		var form = _form.make(req);
 		var errors = [];
+
+		if (!category) {
+			return res.json(400, {error: ERR_INVALID_CATEGORY});
+		}
 
 		form.findThreadAndPost(function (err, thread, post) {
 			if (err) return next(err);
@@ -180,12 +187,12 @@ _l.addInit(function (next) {
 				return res.json(400, {error: ERR_NOT_AUTHORIZED});
 			}
 
-			_form.validateHead(form, errors);
+			form.validateHead(errors);
 			if (errors.length) {
-				return res.json(400, {error: ERR_INVALID_DATA, errors: errors});
+				return res.json(400, {error: ERR_INVALID_DATA, error: errors});
 			}
 
-			_form.updateHead(form, thread, post, category.editable, function (err) {
+			form.updateHead(thread, post, category.editable, function (err) {
 				if (err) return next(err);
 				res.json(200, 'ok');
 			});
@@ -197,7 +204,11 @@ _l.addInit(function (next) {
 		var form = _form.make(req);
 		var errors = [];
 
-		_form.findThreadAndPost(form, function (err, thread, post) {
+		if (!category) {
+			return res.json(400, {error: ERR_INVALID_CATEGORY});
+		}
+
+		form.findThreadAndPost(function (err, thread, post) {
 			if (err) return next(err);
 
 			var category = role.category[thread.categoryId];
@@ -206,12 +217,12 @@ _l.addInit(function (next) {
 				return res.json(400, {error: ERR_NOT_AUTHORIZED});
 			}
 
-			_form.validateReply(form, errors);
+			form.validateReply(errors);
 			if (errors.length) {
-				return res.json(400, {error: ERR_INVALID_DATA, errors: errors});
+				return res.json(400, {error: ERR_INVALID_DATA, error: errors});
 			}
 
-			_form.updateReply(form, thread, post, function (err) {
+			form.updateReply(thread, post, function (err) {
 				if (err) return next(err);
 				res.json(200, 'ok');
 			});
@@ -220,14 +231,14 @@ _l.addInit(function (next) {
 
 	// auth
 
-	ex.post('/api/auth/login', function (req, res) {
+	ex.post('/api/login', function (req, res) {
 		if (!_auth.loginByPassword(req, req.body.password)) {
 			return res.json(400, { error: ERR_LOGIN_FAILED });
 		}
 		res.json({ role: { name: req.session.roleName } });
 	});
 
-	ex.post('/api/auth/logout', function (req, res) {
+	ex.post('/api/logout', function (req, res) {
 		_auth.logout(req);
 		res.json('ok');
 	});

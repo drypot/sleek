@@ -14,19 +14,22 @@ before(function (next) {
 	});	_l.runInit(next);
 });
 
-describe('auth', function () {
+describe('loginByPassword', function () {
+	it('should success with user password', function () {
+		var req = { session: {} };
+		_auth.loginByPassword(req, '1').should.ok;
+		req.session.roleName.should.equal(_role.getByName('user').name);
+	});
 	it('should fail with wrong password', function () {
 		var req = { session: {} };
 		_auth.loginByPassword(req, 'xxx').should.not.ok;
 	});
-	it('should return user', function () {
-		var req = { session: {} };
-		_auth.loginByPassword(req, '1').should.ok;
-		req.session.role.should.equal(_role.getByName('user'));
-	});
-	it('can login as admin', function () {
+});
+
+describe('loginAsAdmin', function () {
+	it('should success', function () {
 		var req = { session: {} };
 		_auth.loginAsAdmin(req);
-		req.session.role.should.equal(_role.getByName('admin'));
+		req.session.roleName.should.equal(_role.getByName('admin').name);
 	});
 });

@@ -14,37 +14,15 @@ before(function (next) {
 	_l.addBeforeInit(function (next) {
 		_db.initParam = { mongoDbName: "sleek-test", dropDatabase: true };
 		next();
-	});	_l.runInit(next);
+	});
+	_l.runInit(next);
 });
 
 before(function () {
 	col = _thread.col;
 });
 
-describe('thread object,', function () {
-	it('can be created', function () {
-		var thread = {
-			categoryId: 101,
-			hit: 10,
-			length: 5,
-			cdate: now,
-			udate: now,
-			userName : 'snowman',
-			title: 'cool thread'
-		};
-		thread.categoryId.should.equal(101);
-		thread.title.should.equal('cool thread');
-	});
-	it('can be set new id', function () {
-		var thread = {};
-		thread.should.not.have.property('_id');
-		_thread.setNewId(thread);
-		thread.should.have.property('_id');
-		thread._id.should.be.a('number');
-	});
-});
-
-describe('thread collection,', function () {
+describe('thread collection', function () {
 	it('should be ok', function () {
 		col.should.be.ok;
 	});
@@ -65,9 +43,19 @@ describe('thread collection,', function () {
 	});
 });
 
-describe('thread data access', function () {
+describe('setNewId', function () {
+	it('can set new id', function () {
+		var thread = {};
+		thread.should.not.have.property('_id');
+		_thread.setNewId(thread);
+		thread.should.have.property('_id');
+		thread._id.should.be.a('number');
+	});
+});
+
+describe('thread/db', function () {
 	var prevThread;
-	before(function () {
+	it('can insert thread', function () {
 		function insertThread(thread) {
 			_thread.setNewId(thread);
 			_thread.insert(thread);
@@ -102,7 +90,7 @@ describe('thread data access', function () {
 			userName : 'snowman', title: 'cool thread 7'
 		});
 	});
-	it('can insert record', function (next) {
+	it('can count record', function (next) {
 		col.count(function (err, count) {
 			if (err) return next(err);
 			count.should.equal(7);
@@ -145,46 +133,43 @@ describe('thread data access', function () {
 			next();
 		});
 	});
-
-	describe('list', function () {
-		it('can query all', function (next) {
-			_thread.find(0, null, 99, function (err, list) {
+	it('can find all', function (next) {
+		_thread.find(0, null, 99, function (err, list) {
+			if (err) return next(err);
+			list.should.length(7);
+			list[0].udate.should.above(list[1].udate);
+			list[1].udate.should.above(list[2].udate);
+			list[2].udate.should.above(list[3].udate);
+			next();
+		})
+	});
+	it('can find with limited', function (next) {
+		_thread.find(0, null, 3, function (err, list) {
+			if (err) return next(err);
+			list.should.length(3);
+			next();
+		})
+	});
+	it('can find with lastUpdate', function (next) {
+		_thread.find(0, new Date(20), 99, function (err, list) {
+			if (err) return next(err);
+			list.should.length(4);
+			list[0].udate.should.eql(new Date(20));
+			list[1].udate.should.eql(new Date(20));
+			list[2].udate.should.eql(new Date(11));
+			next();
+		})
+	});
+	it('can find with categoryId', function (next) {
+		_thread.find(101, null, 99, function (err, list) {
+			if (err) return next(err);
+			list.should.length(4);
+			_thread.find(103, null, 99, function (err, list) {
 				if (err) return next(err);
-				list.should.length(7);
-				list[0].udate.should.above(list[1].udate);
-				list[1].udate.should.above(list[2].udate);
-				list[2].udate.should.above(list[3].udate);
-				next();
+				list.should.length(2);
+				next(err);
 			})
-		});
-		it('can query with limited', function (next) {
-			_thread.find(0, null, 3, function (err, list) {
-				if (err) return next(err);
-				list.should.length(3);
-				next();
-			})
-		});
-		it('can query with lastUpdate', function (next) {
-			_thread.find(0, new Date(20), 99, function (err, list) {
-				if (err) return next(err);
-				list.should.length(4);
-				list[0].udate.should.eql(new Date(20));
-				list[1].udate.should.eql(new Date(20));
-				list[2].udate.should.eql(new Date(11));
-				next();
-			})
-		});
-		it('can query with categoryId', function (next) {
-			_thread.find(101, null, 99, function (err, list) {
-				if (err) return next(err);
-				list.should.length(4);
-				_thread.find(103, null, 99, function (err, list) {
-					if (err) return next(err);
-					list.should.length(2);
-					next(err);
-				})
-			})
-		});
-	}); // describe('list'
-}); // describe('Thread data access'
+		})
+	});
+});
 

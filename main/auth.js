@@ -11,8 +11,7 @@ exports.loginByPassword = function (req, password) {
 	}
 	req.session.roleName = role.name;
 	req.session.post = [];
-	req.params.role = role;
-	if (req.cookies.lv3) {
+	if (req.cookies && req.cookies.lv3) {
 		res.clearCookie('lv3');
 		res.clearCookie('lv');
 		res.clearCookie('ph');
@@ -22,7 +21,7 @@ exports.loginByPassword = function (req, password) {
 }
 
 exports.loginAsAdmin = function (req) {
-	req.session.role = _role.getAdmin();
+	req.session.roleName = _role.getByName('admin').name;
 }
 
 exports.logout = function (req) {

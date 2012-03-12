@@ -16,19 +16,13 @@ before(function (next) {
 	next();
 });
 
-describe("test base,", function () {
-	it("should exists", function () {
+describe('mkdirs', function () {
+	it("confirms base exists", function () {
 		_should(_path.existsSync(base));
 	});
-});
-
-describe("test sub,", function () {
-	it("should not exists", function () {
+	it("confirms sub not exists", function () {
 		_should(!_path.existsSync(base + '/sub1' + '/sub2'));
 	});
-});
-
-describe('mkdirs,', function () {
 	it('can make sub1', function (next) {
 		_l.mkdirs(base, 'sub1', function (err) {
 			_should(_path.existsSync(base + '/sub1'));

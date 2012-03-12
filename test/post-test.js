@@ -24,7 +24,7 @@ before(function () {
 	col = _post.col;
 });
 
-describe('post collection,', function () {
+describe('post collection', function () {
 	it('should be ok', function () {
 		col.should.be.ok;
 	});
@@ -45,18 +45,7 @@ describe('post collection,', function () {
 	});
 });
 
-describe('post,', function () {
-	it('can make post', function () {
-		var post = {
-			threadId: 123,
-			userName : 'snowman',
-			text: 'cool text',
-			cdate: now,
-			visible: true
-		};
-		post.threadId.should.equal(123);
-		post.text.should.equal('cool text');
-	});
+describe('setNewId', function () {
 	it('can make new id', function () {
 		var post = {};
 		post.should.not.have.property('_id');
@@ -66,7 +55,7 @@ describe('post,', function () {
 	});
 });
 
-describe('post db,', function () {
+describe('post/db', function () {
 	var prevPost;
 	it('can insert records', function (next) {
 		_async.forEachSeries([
@@ -124,33 +113,31 @@ describe('post db,', function () {
 			});
 		});
 	});
-	describe('find by thread id', function () {
-		it('should return posts', function (next) {
-			_post.findByThreadId(1000, function (err, post) {
-				if (err) return next();
-				post.should.length(3);
-				next();
-			})
-		});
-		it('should return posts, 2', function (next) {
-			_post.findByThreadId(1010, function (err, post) {
-				if (err) return next();
-				post.should.length(2);
-				next();
-			})
-		});
-		it('should return sorted', function (next) {
-			_post.findByThreadId(1000, function (err, post) {
-				if (err) return next();
-				post[0].cdate.should.below(post[1].cdate);
-				post[1].cdate.should.below(post[2].cdate);
-				next();
-			})
-		});
+	it('can find posts by thread id', function (next) {
+		_post.findByThreadId(1000, function (err, post) {
+			if (err) return next();
+			post.should.length(3);
+			next();
+		})
+	});
+	it('can find posts by thread id, 2', function (next) {
+		_post.findByThreadId(1010, function (err, post) {
+			if (err) return next();
+			post.should.length(2);
+			next();
+		})
+	});
+	it('can find posts as sorted', function (next) {
+		_post.findByThreadId(1000, function (err, post) {
+			if (err) return next();
+			post[0].cdate.should.below(post[1].cdate);
+			post[1].cdate.should.below(post[2].cdate);
+			next();
+		})
 	});
 });
 
-describe('post file,', function () {
+describe('post/file', function () {
 	var prevPost;
 	it('can insert post without file', function (next) {
 		var post = {};

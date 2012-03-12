@@ -26,6 +26,7 @@ var PostForm = function (req) {
 	this.visible = _l.boolp(body, 'visible', true);
 	this.delFile = body.delFile;
 	this.file = req.files && req.files.file;
+	this.error = [];
 }
 
 exports.make = function (req) {
@@ -36,23 +37,23 @@ var proto = PostForm.prototype;
 
 // validate
 
-proto.validateHead = function (errors) {
-	this._validateThread(errors);
-	this._validatePost(errors);
+proto.validateHead = function () {
+	this._validateThread();
+	this._validatePost();
 }
 
-proto.validateReply = function (errors) {
-	this._validatePost(errors);
+proto.validateReply = function () {
+	this._validatePost();
 }
 
-proto._validateThread = function (errors) {
-	if (!this.title) errors.push({title: ERR_FILL_TITLE});
-	if (this.title.length > 128) errors.push({title: ERR_SHORTEN_TITLE});
+proto._validateThread = function () {
+	if (!this.title) this.error.push({title: ERR_FILL_TITLE});
+	if (this.title.length > 128) this.error.push({title: ERR_SHORTEN_TITLE});
 }
 
-proto._validatePost = function (errors) {
-	if (!this.userName) errors.push({userName : ERR_FILL_USERNAME});
-	if (this.userName .length > 32) errors.push({userName : ERR_SHORTEN_USERNAME});
+proto._validatePost = function () {
+	if (!this.userName) this.error.push({userName : ERR_FILL_USERNAME});
+	if (this.userName .length > 32) this.error.push({userName : ERR_SHORTEN_USERNAME});
 }
 
 // find

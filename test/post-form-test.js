@@ -20,7 +20,7 @@ before(function (next) {
 	_l.runInit(next);
 });
 
-describe("form,", function () {
+describe("make", function () {
 	it("can make form", function () {
 		var req = { body: {
 			threadId: 20, postId: 30, categoryId: 100,
@@ -39,72 +39,67 @@ describe("form,", function () {
 	});
 });
 
-describe("head validation,", function () {
-	it("should be ok", function () {
+describe("validateHead", function () {
+	it("should success", function () {
 		var req = { body: {
 			title: ' cool thread ', userName : ' snow man '
 		}};
 		var form = _form.make(req);
-		var errors = [];
-		form.validateHead(errors);
-		errors.should.length(0);
+		form.validateHead();
+		form.error.should.length(0);
 	});
-	it("should fail with empty title", function () {
+	it("should find empty title", function () {
 		var req = { body: {
 			title: ' ', userName : ' snow man '
 		}};
 		var form = _form.make(req);
-		var errors = [];
-		form.validateHead(errors);
-		errors.length.should.ok;
-		errors[0].title.should.equal(ERR_FILL_TITLE);
+		form.validateHead();
+		form.error.length.should.ok;
+		form.error[0].title.should.equal(ERR_FILL_TITLE);
 	});
-	it("should fail with big title", function () {
+	it("should find big title", function () {
 		var req = { body: {
 			title: 'big title title title title title title title title title title title title title title title title title title title title title title title title title title title title',
 			userName : ' snow man '
 		}};
 		var form = _form.make(req);
-		var errors = [];
-		form.validateHead(errors);
-		errors.length.should.ok;
-		errors[0].title.should.equal(ERR_SHORTEN_TITLE);
+		form.validateHead();
+		form.error.length.should.ok;
+		form.error[0].title.should.equal(ERR_SHORTEN_TITLE);
 	});
 });
 
-describe("reply validation,", function () {
-	it("should be ok", function () {
+describe("validateReply", function () {
+	it("should success", function () {
 		var req = { body: {
 			userName : ' snow man '
 		}};
 		var form = _form.make(req);
-		var errors = [];
-		form.validateReply(errors);
-		errors.should.length(0);
+		var error = [];
+		form.validateReply(error);
+		error.should.length(0);
 	});
-	it("should fail with empty userName ", function () {
+	it("should find empty userName ", function () {
 		var req = { body: {
 			userName : ' '
 		}};
 		var form = _form.make(req);
-		var errors = [];
-		form.validateReply(errors);
-		errors.length.should.ok;
-		errors[0].userName .should.equal(ERR_FILL_USERNAME);
+		form.validateReply();
+		form.error.length.should.ok;
+		form.error[0].userName .should.equal(ERR_FILL_USERNAME);
 	});
-	it("should fail with big userName ", function () {
+	it("should find big userName ", function () {
 		var req = { body: {
 			userName : '123456789012345678901234567890123'
 		}};
 		var form = _form.make(req);
-		var errors = [];
-		form.validateReply(errors);
-		errors.length.should.ok;
-		errors[0].userName .should.equal(ERR_SHORTEN_USERNAME);
+		form.validateReply();
+		form.error.length.should.ok;
+		form.error[0].userName .should.equal(ERR_SHORTEN_USERNAME);
 	});
 });
 
-describe("create head,", function () {
+describe("postForm", function () {
 	var req = { body: {
 		categoryId: 100,
 		userName : ' snow man ', title: ' cool thread ', text: ' cool text '

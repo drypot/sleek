@@ -72,7 +72,7 @@ exports.runInit = function (next) {
 	var all = beforeList.concat(initList, afterList);
 	_async.series(all, function (err) {
 		if (err) throw err;
-		next();
+		if (next) next();
 	});
 }
 
