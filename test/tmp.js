@@ -1,6 +1,14 @@
 var _ = require('underscore');
-var _should = require('should');
-var _async = require('async');
+var should = require('should');
+var async = require('async');
+
+function testInclude() {
+	var opt = 'mongo,config'.split(',');
+	console.log(_.intersection(opt, ['mongo', 'express']).length);
+	console.log(_.intersection(opt, ['express']).length);
+}
+
+testInclude();
 
 function testEach() {
 	_.each(3, function (e) {
@@ -14,7 +22,7 @@ function testEach() {
 
 function testAsyncMap() {
 	var ary = [1, 2, 3];
-	_async.mapSeries(
+	async.mapSeries(
 		ary,
 		function (item, next) {
 			next(null, item + 1);
@@ -27,7 +35,7 @@ function testAsyncMap() {
 
 function testAsyncMap2() {
 	var ary = 1;
-	_async.mapSeries(
+	async.mapSeries(
 		ary,
 		function (item, next) {
 			next(null, item + 1);
@@ -49,5 +57,3 @@ function testUnion() {
 	console.log(_.union(abc.def, [1, 2, 3]));
 	console.log(_.union(abc.def || [], [1, 2, 3]));
 }
-
-testUnion();

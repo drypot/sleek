@@ -1,29 +1,29 @@
 var _ = require('underscore');
-var _should = require('should');
-var _request = require('request').defaults({json: true});
-var _async = require('async');
+var should = require('should');
+var request = require('request').defaults({json: true});
+var async = require('async');
 var _childp = require('child_process');
-var _path = require('path');
+var path = require('path');
 
-var _l = require('../main/l');
-var _config = require("../main/config");
-var _db = require('../main/db');
-var _express = require("../main/express");
-var _upload = require('../main/upload');
+var l = require('../main/l');
+var config = require("../main/config");
+var mongo = require('../main/mongo');
+var express = require("../main/express");
+var upload = require('../main/upload');
 
 var urlBase;
 
 before(function (next) {
-	_l.addBeforeInit(function (next) {
-		_config.initParam = { configPath: "config-dev/config-dev.xml" };
-		_db.initParam = { mongoDbName: "sleek-test", dropDatabase: true };
+	l.addBeforeInit(function (next) {
+		config.param = { configPath: "config-dev/config-dev.xml" };
+		mongo.param = { mongoDbName: "sleek-test", dropDatabase: true };
 		next();
 	});
-	_l.addAfterInit(function (next) {
-		urlBase = "http://localhost:" + _config.appServerPort;
+	l.addAfterInit(function (next) {
+		urlBase = "http://localhost:" + config.appServerPort;
 		next();
 	});
-	_l.runInit(next);
+	l.runInit(next);
 });
 
 function doPost(url, body, next) {
@@ -31,20 +31,20 @@ function doPost(url, body, next) {
 		next = body;
 		body = null;
 	}
-	_request.post({ url: urlBase + url, body: body }, next);
+	request.post({ url: urlBase + url, body: body }, next);
 }
 
 describe("upload-post-file", function () {
 	var post = {_id: 10003};
 	var dir;
 	before(function () {
-		dir = _upload.getPostDir(post);
+		dir = upload.getPostDir(post);
 	});
 	it("confirm 1.jpg not exists", function () {
-		_should(!_path.existsSync(dir + '/1.jpg'));
+		should(!path.existsSync(dir + '/1.jpg'));
 	});
 	it("confirm 2.jpg not exists", function () {
-		_should(!_path.existsSync(dir + '/2.jpg'));
+		should(!path.existsSync(dir + '/2.jpg'));
 	});
 	it("can upload two files", function (next) {
 		_childp.execFile('/usr/bin/curl', ['-F', 'postId=' + post._id, '-F', 'file=@test-data/1.jpg', '-F', 'file=@test-data/2.jpg', 'localhost:8010/api/test/upload-post-file'], null, function (err, stdout, stderr) {
@@ -70,10 +70,10 @@ describe("upload-post-file", function () {
 		});
 	});
 	it("confirm 2.jpg exists", function () {
-		_should(_path.existsSync(dir + '/2.jpg'));
+		should(path.existsSync(dir + '/2.jpg'));
 	});
 	it("confirm 1.jpg exists", function () {
-		_should(_path.existsSync(dir + '/1.jpg'));
+		should(path.existsSync(dir + '/1.jpg'));
 	});
 });
 
@@ -81,10 +81,10 @@ describe("delete-post-file", function () {
 	var post = {_id: 10003};
 	var dir;
 	before(function () {
-		dir = _config.uploadDir + '/post/' + Math.floor(post._id / 10000) + '/' + post._id;
+		dir = config.uploadDir + '/post/' + Math.floor(post._id / 10000) + '/' + post._id;
 	});
 	it("confirm 1.jpg exists", function () {
-		_should(_path.existsSync(dir + '/1.jpg'));
+		should(path.existsSync(dir + '/1.jpg'));
 	});
 	it("can delete 1.jpg", function (next) {
 		doPost('/api/test/delete-post-file', {postId: post._id, delFile: ['1.jpg']}, function (err, res, body) {
@@ -95,10 +95,10 @@ describe("delete-post-file", function () {
 		});
 	});
 	it("confirm 1.jpg not exists", function () {
-		_should(!_path.existsSync(dir + '/1.jpg'));
+		should(!path.existsSync(dir + '/1.jpg'));
 	});
 	it("confirm 2.jpg exists", function () {
-		_should(_path.existsSync(dir + '/2.jpg'));
+		should(path.existsSync(dir + '/2.jpg'));
 	});
 	it("can delete 2.jpg", function (next) {
 		doPost('/api/test/delete-post-file', {postId: post._id, delFile: ['2.jpg']}, function (err, res, body) {
@@ -109,7 +109,7 @@ describe("delete-post-file", function () {
 		});
 	});
 	it("confirm 2.jpg not exists", function () {
-		_should(!_path.existsSync(dir + '/2.jpg'));
+		should(!path.existsSync(dir + '/2.jpg'));
 	});
 	it("can delete 1.jpg again", function (next) {
 		doPost('/api/test/delete-post-file', {postId: post._id, delFile: ['1.jpg']}, function (err, res, body) {

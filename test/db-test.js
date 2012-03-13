@@ -1,21 +1,23 @@
-var _should = require('should');
+var should = require('should');
 
-var _l = require('../main/l');
-var _db = require('../main/db');
+var l = require('../main/l');
+var mongo = require('../main/mongo');
 
 before(function (next) {
-	_l.addBeforeInit(function (next) {
-		_db.initParam = { mongoDbName: "sleek-test", dropDatabase: true };
+	l.addBeforeInit(function (next) {
+		mongo.param = { mongoDbName: "sleek-test", dropDatabase: true };
 		next();
 	});
-	_l.runInit(next);
+	l.runInit(next);
 });
 
-describe('db', function () {
-	it('should be ok', function () {
-		_db.db.should.be.ok;
+describe('mongo', function () {
+	it('should have db property', function () {
+		mongo.should.property('db');
 	});
-	it('should have name', function () {
-		_db.db.name.should.equal('sleek-test');
+	describe('db', function () {
+		it('should have name', function () {
+			mongo.db.name.should.equal('sleek-test');
+		});
 	});
 });

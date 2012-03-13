@@ -1,23 +1,23 @@
 var _ = require('underscore');
-var _should = require('should');
-var _async = require('async');
-var _path = require('path');
+var should = require('should');
+var async = require('async');
+var path = require('path');
 
-var _l = require('../main/l');
-var _config = require("../main/config");
-var _db = require('../main/db');
-var _post = require('../main/model/post');
+var l = require('../main/l');
+var config = require("../main/config");
+var mongo = require('../main/mongo');
+var _post = require('../main/post.js');
 
 var now = new Date();
 var col;
 
 before(function (next) {
-	_l.addBeforeInit(function (next) {
-		_config.initParam = { configPath: "config-dev/config-dev.xml" };
-		_db.initParam = { mongoDbName: "sleek-test", dropDatabase: true };
+	l.addBeforeInit(function (next) {
+		config.param = { configPath: "config-dev/config-dev.xml" };
+		mongo.param = { mongoDbName: "sleek-test", dropDatabase: true };
 		next();
 	});
-	_l.runInit(next);
+	l.runInit(next);
 })
 
 before(function () {
@@ -55,10 +55,10 @@ describe('setNewId', function () {
 	});
 });
 
-describe('post/db', function () {
+describe('post/mongo', function () {
 	var prevPost;
 	it('can insert records', function (next) {
-		_async.forEachSeries([
+		async.forEachSeries([
 			{
 				threadId: 1000, cdate: new Date(10), visible: true,
 				userName : 'snowman', text: 'cool post 11'
@@ -194,7 +194,7 @@ describe('post/file', function () {
 		var post = prevPost;
 		var delFile = ['1.jpg', '2.jpg'];
 		_post.update(post, null, delFile, function (err) {
-			_should(!post.file);
+			should(!post.file);
 			next(err);
 		});
 	});

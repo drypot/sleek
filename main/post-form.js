@@ -1,11 +1,11 @@
 var _ = require('underscore');
-var _should = require('should');
-var _async = require('async');
+var should = require('should');
+var async = require('async');
 var _util = require('util');
 
-var _l = require('../l');
-var _thread = require('../model/thread');
-var _post = require('../model/post');
+var l = require('./l.js');
+var _thread = require('thread.js');
+var _post = require('post.js');
 
 var ERR_FILL_TITLE = '제목을 입력해 주십시오.';
 var ERR_SHORTEN_TITLE = '제목을 줄여 주십시오.';
@@ -17,13 +17,13 @@ var ERR_SHORTEN_USERNAME = '필명을 줄여 주십시오.';
 var PostForm = function (req) {
 	var body = req.body;
 	this.now = new Date();
-	this.threadId = _l.intp(body, 'threadId', 0);
-	this.postId = _l.intp(body, 'postId', 0);
-	this.categoryId = _l.intp(body, 'categoryId', 0);
-	this.userName  = _l.strp(body, 'userName', '');
-	this.title = _l.strp(body, 'title', '');
-	this.text = _l.strp(body, 'text', '');
-	this.visible = _l.boolp(body, 'visible', true);
+	this.threadId = l.intp(body, 'threadId', 0);
+	this.postId = l.intp(body, 'postId', 0);
+	this.categoryId = l.intp(body, 'categoryId', 0);
+	this.userName  = l.strp(body, 'userName', '');
+	this.title = l.strp(body, 'title', '');
+	this.text = l.strp(body, 'text', '');
+	this.visible = l.boolp(body, 'visible', true);
 	this.delFile = body.delFile;
 	this.file = req.files && req.files.file;
 	this.error = [];

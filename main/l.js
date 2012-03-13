@@ -1,7 +1,7 @@
 var _ = require('underscore');
-var _should = require('should');
-var _async = require('async');
-var _fs = require('fs');
+var should = require('should');
+var async = require('async');
+var fs = require('fs');
 
 var initList = [];
 var beforeList = [];
@@ -70,7 +70,7 @@ exports.addAfterInit = function (func) {
 
 exports.runInit = function (next) {
 	var all = beforeList.concat(initList, afterList);
-	_async.series(all, function (err) {
+	async.series(all, function (err) {
 		if (err) throw err;
 		if (next) next();
 	});
@@ -78,7 +78,7 @@ exports.runInit = function (next) {
 
 // should
 
-_should.Assertion.prototype.sameProto = function (_class, desc) {
+should.Assertion.prototype.sameProto = function (_class, desc) {
 	this.assert(
 		_class.__proto__ === this.obj.__proto__
 		, 'expected prototype to equal ' + (desc ? " | " + desc : "")
@@ -94,7 +94,7 @@ exports.mkdirs = function (/* base, sub, sub, sub, ..., next */) {
 	var len = arg.length;
 	var dir;
 	var i = 0;
-	_async.forEachSeries(arg, function (sub, next) {
+	async.forEachSeries(arg, function (sub, next) {
 		if (i == len - 1) {
 			return next();
 		}
@@ -103,7 +103,7 @@ exports.mkdirs = function (/* base, sub, sub, sub, ..., next */) {
 		} else {
 			dir += '/' + sub;
 		}
-		_fs.mkdir(dir, 0755, function (err) {
+		fs.mkdir(dir, 0755, function (err) {
 			if (err && err.code !== 'EEXIST') return next(err);
 			i++;
 			next();

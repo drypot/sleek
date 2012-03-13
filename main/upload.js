@@ -1,30 +1,30 @@
 var _ = require('underscore');
-var _should = require('should');
-var _async = require('async');
-var _fs = require('fs');
-var _path = require('path');
+var should = require('should');
+var async = require('async');
+var fs = require('fs');
+var path = require('path');
 
-var _l = require('./l');
-var _config = require('./config');
+var l = require('./l.js');
+var config = require('./config.js');
 
-_l.addInit(function (next) {
-	_async.series([
+l.addInit(function (next) {
+	async.series([
 		function (next) {
-			_l.mkdirs(_config.uploadDir, 'tmp', next);
+			l.mkdirs(config.uploadDir, 'tmp', next);
 		},
 		function (next) {
-			_l.mkdirs(_config.uploadDir, 'post', next);
+			l.mkdirs(config.uploadDir, 'post', next);
 		}
 	], next);
 });
 
 var getPostDir = exports.getPostDir = function (post) {
-	return _config.uploadDir + '/post/' + Math.floor(post._id / 10000) + '/' + post._id
+	return config.uploadDir + '/post/' + Math.floor(post._id / 10000) + '/' + post._id
 }
 
 exports.savePostFile = function (post, file, next /* (err, saved) */) {
 	if (!file) return next();
-	_l.mkdirs(_config.uploadDir, 'post', Math.floor(post._id / 10000), post._id, function (err, dir) {
+	l.mkdirs(config.uploadDir, 'post', Math.floor(post._id / 10000), post._id, function (err, dir) {
 		if (err) return next(err);
 		saveFile(dir, file, next);
 	});
@@ -33,13 +33,13 @@ exports.savePostFile = function (post, file, next /* (err, saved) */) {
 var saveFile = function (dir, file, next /* (err, saved) */) {
 	var saved = [];
 	if (!_.isArray(file)) file = [file];
-	_async.forEachSeries(
+	async.forEachSeries(
 		file,
 		function (file, next) {
 			if (!file.size) return next();
 			saved.push(file.name);
 			if (file.__skip) return next();
-			_fs.rename(file.path, dir + '/' + file.name, next);
+			fs.rename(file.path, dir + '/' + file.name, next);
 		},
 		function (err) {
 			next(err, saved);
@@ -54,14 +54,14 @@ exports.deletePostFile = function (post, delFile, next /* (err, deleted) */) {
 
 var deleteFile = function (dir, delFile, next /* (err, deleted) */) {
 	var deleted = [];
-	_async.forEachSeries(
+	async.forEachSeries(
 		delFile,
 		function (delFile, next) {
-			var basename = _path.basename(delFile)
+			var basename = path.basename(delFile)
 			var path = dir + '/' + basename;
 			//console.log('deleting: ' + path);
 			deleted.push(basename);
-			_fs.unlink(path, function (err) {
+			fs.unlink(path, function (err) {
 				if (err && err.code !== 'ENOENT') return next(err);
 				next();
 			});

@@ -1,10 +1,10 @@
 var _ = require('underscore');
-var _should = require('should');
+var should = require('should');
 
-var _l = require('../main/l');
-var _config = require("../main/config");
-var _db = require('../main/db');
-var _form = require('../main/form/post-form');
+var l = require('../main/l');
+var config = require("../main/config");
+var mongo = require('../main/mongo');
+var form$ = require('../main/post-form.js');
 
 var ERR_FILL_TITLE = '제목을 입력해 주십시오.';
 var ERR_SHORTEN_TITLE = '제목을 줄여 주십시오.';
@@ -12,12 +12,12 @@ var ERR_FILL_USERNAME = '필명을 입력해 주십시오.';
 var ERR_SHORTEN_USERNAME = '필명을 줄여 주십시오.';
 
 before(function (next) {
-	_l.addBeforeInit(function (next) {
-		_config.initParam = { configPath: "config-dev/config-dev.xml" }
-		_db.initParam = { mongoDbName: "sleek-test", dropDatabase: true };
+	l.addBeforeInit(function (next) {
+		config.param = { configPath: "config-dev/config-dev.xml" }
+		mongo.param = { mongoDbName: "sleek-test", dropDatabase: true };
 		next();
 	});
-	_l.runInit(next);
+	l.runInit(next);
 });
 
 describe("make", function () {
@@ -27,7 +27,7 @@ describe("make", function () {
 			userName : ' snow man ', title: ' cool thread ', text: ' cool text ',
 			visible: true, delFile: ['file1', 'file2']
 		}};
-		var form = _form.make(req);
+		var form = form$.make(req);
 		form.threadId.should.equal(20);
 		form.postId.should.equal(30);
 		form.categoryId.should.equal(100);
@@ -44,7 +44,7 @@ describe("validateHead", function () {
 		var req = { body: {
 			title: ' cool thread ', userName : ' snow man '
 		}};
-		var form = _form.make(req);
+		var form = form$.make(req);
 		form.validateHead();
 		form.error.should.length(0);
 	});
@@ -52,7 +52,7 @@ describe("validateHead", function () {
 		var req = { body: {
 			title: ' ', userName : ' snow man '
 		}};
-		var form = _form.make(req);
+		var form = form$.make(req);
 		form.validateHead();
 		form.error.length.should.ok;
 		form.error[0].title.should.equal(ERR_FILL_TITLE);
@@ -62,7 +62,7 @@ describe("validateHead", function () {
 			title: 'big title title title title title title title title title title title title title title title title title title title title title title title title title title title title',
 			userName : ' snow man '
 		}};
-		var form = _form.make(req);
+		var form = form$.make(req);
 		form.validateHead();
 		form.error.length.should.ok;
 		form.error[0].title.should.equal(ERR_SHORTEN_TITLE);
@@ -74,7 +74,7 @@ describe("validateReply", function () {
 		var req = { body: {
 			userName : ' snow man '
 		}};
-		var form = _form.make(req);
+		var form = form$.make(req);
 		var error = [];
 		form.validateReply(error);
 		error.should.length(0);
@@ -83,7 +83,7 @@ describe("validateReply", function () {
 		var req = { body: {
 			userName : ' '
 		}};
-		var form = _form.make(req);
+		var form = form$.make(req);
 		form.validateReply();
 		form.error.length.should.ok;
 		form.error[0].userName .should.equal(ERR_FILL_USERNAME);
@@ -92,7 +92,7 @@ describe("validateReply", function () {
 		var req = { body: {
 			userName : '123456789012345678901234567890123'
 		}};
-		var form = _form.make(req);
+		var form = form$.make(req);
 		form.validateReply();
 		form.error.length.should.ok;
 		form.error[0].userName .should.equal(ERR_SHORTEN_USERNAME);
@@ -106,7 +106,7 @@ describe("postForm", function () {
 	}};
 	var prevThreadId;
 	var prevPostId;
-	var form = _form.make(req);
+	var form = form$.make(req);
 	it("can create head", function () {
 		form.createHead(function (err, thread, post) {
 			thread.should.ok;
@@ -121,7 +121,7 @@ describe("postForm", function () {
 		var req = { body: {
 			threadId: prevThreadId
 		}};
-		var form = _form.make(req);
+		var form = form$.make(req);
 		form.findThread(function (err, thread) {
 			thread.should.ok;
 			thread._id.should.equal(prevThreadId);
@@ -135,7 +135,7 @@ describe("postForm", function () {
 		var req = { body: {
 			threadId: prevThreadId, postId: prevPostId
 		}};
-		var form = _form.make(req);
+		var form = form$.make(req);
 		form.findThreadAndPost(function (err, thread, post) {
 			thread.should.ok;
 			thread._id.should.equal(prevThreadId);
@@ -154,7 +154,7 @@ describe("postForm", function () {
 			categoryId: 103,
 			userName : 'snowman h2', title: 'cool thread h2', text: 'cool text h2'
 		}};
-		var form = _form.make(req);
+		var form = form$.make(req);
 		form.findThreadAndPost(function (err, thread, post) {
 			form.updateHead(thread, post, true, function (err) {
 				form.findThreadAndPost(function (err, thread, post) {
@@ -174,7 +174,7 @@ describe("postForm", function () {
 			userName : 'snowman 2', text: 'cool text 2'
 		}};
 		var thread = {_id: prevThreadId};
-		var form = _form.make(req);
+		var form = form$.make(req);
 		form.createReply(thread, function (err, post) {
 			post.should.ok;
 			prevPostId = post._id;
@@ -185,7 +185,7 @@ describe("postForm", function () {
 		var req = { body: {
 			threadId: prevThreadId, postId: prevPostId
 		}};
-		var form = _form.make(req);
+		var form = form$.make(req);
 		form.findThreadAndPost(function (err, thread, post) {
 			post._id.should.equal(prevPostId);
 			post.userName .should.equal('snowman 2');
@@ -199,7 +199,7 @@ describe("postForm", function () {
 			categoryId: 103,
 			userName : 'snowman r2', text: 'cool text r2'
 		}};
-		var form = _form.make(req);
+		var form = form$.make(req);
 		form.findThreadAndPost(function (err, thread, post) {
 			form.updateReply(post, true, function (err) {
 				form.findThreadAndPost(function (err, thread, post) {

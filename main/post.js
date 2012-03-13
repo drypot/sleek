@@ -1,18 +1,18 @@
 var _ = require('underscore');
-var _should = require('should');
-var _async = require('async');
-var _fs = require('fs');
+var should = require('should');
+var async = require('async');
+var fs = require('fs');
 
-var _l = require('../l');
-var _config = require("../config");
-var _db = require('../db');
-var _upload = require('../upload');
+var l = require('./l.js');
+var config = require('./config.js');
+var mongo = require('./mongo.js');
+var upload = require('./upload.js');
 
 var col;
 var idSeed;
 
-_l.addInit(function (next) {
-	col = exports.col = _db.db.collection("post");
+l.addInit(function (next) {
+	col = exports.col = mongo.db.collection("post");
 	col.ensureIndex({threadId: 1, cdate: 1});
 	col.find({}, {_id: 1}).sort({_id: -1}).limit(1).next(function (err, obj) {
 		if (err) return next(err);
@@ -39,7 +39,7 @@ exports.setNewId = function (post) {
 }
 
 exports.insert = function (post, file, next) {
-	_upload.savePostFile(post, file, function (err, saved) {
+	upload.savePostFile(post, file, function (err, saved) {
 		if (err) return next(err);
 		if (saved) post.file = saved;
 		col.insert(post);
@@ -49,13 +49,13 @@ exports.insert = function (post, file, next) {
 }
 
 exports.update = function (post, file, delFile, next) {
-	_upload.deletePostFile(post, delFile, function (err, deleted) {
+	upload.deletePostFile(post, delFile, function (err, deleted) {
 		if (err) return next(err);
 		if (deleted) {
 			post.file = _.without(post.file, deleted);
 			if (post.file.length == 0) delete post.file;
 		}
-		_upload.savePostFile(post, file, function (err, saved) {
+		upload.savePostFile(post, file, function (err, saved) {
 			if (err) return next(err);
 			if (saved) post.file = _.union(post.file || [], saved);
 			col.save(post);

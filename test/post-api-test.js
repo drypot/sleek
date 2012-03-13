@@ -1,12 +1,12 @@
 var _ = require('underscore');
-var _should = require('should');
-var _request = require('request').defaults({json: true});
-var _async = require('async');
+var should = require('should');
+var request = require('request').defaults({json: true});
+var async = require('async');
 
-var _l = require('../main/l');
-var _config = require("../main/config");
-var _db = require('../main/db');
-var _express = require("../main/express");
+var l = require('../main/l');
+var config = require("../main/config");
+var mongo = require('../main/mongo');
+var express = require("../main/express");
 
 var ERR_LOGIN_FIRST = 'login first';
 var ERR_LOGIN_FAILED = 'login failed';
@@ -17,16 +17,16 @@ var ERR_INVALID_CATEGORY = 'invalid category';
 var urlBase;
 
 before(function (next) {
-	_l.addBeforeInit(function (next) {
-		_config.initParam = { configPath: "config-dev/config-dev.xml" }
-		_db.initParam = { mongoDbName: "sleek-test", dropDatabase: true };
+	l.addBeforeInit(function (next) {
+		config.param = { configPath: "config-dev/config-dev.xml" }
+		mongo.param = { mongoDbName: "sleek-test", dropDatabase: true };
 		next();
 	});
-	_l.addAfterInit(function (next) {
-		urlBase = "http://localhost:" + _config.appServerPort;
+	l.addAfterInit(function (next) {
+		urlBase = "http://localhost:" + config.appServerPort;
 		next();
 	});
-	_l.runInit(next);
+	l.runInit(next);
 });
 
 function post(url, body, next) {
@@ -34,7 +34,7 @@ function post(url, body, next) {
 		next = body;
 		body = {};
 	}
-	_request.post({ url: urlBase + url, body: body, json: true }, next);
+	request.post({ url: urlBase + url, body: body, json: true }, next);
 }
 
 var prevThreadId;
@@ -103,20 +103,20 @@ describe("create-head", function () {
 });
 
 xdescribe("create-reply", function () {
-	it('can logout', function (next) {
+	it('assume logged out', function (next) {
 		post('/api/logout', next);
 	});
-	it("can not create when not logged in", function (next) {
+	it("should fail when not logged in", function (next) {
 		post('/api/create-reply', function (err, res, body) {
 			res.should.status(400);
 			body.error.should.equal(ERR_LOGIN_FIRST);
 			next(err);
 		});
 	});
-	it('can login as user', function (next) {
+	it('assume user', function (next) {
 		post('/api/login', {password: '1'}, next);
 	});
-	it('can create reply', function (next) {
+	it('should success as user', function (next) {
 		post('/api/create-reply',
 			{ threadId: prevThreadId, userName : 'snowman', title: 'title r1', text: 'text r1' },
 			function (err, res, body) {
@@ -127,11 +127,10 @@ xdescribe("create-reply", function () {
 			}
 		);
 	});
-	it("can not create with invalid threadId", function (next) {
+	it("should fail with invalid threadId", function (next) {
 		post('/api/create-reply',
 			{ threadId: 99999, userName : 'snowman', title: 'title r2', text: 'text r2' },
 			function (err, res, body) {
-				console.log('abc');
 				res.should.status(400);
 				body.error.should.equal(ERR_INVALID_CATEGORY);
 				next(err);
@@ -177,8 +176,8 @@ xdescribe("dao", function () {
 		loginAsUser(next);
 	});
 	xit('can add new thread', function (next) {
-		_async.forEachSeries(samples, function (item, next) {
-			_request.post({
+		async.forEachSeries(samples, function (item, next) {
+			request.post({
 				url: urlBase + '/api/thread'
 				, body: item
 			}, function (err, res, body) {
@@ -189,7 +188,7 @@ xdescribe("dao", function () {
 	});
 
 //	xit("should return list", function (next) {
-//		_request.post({url: urlBase + '/api/thread'}, function (err, res, body) {
+//		request.post({url: urlBase + '/api/thread'}, function (err, res, body) {
 //			res.should.status(200);
 //			next(err);
 //		});

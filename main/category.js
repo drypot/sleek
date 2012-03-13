@@ -1,17 +1,16 @@
 var _ = require('underscore');
-var _should = require('should');
 
-var _l = require('./l');
-var _config = require('./config');
-var _role = require('./role');
+var l = require('./l.js');
+var config = require('./config.js');
+var role = require('./role.js');
 
 // init
 
-_l.addInit(function (next) {
-	_.each(_config.category, function (cx) {
-		_role.each(function (rx) {
-			var c = new Category(cx, rx.name);
-			if (c.readable) rx.category[c.id] = c;
+l.addInit(function (next) {
+	_.each(config.category, function (cx) {
+		role.each(function (r) {
+			var c = new Category(cx, r.name);
+			if (c.readable) r.category[c.id] = c;
 		});
 	});
 	next();
@@ -19,19 +18,19 @@ _l.addInit(function (next) {
 
 // Category.*
 
-var Category = function (x, roleName) {
-	this.id = parseInt(x.id || x.categoryId);
-	this.name = x.name;
+var Category = function (c, roleName) {
+	this.id = parseInt(c.id || c.categoryId);
+	this.name = c.name;
 	this.all = this.id == 0;
-	this.sep = !!x.sep;
-	this.newLine = !!x.newLine;
-	this.readable = _.include((x.read || '').split(' '), roleName);
-	this.writable = _.include((x.write || '').split(' '), roleName);
-	this.editable = _.include((x.edit || '').split(' '), roleName);
+	this.sep = !!c.sep;
+	this.newLine = !!c.newLine;
+	this.readable = _.include((c.read || '').split(' '), roleName);
+	this.writable = _.include((c.write || '').split(' '), roleName);
+	this.editable = _.include((c.edit || '').split(' '), roleName);
 }
 
-// _category.*
+// category$.*
 
-exports.make = function (x, roleName) {
-	return new Category(x, roleName);
+exports.make = function (c, roleName) {
+	return new Category(c, roleName);
 }

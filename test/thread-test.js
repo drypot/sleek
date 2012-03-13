@@ -1,21 +1,21 @@
 var _ = require('underscore');
-var _should = require('should');
-var _async = require('async');
+var should = require('should');
+var async = require('async');
 
 
-var _l = require('../main/l');
-var _db = require('../main/db');
-var _thread = require('../main/model/thread');
+var l = require('../main/l');
+var mongo = require('../main/mongo');
+var _thread = require('../main/post/thread');
 
 var now = new Date();
 var col;
 
 before(function (next) {
-	_l.addBeforeInit(function (next) {
-		_db.initParam = { mongoDbName: "sleek-test", dropDatabase: true };
+	l.addBeforeInit(function (next) {
+		mongo.param = { mongoDbName: "sleek-test", dropDatabase: true };
 		next();
 	});
-	_l.runInit(next);
+	l.runInit(next);
 });
 
 before(function () {
@@ -53,7 +53,7 @@ describe('setNewId', function () {
 	});
 });
 
-describe('thread/db', function () {
+describe('thread/mongo', function () {
 	var prevThread;
 	it('can insert thread', function () {
 		function insertThread(thread) {

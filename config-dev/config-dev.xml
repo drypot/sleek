@@ -6,6 +6,7 @@
 	<inDev>true</inDev>
 
 	<appServerPort>8010</appServerPort>
+	<cookieSecret>o;iejf832ndvs</cookieSecret>
 
 	<uploadMax>512</uploadMax>
 	<uploadDir>/Users/drypot/data/sleek/upload/sleek</uploadDir>

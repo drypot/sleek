@@ -1,14 +1,14 @@
 var _ = require('underscore');
-var _should = require('should');
+var should = require('should');
 
-var _l = require('../l');
-var _db = require('../db');
+var l = require('./l.js');
+var mongo = require('./mongo.js');
 
 var col;
 var idSeed;
 
-_l.addInit(function (next) {
-	col = exports.col = _db.db.collection("postThread");
+l.addInit(function (next) {
+	col = exports.col = mongo.db.collection("postThread");
 	col.ensureIndex({categoryId: 1, udate: -1});
 	col.ensureIndex({udate: -1});
 	col.find({}, {_id: 1}).sort({_id: -1}).limit(1).next(function (err, obj) {

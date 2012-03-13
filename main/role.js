@@ -1,39 +1,38 @@
 var _ = require('underscore');
-var _should = require('should');
-var _bcrypt = require('bcrypt');
+var bcrypt = require('bcrypt');
 
-var _l = require('./l');
-var _config = require("./config");
+var l = require('./l.js');
+var config = require('./config.js');
 
 var role = {};
 
 // init
 
-_l.addInit(function (next) {
-	_.each(_config.role, function (x) {
-		role[x.name] = new Role(x);
+l.addInit(function (next) {
+	_.each(config.role, function (r) {
+		role[r.name] = new Role(r);
 	});
 	next();
 });
 
 // Role
 
-var Role = function (obj) {
-	this.name = obj.name;
-	this.hash = obj.hash;
+var Role = function (r) {
+	this.name = r.name;
+	this.hash = r.hash;
 	this.category = {};
 }
 
 var proto = Role.prototype;
 
 proto.checkPassword = function (password) {
-	return _bcrypt.compareSync(password, this.hash);
+	return bcrypt.compareSync(password, this.hash);
 };
 
-// _role.*
+// role$.*
 
-exports.make = function (x) {
-	return new Role(x);
+exports.make = function (r) {
+	return new Role(r);
 }
 
 exports.getByName = function (roleName) {
@@ -41,8 +40,8 @@ exports.getByName = function (roleName) {
 };
 
 exports.getByPassword = function (password) {
-	return _.find(role, function (role) {
-		return role.checkPassword(password);
+	return _.find(role, function (r) {
+		return r.checkPassword(password);
 	});
 };
 

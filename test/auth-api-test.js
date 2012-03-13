@@ -1,40 +1,24 @@
 var _ = require('underscore');
-var _should = require('should');
-var _request = require('request');
-var _async = require('async');
+var should = require('should');
+var request = require('request');
+var async = require('async');
 
-var _l = require('../main/l');
-var _config = require("../main/config");
-var _db = require('../main/db');
-var _express = require("../main/express");
+var l = require('../main/l');
+var config = require("../main/config");
+var mongo = require('../main/mongo');
+var express = require("../main/express");
+var test = require('./test.js');
 
-var ERR_LOGIN_FIRST = 'login first';
-var ERR_LOGIN_FAILED = 'login failed';
-var ERR_NOT_AUTHORIZED = 'not authorized';
-var ERR_INVALID_DATA = 'invalid data';
-
-var urlBase;
+var post = test.post;
 
 before(function (next) {
-	_l.addBeforeInit(function (next) {
-		_config.initParam = { configPath: "config-dev/config-dev.xml" }
-		_db.initParam = { mongoDbName: "sleek-test", dropDatabase: true };
+	l.addBeforeInit(function (next) {
+		config.param = { configPath: "config-dev/config-dev.xml" }
+		mongo.param = { mongoDbName: "sleek-test", dropDatabase: true };
 		next();
 	});
-	_l.addAfterInit(function (next) {
-		urlBase = "http://localhost:" + _config.appServerPort;
-		next();
-	});
-	_l.runInit(next);
+	l.runInit(next);
 });
-
-function post(url, body, next) {
-	if (_.isFunction(body)) {
-		next = body;
-		body = {};
-	}
-	_request.post({ url: urlBase + url, body: body, json: true }, next);
-}
 
 describe('hello', function () {
 	it('should return hello', function (next) {
@@ -201,7 +185,7 @@ describe("get-category", function () {
 		});
 		it('has not category 40', function () {
 			var cx = c[40];
-			_should(!cx);
+			should(!cx);
 		});
 	});
 	describe("for admin", function () {
@@ -226,7 +210,7 @@ describe("get-category", function () {
 		});
 		it('has category 40', function () {
 			var cx = c[40];
-			_should(cx);
+			should(cx);
 		});
 	});
 });
