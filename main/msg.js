@@ -4,6 +4,7 @@ exports.ERR_NOT_AUTHORIZED = 'not authorized';
 exports.ERR_INVALID_DATA = 'invalid data';
 exports.ERR_INVALID_CATEGORY = 'invalid category';
 exports.ERR_INVALID_THREAD = 'invalid thread';
+exports.ERR_INVALID_THREAD = 'invalid post';
 
 exports.ERR_FILL_TITLE = '제목을 입력해 주십시오.';
 exports.ERR_SHORTEN_TITLE = '제목을 줄여 주십시오.';

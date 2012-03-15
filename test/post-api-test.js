@@ -10,16 +10,15 @@ before(function (next) {
 	test.prepare('config,mongo,express', next);
 });
 
-var pThreadId;
-var pPostId;
-var pReplyId;
-
-describe("create-head", function () {
+describe("post-api", function () {
+	var ptid;
+	var ppid;
+	var prid;
 	it('assume logged out', function (next) {
 		test.post('/api/logout', next);
 	});
-	it("should fail when not logged in", function (next) {
-		test.post('/api/create-head', function (err, res, body) {
+	it("can not create head when not logged in", function (next) {
+		test.post('/api/create-post', function (err, res, body) {
 			res.should.status(400);
 			body.error.should.equal(msg.ERR_LOGIN_FIRST);
 			next(err);
@@ -28,21 +27,21 @@ describe("create-head", function () {
 	it('assume user', function (next) {
 		test.post('/api/login', {password: '1'}, next);
 	});
-	it('should success as user', function (next) {
-		test.post('/api/create-head',
+	it('can create head', function (next) {
+		test.post('/api/create-post',
 			{ categoryId: 101, userName : 'snowman', title: 'title 1', text: 'text 1' },
 			function (err, res, body) {
 				res.should.status(200);
 				body.should.have.property('threadId');
 				body.should.have.property('postId');
-				pThreadId = body.threadId;
-				pPostId = body.postId;
+				ptid = body.threadId;
+				ppid = body.postId;
 				next(err);
 			}
 		);
 	});
-	it("should fail with invalid categoryId", function (next) {
-		test.post('/api/create-head',
+	it("can not create head with invalid categoryId", function (next) {
+		test.post('/api/create-post',
 			{ categoryId: 10100, userName : 'snowman', title: 'title 1', text: 'text 1' },
 			function (err, res, body) {
 				res.should.status(400);
@@ -51,8 +50,8 @@ describe("create-head", function () {
 			}
 		);
 	});
-	it("should fail with invalid title", function (next) {
-		test.post('/api/create-head',
+	it("can not create head with invalid title", function (next) {
+		test.post('/api/create-post',
 			{ categoryId: 101, userName : 'snowman', title: ' ', text: 'text 1' },
 			function (err, res, body) {
 				res.should.status(400);
@@ -62,8 +61,8 @@ describe("create-head", function () {
 			}
 		);
 	});
-	it("should fail with invalid userName", function (next) {
-		test.post('/api/create-head',
+	it("can not create head with invalid userName", function (next) {
+		test.post('/api/create-post',
 			{ categoryId: 101, userName : ' ', title: 'title 1', text: 'text 1' },
 			function (err, res, body) {
 				res.should.status(400);
@@ -73,35 +72,19 @@ describe("create-head", function () {
 			}
 		);
 	});
-});
-
-describe("create-reply", function () {
-	it('assume logged out', function (next) {
-		test.post('/api/logout', next);
-	});
-	it("should fail when not logged in", function (next) {
-		test.post('/api/create-reply', function (err, res, body) {
-			res.should.status(400);
-			body.error.should.equal(msg.ERR_LOGIN_FIRST);
-			next(err);
-		});
-	});
-	it('assume user', function (next) {
-		test.post('/api/login', {password: '1'}, next);
-	});
-	it('should success as user', function (next) {
-		test.post('/api/create-reply',
-			{ threadId: pThreadId, userName : 'snowman', title: 'title r1', text: 'text r1' },
+	it('can create reply', function (next) {
+		test.post('/api/create-post',
+			{ threadId: ptid, userName : 'snowman', title: 'title r1', text: 'text r1' },
 			function (err, res, body) {
 				res.should.status(200);
 				body.should.have.property('postId');
-				pReplyId = body.postId;
+				prid = body.postId;
 				next(err);
 			}
 		);
 	});
-	it("should fail with invalid threadId", function (next) {
-		test.post('/api/create-reply',
+	it("can not create reply with invalid threadId", function (next) {
+		test.post('/api/create-post',
 			{ threadId: 99999, userName : 'snowman', title: 'title r2', text: 'text r2' },
 			function (err, res, body) {
 				res.should.status(400);
@@ -110,9 +93,9 @@ describe("create-reply", function () {
 			}
 		);
 	});
-	it("can not create with invalid userName", function (next) {
-		test.post('/api/create-reply',
-			{ threadId: pThreadId, userName : ' ', title: 'title 1', text: 'text 1' },
+	it("can not create reply with invalid userName", function (next) {
+		test.post('/api/create-post',
+			{ threadId: ptid, userName : ' ', title: 'title 1', text: 'text 1' },
 			function (err, res, body) {
 				res.should.status(400);
 				body.error.should.equal(msg.ERR_INVALID_DATA);
@@ -121,6 +104,7 @@ describe("create-reply", function () {
 			}
 		);
 	});
+
 });
 
 xdescribe("dao", function () {

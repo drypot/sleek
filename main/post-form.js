@@ -29,10 +29,12 @@ var proto = PostForm.prototype;
 proto.validateHead = function () {
 	this._validateThread();
 	this._validatePost();
+	return this.error;
 }
 
 proto.validateReply = function () {
 	this._validatePost();
+	return this.error;
 }
 
 proto._validateThread = function () {
@@ -64,25 +66,7 @@ proto.findThreadAndPost = function (next) {
 
 // create
 
-proto.createHead = function (next) {
-	var form = this;
-	form._insertThread(function (err, thread) {
-		form._insertPost(thread, function (err, post) {
-			next(err, thread, post);
-		});
-	});
-}
-
-proto.createReply = function (thread, next) {
-	var form = this;
-	form._insertPost(thread, function (err, post) {
-		if (err) return next(err);
-		Thread.updateLength(thread, form.now);
-		next(err, post);
-	});
-}
-
-proto._insertThread = function (next) {
+proto.insertThread = function (next) {
 	var form = this;
 	var thread = {
 		categoryId: form.categoryId,
@@ -94,7 +78,7 @@ proto._insertThread = function (next) {
 	next(null, thread);
 }
 
-proto._insertPost = function (thread, next) {
+proto.insertPost = function (thread, next) {
 	var form = this;
 	var post = {
 		threadId: thread._id,
@@ -107,22 +91,13 @@ proto._insertPost = function (thread, next) {
 	});
 }
 
+proto.updateThreadLength = function (thread) {
+	Thread.updateLength(thread, this.now)
+}
+
 // update
 
-proto.updateHead = function (thread, post, admin, next) {
-	var form = this;
-	form._updateThread(thread, function (err) {
-		if (err) return next(err);
-		form._updatePost(post, admin, next);
-	});
-}
-
-proto.updateReply = function (post, admin, next) {
-	var form = this;
-	form._updatePost(post, admin, next);
-}
-
-proto._updateThread = function (thread, next) {
+proto.updateThread = function (thread, next) {
 	var form = this;
 	thread.categoryId = form.categoryId;
 	thread.title = form.title;
@@ -131,11 +106,11 @@ proto._updateThread = function (thread, next) {
 	next();
 }
 
-proto._updatePost = function (post, admin, next) {
+proto.updatePost = function (post, next) {
 	var form = this;
 	post.userName  = form.userName ;
 	post.text = form.text;
-	if (admin) {
+	if (form.visible) {
 		post.visible = form.visible;
 	}
 	Post.update(post, form.file, form.delFile, next);
