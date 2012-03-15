@@ -83,7 +83,7 @@ exports.register = function (e) {
 		if (!form.threadId) {
 			// head
 			if (!checkCategory(res, role.category[form.categoryId])) return;
-			if (!checkFieldError(res, form.validateHead())) return;
+			if (!checkFieldError(res, form.validateThreadAndPost())) return;
 			form.insertThread(function (err, thread) {
 				if (err) return next(err);
 				form.insertPost(thread, function (err, post) {
@@ -98,7 +98,7 @@ exports.register = function (e) {
 				if (err) return next(err);
 				if (!checkThread(res, thread)) return;
 				if (!checkCategory(res, role.category[thread.categoryId])) return;
-				if (!checkFieldError(res, form.validateReply())) return;
+				if (!checkFieldError(res, form.validatePost())) return;
 				form.insertPost(thread, function (err, post) {
 					if (err) return next(err);
 					form.updateThreadLength(thread);
@@ -128,7 +128,7 @@ exports.register = function (e) {
 			if (head) {
 				var formCategory = role.category[form.categoryId];
 				if (!checkCategory(res, formCategory)) return;
-				if (!checkFieldError(res, form.validateHead())) return;
+				if (!checkFieldError(res, form.validateThreadAndPost())) return;
 				form.updateThread(thread, function (err) {
 					if (err) return next(err);
 					form.updatePost(post, function (err) {
@@ -137,7 +137,7 @@ exports.register = function (e) {
 					});
 				});
 			} else {
-				if (!checkFieldError(res, form.validateReply())) return;
+				if (!checkFieldError(res, form.validatePost())) return;
 				form.updatePost(post, function (err) {
 					if (err) return next(err);
 					res.json(200, 'ok');

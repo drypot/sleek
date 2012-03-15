@@ -26,13 +26,13 @@ var proto = PostForm.prototype;
 
 // validate
 
-proto.validateHead = function () {
+proto.validateThreadAndPost = function () {
 	this._validateThread();
 	this._validatePost();
 	return this.error;
 }
 
-proto.validateReply = function () {
+proto.validatePost = function () {
 	this._validatePost();
 	return this.error;
 }
