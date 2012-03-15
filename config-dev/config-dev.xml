@@ -9,7 +9,7 @@
 	<cookieSecret>o;iejf832ndvs</cookieSecret>
 
 	<uploadMax>512</uploadMax>
-	<uploadDir>/Users/drypot/data/sleek/upload/sleek</uploadDir>
+	<uploadDir>/Users/drypot/data/sleek/upload/sleek-test</uploadDir>
 
 	<fileServerUrl>http://sleekfile:8080</fileServerUrl>
 

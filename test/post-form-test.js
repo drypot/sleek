@@ -2,22 +2,12 @@ var _ = require('underscore');
 var should = require('should');
 
 var l = require('../main/l');
-var config = require("../main/config");
-var mongo = require('../main/mongo');
-var form$ = require('../main/post-form.js');
-
-var ERR_FILL_TITLE = '제목을 입력해 주십시오.';
-var ERR_SHORTEN_TITLE = '제목을 줄여 주십시오.';
-var ERR_FILL_USERNAME = '필명을 입력해 주십시오.';
-var ERR_SHORTEN_USERNAME = '필명을 줄여 주십시오.';
+var Form = require('../main/post-form.js');
+var msg = require('../main/msg.js');
+var test = require('./test.js');
 
 before(function (next) {
-	l.addBeforeInit(function (next) {
-		config.param = { configPath: "config-dev/config-dev.xml" }
-		mongo.param = { mongoDbName: "sleek-test", dropDatabase: true };
-		next();
-	});
-	l.runInit(next);
+	test.prepare('config,mongo', next);
 });
 
 describe("make", function () {
@@ -27,7 +17,7 @@ describe("make", function () {
 			userName : ' snow man ', title: ' cool thread ', text: ' cool text ',
 			visible: true, delFile: ['file1', 'file2']
 		}};
-		var form = form$.make(req);
+		var form = new Form(req);
 		form.threadId.should.equal(20);
 		form.postId.should.equal(30);
 		form.categoryId.should.equal(100);
@@ -44,7 +34,7 @@ describe("validateHead", function () {
 		var req = { body: {
 			title: ' cool thread ', userName : ' snow man '
 		}};
-		var form = form$.make(req);
+		var form = new Form(req);
 		form.validateHead();
 		form.error.should.length(0);
 	});
@@ -52,20 +42,20 @@ describe("validateHead", function () {
 		var req = { body: {
 			title: ' ', userName : ' snow man '
 		}};
-		var form = form$.make(req);
+		var form = new Form(req);
 		form.validateHead();
 		form.error.length.should.ok;
-		form.error[0].title.should.equal(ERR_FILL_TITLE);
+		form.error[0].title.should.equal(msg.ERR_FILL_TITLE);
 	});
 	it("should find big title", function () {
 		var req = { body: {
 			title: 'big title title title title title title title title title title title title title title title title title title title title title title title title title title title title',
 			userName : ' snow man '
 		}};
-		var form = form$.make(req);
+		var form = new Form(req);
 		form.validateHead();
 		form.error.length.should.ok;
-		form.error[0].title.should.equal(ERR_SHORTEN_TITLE);
+		form.error[0].title.should.equal(msg.ERR_SHORTEN_TITLE);
 	});
 });
 
@@ -74,7 +64,7 @@ describe("validateReply", function () {
 		var req = { body: {
 			userName : ' snow man '
 		}};
-		var form = form$.make(req);
+		var form = new Form(req);
 		var error = [];
 		form.validateReply(error);
 		error.should.length(0);
@@ -83,48 +73,48 @@ describe("validateReply", function () {
 		var req = { body: {
 			userName : ' '
 		}};
-		var form = form$.make(req);
+		var form = new Form(req);
 		form.validateReply();
 		form.error.length.should.ok;
-		form.error[0].userName .should.equal(ERR_FILL_USERNAME);
+		form.error[0].userName .should.equal(msg.ERR_FILL_USERNAME);
 	});
 	it("should find big userName ", function () {
 		var req = { body: {
 			userName : '123456789012345678901234567890123'
 		}};
-		var form = form$.make(req);
+		var form = new Form(req);
 		form.validateReply();
 		form.error.length.should.ok;
-		form.error[0].userName .should.equal(ERR_SHORTEN_USERNAME);
+		form.error[0].userName .should.equal(msg.ERR_SHORTEN_USERNAME);
 	});
 });
 
-describe("postForm", function () {
+describe("PostForm", function () {
 	var req = { body: {
 		categoryId: 100,
 		userName : ' snow man ', title: ' cool thread ', text: ' cool text '
 	}};
-	var prevThreadId;
-	var prevPostId;
-	var form = form$.make(req);
+	var pThreadId;
+	var pPostId;
+	var form = new Form(req);
 	it("can create head", function () {
 		form.createHead(function (err, thread, post) {
 			thread.should.ok;
 			thread._id.should.ok;
 			post.should.ok;
 			post._id.should.ok;
-			prevThreadId = thread._id;
-			prevPostId = post._id;
+			pThreadId = thread._id;
+			pPostId = post._id;
 		});
 	});
 	it("can find thread", function (next) {
 		var req = { body: {
-			threadId: prevThreadId
+			threadId: pThreadId
 		}};
-		var form = form$.make(req);
+		var form = new Form(req);
 		form.findThread(function (err, thread) {
 			thread.should.ok;
-			thread._id.should.equal(prevThreadId);
+			thread._id.should.equal(pThreadId);
 			thread.categoryId.should.equal(100);
 			thread.userName .should.equal('snow man');
 			thread.title.should.equal('cool thread');
@@ -133,12 +123,12 @@ describe("postForm", function () {
 	});
 	it("can find thread and post", function (next) {
 		var req = { body: {
-			threadId: prevThreadId, postId: prevPostId
+			threadId: pThreadId, postId: pPostId
 		}};
-		var form = form$.make(req);
+		var form = new Form(req);
 		form.findThreadAndPost(function (err, thread, post) {
 			thread.should.ok;
-			thread._id.should.equal(prevThreadId);
+			thread._id.should.equal(pThreadId);
 			thread.categoryId.should.equal(100);
 			thread.userName .should.equal('snow man');
 			thread.title.should.equal('cool thread');
@@ -150,11 +140,11 @@ describe("postForm", function () {
 	});
 	it("can update head", function (next) {
 		var req = { body: {
-			threadId: prevThreadId, postId: prevPostId,
+			threadId: pThreadId, postId: pPostId,
 			categoryId: 103,
 			userName : 'snowman h2', title: 'cool thread h2', text: 'cool text h2'
 		}};
-		var form = form$.make(req);
+		var form = new Form(req);
 		form.findThreadAndPost(function (err, thread, post) {
 			form.updateHead(thread, post, true, function (err) {
 				form.findThreadAndPost(function (err, thread, post) {
@@ -170,36 +160,36 @@ describe("postForm", function () {
 	});
 	it("can create reply", function (next) {
 		var req = { body: {
-			threadId: prevThreadId,
+			threadId: pThreadId,
 			userName : 'snowman 2', text: 'cool text 2'
 		}};
-		var thread = {_id: prevThreadId};
-		var form = form$.make(req);
+		var thread = {_id: pThreadId};
+		var form = new Form(req);
 		form.createReply(thread, function (err, post) {
 			post.should.ok;
-			prevPostId = post._id;
+			pPostId = post._id;
 			next(err);
 		});
 	});
 	it("can find reply", function (next) {
 		var req = { body: {
-			threadId: prevThreadId, postId: prevPostId
+			threadId: pThreadId, postId: pPostId
 		}};
-		var form = form$.make(req);
+		var form = new Form(req);
 		form.findThreadAndPost(function (err, thread, post) {
-			post._id.should.equal(prevPostId);
-			post.userName .should.equal('snowman 2');
+			post._id.should.equal(pPostId);
+			post.userName.should.equal('snowman 2');
 			post.text.should.equal('cool text 2');
 			next(err);
 		});
 	});
 	it("can update reply", function (next) {
 		var req = { body: {
-			threadId: prevThreadId, postId: prevPostId,
+			threadId: pThreadId, postId: pPostId,
 			categoryId: 103,
 			userName : 'snowman r2', text: 'cool text r2'
 		}};
-		var form = form$.make(req);
+		var form = new Form(req);
 		form.findThreadAndPost(function (err, thread, post) {
 			form.updateReply(post, true, function (err) {
 				form.findThreadAndPost(function (err, thread, post) {
@@ -210,5 +200,4 @@ describe("postForm", function () {
 			});
 		});
 	});
-}); // create thread
-
+});

@@ -5,14 +5,16 @@ var fs = require('fs');
 
 var l = require('./l.js');
 var config = require('./config.js');
-//var category = require('./category.js');
-//var auth = require('./auth.js');
-//var form = require('./post-form.js');
-//var upload = require('./upload.js');
+
+// for init func loading.
+var Role = require('./role.js');
+var Category = require('./category.js');
+var Post = require('./post-model-post.js');
+var Thread = require('./post-model-thread.js');
 
 var e;
 
-l.addInit(function (next) {
+l.init.add(function (next) {
 	e = express();
 
 	var uploadTmpDir = config.uploadDir + '/tmp';
@@ -35,12 +37,30 @@ l.addInit(function (next) {
 	e.configure('production', function () {
 		e.use(express.errorHandler());
 	});
+
+	require('./auth-api.js').register(e);
+	require('./category-api.js').register(e);
+	require('./post-api.js').register(e);
+	//require('./admin.js').register(e);
+	//require('./search.js').register(e);
+
 	next();
 });
 
-l.addAfterInit(function (next) {
+l.init.addAfter(function (next) {
 	e.post('/api/hello', function (req, res) {
 		res.json('hello');
+	});
+
+	e.configure('development', function () {
+		e.post('/api/test/set-session-var', function (req, res) {
+			req.session.test_var = req.body.value;
+			res.json('ok');
+		});
+
+		e.post('/api/test/get-session-var', function (req, res) {
+			res.json(req.session.test_var);
+		});
 	});
 
 	e.listen(config.appServerPort);

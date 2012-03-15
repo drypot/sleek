@@ -10,20 +10,15 @@ var ObjectId = exports.ObjectId = mongolian.ObjectId;
 var Timestamp = exports.Timestamp = mongolian.Timestamp;
 var DBRef = exports.DBRef = mongolian.DBRef;
 
+var param = exports.param = {};
 var server;
 var db;
 
-l.addInit(function (next) {
-	var param = {};
-
-	// param from config
-	param.mongoDbName = config.mongoDbName;
-
-	// param from param
-	_.extend(param, exports.param);
+l.init.add(function (next) {
+	param.dbName = param.dbName || config.mongoDbName;
 
 	server = exports.server = new mongolian;
-	db = exports.db = server.db(param.mongoDbName);
+	db = exports.db = server.db(param.dbName);
 	if (param.dropDatabase) {
 		db.dropDatabase();
 	}

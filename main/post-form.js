@@ -1,36 +1,25 @@
 var _ = require('underscore');
 var should = require('should');
 var async = require('async');
-var _util = require('util');
 
 var l = require('./l.js');
-var _thread = require('thread.js');
-var _post = require('post.js');
+var Thread = require('./post-model-thread.js');
+var Post = require('./post-model-post.js');
+var msg = require('./msg.js');
 
-var ERR_FILL_TITLE = '제목을 입력해 주십시오.';
-var ERR_SHORTEN_TITLE = '제목을 줄여 주십시오.';
-var ERR_FILL_USERNAME = '필명을 입력해 주십시오.';
-var ERR_SHORTEN_USERNAME = '필명을 줄여 주십시오.';
-
-// PostForm
-
-var PostForm = function (req) {
-	var body = req.body;
+var PostForm = module.exports = function (req) {
+	var b = req.body;
 	this.now = new Date();
-	this.threadId = l.intp(body, 'threadId', 0);
-	this.postId = l.intp(body, 'postId', 0);
-	this.categoryId = l.intp(body, 'categoryId', 0);
-	this.userName  = l.strp(body, 'userName', '');
-	this.title = l.strp(body, 'title', '');
-	this.text = l.strp(body, 'text', '');
-	this.visible = l.boolp(body, 'visible', true);
-	this.delFile = body.delFile;
+	this.threadId = l.p.int(b, 'threadId', 0);
+	this.postId = l.p.int(b, 'postId', 0);
+	this.categoryId = l.p.int(b, 'categoryId', 0);
+	this.userName  = l.p.string(b, 'userName', '');
+	this.title = l.p.string(b, 'title', '');
+	this.text = l.p.string(b, 'text', '');
+	this.visible = l.p.bool(b, 'visible', true);
+	this.delFile = b.delFile;
 	this.file = req.files && req.files.file;
 	this.error = [];
-}
-
-exports.make = function (req) {
-	return new PostForm(req);
 }
 
 var proto = PostForm.prototype;
@@ -47,27 +36,27 @@ proto.validateReply = function () {
 }
 
 proto._validateThread = function () {
-	if (!this.title) this.error.push({title: ERR_FILL_TITLE});
-	if (this.title.length > 128) this.error.push({title: ERR_SHORTEN_TITLE});
+	if (!this.title) this.error.push({title: msg.ERR_FILL_TITLE});
+	if (this.title.length > 128) this.error.push({title: msg.ERR_SHORTEN_TITLE});
 }
 
 proto._validatePost = function () {
-	if (!this.userName) this.error.push({userName : ERR_FILL_USERNAME});
-	if (this.userName .length > 32) this.error.push({userName : ERR_SHORTEN_USERNAME});
+	if (!this.userName) this.error.push({userName : msg.ERR_FILL_USERNAME});
+	if (this.userName .length > 32) this.error.push({userName : msg.ERR_SHORTEN_USERNAME});
 }
 
 // find
 
 proto.findThread = function (next) {
 	var form = this;
-	_thread.findById(form.threadId, next);
+	Thread.findById(form.threadId, next);
 }
 
 proto.findThreadAndPost = function (next) {
 	var form = this;
-	_thread.findById(form.threadId, function (err, thread) {
+	Thread.findById(form.threadId, function (err, thread) {
 		if (err) return next(err);
-		_post.findById(form.postId, function (err, post) {
+		Post.findById(form.postId, function (err, post) {
 			next(err, thread, post);
 		});
 	});
@@ -88,7 +77,7 @@ proto.createReply = function (thread, next) {
 	var form = this;
 	form._insertPost(thread, function (err, post) {
 		if (err) return next(err);
-		_thread.updateLength(thread, form.now);
+		Thread.updateLength(thread, form.now);
 		next(err, post);
 	});
 }
@@ -100,8 +89,8 @@ proto._insertThread = function (next) {
 		hit: 0, length: 1, cdate: form.now, udate: form.now,
 		userName : form.userName , title: form.title
 	};
-	_thread.setNewId(thread);
-	_thread.insert(thread);
+	Thread.setNewId(thread);
+	Thread.insert(thread);
 	next(null, thread);
 }
 
@@ -112,25 +101,25 @@ proto._insertPost = function (thread, next) {
 		cdate: form.now, visible: true,
 		userName : form.userName , text: form.text
 	};
-	_post.setNewId(post);
-	_post.insert(post, form.file, function (err) {
+	Post.setNewId(post);
+	Post.insert(post, form.file, function (err) {
 		next(err, post);
 	});
 }
 
 // update
 
-proto.updateHead = function (thread, post, categoryEditable, next) {
+proto.updateHead = function (thread, post, admin, next) {
 	var form = this;
 	form._updateThread(thread, function (err) {
 		if (err) return next(err);
-		form._updatePost(post, categoryEditable, next);
+		form._updatePost(post, admin, next);
 	});
 }
 
-proto.updateReply = function (post, categoryEditable, next) {
+proto.updateReply = function (post, admin, next) {
 	var form = this;
-	form._updatePost(post, categoryEditable, next);
+	form._updatePost(post, admin, next);
 }
 
 proto._updateThread = function (thread, next) {
@@ -138,17 +127,17 @@ proto._updateThread = function (thread, next) {
 	thread.categoryId = form.categoryId;
 	thread.title = form.title;
 	thread.userName  = form.userName ;
-	_thread.update(thread);
+	Thread.update(thread);
 	next();
 }
 
-proto._updatePost = function (post, categoryEditable, next) {
+proto._updatePost = function (post, admin, next) {
 	var form = this;
 	post.userName  = form.userName ;
 	post.text = form.text;
-	if (categoryEditable) {
+	if (admin) {
 		post.visible = form.visible;
 	}
-	_post.update(post, form.file, form.delFile, next);
+	Post.update(post, form.file, form.delFile, next);
 }
 

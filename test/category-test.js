@@ -2,21 +2,17 @@ var _ = require('underscore');
 var should = require('should');
 
 var l = require('../main/l');
-var config = require("../main/config");
-var role = require('../main/role.js');
-var category = require('../main/category.js');
+var Role = require('../main/role.js');
+var Category = require('../main/category.js');
+var test = require('./test.js');
 
 before(function (next) {
-	l.addBeforeInit(function (next) {
-		config.param = { configPath: "config-dev/config-dev.xml" }
-		next();
-	});
-	l.runInit(next);
+	test.prepare('config', next);
 });
 
-describe('make', function () {
-	it('can make category', function () {
-		var c = category.make(
+describe('Category', function () {
+	it('can be created', function () {
+		var c = new Category(
 			{categoryId: "0", name: "all", sep: "true", newLine: "true" },
 			'user'
 		);
@@ -27,12 +23,12 @@ describe('make', function () {
 });
 
 describe('category for user', function () {
-	var r;
+	var role;
 	before(function () {
-		r = role.getByName('user');
+		role = Role.getByName('user');
 	});
 	it('has all category', function () {
-		var c = r.category[0];
+		var c = role.category[0];
 		c.should.ok;
 		c.name.should.equal('all');
 		c.all.should.be.ok;
@@ -41,7 +37,7 @@ describe('category for user', function () {
 		c.editable.should.not.ok;
 	});
 	it('has freetalk', function () {
-		var c = r.category[100];
+		var c = role.category[100];
 		c.should.ok;
 		c.name.should.equal('freetalk');
 		c.all.should.not.ok;
@@ -50,18 +46,18 @@ describe('category for user', function () {
 		c.editable.should.not.ok;
 	});
 	it('has cheat', function () {
-		var c = r.category[60];
+		var c = role.category[60];
 		should(!c);
 	});
 });
 
 describe('category for admin', function () {
-	var r;
+	var role;
 	before(function () {
-		r = role.getByName('admin');
+		role = Role.getByName('admin');
 	});
 	it('has all category', function () {
-		var c = r.category[0];
+		var c = role.category[0];
 		c.should.ok;
 		c.name.should.equal('all');
 		c.all.should.be.ok;
@@ -70,7 +66,7 @@ describe('category for admin', function () {
 		c.editable.should.ok;
 	});
 	it('has freetalk', function () {
-		var c = r.category[100];
+		var c = role.category[100];
 		c.should.ok;
 		c.name.should.equal('freetalk');
 		c.all.should.not.ok;
@@ -79,7 +75,7 @@ describe('category for admin', function () {
 		c.editable.should.ok;
 	});
 	it('has cheat', function () {
-		var c = r.category[60];
+		var c = role.category[60];
 		c.should.ok;
 		c.name.should.equal('cheat');
 		c.all.should.not.ok;
@@ -88,4 +84,3 @@ describe('category for admin', function () {
 		c.editable.should.ok;
 	});
 });
-

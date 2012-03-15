@@ -4,9 +4,9 @@ var xml2js = require('xml2js');
 
 var l = require('./l.js');
 
-l.addInit(function (next) {
-	var param = _.extend({}, exports.param);
+var param = exports.param = {};
 
+l.init.add(function (next) {
 	if (!param.configPath) {
 		console.log('configuration file passed.');
 		return next();

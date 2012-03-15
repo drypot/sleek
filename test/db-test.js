@@ -1,14 +1,11 @@
 var should = require('should');
 
-var l = require('../main/l');
-var mongo = require('../main/mongo');
+var l = require('../main/l.js');
+var mongo = require('../main/mongo.js');
+var test = require('./test.js');
 
 before(function (next) {
-	l.addBeforeInit(function (next) {
-		mongo.param = { mongoDbName: "sleek-test", dropDatabase: true };
-		next();
-	});
-	l.runInit(next);
+	test.prepare('mongo', next);
 });
 
 describe('mongo', function () {

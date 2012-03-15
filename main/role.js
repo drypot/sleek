@@ -4,20 +4,18 @@ var bcrypt = require('bcrypt');
 var l = require('./l.js');
 var config = require('./config.js');
 
-var role = {};
-
 // init
 
-l.addInit(function (next) {
+l.init.add(function (next) {
 	_.each(config.role, function (r) {
-		role[r.name] = new Role(r);
+		Role.list[r.name] = new Role(r);
 	});
 	next();
 });
 
 // Role
 
-var Role = function (r) {
+var Role = module.exports = function (r) {
 	this.name = r.name;
 	this.hash = r.hash;
 	this.category = {};
@@ -29,22 +27,18 @@ proto.checkPassword = function (password) {
 	return bcrypt.compareSync(password, this.hash);
 };
 
-// role$.*
+Role.list = {};
 
-exports.make = function (r) {
-	return new Role(r);
-}
-
-exports.getByName = function (roleName) {
-	return role[roleName];
+Role.getByName = function (roleName) {
+	return this.list[roleName];
 };
 
-exports.getByPassword = function (password) {
-	return _.find(role, function (r) {
-		return r.checkPassword(password);
+Role.getByPassword = function (password) {
+	return _.find(this.list, function (role) {
+		return role.checkPassword(password);
 	});
 };
 
-exports.each = function (func) {
-	_.each(role, func);
+Role.each = function (func) {
+	_.each(this.list, func);
 }

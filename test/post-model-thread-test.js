@@ -2,24 +2,18 @@ var _ = require('underscore');
 var should = require('should');
 var async = require('async');
 
+var l = require('../main/l.js');
+var Thread = require('../main/post-model-thread.js');
+var test = require('./test.js');
 
-var l = require('../main/l');
-var mongo = require('../main/mongo');
-var _thread = require('../main/post/thread');
-
-var now = new Date();
 var col;
 
 before(function (next) {
-	l.addBeforeInit(function (next) {
-		mongo.param = { mongoDbName: "sleek-test", dropDatabase: true };
-		next();
-	});
-	l.runInit(next);
+	test.prepare('config,mongo', next);
 });
 
 before(function () {
-	col = _thread.col;
+	col = Thread.col;
 });
 
 describe('thread collection', function () {
@@ -43,22 +37,19 @@ describe('thread collection', function () {
 	});
 });
 
-describe('setNewId', function () {
+describe('thread/mongo', function () {
+	var pthread;
 	it('can set new id', function () {
 		var thread = {};
 		thread.should.not.have.property('_id');
-		_thread.setNewId(thread);
+		Thread.setNewId(thread);
 		thread.should.have.property('_id');
 		thread._id.should.be.a('number');
 	});
-});
-
-describe('thread/mongo', function () {
-	var prevThread;
 	it('can insert thread', function () {
 		function insertThread(thread) {
-			_thread.setNewId(thread);
-			_thread.insert(thread);
+			Thread.setNewId(thread);
+			Thread.insert(thread);
 			return thread;
 		}
 		insertThread({
@@ -85,7 +76,7 @@ describe('thread/mongo', function () {
 			categoryId: 103, hit: 10, length: 5, cdate: new Date(10), udate: new Date(40),
 			userName : 'snowman', title: 'cool thread 6'
 		});
-		prevThread = insertThread({
+		pthread = insertThread({
 			categoryId: 104, hit: 10, length: 5, cdate: new Date(10), udate: new Date(50),
 			userName : 'snowman', title: 'cool thread 7'
 		});
@@ -98,43 +89,43 @@ describe('thread/mongo', function () {
 		});
 	});
 	it('can get by id', function (next) {
-		_thread.findById(prevThread._id, function (err, thread) {
+		Thread.findById(pthread._id, function (err, thread) {
 			if (err) return next(err);
-			thread._id.should.equal(prevThread._id);
-			thread.title.should.equal(prevThread.title);
+			thread._id.should.equal(pthread._id);
+			thread.title.should.equal(pthread.title);
 			next(err);
 		});
 	});
 	it('can update record', function (next) {
-		prevThread.userName  = "fireman";
-		prevThread.hit = 17;
-		_thread.update(prevThread);
-		_thread.findById(prevThread._id, function (err, thread) {
+		pthread.userName  = "fireman";
+		pthread.hit = 17;
+		Thread.update(pthread);
+		Thread.findById(pthread._id, function (err, thread) {
 			if (err) return next(err);
-			thread.should.eql(prevThread);
+			thread.should.eql(pthread);
 			next();
 		});
 	});
 	it('can increase hit', function (next) {
-		_thread.updateHit(prevThread);
-		_thread.findById(prevThread._id, function (err, thread) {
+		Thread.updateHit(pthread);
+		Thread.findById(pthread._id, function (err, thread) {
 			if (err) return next(err);
-			thread.hit.should.equal(prevThread.hit + 1);
+			thread.hit.should.equal(pthread.hit + 1);
 			next();
 		});
 	});
 	it('can update lenth & udate', function (next) {
-		var now2 = new Date();
-		_thread.updateLength(prevThread, now2);
-		_thread.findById(prevThread._id, function (err, thread) {
+		var now = new Date();
+		Thread.updateLength(pthread, now);
+		Thread.findById(pthread._id, function (err, thread) {
 			if (err) return next(err);
-			thread.length.should.equal(prevThread.length + 1);
-			thread.udate.should.eql(now2);
+			thread.length.should.equal(pthread.length + 1);
+			thread.udate.should.eql(now);
 			next();
 		});
 	});
 	it('can find all', function (next) {
-		_thread.find(0, null, 99, function (err, list) {
+		Thread.findByCategoryId(0, null, 99, function (err, list) {
 			if (err) return next(err);
 			list.should.length(7);
 			list[0].udate.should.above(list[1].udate);
@@ -144,32 +135,34 @@ describe('thread/mongo', function () {
 		})
 	});
 	it('can find with limited', function (next) {
-		_thread.find(0, null, 3, function (err, list) {
+		Thread.findByCategoryId(0, null, 3, function (err, thread) {
 			if (err) return next(err);
-			list.should.length(3);
+			thread.should.length(3);
 			next();
 		})
 	});
 	it('can find with lastUpdate', function (next) {
-		_thread.find(0, new Date(20), 99, function (err, list) {
+		Thread.findByCategoryId(0, new Date(20), 99, function (err, thread) {
 			if (err) return next(err);
-			list.should.length(4);
-			list[0].udate.should.eql(new Date(20));
-			list[1].udate.should.eql(new Date(20));
-			list[2].udate.should.eql(new Date(11));
+			thread.should.length(4);
+			thread[0].udate.should.eql(new Date(20));
+			thread[1].udate.should.eql(new Date(20));
+			thread[2].udate.should.eql(new Date(11));
 			next();
 		})
 	});
 	it('can find with categoryId', function (next) {
-		_thread.find(101, null, 99, function (err, list) {
+		Thread.findByCategoryId(101, null, 99, function (err, thread) {
 			if (err) return next(err);
-			list.should.length(4);
-			_thread.find(103, null, 99, function (err, list) {
-				if (err) return next(err);
-				list.should.length(2);
-				next(err);
-			})
-		})
+			thread.should.length(4);
+			next(err);
+		});
+	});
+	it('can find with categoryId 2', function (next) {
+		Thread.findByCategoryId(103, null, 99, function (err, thread) {
+			if (err) return next(err);
+			thread.should.length(2);
+			next(err);
+		});
 	});
 });
-

@@ -3,27 +3,6 @@ var should = require('should');
 var async = require('async');
 var fs = require('fs');
 
-var initList = [];
-var beforeList = [];
-var afterList = [];
-
-// object
-
-exports.method = function (con, methodName, func) {
-	Object.defineProperty(
-		con, methodName, { value : func, writable: true, enumerable: false, configurable: true}
-	);
-}
-
-exports.merge = function (tar, src, props) {
-	_.each(props, function (el) {
-		if (src.hasOwnProperty(el)) {
-			tar[el] = src[el];
-		}
-	});
-	return tar;
-}
-
 // property
 
 exports.p = function (obj, prop, def) {
@@ -32,7 +11,7 @@ exports.p = function (obj, prop, def) {
 	return obj[prop];
 }
 
-exports.intp = function (obj, prop, def) {
+exports.p.int = function (obj, prop, def) {
 	if (!obj) return def;
 	if (!_.has(obj, prop)) return def;
 	var i = parseInt(obj[prop]);
@@ -40,35 +19,57 @@ exports.intp = function (obj, prop, def) {
 	return i;
 }
 
-exports.strp = function (obj, prop, def) {
+exports.p.string = function (obj, prop, def) {
 	if (!obj) return def;
 	if (!_.has(obj, prop)) return def;
 	return String(obj[prop]).trim();
 }
 
-exports.boolp = function (obj, prop, def) {
+exports.p.bool = function (obj, prop, def) {
 	if (!obj) return def;
 	if (!_.has(obj, prop)) return def;
 	var v = obj[prop];
 	return v === true || v === 'true';
 }
 
+exports.p.merge = function (tar, src, props) {
+	_.each(props, function (p) {
+		if (src.hasOwnProperty(p)) {
+			tar[p] = src[p];
+		}
+	});
+	return tar;
+}
+
+// method
+
+exports.m = function (con, methodName, func) {
+	Object.defineProperty(
+		con, methodName, { value : func, writable: true, enumerable: false, configurable: true}
+	);
+}
 
 // init
 
-exports.addInit = function (func) {
+var initList = [];
+var beforeList = [];
+var afterList = [];
+
+exports.init = {};
+
+exports.init.add = function (func) {
 	initList.push(func);
 }
 
-exports.addBeforeInit = function (func) {
+exports.init.addBefore = function (func) {
 	beforeList.push(func);
 }
 
-exports.addAfterInit = function (func) {
+exports.init.addAfter = function (func) {
 	afterList.push(func);
 }
 
-exports.runInit = function (next) {
+exports.init.run = function (next) {
 	var all = beforeList.concat(initList, afterList);
 	async.series(all, function (err) {
 		if (err) throw err;
@@ -89,15 +90,11 @@ should.Assertion.prototype.sameProto = function (_class, desc) {
 
 // fs
 
-exports.mkdirs = function (/* base, sub, sub, sub, ..., next */) {
-	var arg = arguments;
-	var len = arg.length;
+exports.fs = {};
+
+exports.fs.mkdirs = function (sub, next) {
 	var dir;
-	var i = 0;
-	async.forEachSeries(arg, function (sub, next) {
-		if (i == len - 1) {
-			return next();
-		}
+	async.forEachSeries(sub, function (sub, next) {
 		if (!dir) {
 			dir = sub;
 		} else {
@@ -105,10 +102,9 @@ exports.mkdirs = function (/* base, sub, sub, sub, ..., next */) {
 		}
 		fs.mkdir(dir, 0755, function (err) {
 			if (err && err.code !== 'EEXIST') return next(err);
-			i++;
 			next();
 		});
 	}, function (err) {
-		arg[len - 1](err, dir);
+		next(err, dir);
 	});
 }
