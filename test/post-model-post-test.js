@@ -34,11 +34,9 @@ describe('post collection', function () {
 describe('post/mongo', function () {
 	var ppost;
 	it('can make new id', function () {
-		var post = {};
-		post.should.not.have.property('_id');
-		Post.setNewId(post);
-		post.should.have.property('_id');
-		post._id.should.be.a('number');
+		var id1 = Post.getNewId();
+		var id2 = Post.getNewId();
+		should(id1 < id2);
 	});
 	it('can insert records', function (next) {
 		async.forEachSeries([
@@ -63,7 +61,7 @@ describe('post/mongo', function () {
 				userName : 'snowman', text: 'cool post 22'
 			}
 		], function (post, next) {
-			Post.setNewId(post);
+			post._id = Post.getNewId();
 			Post.insert(post, null, function (err) {
 				if (post.text === 'cool post 21') ppost = post;
 				next();
@@ -123,8 +121,7 @@ describe('post/mongo', function () {
 describe('post/file', function () {
 	var pp;
 	it('can insert post without file', function (next) {
-		var post = {};
-		Post.setNewId(post);
+		var post = {_id: Post.getNewId()};
 		Post.insert(post, null, function (err) {
 			post.should.not.property('file');
 			next(err);
@@ -132,6 +129,7 @@ describe('post/file', function () {
 	});
 	it('can save file', function (next) {
 		var post = pp = {
+			_id: Post.getNewId(),
 			threadId: 1010, cdate: new Date(20), visible: true,
 			userName : 'snowman', text: 'cool post 22'
 		};
@@ -140,7 +138,6 @@ describe('post/file', function () {
 			{size: 10, name: '2.jpg', __skip:true},
 			{size: 10, name: '3.jpg', __skip:true}
 		];
-		Post.setNewId(post);
 		Post.insert(post, file, function (err) {
 			post.should.property('file');
 			post.file.should.length(3);

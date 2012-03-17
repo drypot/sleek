@@ -40,15 +40,13 @@ describe('thread collection', function () {
 describe('thread/mongo', function () {
 	var pthread;
 	it('can set new id', function () {
-		var thread = {};
-		thread.should.not.have.property('_id');
-		Thread.setNewId(thread);
-		thread.should.have.property('_id');
-		thread._id.should.be.a('number');
+		var id1 = Thread.getNewId();
+		var id2 = Thread.getNewId();
+		should(id1 < id2);
 	});
 	it('can insert thread', function () {
 		function insertThread(thread) {
-			Thread.setNewId(thread);
+			thread._id = Thread.getNewId();
 			Thread.insert(thread);
 			return thread;
 		}

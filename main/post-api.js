@@ -4,10 +4,12 @@ var should = require('should');
 var l = require('./l.js');
 var Role = require('./role.js');
 var auth = require('./auth.js');
-var Form = require('./post-form.js');
+var Post = require('./post-model-post.js');
+var Thread = require('./post-model-thread.js');
 var msg = require('./msg.js');
 
 exports.register = function (e) {
+
 	e.post('/api/get-thread-list', auth.filter.login(), function (req, res) {
 		var role = Role.getByName(req.session.roleName);
 		var categoryId = l.post.int(body, 'categoryId', 0);
@@ -18,7 +20,7 @@ exports.register = function (e) {
 	//		return "post/list";
 	});
 
-	e.post('/api/get-head', auth.filter.login(), function (req, res) {
+	e.post('/api/get-thread', auth.filter.login(), function (req, res) {
 		var role = Role.getByName(req.session.roleName);
 		var categoryId = l.post.int(body, 'categoryId', 0);
 
@@ -30,119 +32,89 @@ exports.register = function (e) {
 	//		return "post/view";
 	});
 
-	e.post('/api/get-reply', auth.filter.login(), function (req, res) {
-		var role = Role.getByName(req.session.roleName); ;
-		var categoryId = l.post.int(body, 'categoryId', 0);
-
-		if (!role.category[categoryId].readable) {
-			return res.json(400, {error: msg.ERR_NOT_AUTHORIZED});
-		}
-
-	//		return "post ...";
-	});
-
-	function checkCategory(res, category) {
-		if (!category) {
-			res.json(400, {error: msg.ERR_INVALID_CATEGORY});
-			return false;
-		}
-		if (!category.writable) {
-			res.json(400, {error: msg.ERR_NOT_AUTHORIZED});
-			return false;
-		}
-		return true;
-	}
-
-	function checkThread(res, thread) {
-		if (!thread) {
-			res.json(400, {error: msg.ERR_INVALID_THREAD});
-			return false;
-		}
-		return true;
-	}
-
-	function checkPost(res, post) {
-		if (!post) {
-			res.json(400, {error: msg.ERR_INVALID_POST});
-			return false;
-		}
-		return true;
-	}
-
-	function checkFieldError(res, error) {
-		if (error.length) {
-			res.json(400, {error: msg.ERR_INVALID_DATA, field: error});
-			return false;
-		}
-		return true;
-	}
-
-	e.post('/api/create-post', auth.filter.login(), function (req, res, next) {
-		var role = Role.getByName(req.session.roleName);
-		var form = new Form(req);
-		if (!form.threadId) {
-			// head
-			if (!checkCategory(res, role.category[form.categoryId])) return;
-			if (!checkFieldError(res, form.validateThreadAndPost())) return;
-			form.insertThread(function (err, thread) {
-				if (err) return next(err);
-				form.insertPost(thread, function (err, post) {
-					if (err) return next(err);
-					req.session.post.push(post._id);
-					return res.json(200, {threadId: thread._id, postId: post._id});
-				});
-			});
-		} else {
-			// reply
-			form.findThread(function (err, thread) {
-				if (err) return next(err);
-				if (!checkThread(res, thread)) return;
-				if (!checkCategory(res, role.category[thread.categoryId])) return;
-				if (!checkFieldError(res, form.validatePost())) return;
-				form.insertPost(thread, function (err, post) {
-					if (err) return next(err);
-					form.updateThreadLength(thread);
-					req.session.post.push(post._id);
-					return res.json(200, {postId: post._id});
-				});
-			});
-		}
-	});
-
-	e.post('/api/update-post', auth.filter.login(), function (req, res, next) {
-		var role = Role.getByName(req.session.roleName);
-		var form = new Form(req);
-		form.findThreadAndPost(function (err, thread, post) {
-			if (err) return next(err);
-			if (!checkThread(res, thread)) return;
-			if (!checkPost(res, post)) return;
-			var head = thread.cdate === post.cdate;
-			var category = role.category[thread.categoryId];
-			if (!checkCategory(res, category)) return;
-			if (!category.editable) {
-				if (!_.include(req.session.post, form.postId)) {
-					return res.json(400, {error: msg.ERR_NOT_AUTHORIZED});
+	e.post('/api/get-post', auth.filter.login(), function (req, res, next) {
+		var role = getRole(req);
+		var body = req.body;
+		var threadId = l.p.int(body, 'threadId', 0);
+		var postId = l.p.int(body, 'postId', 0);
+		prepareThreadAndPost(res, threadId, postId, function (thread, post) {
+			prepareReadableCategory(res, role, thread.categoryId, function (category) {
+				var r = {};
+				if (r.head = thread.cdate.getTime() === post.cdate.getTime()) {
+					r.categoryId = thread.categoryId;
+					r.title = thread.title;
 				}
-				delete form.visible;
-			}
-			if (head) {
-				var formCategory = role.category[form.categoryId];
-				if (!checkCategory(res, formCategory)) return;
-				if (!checkFieldError(res, form.validateThreadAndPost())) return;
-				form.updateThread(thread, function (err) {
-					if (err) return next(err);
-					form.updatePost(post, function (err) {
-						if (err) return next(err);
-						res.json(200, 'ok');
+				r.userName = post.userName;
+				r.text = post.text;
+				r.file = post.file;
+				r.visible = post.visible;
+				res.json(200, r);
+			});
+		});
+	});
+
+	e.post('/api/create-post-head', auth.filter.login(), function (req, res, next) {
+		var role = getRole(req);
+		var form = getForm(req);
+		prepareWritableCategory(res, role, form.categoryId, function (category) {
+			checkFormThreadAndPost(res, form, function () {
+				insertThread(res, form, function (thread) {
+					insertPost(req, res, form, thread, function (post) {
+						res.json(200, {threadId: thread._id, postId: post._id});
 					});
 				});
-			} else {
-				if (!checkFieldError(res, form.validatePost())) return;
-				form.updatePost(post, function (err) {
-					if (err) return next(err);
-					res.json(200, 'ok');
+			});
+		});
+	});
+
+	e.post('/api/create-post-reply', auth.filter.login(), function (req, res, next) {
+		var role = getRole(req);
+		var form = getForm(req);
+		prepareThread(res, form.threadId, function (thread){
+			prepareWritableCategory(res, role, thread.categoryId, function (category) {
+				checkFormPost(res, form, function () {
+					insertPost(req, res, form, thread, function (post) {
+						Thread.updateLength(thread, form.now);
+						res.json(200, {threadId: thread._id, postId: post._id});
+					});
 				});
-			}
+			});
+		});
+	});
+
+	e.post('/api/update-post-head', auth.filter.login(), function (req, res, next) {
+		var role = getRole(req);
+		var form = getForm(req);
+		prepareThreadAndPost(res, form.threadId, form.postId, function (thread, post) {
+			prepareWritableCategory(res, role, thread.categoryId, function (category) {
+				checkPostOwnership(req, res, category, form.postId, function () {
+					prepareWritableCategory(res, role, form.categoryId, function (formCategory) {
+						checkFormThreadAndPost(res, form, function () {
+							updateThread(res, form, thread, function () {
+								updatePost(res, form, post, category.editable, function () {
+									res.json(200, 'ok');
+								});
+							});
+						});
+					});
+				});
+			});
+		});
+	});
+
+	e.post('/api/update-post-reply', auth.filter.login(), function (req, res, next) {
+		var role = getRole(req);
+		var form = getForm(req);
+		prepareThreadAndPost(res, form.threadId, form.postId, function (thread, post) {
+			prepareWritableCategory(res, role, thread.categoryId, function (category) {
+				checkPostOwnership(req, res, category, form.postId, function () {
+					checkFormThreadAndPost(res, form, function () {
+						updatePost(res, form, post, category.editable, function () {
+							res.json(200, 'ok');
+						});
+					});
+				});
+			});
 		});
 	});
 
@@ -151,7 +123,7 @@ exports.register = function (e) {
 			req.body = _.extend(req.body,
 				{ categoryId: 101, userName : 'snowman', title: 'title u1', text: 'text u1' }
 			);
-			var form = new Form(req);
+			var form = getForm(req);
 			form.createHead(function (err, thread, post) {
 				if (err) return next(err);
 				res.json(200, {threadId: thread._id, postId: post._id});
@@ -162,17 +134,178 @@ exports.register = function (e) {
 			req.body = _.extend(req.body,
 				{ userName : 'snowman', title: 'title u1', text: 'text u1' }
 			);
-			var form = new Form(req);
-			form.findThreadAndPost(function (err, thread, post) {
+			var form = getForm(req);
+			Thread.findById(form.threadId, function (err, thread) {
 				if (err) return next(err);
-				if (!thread || !post) {
-					return res.json(400, {error: msg.ERR_INVALID_THREAD});
-				}
-				form.updateHead(thread, post, false, function (err) {
+				Post.findById(form.postId, function (err, post) {
 					if (err) return next(err);
-					res.json(200, 'ok');
+					if (!thread || !post) {
+						return res.json(400, {error: msg.ERR_INVALID_THREAD});
+					}
+					form.updateHead(thread, post, false, function (err) {
+						if (err) return next(err);
+						res.json(200, 'ok');
+					});
 				});
 			});
 		});
 	});
+
+	function getRole(req) {
+		return Role.getByName(req.session.roleName);
+	}
+
+	function getForm(req) {
+		var body = req.body;
+		var r = {};
+		r.now = new Date();
+		r.threadId = l.p.int(body, 'threadId', 0);
+		r.postId = l.p.int(body, 'postId', 0);
+		r.categoryId = l.p.int(body, 'categoryId', 0);
+		r.userName  = l.p.string(body, 'userName', '');
+		r.title = l.p.string(body, 'title', '');
+		r.text = l.p.string(body, 'text', '');
+		r.visible = l.p.bool(body, 'visible', true);
+		r.delFile = body.delFile;
+		r.file = req.files && req.files.file;
+		return r;
+	}
+
+	function prepareReadableCategory(res, role, categoryId, next) {
+		var category = role.category[categoryId];
+		if (!category) {
+			return res.json(400, {error: msg.ERR_INVALID_CATEGORY});
+		}
+		if (!category.readable) {
+			return res.json(400, {error: msg.ERR_NOT_AUTHORIZED});
+		}
+		next(category);
+	}
+
+	function prepareWritableCategory(res, role, categoryId, next) {
+		var category = role.category[categoryId];
+		if (!category) {
+			return res.json(400, {error: msg.ERR_INVALID_CATEGORY});
+		}
+		if (!category.writable) {
+			return res.json(400, {error: msg.ERR_NOT_AUTHORIZED});
+		}
+		next(category);
+	}
+
+	function checkPostOwnership(req, res, category, postId, next) {
+		if (!category.editable) {
+			if (!_.include(req.session.post, postId)) {
+				return res.json(400, {error: msg.ERR_NOT_AUTHORIZED});
+			}
+		}
+		next();
+	}
+
+	function checkFormThreadAndPost(res, form, next) {
+		var error = [];
+		fillThreadError(form, error);
+		fillPostError(form, error);
+		if (error.length) {
+			return res.json(400, {error: msg.ERR_INVALID_DATA, field: error});
+		}
+		next();
+	}
+
+	function checkFormPost(res, form, next) {
+		var error = [];
+		fillPostError(form, error);
+		if (error.length) {
+			return res.json(400, {error: msg.ERR_INVALID_DATA, field: error});
+		}
+		next();
+	}
+
+	function fillThreadError(form, error) {
+		if (!form.title) error.push({title: msg.ERR_FILL_TITLE});
+		if (form.title.length > 128) error.push({title: msg.ERR_SHORTEN_TITLE});
+	}
+
+	function fillPostError(form, error) {
+		if (!form.userName) error.push({userName : msg.ERR_FILL_USERNAME});
+		if (form.userName .length > 32) error.push({userName : msg.ERR_SHORTEN_USERNAME});
+	}
+
+	function prepareThread(res, threadId, next) {
+		Thread.findById(threadId, function (err, thread) {
+			if (err || !thread) {
+				return res.json(400, {error: msg.ERR_INVALID_THREAD});
+			}
+			next(thread);
+		});
+	}
+
+	function prepareThreadAndPost(res, threadId, postId, next) {
+		prepareThread(res, threadId, function (thread) {
+			Post.findById(postId, function (err, post) {
+				if (err || !post) {
+					return res.json(400, {error: msg.ERR_INVALID_POST});
+				}
+				next(thread, post);
+			});
+		});
+	}
+
+	function insertThread(res, form, next) {
+		var thread = {
+			_id : Thread.getNewId(),
+			categoryId: form.categoryId,
+			hit: 0, length: 1, cdate: form.now, udate: form.now,
+			userName : form.userName , title: form.title
+		};
+		Thread.insert(thread, function (err) {
+			if (err) {
+				return res.json(400, {error: msg.ERR_DB_IO});
+			}
+			next(thread);
+		});
+	}
+
+	function insertPost(req, res, form, thread, next) {
+		var post = {
+			_id: Post.getNewId(),
+			threadId: thread._id,
+			cdate: form.now, visible: true,
+			userName : form.userName , text: form.text
+		};
+		req.session.post.push(post._id);
+		Post.insert(post, form.file, function (err) {
+			if (err) {
+				return res.json(400, {error: msg.ERR_DB_IO});
+			}
+			next(post);
+		});
+	}
+
+	function updateThread(res, form, thread, next) {
+		thread.categoryId = form.categoryId;
+		thread.title = form.title;
+		thread.userName  = form.userName ;
+		Thread.update(thread, function (err) {
+			if (err) {
+				return res.json(400, {error: msg.ERR_DB_IO});
+			}
+			next();
+		});
+	}
+
+	function updatePost(res, form, post, admin, next) {
+		post.userName = form.userName ;
+		post.text = form.text;
+		if (admin) {
+			post.visible = form.visible;
+		}
+		Post.update(post, form.file, form.delFile, function (err) {
+			if (err) {
+				return res.json(400, {error: msg.ERR_DB_IO});
+			}
+			next();
+		});
+	}
+
 };

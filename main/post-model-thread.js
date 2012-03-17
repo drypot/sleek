@@ -26,8 +26,8 @@ var Thread = module.exports = function () {
 //	String title;
 }
 
-Thread.setNewId = function (thread) {
-	thread._id = ++Thread.idSeed;
+Thread.getNewId = function () {
+	return ++Thread.idSeed;
 }
 
 Thread.insert = function (thread, next) {

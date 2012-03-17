@@ -8,7 +8,7 @@ var mongo = require('./mongo.js');
 var upload = require('./upload.js');
 
 l.init.add(function (next) {
-	Post.col = mongo.db.collection("Post");
+	Post.col = mongo.db.collection("post");
 	Post.col.ensureIndex({threadId: 1, cdate: 1});
 	Post.col.find({}, {_id: 1}).sort({_id: -1}).limit(1).next(function (err, obj) {
 		if (err) return next(err);
@@ -30,11 +30,11 @@ var Post = module.exports = function () {
 //	String userName ;
 //	String text;
 //	List<String> file;
-}
+};
 
-Post.setNewId = function (post) {
-	post._id = ++Post.idSeed;
-}
+Post.getNewId = function () {
+	return ++Post.idSeed;
+};
 
 Post.insert = function (post, file, next) {
 	saveUploadFile(post, file, function (err, saved) {
@@ -44,7 +44,7 @@ Post.insert = function (post, file, next) {
 		//searchService.newPost(thread, post);
 		next();
 	});
-}
+};
 
 Post.update = function (post, file, delFile, next) {
 	deleteUploadFile(post, delFile, function (err, deleted) {
@@ -61,27 +61,31 @@ Post.update = function (post, file, delFile, next) {
 			next();
 		});
 	})
-}
+};
+
+// find
 
 Post.findById = function (id, next) {
 	return Post.col.findOne({_id: id}, next);
-}
+};
 
 Post.findByThreadId = function (threadId, next) {
 	Post.col.find({threadId: threadId}).sort({cdate: 1}).toArray(next);
-}
+};
+
+// upload
 
 Post.getUploadDir = function (post) {
 	return config.uploadDir + '/post/' + Math.floor(post._id / 10000) + '/' + post._id
-}
+};
 
 var saveUploadFile = function (post, file, next /* (err, saved) */) {
 	if (!file) return next();
 	upload.saveFile([config.uploadDir, 'Post', Math.floor(post._id / 10000), post._id], file, next);
-}
+};
 
 var deleteUploadFile = function (post, delFile, next /* (err, deleted) */) {
 	if (!delFile) return next();
 	upload.deleteFile(Post.getUploadDir(post), delFile, next);
-}
+};
 
