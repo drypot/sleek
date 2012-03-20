@@ -11,25 +11,63 @@ var msg = require('./msg.js');
 exports.register = function (e) {
 
 	e.post('/api/get-thread-list', auth.filter.login(), function (req, res) {
-		var role = Role.getByName(req.session.roleName);
-		var categoryId = l.post.int(body, 'categoryId', 0);
-
-		if (!role.category[categoryId].readable) {
-			return res.json(400, {error: msg.ERR_NOT_AUTHORIZED});
-		}
-	//		return "post/list";
+		var role = getRole(req);
+		var body = req.body;
+		var categoryId = l.p.int(body, 'categoryId', 0);
+		var lastUdate = new Date(l.p.int(body, 'lastUdate', Date.now()));
+		var limit = l.p.int(body, 'limit', 64);
+		prepareReadableCategory(res, role, categoryId, function (category) {
+			Thread.findByCategoryId(categoryId, lastUdate, limit, function (err, thread) {
+				if (err) return next(err);
+				var r = [];
+				_.each(thread, function (thread) {
+					if (!role.category[thread.categoryId]) return;
+					r.push({
+						id: thread._id,
+						categoryId: thread.categoryId,
+						hit: thread.hit,
+						length: thread.length,
+						udate: thread.udate.getTime(),
+						userName: thread.userName,
+						title: thread.title
+					});
+				});
+				res.json(200, r);
+			});
+		});
 	});
 
 	e.post('/api/get-thread', auth.filter.login(), function (req, res) {
-		var role = Role.getByName(req.session.roleName);
-		var categoryId = l.post.int(body, 'categoryId', 0);
-
-		if (!role.category[categoryId].readable) {
-			return res.json(400, {error: msg.ERR_NOT_AUTHORIZED});
-		}
-
-	//		postContext.updateThreadHit();
-	//		return "post/view";
+		var role = getRole(req);
+		var body = req.body;
+		var threadId = l.p.int(body, 'threadId', 0);
+		prepareThread(res, threadId, function (thread) {
+			prepareReadableCategory(res, role, thread.categoryId, function (category) {
+				var r = {
+					thread: {
+						id: thread._id,
+						categoryId: category.id,
+						title: thread.title
+					},
+					post: []
+				};
+				var admin = category.editable;
+				Post.findByThreadId(threadId, function (err, post) {
+					if (err) return next(err);
+					_.each(post, function (post) {
+						if (!post.visible && !admin) return;
+						r.post.push({
+							id: post._id,
+							userName: post.userName,
+							cdate: post.cdate,
+							text: post.text,
+							file: post.file
+						});
+					});
+					res.json(200, r);
+				});
+			});
+		});
 	});
 
 	e.post('/api/get-post', auth.filter.login(), function (req, res, next) {
