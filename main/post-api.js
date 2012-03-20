@@ -4,8 +4,8 @@ var should = require('should');
 var l = require('./l.js');
 var Role = require('./role.js');
 var auth = require('./auth.js');
-var Post = require('./post-model-post.js');
-var Thread = require('./post-model-thread.js');
+var Post = require('./post.js');
+var Thread = require('./post-thread.js');
 var msg = require('./msg.js');
 
 exports.register = function (e) {

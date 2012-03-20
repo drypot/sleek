@@ -11,8 +11,8 @@ var upload = require('./upload.js');
 // for init func loading.
 var Role = require('./role.js');
 var Category = require('./category.js');
-var Post = require('./post-model-post.js');
-var Thread = require('./post-model-thread.js');
+var Post = require('./post.js');
+var Thread = require('./post-thread.js');
 
 var e;
 

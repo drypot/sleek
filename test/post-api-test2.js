@@ -5,7 +5,7 @@ var path = require('path');
 
 var l = require('../main/l.js');
 var msg = require('../main/msg.js');
-var Thread = require('../main/post-model-thread.js');
+var Thread = require('../main/post-thread.js');
 var test = require('../main/test.js');
 
 before(function (next) {

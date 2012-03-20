@@ -3,7 +3,7 @@ var should = require('should');
 var async = require('async');
 
 var l = require('../main/l');
-var Post = require('../main/post-model-post.js');
+var Post = require('../main/post.js');
 var test = require('../main/test.js');
 
 before(function (next) {

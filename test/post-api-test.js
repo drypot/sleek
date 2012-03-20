@@ -4,7 +4,7 @@ var path = require('path');
 
 var l = require('../main/l.js');
 var msg = require('../main/msg.js');
-var Post = require('../main/post-model-post.js');
+var Post = require('../main/post.js');
 var test = require('../main/test.js');
 
 before(function (next) {
