@@ -108,7 +108,7 @@ exports.register = function (e) {
 		prepareThreadAndPost(res, form.threadId, form.postId, function (thread, post) {
 			prepareWritableCategory(res, role, thread.categoryId, function (category) {
 				checkPostOwnership(req, res, category, form.postId, function () {
-					checkFormThreadAndPost(res, form, function () {
+					checkFormPost(res, form, function () {
 						updatePost(res, form, post, category.editable, function () {
 							res.json(200, 'ok');
 						});

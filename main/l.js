@@ -3,6 +3,12 @@ var should = require('should');
 var async = require('async');
 var fs = require('fs');
 
+// Object
+
+exports.isObject = function (obj) {
+	return Object.prototype.toString.call(obj) === '[object Object]';
+}
+
 // property
 
 exports.p = function (obj, prop, def) {

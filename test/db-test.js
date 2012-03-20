@@ -2,7 +2,7 @@ var should = require('should');
 
 var l = require('../main/l.js');
 var mongo = require('../main/mongo.js');
-var test = require('./test.js');
+var test = require('../main/test.js');
 
 before(function (next) {
 	test.prepare('mongo', next);

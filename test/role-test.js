@@ -3,7 +3,7 @@ var should = require('should');
 
 var l = require('../main/l');
 var Role = require('../main/role.js');
-var test = require('./test.js');
+var test = require('../main/test.js');
 
 console.log(typeof Role);
 before(function (next) {

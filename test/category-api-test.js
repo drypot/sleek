@@ -2,7 +2,7 @@ var _ = require('underscore');
 var should = require('should');
 
 var l = require('../main/l');
-var test = require('./test.js');
+var test = require('../main/test.js');
 
 before(function (next) {
 	test.prepare('config,express', next);
@@ -12,10 +12,10 @@ describe("get-category", function () {
 	describe("for user", function () {
 		var c;
 		it('assume user', function (next) {
-			test.post('/api/login', {password: '1'}, next);
+			test.request('/api/login', {password: '1'}, next);
 		});
 		it('can get category', function (next) {
-			test.post('/api/get-category', function (err, res, body) {
+			test.request('/api/get-category', function (err, res, body) {
 				res.should.status(200);
 				c = body;
 				c.should.ok;
@@ -37,10 +37,10 @@ describe("get-category", function () {
 	describe("for admin", function () {
 		var c;
 		it('assume admin', function (next) {
-			test.post('/api/login', {password: '3'}, next);
+			test.request('/api/login', {password: '3'}, next);
 		});
 		it('can get category', function (next) {
-			test.post('/api/get-category', function (err, res, body) {
+			test.request('/api/get-category', function (err, res, body) {
 				res.should.status(200);
 				c = body;
 				c.should.ok;

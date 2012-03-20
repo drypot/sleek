@@ -4,7 +4,7 @@ var should = require('should');
 var l = require('../main/l');
 var Role = require('../main/role.js');
 var Category = require('../main/category.js');
-var test = require('./test.js');
+var test = require('../main/test.js');
 
 before(function (next) {
 	test.prepare('config', next);

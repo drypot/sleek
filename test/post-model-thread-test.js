@@ -4,7 +4,7 @@ var async = require('async');
 
 var l = require('../main/l.js');
 var Thread = require('../main/post-model-thread.js');
-var test = require('./test.js');
+var test = require('../main/test.js');
 
 var col;
 

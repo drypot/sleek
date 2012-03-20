@@ -2,9 +2,11 @@ var _ = require('underscore');
 var express = require('express');
 var redisStore = require('connect-redis')(express);
 var fs = require('fs');
+var util = require('util');
 
 var l = require('./l.js');
 var config = require('./config.js');
+var upload = require('./upload.js');
 
 // for init func loading.
 var Role = require('./role.js');
@@ -60,6 +62,15 @@ l.init.addAfter(function (next) {
 
 		e.post('/api/test/get-session-var', function (req, res) {
 			res.json(req.session.test_var);
+		});
+
+		e.post('/api/test/upload', function (req, res) {
+			upload.saveFile([config.uploadDir, 'tmp'], req.files.file, function (err, saved) {
+//				console.log('body: ' + util.inspect(req.body));
+//				console.log('files: ' + util.inspect(req.files));
+				req.body.saved = saved;
+				res.json(req.body);
+			});
 		});
 	});
 
