@@ -156,39 +156,6 @@ exports.register = function (e) {
 		});
 	});
 
-	e.configure('development', function () {
-		e.post('/api/test/create-head-with-file', function (req, res, next) {
-			req.body = _.extend(req.body,
-				{ categoryId: 101, userName : 'snowman', title: 'title u1', text: 'text u1' }
-			);
-			var form = getForm(req);
-			form.createHead(function (err, thread, post) {
-				if (err) return next(err);
-				res.json(200, {threadId: thread._id, postId: post._id});
-			});
-		});
-
-		e.post('/api/test/update-head-with-file', function (req, res, next) {
-			req.body = _.extend(req.body,
-				{ userName : 'snowman', title: 'title u1', text: 'text u1' }
-			);
-			var form = getForm(req);
-			Thread.findById(form.threadId, function (err, thread) {
-				if (err) return next(err);
-				Post.findById(form.postId, function (err, post) {
-					if (err) return next(err);
-					if (!thread || !post) {
-						return res.json(400, {error: msg.ERR_INVALID_THREAD});
-					}
-					form.updateHead(thread, post, false, function (err) {
-						if (err) return next(err);
-						res.json(200, 'ok');
-					});
-				});
-			});
-		});
-	});
-
 	function getRole(req) {
 		return Role.getByName(req.session.roleName);
 	}
