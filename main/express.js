@@ -43,7 +43,6 @@ l.init.add(function (next) {
 	require('./auth-api.js').register(e);
 	require('./category-api.js').register(e);
 	require('./post-api.js').register(e);
-	//require('./admin.js').register(e);
 	//require('./search.js').register(e);
 
 	next();

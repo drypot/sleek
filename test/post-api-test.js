@@ -1,6 +1,5 @@
 var _ = require('underscore');
 var should = require('should');
-var async = require('async');
 var path = require('path');
 
 var l = require('../main/l.js');
