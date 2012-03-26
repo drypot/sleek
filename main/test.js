@@ -6,6 +6,7 @@ var l = require('./l.js');
 
 var config;
 var mongo;
+var es;
 var express;
 
 var urlBase = '';
@@ -25,8 +26,11 @@ exports.prepare = function (opt, next) {
 	}
 	if (opt.indexOf('mongo') != -1) {
 		mongo = require('./mongo.js');
-		mongo.param.dbName = "sleek-test";
+		mongo.param.dbName = 'sleek-test';
 		mongo.param.dropDatabase = true;
+		es = require('./es.js');
+		es.param.indexName = 'sleek-test';
+		es.param.dropIndex = true;
 	}
 	if (opt.indexOf('express') != -1) {
 		express = require('./express.js');

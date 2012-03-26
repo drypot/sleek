@@ -7,9 +7,11 @@
 
 	<appServerPort>8010</appServerPort>
 	<cookieSecret>o;iejf832ndvs</cookieSecret>
-
 	<uploadMax>512</uploadMax>
 	<uploadDir>/Users/drypot/data/sleek/upload/sleek-test</uploadDir>
+
+	<esUrl>http://localhost:9200</esUrl>
+	<esIndexName>sleek-test</esIndexName>
 
 	<fileServerUrl>http://sleekfile:8080</fileServerUrl>
 

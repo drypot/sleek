@@ -1,6 +1,5 @@
 var _ = require('underscore');
 var should = require('should');
-var request = require('request');
 
 var l = require('../main/l');
 var test = require('../main/test.js');
