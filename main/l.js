@@ -25,6 +25,14 @@ exports.p.int = function (obj, prop, def) {
 	return i;
 }
 
+exports.p.intMax = function (obj, prop, def, max) {
+	if (!obj) return def;
+	if (!_.has(obj, prop)) return def;
+	var i = parseInt(obj[prop]);
+	if (isNaN(i)) return def;
+	return i > max ? max : i;
+}
+
 exports.p.string = function (obj, prop, def) {
 	if (!obj) return def;
 	if (!_.has(obj, prop)) return def;
@@ -75,7 +83,7 @@ exports.init.addAfter = function (func) {
 	afterList.push(func);
 }
 
-exports.init.run = function (next) {
+exports.init.run = function run(next) {
 	var all = beforeList.concat(initList, afterList);
 	async.series(all, function (err) {
 		if (err) throw err;

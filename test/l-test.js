@@ -46,6 +46,17 @@ describe('p', function () {
 		});
 	});
 
+	describe('intMax', function () {
+		it('should', function () {
+			l.p.intMax({x: '10'}, 'x', 30, 50).should.equal(10);
+			l.p.intMax({x: 10}, 'x', 30, 50).should.equal(10);
+			l.p.intMax({x: 'def'}, 'x', 30, 50).should.equal(30);
+			l.p.intMax({y: '10'}, 'x', 30, 50).should.equal(30);
+			l.p.intMax(null, 'x', 30, 50).should.equal(30);
+			l.p.intMax({x: 60}, 'x', 30, 50).should.equal(50);
+		});
+	});
+
 	describe('string', function () {
 		it('should', function () {
 			l.p.string({x: 'def'}, 'x', 'abc').should.equal('def');

@@ -6,6 +6,7 @@ var Role = require('./role.js');
 var auth = require('./auth.js');
 var Post = require('./post.js');
 var Thread = require('./post-thread.js');
+var es = require('./es.js');
 var msg = require('./msg.js');
 
 exports.register = function (e) {
@@ -15,7 +16,7 @@ exports.register = function (e) {
 		var body = req.body;
 		var categoryId = l.p.int(body, 'categoryId', 0);
 		var lastUdate = new Date(l.p.int(body, 'lastUdate', Date.now()));
-		var limit = l.p.int(body, 'limit', 64);
+		var limit = l.p.intMax(body, 'limit', 32, 64);
 		prepareReadableCategory(res, role, categoryId, function (category) {
 			Thread.findByCategoryId(categoryId, lastUdate, limit, function (err, thread) {
 				if (err) return next(err);
@@ -70,6 +71,42 @@ exports.register = function (e) {
 		});
 	});
 
+	e.post('/api/search-post', auth.filter.login(), function (req, res) {
+		console.log('i\'m here');
+		var role = getRole(req);
+		var body = req.body;
+		var query = l.p.string(body, 'query', '');
+		var offset = l.p.int(body, 'offset', 0);
+		var limit = l.p.intMax(body, 'limit', 16, 64);
+		es.searchPost({
+				query: { query_string: { query: query, default_operator: 'and' }},
+				sort:[{cdate : "desc"}],
+				size: limit, from: offset
+			},
+			function (err, res, body) {
+				if (err) {
+					return res.json(400, {error: msg.ERR_SEARCH_IO});
+				}
+				var r = [];
+				_.each(body.hits.hits, function (hit) {
+					var s = hit._source;
+					if (!role.category[s.categoryId]) return;
+					if (!s.visible) return;
+					r.push({
+						id: hit._id,
+						threadId: s.threadId,
+						categoryId: s.categoryId,
+						cdate: s.cdate.getTime(),
+						userName: s.userName,
+						title: s.title,
+						text: s.text.substring(0, 512)
+					});
+				});
+				res.json(200, r);
+			}
+		);
+	});
+
 	e.post('/api/get-post', auth.filter.login(), function (req, res, next) {
 		var role = getRole(req);
 		var body = req.body;
@@ -98,7 +135,9 @@ exports.register = function (e) {
 			checkFormThreadAndPost(res, form, function () {
 				insertThread(res, form, function (thread) {
 					insertPost(req, res, form, thread, function (post) {
-						res.json(200, {threadId: thread._id, postId: post._id});
+						updateSearchIndex(res, thread, post, function () {
+							res.json(200, {threadId: thread._id, postId: post._id});
+						});
 					});
 				});
 			});
@@ -113,7 +152,9 @@ exports.register = function (e) {
 				checkFormPost(res, form, function () {
 					insertPost(req, res, form, thread, function (post) {
 						Thread.updateLength(thread, form.now);
-						res.json(200, {threadId: thread._id, postId: post._id});
+						updateSearchIndex(res, thread, post, function () {
+							res.json(200, {threadId: thread._id, postId: post._id});
+						});
 					});
 				});
 			});
@@ -130,7 +171,9 @@ exports.register = function (e) {
 						checkFormThreadAndPost(res, form, function () {
 							updateThread(res, form, thread, function () {
 								updatePost(res, form, post, category.editable, function () {
-									res.json(200, 'ok');
+									updateSearchIndex(res, thread, post, function () {
+										res.json(200, 'ok');
+									});
 								});
 							});
 						});
@@ -148,7 +191,9 @@ exports.register = function (e) {
 				checkPostOwnership(req, res, category, form.postId, function () {
 					checkFormPost(res, form, function () {
 						updatePost(res, form, post, category.editable, function () {
-							res.json(200, 'ok');
+							updateSearchIndex(res, thread, post, function () {
+								res.json(200, 'ok');
+							});
 						});
 					});
 				});
@@ -308,6 +353,15 @@ exports.register = function (e) {
 		Post.update(post, form.file, form.delFile, function (err) {
 			if (err) {
 				return res.json(400, {error: msg.ERR_DB_IO});
+			}
+			next();
+		});
+	}
+
+	function updateSearchIndex(res, thread, post, next) {
+		es.updatePost(thread, post, function (err, res, body) {
+			if (err) {
+				return res.json(400, {error: msg.ERR_SEARCH_IO});
 			}
 			next();
 		});

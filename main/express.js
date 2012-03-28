@@ -2,17 +2,14 @@ var _ = require('underscore');
 var express = require('express');
 var redisStore = require('connect-redis')(express);
 var fs = require('fs');
-var util = require('util');
 
 var l = require('./l.js');
 var config = require('./config.js');
 var upload = require('./upload.js');
 
-// for init func loading.
-var Role = require('./role.js');
-var Category = require('./category.js');
-var Post = require('./post.js');
-var Thread = require('./post-thread.js');
+var authApi = require('./auth-api.js');
+var categoryApi = require('./category-api.js');
+var postApi = require('./post-api.js');
 
 var e;
 
@@ -40,10 +37,9 @@ l.init.add(function (next) {
 		e.use(express.errorHandler());
 	});
 
-	require('./auth-api.js').register(e);
-	require('./category-api.js').register(e);
-	require('./post-api.js').register(e);
-	//require('./search.js').register(e);
+	authApi.register(e);
+	categoryApi..register(e);
+	postApi.register(e);
 
 	next();
 });

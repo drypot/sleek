@@ -73,7 +73,8 @@ exports.updatePost = function (thread, post, next) {
 			title: thread.title,
 			titlei: '',
 			userName: post.userName,
-			text: post.text
+			text: post.text,
+			visible: post.visible
 		}
 	};
 	if (thread.cdate.getTime() === post.cdate.getTime()) {

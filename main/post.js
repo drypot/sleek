@@ -22,6 +22,8 @@ l.init.add(function (next) {
 	l.fs.mkdirs([config.uploadDir, 'Post'], next);
 });
 
+// mongodb
+
 var Post = module.exports = function () {
 //	int _id;
 //	int threadId;
@@ -63,8 +65,6 @@ Post.update = function (post, file, delFile, next) {
 	})
 };
 
-// find
-
 Post.findById = function (id, next) {
 	return Post.col.findOne({_id: id}, next);
 };
@@ -73,7 +73,7 @@ Post.findByThreadId = function (threadId, next) {
 	Post.col.find({threadId: threadId}).sort({cdate: 1}).toArray(next);
 };
 
-// upload
+// file system
 
 Post.getUploadDir = function (post) {
 	return config.uploadDir + '/post/' + Math.floor(post._id / 10000) + '/' + post._id
@@ -88,4 +88,6 @@ var deleteUploadFile = function (post, delFile, next /* (err, deleted) */) {
 	if (!delFile) return next();
 	upload.deleteFile(Post.getUploadDir(post), delFile, next);
 };
+
+// elasticsearch
 

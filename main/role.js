@@ -4,6 +4,9 @@ var bcrypt = require('bcrypt');
 var l = require('./l.js');
 var config = require('./config.js');
 
+// for init role.category
+var Category = require('./category.js');
+
 // init
 
 l.init.add(function (next) {
