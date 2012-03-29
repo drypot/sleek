@@ -1,17 +1,16 @@
 var _ = require('underscore');
 var request = require('request');
-var util = require('util');
 
 var l = require('./l.js');
 
 var config;
 var mongo;
-var es;
+var esearch;
 var express;
 
 var urlBase = '';
 
-l.init.addAfter(function (next) {
+l.addAfterInit(function (next) {
 	if (config) {
 		urlBase = "http://localhost:" + config.appServerPort;
 	}
@@ -22,20 +21,22 @@ exports.prepare = function (opt, next) {
 	opt = opt.split(',');
 	if (opt.indexOf('config') != -1) {
 		config = require("./config.js");
-		config.param.configPath = "config-dev/config-dev.xml";
+		config.param.configPath = "config-dev/config-dev.json";
 	}
 	if (opt.indexOf('mongo') != -1) {
 		mongo = require('./mongo.js');
 		mongo.param.dbName = 'sleek-test';
 		mongo.param.dropDatabase = true;
-		es = require('./es.js');
-		es.param.indexName = 'sleek-test';
-		es.param.dropIndex = true;
+	}
+	if (opt.indexOf('esearch') != -1) {
+		esearch = require('./esearch.js');
+		esearch.param.indexName = 'sleek-test';
+		esearch.param.dropIndex = true;
 	}
 	if (opt.indexOf('express') != -1) {
 		express = require('./express.js');
 	}
-	l.init.run(next);
+	l.runInit(next);
 };
 
 exports.url = function (path) {
@@ -43,29 +44,13 @@ exports.url = function (path) {
 }
 
 exports.request = function (url, body, file, next) {
-	var i = 1;
-	if (!_.isFunction(next)) {
-		if (_.isFunction(file)) {
-			next = file;
-		} else if (_.isFunction(body)) {
-			next = body;
-		} else {
-			next = undefined;
-		}
-	}
-	if (!_.isArray(file)) {
-		if (_.isArray(body)) {
-			file = body;
-		} else {
-			file = [];
-		}
-	}
-	if (!l.isObject(body)) {
-		body = {};
-	}
-	var opt = {};
-	opt.method = 'POST';
-	opt.url = urlBase + url;
+	next = _.isFunction(next) ? next : _.isFunction(file) ? file : _.isFunction(body) ? body : undefined;
+	file = _.isArray(file) ? file : _.isArray(body) ? body : [];
+	body = l.isObject(body) ? body : {};
+	var opt = {
+		method: 'POST',
+		url: urlBase + url
+	};
 	if (!file.length) {
 		opt.body = body;
 		opt.json = true;
@@ -91,9 +76,3 @@ exports.request = function (url, body, file, next) {
 		});
 	}
 };
-
-//exports.curl = function (url, body, next) {
-//	childp.execFile('/usr/bin/curl', ['-F', 'file=@test-data/1.jpg', '-F', 'file=@test-data/2.jpg', test.url('/api/test/create-head-with-file')], null, function (err, stdout, stderr) {
-//		var body = JSON.parse(stdout);
-//
-//}

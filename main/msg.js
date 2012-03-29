@@ -6,6 +6,7 @@ exports.ERR_INVALID_CATEGORY = 'invalid category';
 exports.ERR_INVALID_THREAD = 'invalid thread';
 exports.ERR_INVALID_POST = 'invalid post';
 exports.ERR_DB_IO = 'failed database io';
+exports.ERR_FILE_IO = 'failed file io';
 exports.ERR_SEARCH_IO = 'failed search io';
 
 exports.ERR_FILL_TITLE = '제목을 입력해 주십시오.';

@@ -1,5 +1,4 @@
 var _ = require('underscore');
-var should = require('should');
 var async = require('async');
 var fs = require('fs');
 var path = require('path');
@@ -7,12 +6,27 @@ var path = require('path');
 var l = require('./l.js');
 var config = require('./config.js');
 
-l.init.add(function (next) {
-	l.fs.mkdirs([config.uploadDir, 'tmp'], next);
+l.addInit(function (next) {
+	l.mkdirs([config.uploadDir, 'tmp'], next);
 });
 
-exports.saveFile = function (sub, file, next /* (err, saved) */) {
-	l.fs.mkdirs(sub, function (err, dir) {
+l.addInit(function (next) {
+	l.mkdirs([config.uploadDir, 'post'], next);
+});
+
+l.addInit(function (next) {
+	var tmpDir = exports.tmpDir = config.uploadDir + '/tmp';
+	console.log('upload tmp directory: ' + tmpDir);
+	fs.readdir(tmpDir, function (err, files) {
+		_.each(files, function (file) {
+			fs.unlink(tmpDir + '/' + file);
+		});
+		next();
+	});
+});
+
+function saveFile (sub, file, next /* (err, saved) */) {
+	l.mkdirs(sub, function (err, dir) {
 		if (err) return next(err);
 		var saved = [];
 		if (!_.isArray(file)) file = [file];
@@ -31,7 +45,7 @@ exports.saveFile = function (sub, file, next /* (err, saved) */) {
 	});
 }
 
-exports.deleteFile = function (dir, delFile, next /* (err, deleted) */) {
+function deleteFile (dir, delFile, next /* (err, deleted) */) {
 	var deleted = [];
 	async.forEachSeries(
 		delFile,
@@ -49,4 +63,33 @@ exports.deleteFile = function (dir, delFile, next /* (err, deleted) */) {
 			next(err, deleted);
 		}
 	);
-}
+};
+
+// post
+
+exports.getPostDir = function (post) {
+	return config.uploadDir + '/post/' + Math.floor(post._id / 10000) + '/' + post._id
+};
+
+exports.savePostFile = function (post, file, next) {
+	if (!file) return next();
+	saveFile([config.uploadDir, 'post', Math.floor(post._id / 10000), post._id], file, function (err, saved) {
+		if (err) return next(err);
+		if (saved) {
+			post.file = !post.file ? saved : _.union(post.file, saved);
+		}
+		next();
+	});
+};
+
+exports.deletePostFile = function (post, delFile, next) {
+	if (!delFile) return next();
+	deleteFile(exports.getPostDir(post), delFile, function (err, deleted) {
+		if (err) return next(err);
+		if (deleted) {
+			post.file = _.without(post.file, deleted);
+			if (post.file.length == 0) delete post.file;
+		}
+		next();
+	});
+};

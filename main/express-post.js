@@ -1,24 +1,21 @@
 var _ = require('underscore');
-var should = require('should');
 
 var l = require('./l.js');
-var Role = require('./role.js');
 var auth = require('./auth.js');
-var Post = require('./post.js');
-var Thread = require('./post-thread.js');
-var es = require('./es.js');
+var mongo = require('./mongo.js');
+var esearch = require('./esearch.js');
+var upload = require('./upload.js');
 var msg = require('./msg.js');
 
 exports.register = function (e) {
-
-	e.post('/api/get-thread-list', auth.filter.login(), function (req, res) {
+	e.post('/api/get-thread-list', auth.checkLogin(), function (req, res) {
 		var role = getRole(req);
 		var body = req.body;
-		var categoryId = l.p.int(body, 'categoryId', 0);
-		var lastUdate = new Date(l.p.int(body, 'lastUdate', Date.now()));
-		var limit = l.p.intMax(body, 'limit', 32, 64);
+		var categoryId = l.defInt(body, 'categoryId', 0);
+		var lastUdate = new Date(l.defInt(body, 'lastUdate', Date.now()));
+		var limit = l.defInt(body, 'limit', 32, 0, 64);
 		prepareReadableCategory(res, role, categoryId, function (category) {
-			Thread.findByCategoryId(categoryId, lastUdate, limit, function (err, thread) {
+			mongo.findThreadByCategory(categoryId, lastUdate, limit, function (err, thread) {
 				if (err) return next(err);
 				var r = [];
 				_.each(thread, function (thread) {
@@ -38,10 +35,10 @@ exports.register = function (e) {
 		});
 	});
 
-	e.post('/api/get-thread', auth.filter.login(), function (req, res) {
+	e.post('/api/get-thread', auth.checkLogin(), function (req, res) {
 		var role = getRole(req);
 		var body = req.body;
-		var threadId = l.p.int(body, 'threadId', 0);
+		var threadId = l.defInt(body, 'threadId', 0);
 		prepareThread(res, threadId, function (thread) {
 			prepareReadableCategory(res, role, thread.categoryId, function (category) {
 				var r = {
@@ -53,7 +50,7 @@ exports.register = function (e) {
 					post: []
 				};
 				var admin = category.editable;
-				Post.findByThreadId(threadId, function (err, post) {
+				mongo.findPostByThread(threadId, function (err, post) {
 					if (err) return next(err);
 					_.each(post, function (post) {
 						if (!post.visible && !admin) return;
@@ -71,19 +68,18 @@ exports.register = function (e) {
 		});
 	});
 
-	e.post('/api/search-post', auth.filter.login(), function (req, res) {
-		console.log('i\'m here');
+	e.post('/api/search-post', auth.checkLogin(), function (req, res) {
 		var role = getRole(req);
 		var body = req.body;
-		var query = l.p.string(body, 'query', '');
-		var offset = l.p.int(body, 'offset', 0);
-		var limit = l.p.intMax(body, 'limit', 16, 64);
-		es.searchPost({
+		var query = l.defString(body, 'query', '');
+		var offset = l.defInt(body, 'offset', 0);
+		var limit = l.defInt(body, 'limit', 16, 0, 64);
+		esearch.searchPost({
 				query: { query_string: { query: query, default_operator: 'and' }},
 				sort:[{cdate : "desc"}],
 				size: limit, from: offset
 			},
-			function (err, res, body) {
+			function (err, sres, body) {
 				if (err) {
 					return res.json(400, {error: msg.ERR_SEARCH_IO});
 				}
@@ -107,11 +103,11 @@ exports.register = function (e) {
 		);
 	});
 
-	e.post('/api/get-post', auth.filter.login(), function (req, res, next) {
+	e.post('/api/get-post', auth.checkLogin(), function (req, res, next) {
 		var role = getRole(req);
 		var body = req.body;
-		var threadId = l.p.int(body, 'threadId', 0);
-		var postId = l.p.int(body, 'postId', 0);
+		var threadId = l.defInt(body, 'threadId', 0);
+		var postId = l.defInt(body, 'postId', 0);
 		prepareThreadAndPost(res, threadId, postId, function (thread, post) {
 			prepareReadableCategory(res, role, thread.categoryId, function (category) {
 				var r = {};
@@ -128,7 +124,7 @@ exports.register = function (e) {
 		});
 	});
 
-	e.post('/api/create-post-head', auth.filter.login(), function (req, res, next) {
+	e.post('/api/create-post-head', auth.checkLogin(), function (req, res, next) {
 		var role = getRole(req);
 		var form = getForm(req);
 		prepareWritableCategory(res, role, form.categoryId, function (category) {
@@ -144,14 +140,14 @@ exports.register = function (e) {
 		});
 	});
 
-	e.post('/api/create-post-reply', auth.filter.login(), function (req, res, next) {
+	e.post('/api/create-post-reply', auth.checkLogin(), function (req, res, next) {
 		var role = getRole(req);
 		var form = getForm(req);
 		prepareThread(res, form.threadId, function (thread){
 			prepareWritableCategory(res, role, thread.categoryId, function (category) {
 				checkFormPost(res, form, function () {
 					insertPost(req, res, form, thread, function (post) {
-						Thread.updateLength(thread, form.now);
+						mongo.updateThreadLength(thread, form.now);
 						updateSearchIndex(res, thread, post, function () {
 							res.json(200, {threadId: thread._id, postId: post._id});
 						});
@@ -161,7 +157,7 @@ exports.register = function (e) {
 		});
 	});
 
-	e.post('/api/update-post-head', auth.filter.login(), function (req, res, next) {
+	e.post('/api/update-post-head', auth.checkLogin(), function (req, res, next) {
 		var role = getRole(req);
 		var form = getForm(req);
 		prepareThreadAndPost(res, form.threadId, form.postId, function (thread, post) {
@@ -183,7 +179,7 @@ exports.register = function (e) {
 		});
 	});
 
-	e.post('/api/update-post-reply', auth.filter.login(), function (req, res, next) {
+	e.post('/api/update-post-reply', auth.checkLogin(), function (req, res, next) {
 		var role = getRole(req);
 		var form = getForm(req);
 		prepareThreadAndPost(res, form.threadId, form.postId, function (thread, post) {
@@ -202,20 +198,20 @@ exports.register = function (e) {
 	});
 
 	function getRole(req) {
-		return Role.getByName(req.session.roleName);
+		return auth.getRoleByName(req.session.roleName);
 	}
 
 	function getForm(req) {
 		var body = req.body;
 		var r = {};
 		r.now = new Date();
-		r.threadId = l.p.int(body, 'threadId', 0);
-		r.postId = l.p.int(body, 'postId', 0);
-		r.categoryId = l.p.int(body, 'categoryId', 0);
-		r.userName  = l.p.string(body, 'userName', '');
-		r.title = l.p.string(body, 'title', '');
-		r.text = l.p.string(body, 'text', '');
-		r.visible = l.p.bool(body, 'visible', true);
+		r.threadId = l.defInt(body, 'threadId', 0);
+		r.postId = l.defInt(body, 'postId', 0);
+		r.categoryId = l.defInt(body, 'categoryId', 0);
+		r.userName  = l.defString(body, 'userName', '');
+		r.title = l.defString(body, 'title', '');
+		r.text = l.defString(body, 'text', '');
+		r.visible = l.defBool(body, 'visible', true);
 		r.delFile = body.delFile;
 		r.file = req.files && req.files.file;
 		return r;
@@ -282,7 +278,7 @@ exports.register = function (e) {
 	}
 
 	function prepareThread(res, threadId, next) {
-		Thread.findById(threadId, function (err, thread) {
+		mongo.findThreadById(threadId, function (err, thread) {
 			if (err || !thread) {
 				return res.json(400, {error: msg.ERR_INVALID_THREAD});
 			}
@@ -292,7 +288,7 @@ exports.register = function (e) {
 
 	function prepareThreadAndPost(res, threadId, postId, next) {
 		prepareThread(res, threadId, function (thread) {
-			Post.findById(postId, function (err, post) {
+			mongo.findPostById(postId, function (err, post) {
 				if (err || !post) {
 					return res.json(400, {error: msg.ERR_INVALID_POST});
 				}
@@ -303,12 +299,12 @@ exports.register = function (e) {
 
 	function insertThread(res, form, next) {
 		var thread = {
-			_id : Thread.getNewId(),
+			_id : mongo.getNewThreadId(),
 			categoryId: form.categoryId,
 			hit: 0, length: 1, cdate: form.now, udate: form.now,
 			userName : form.userName , title: form.title
 		};
-		Thread.insert(thread, function (err) {
+		mongo.insertThread(thread, function (err) {
 			if (err) {
 				return res.json(400, {error: msg.ERR_DB_IO});
 			}
@@ -318,17 +314,22 @@ exports.register = function (e) {
 
 	function insertPost(req, res, form, thread, next) {
 		var post = {
-			_id: Post.getNewId(),
+			_id: mongo.getNewPostId(),
 			threadId: thread._id,
 			cdate: form.now, visible: true,
 			userName : form.userName , text: form.text
 		};
 		req.session.post.push(post._id);
-		Post.insert(post, form.file, function (err) {
+		upload.savePostFile(post, form.file, function (err) {
 			if (err) {
-				return res.json(400, {error: msg.ERR_DB_IO});
+				return res.json(400, {error: msg.ERR_FILE_IO});
 			}
-			next(post);
+			mongo.insertPost(post, function (err) {
+				if (err) {
+					return res.json(400, {error: msg.ERR_DB_IO});
+				}
+				next(post);
+			});
 		});
 	}
 
@@ -336,7 +337,7 @@ exports.register = function (e) {
 		thread.categoryId = form.categoryId;
 		thread.title = form.title;
 		thread.userName  = form.userName ;
-		Thread.update(thread, function (err) {
+		mongo.updateThread(thread, function (err) {
 			if (err) {
 				return res.json(400, {error: msg.ERR_DB_IO});
 			}
@@ -350,16 +351,26 @@ exports.register = function (e) {
 		if (admin) {
 			post.visible = form.visible;
 		}
-		Post.update(post, form.file, form.delFile, function (err) {
+		upload.deletePostFile(post, form.delFile, function (err, deleted) {
 			if (err) {
-				return res.json(400, {error: msg.ERR_DB_IO});
+				return res.json(400, {error: msg.ERR_FILE_IO});
 			}
-			next();
+			if (deleted) {
+				post.file = _.without(post.file, deleted);
+				if (post.file.length == 0) delete post.file;
+			}
+			upload.savePostFile(post, form.file, function (err, saved) {
+				if (err) {
+					return res.json(400, {error: msg.ERR_FILE_IO});
+				}
+				mongo.updatePost(post);
+				next();
+			});
 		});
 	}
 
 	function updateSearchIndex(res, thread, post, next) {
-		es.updatePost(thread, post, function (err, res, body) {
+		esearch.updatePost(thread, post, function (err, res, body) {
 			if (err) {
 				return res.json(400, {error: msg.ERR_SEARCH_IO});
 			}

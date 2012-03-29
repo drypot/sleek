@@ -4,11 +4,11 @@ var path = require('path');
 
 var l = require('../main/l.js');
 var msg = require('../main/msg.js');
-var Post = require('../main/post.js');
+var upload = require('../main/upload.js');
 var test = require('../main/test.js');
 
 before(function (next) {
-	test.prepare('config,mongo,express', next);
+	test.prepare('config,mongo,esearch,express', next);
 });
 
 describe('create-post-head', function () {
@@ -547,7 +547,7 @@ describe('file upload', function () {
 		);
 	});
 	function fexists(id, file) {
-		return path.existsSync(Post.getUploadDir({_id: id}) + '/' + file);
+		return path.existsSync(upload.getPostDir({_id: id}) + '/' + file);
 	}
 	it('can upload file', function (next) {
 		test.request('/api/create-post-reply',

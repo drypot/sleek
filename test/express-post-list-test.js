@@ -1,15 +1,13 @@
 var _ = require('underscore');
 var should = require('should');
 var async = require('async');
-var path = require('path');
 
 var l = require('../main/l.js');
 var msg = require('../main/msg.js');
-var Thread = require('../main/post-thread.js');
 var test = require('../main/test.js');
 
 before(function (next) {
-	test.prepare('config,mongo,express', next);
+	test.prepare('config,mongo,esearch,express', next);
 });
 
 describe("get-thread-list", function () {
@@ -23,9 +21,6 @@ describe("get-thread-list", function () {
 		{ categoryId: 400, userName : 'snowman', title: 'title 7', text: 'text 7' }
 	];
 
-	before(function () {
-		Thread.col.remove();
-	});
 	it('assume logged out', function (next) {
 		test.request('/api/logout', next);
 	});

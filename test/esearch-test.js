@@ -3,27 +3,26 @@ var should = require('should');
 var async = require('async');
 
 var l = require('../main/l');
+var mongo = require('../main/mongo.js');
+var esearch = require('../main/esearch.js');
 var test = require('../main/test.js');
-var Post = require('../main/post.js');
-var Thread = require('../main/post-thread.js');
-var es = require('../main/es.js');
 
 before(function (next) {
-	test.prepare('config,mongo', next);
+	test.prepare('config,mongo,search', next);
 });
 
-describe('elasticsearch', function () {
+describe('esearch', function () {
 	var doc;
 	it('can insert post more', function (next) {
 		var tid;
 		doc = [
 			{
 				thread: {
-					_id: tid = Thread.getNewId(), categoryId: 101, cdate: new Date(2000, 1, 1),
+					_id: tid = mongo.getNewThreadId(), categoryId: 101, cdate: new Date(2000, 1, 1),
 					title: 'hello world'
 				},
 				post: {
-					_id: Post.getNewId(), cdate: new Date(2000, 1, 1),
+					_id: mongo.getNewPostId(), cdate: new Date(2000, 1, 1),
 					userName: 'snowman', text: 'apple pine banana'
 				}
 			},
@@ -33,44 +32,44 @@ describe('elasticsearch', function () {
 					title: 'hello world'
 				},
 				post: {
-					_id: Post.getNewId(), cdate: new Date(2000, 1, 2),
+					_id: mongo.getNewPostId(), cdate: new Date(2000, 1, 2),
 					userName: 'snowman', text: 'apple pine orange'
 				}
 			},
 			{
 				thread: {
-					_id: Thread.getNewId(), categoryId: 101, cdate: new Date(2000, 2, 1),
+					_id: mongo.getNewThreadId(), categoryId: 101, cdate: new Date(2000, 2, 1),
 					title: '안녕하세요. 한글 테스트'
 				},
 				post: {
-					_id: Post.getNewId(), cdate: new Date(2000, 2, 1),
+					_id: mongo.getNewPostId(), cdate: new Date(2000, 2, 1),
 					userName: '홍길동', text: '둥글게 네모나게 붉게 파랗게'
 				}
 			},
 			{
 				thread: {
-					_id: Thread.getNewId(), categoryId: 101, cdate: new Date(2000, 3, 1),
+					_id: mongo.getNewThreadId(), categoryId: 101, cdate: new Date(2000, 3, 1),
 					title: '안녕할까요. 한글 테스트'
 				},
 				post: {
-					_id: Post.getNewId(), cdate: new Date(2000, 3, 1),
+					_id: mongo.getNewPostId(), cdate: new Date(2000, 3, 1),
 					userName: '개똥이', text: '둥글게 네모나게'
 				}
 			},
 			{
 				thread: {
-					_id: Thread.getNewId(), categoryId: 101, cdate: new Date(2000, 4, 1),
+					_id: mongo.getNewThreadId(), categoryId: 101, cdate: new Date(2000, 4, 1),
 					title: '강물엔 유람선이 떠있고'
 				},
 				post: {
-					_id: Post.getNewId(), cdate: new Date(2000, 4, 1),
+					_id: mongo.getNewPostId(), cdate: new Date(2000, 4, 1),
 					userName: '말똥이', text: '둥글게 붉게 파랗게'
 				}
 			}
 		];
 		async.forEachSeries(doc, function (doc, next) {
-			es.updatePost(doc.thread, doc.post, function (err, res, body) {
-				if (err) next(err);
+			esearch.updatePost(doc.thread, doc.post, function (err, res, body) {
+				if (err) return next(err);
 				should(res.statusCode == 201 || res.statusCode == 200);
 				body.ok.should.true;
 				next(err);
@@ -78,11 +77,11 @@ describe('elasticsearch', function () {
 		}, next);
 	});
 	it('can flush data', function (next) {
-		es.flush(next);
+		esearch.flush(next);
 	});
 	it('can get post head', function (next) {
 		var doc0 = doc[0];
-		es.getPost(doc0.post._id, function (err, res, body) {
+		esearch.getPost(doc0.post._id, function (err, res, body) {
 			res.should.status(200);
 			body._id.should.equal(doc0.post._id);
 			var s = body._source;
@@ -98,7 +97,7 @@ describe('elasticsearch', function () {
 	});
 	it('can get post reply', function (next) {
 		var doc1 = doc[1];
-		es.getPost(doc1.post._id, function (err, res, body) {
+		esearch.getPost(doc1.post._id, function (err, res, body) {
 			res.should.status(200);
 			body._id.should.equal(doc1.post._id);
 			var s = body._source;
@@ -113,7 +112,7 @@ describe('elasticsearch', function () {
 		});
 	});
 	it('can search in title', function (next) {
-		es.searchPost({
+		esearch.searchPost({
 				query: { query_string: { query: 'hello', default_operator: 'and' }},
 				sort:[{cdate : "asc"}]
 			},
@@ -126,7 +125,7 @@ describe('elasticsearch', function () {
 		);
 	});
 	it('can search in userName', function (next) {
-		es.searchPost({
+		esearch.searchPost({
 				query: { query_string: { query: 'snowman', default_operator: 'and' }},
 				sort:[{cdate : "asc"}]
 			},
@@ -140,7 +139,7 @@ describe('elasticsearch', function () {
 		);
 	});
 	it('can search in reply', function (next) {
-		es.searchPost({
+		esearch.searchPost({
 				query: { query_string: { query: 'apple', default_operator: 'and' }},
 				sort:[{cdate : "asc"}]
 			},
@@ -154,7 +153,7 @@ describe('elasticsearch', function () {
 		);
 	});
 	it('can search in reply 2', function (next) {
-		es.searchPost({
+		esearch.searchPost({
 				query: { query_string: { query: 'orange', default_operator: 'and' }},
 				sort:[{cdate : "asc"}]
 			},
@@ -167,7 +166,7 @@ describe('elasticsearch', function () {
 		);
 	});
 	it('can search with two word', function (next) {
-		es.searchPost({
+		esearch.searchPost({
 				query: { query_string: { query: 'apple orange', default_operator: 'and' }},
 				sort:[{cdate : "asc"}]
 			},
@@ -180,7 +179,7 @@ describe('elasticsearch', function () {
 		);
 	});
 	it('can search in text order by desc', function (next) {
-		es.searchPost({
+		esearch.searchPost({
 				query: { query_string: { query: '둥글게', default_operator: 'and' }},
 				sort:[{cdate : "desc"}]
 			},
@@ -195,7 +194,7 @@ describe('elasticsearch', function () {
 		);
 	});
 	it('can limit result range with from', function (next) {
-		es.searchPost({
+		esearch.searchPost({
 				query: { query_string: { query: '둥글게', default_operator: 'and' }},
 				sort:[{cdate : "desc"}],
 				size: 16, from: 1
@@ -210,7 +209,7 @@ describe('elasticsearch', function () {
 		);
 	});
 	it('can search hangul', function (next) {
-		es.searchPost({
+		esearch.searchPost({
 				query: { query_string: { query: '안녕', default_operator: 'and' }},
 				sort:[{cdate : "asc"}]
 			},
@@ -224,7 +223,7 @@ describe('elasticsearch', function () {
 		);
 	});
 	it('can search hangul 2', function (next) {
-		es.searchPost({
+		esearch.searchPost({
 				query: { query_string: { query: '파랗게', default_operator: 'and' }},
 				sort:[{cdate : "asc"}]
 			},
@@ -238,7 +237,7 @@ describe('elasticsearch', function () {
 		);
 	});
 	it('can search hangul 3', function (next) {
-		es.searchPost({
+		esearch.searchPost({
 				query: { query_string: { query: '파랗게 말똥이', default_operator: 'and' }},
 				sort:[{cdate : "asc"}]
 			},

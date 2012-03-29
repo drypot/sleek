@@ -1,6 +1,5 @@
 var _ = require('underscore');
 var request = require('request');
-var async = require('async');
 
 var l = require('./l.js');
 var config = require('./config.js');
@@ -8,48 +7,49 @@ var config = require('./config.js');
 var param = exports.param = {};
 var urlBase;
 
-l.init.add(function (next) {
-	param.indexName = param.indexName || config.esIndexName;
-	urlBase = config.esUrl + '/' + param.indexName;
-	async.series([
-		function (next) {
-			if (param.dropIndex) {
-				var opt = { method: 'DELETE', url: urlBase };
-				request(opt, next);
-			} else {
-				next();
+l.addInit(function (next) {
+	param.indexName = param.indexName || config.searchIndexName;
+	urlBase = config.searchServerUrl + '/' + param.indexName;
+	next();
+});
+
+l.addInit(function (next) {
+	if (param.dropIndex) {
+		var opt = { method: 'DELETE', url: urlBase };
+		return request(opt, next);
+	}
+	next();
+});
+
+l.addInit(function (next) {
+	var opt = { method: 'POST', url: urlBase, json: true, body: {
+		settings: {
+			index: {
+				number_of_shards : 1,
+				number_of_replicas : 1,
+				analysis: { analyzer: { 'default': { type: 'cjk' } } }
 			}
 		},
-		function (next) {
-			var opt = { method: 'POST', url: urlBase, json: true, body: {
-				settings: {
-					index: {
-						number_of_shards : 1,
-						number_of_replicas : 1,
-						analysis: { analyzer: { 'default': { type: 'cjk' } } }
-					}
-				},
-				mappings: {
-					'post': {
-						properties: {
-							threadId: { type: 'integer', index: 'no', include_in_all: false },
-							categoryId: { type: 'integer', index: 'no', include_in_all: false },
-							cdate: { type: 'date', index: 'not_analyzed', include_in_all: false },
-							title: { type: 'string', index: 'no', include_in_all: false },
-							titlei: { type: 'string', index: 'no', include_in_all: true },
-							userName: { type: 'string', index: 'no', include_in_all: true },
-							text: { type: 'string', index: 'no', include_in_all: true }
-						}
-					}
+		mappings: {
+			'post': {
+				properties: {
+					threadId: { type: 'integer', index: 'no', include_in_all: false },
+					categoryId: { type: 'integer', index: 'no', include_in_all: false },
+					cdate: { type: 'date', index: 'not_analyzed', include_in_all: false },
+					title: { type: 'string', index: 'no', include_in_all: false },
+					titlei: { type: 'string', index: 'no', include_in_all: true },
+					userName: { type: 'string', index: 'no', include_in_all: true },
+					text: { type: 'string', index: 'no', include_in_all: true }
 				}
-			}};
-			request(opt, next);
+			}
 		}
-	], function (err) {
-		if (err) next(err);
-		console.info('elasticsearch initialized: ' + urlBase);
-		next();
-	});
+	}};
+	request(opt, next);
+});
+
+l.addInit(function (next) {
+	console.info('elasticsearch initialized: ' + urlBase);
+	next();
 });
 
 exports.flush = function (next) {
@@ -90,7 +90,7 @@ exports.getPost = function (postId, next) {
 		json: true
 	};
 	request(opt, function (err, res, body) {
-		if (err) next(err);
+		if (err) return next(err);
 		body._id = parseInt(body._id);
 		body._source.cdate = new Date(body._source.cdate);
 		next(err, res, body);
@@ -105,7 +105,7 @@ exports.searchPost = function (query, next) {
 		json: true
 	};
 	request(opt, function (err, res, body) {
-		if (err) next(err);
+		if (err) return next(err);
 		_.each(body.hits.hits, function (hit) {
 			hit._id = parseInt(hit._id);
 			hit._source.cdate = new Date(hit._source.cdate);

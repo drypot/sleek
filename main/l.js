@@ -11,42 +11,35 @@ exports.isObject = function (obj) {
 
 // property
 
-exports.p = function (obj, prop, def) {
+exports.def = function (obj, prop, def) {
 	if (!obj) return def;
 	if (!_.has(obj, prop)) return def;
 	return obj[prop];
 }
 
-exports.p.int = function (obj, prop, def) {
+exports.defInt = function (obj, prop, def, min, max) {
 	if (!obj) return def;
 	if (!_.has(obj, prop)) return def;
 	var i = parseInt(obj[prop]);
 	if (isNaN(i)) return def;
-	return i;
+	if (min === undefined) return i;
+	return i > max ? max : i < min ? min : i;
 }
 
-exports.p.intMax = function (obj, prop, def, max) {
-	if (!obj) return def;
-	if (!_.has(obj, prop)) return def;
-	var i = parseInt(obj[prop]);
-	if (isNaN(i)) return def;
-	return i > max ? max : i;
-}
-
-exports.p.string = function (obj, prop, def) {
+exports.defString = function (obj, prop, def) {
 	if (!obj) return def;
 	if (!_.has(obj, prop)) return def;
 	return String(obj[prop]).trim();
 }
 
-exports.p.bool = function (obj, prop, def) {
+exports.defBool = function (obj, prop, def) {
 	if (!obj) return def;
 	if (!_.has(obj, prop)) return def;
 	var v = obj[prop];
 	return v === true || v === 'true';
 }
 
-exports.p.merge = function (tar, src, props) {
+exports.mergeProperty = function (tar, src, props) {
 	_.each(props, function (p) {
 		if (src.hasOwnProperty(p)) {
 			tar[p] = src[p];
@@ -57,7 +50,7 @@ exports.p.merge = function (tar, src, props) {
 
 // method
 
-exports.m = function (con, methodName, func) {
+exports.method = function (con, methodName, func) {
 	Object.defineProperty(
 		con, methodName, { value : func, writable: true, enumerable: false, configurable: true}
 	);
@@ -69,21 +62,19 @@ var initList = [];
 var beforeList = [];
 var afterList = [];
 
-exports.init = {};
-
-exports.init.add = function (func) {
+exports.addInit = function (func) {
 	initList.push(func);
 }
 
-exports.init.addBefore = function (func) {
+exports.addBeforeInit = function (func) {
 	beforeList.push(func);
 }
 
-exports.init.addAfter = function (func) {
+exports.addAfterInit = function (func) {
 	afterList.push(func);
 }
 
-exports.init.run = function run(next) {
+exports.runInit = function run(next) {
 	var all = beforeList.concat(initList, afterList);
 	async.series(all, function (err) {
 		if (err) throw err;
@@ -104,9 +95,7 @@ should.Assertion.prototype.sameProto = function (_class, desc) {
 
 // fs
 
-exports.fs = {};
-
-exports.fs.mkdirs = function (sub, next) {
+exports.mkdirs = function (sub, next) {
 	var dir;
 	async.forEachSeries(sub, function (sub, next) {
 		if (!dir) {

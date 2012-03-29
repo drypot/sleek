@@ -1,33 +1,23 @@
 var _ = require('underscore');
 var express = require('express');
 var redisStore = require('connect-redis')(express);
-var fs = require('fs');
 
 var l = require('./l.js');
 var config = require('./config.js');
+var auth = require('./auth.js');
 var upload = require('./upload.js');
-
-var authApi = require('./auth-api.js');
-var categoryApi = require('./category-api.js');
-var postApi = require('./post-api.js');
+var msg = require('./msg.js');
+var expressPost = require('./express-post.js');
 
 var e;
 
-l.init.add(function (next) {
+l.addInit(function (next) {
 	e = express();
-
-	var uploadTmpDir = config.uploadDir + '/tmp';
-	console.log('upload tmp directory: ' + uploadTmpDir);
-	fs.readdir(uploadTmpDir, function (err, files) {
-		_.each(files, function (file) {
-			fs.unlink(uploadTmpDir + '/' + file);
-		});
-	});
 
 	e.configure(function () {
 		e.use(express.cookieParser(config.cookieSecret));
 		e.use(express.session({store: new redisStore()}));
-		e.use(express.bodyParser({uploadDir: uploadTmpDir}));
+		e.use(express.bodyParser({uploadDir: upload.tmpDir}));
 		e.use(e.router);
 	});
 	e.configure('development', function () {
@@ -37,14 +27,34 @@ l.init.add(function (next) {
 		e.use(express.errorHandler());
 	});
 
-	authApi.register(e);
-	categoryApi..register(e);
-	postApi.register(e);
+	expressPost.register(e);
 
-	next();
-});
+	e.post('/api/login', function (req, res) {
+		var role = auth.getRoleByPassword(req.body.password);
+		if (!role) {
+			return res.json(400, { error: msg.ERR_LOGIN_FAILED });
+		}
+		req.session.roleName = role.name;
+		req.session.post = [];
+		if (req.cookies && req.cookies.lv3) {
+			res.clearCookie('lv3');
+			res.clearCookie('lv');
+			res.clearCookie('ph');
+			res.clearCookie('uname');
+		}
+		res.json({ role: { name: role.name } });
+	});
 
-l.init.addAfter(function (next) {
+	e.post('/api/logout', function (req, res) {
+		req.session.destroy();
+		res.json('ok');
+	});
+
+	e.post('/api/get-category', auth.checkLogin(), function (req, res) {
+		var role = auth.getRoleByName(req.session.roleName);
+		res.json(role && role.category);
+	});
+
 	e.post('/api/hello', function (req, res) {
 		res.json('hello');
 	});
@@ -59,16 +69,23 @@ l.init.addAfter(function (next) {
 			res.json(req.session.test_var);
 		});
 
-		e.post('/api/test/upload', function (req, res) {
-			upload.saveFile([config.uploadDir, 'tmp'], req.files.file, function (err, saved) {
-//				console.log('body: ' + util.inspect(req.body));
-//				console.log('files: ' + util.inspect(req.files));
-				req.body.saved = saved;
-				res.json(req.body);
-			});
+		e.post('/api/test/assert-role-any', auth.checkLogin(), function (req, res) {
+			res.json('ok');
+		});
+
+		e.post('/api/test/assert-role-user', auth.checkLogin(), auth.checkRole('user'), function (req, res) {
+			res.json('ok');
+		});
+
+		e.post('/api/test/assert-role-admin', auth.checkLogin(), auth.checkRole('admin'), function (req, res) {
+			res.json('ok');
 		});
 	});
 
+	next();
+});
+
+l.addAfterInit(function (next) {
 	e.listen(config.appServerPort);
 	console.info("express listening on port: %d", config.appServerPort);
 	next();
