@@ -10,7 +10,7 @@ process.on('uncaughtException', function (err) {
 });
 
 l.addBeforeInit(function (next) {
-	config.param.configPath = "config-dev/config-dev.json";
+	config.param.configPath = process.argv[2] || "config-dev/config-dev.json";
 	next();
 });
 l.runInit();

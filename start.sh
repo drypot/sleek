@@ -1,1 +1,1 @@
-NODE_ENV=production node main/main.js
+NODE_ENV=production node main/main.js $@
