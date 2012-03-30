@@ -8,7 +8,7 @@ var upload = require('../main/upload.js');
 var test = require('../main/test.js');
 
 before(function (next) {
-	test.prepare('config,mongo,esearch,express', next);
+	test.prepare('config,mongo,es,express', next);
 });
 
 describe('create-post-head', function () {

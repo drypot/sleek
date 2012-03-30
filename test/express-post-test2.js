@@ -7,7 +7,7 @@ var msg = require('../main/msg.js');
 var test = require('../main/test.js');
 
 before(function (next) {
-	test.prepare('config,mongo,esearch,express', next);
+	test.prepare('config,mongo,es,express', next);
 });
 
 describe("get-thread-list", function () {

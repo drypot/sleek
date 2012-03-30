@@ -8,8 +8,8 @@ var param = exports.param = {};
 var urlBase;
 
 l.addInit(function (next) {
-	param.indexName = param.indexName || config.searchIndexName;
-	urlBase = config.searchServerUrl + '/' + param.indexName;
+	param.indexName = param.indexName || config.esIndexName;
+	urlBase = config.esUrl + '/' + param.indexName;
 	next();
 });
 
@@ -97,11 +97,11 @@ exports.getPost = function (postId, next) {
 	});
 }
 
-exports.searchPost = function (query, next) {
+exports.searchPost = function (body, next) {
 	var opt = {
 		method: 'POST',
 		url: urlBase + '/post/_search',
-		body: query,
+		body: body,
 		json: true
 	};
 	request(opt, function (err, res, body) {

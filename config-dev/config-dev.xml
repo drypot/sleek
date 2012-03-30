@@ -10,8 +10,8 @@
 	<uploadMax>512</uploadMax>
 	<uploadDir>/Users/drypot/data/sleek/upload/sleek-test</uploadDir>
 
-	<searchServerUrl>http://localhost:9200</searchServerUrl>
-	<searchIndexName>sleek-test</searchIndexName>
+	<esUrl>http://localhost:9200</esUrl>
+	<esIndexName>sleek-test</esIndexName>
 
 	<fileServerUrl>http://sleekfile:8080</fileServerUrl>
 

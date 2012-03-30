@@ -3,7 +3,7 @@ var _ = require('underscore');
 var l = require('./l.js');
 var auth = require('./auth.js');
 var mongo = require('./mongo.js');
-var esearch = require('./esearch.js');
+var es = require('./es.js');
 var upload = require('./upload.js');
 var msg = require('./msg.js');
 
@@ -74,7 +74,7 @@ exports.register = function (e) {
 		var query = l.defString(body, 'query', '');
 		var offset = l.defInt(body, 'offset', 0);
 		var limit = l.defInt(body, 'limit', 16, 0, 64);
-		esearch.searchPost({
+		es.searchPost({
 				query: { query_string: { query: query, default_operator: 'and' }},
 				sort:[{cdate : "desc"}],
 				size: limit, from: offset
@@ -370,7 +370,7 @@ exports.register = function (e) {
 	}
 
 	function updateSearchIndex(res, thread, post, next) {
-		esearch.updatePost(thread, post, function (err, res, body) {
+		es.updatePost(thread, post, function (err, res, body) {
 			if (err) {
 				return res.json(400, {error: msg.ERR_SEARCH_IO});
 			}
