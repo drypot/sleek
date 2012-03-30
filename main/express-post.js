@@ -131,9 +131,7 @@ exports.register = function (e) {
 			checkFormThreadAndPost(res, form, function () {
 				insertThread(res, form, function (thread) {
 					insertPost(req, res, form, thread, function (post) {
-						updateSearchIndex(res, thread, post, function () {
-							res.json(200, {threadId: thread._id, postId: post._id});
-						});
+						res.json(200, {threadId: thread._id, postId: post._id});
 					});
 				});
 			});
@@ -148,9 +146,7 @@ exports.register = function (e) {
 				checkFormPost(res, form, function () {
 					insertPost(req, res, form, thread, function (post) {
 						mongo.updateThreadLength(thread, form.now);
-						updateSearchIndex(res, thread, post, function () {
-							res.json(200, {threadId: thread._id, postId: post._id});
-						});
+						res.json(200, {threadId: thread._id, postId: post._id});
 					});
 				});
 			});
@@ -166,10 +162,8 @@ exports.register = function (e) {
 					prepareWritableCategory(res, role, form.categoryId, function (formCategory) {
 						checkFormThreadAndPost(res, form, function () {
 							updateThread(res, form, thread, function () {
-								updatePost(res, form, post, category.editable, function () {
-									updateSearchIndex(res, thread, post, function () {
-										res.json(200, 'ok');
-									});
+								updatePost(res, form, thread, post, category.editable, function () {
+									res.json(200, 'ok');
 								});
 							});
 						});
@@ -186,10 +180,8 @@ exports.register = function (e) {
 			prepareWritableCategory(res, role, thread.categoryId, function (category) {
 				checkPostOwnership(req, res, category, form.postId, function () {
 					checkFormPost(res, form, function () {
-						updatePost(res, form, post, category.editable, function () {
-							updateSearchIndex(res, thread, post, function () {
-								res.json(200, 'ok');
-							});
+						updatePost(res, form, thread, post, category.editable, function () {
+							res.json(200, 'ok');
 						});
 					});
 				});
@@ -328,7 +320,12 @@ exports.register = function (e) {
 				if (err) {
 					return res.json(400, {error: msg.ERR_DB_IO});
 				}
-				next(post);
+				es.updatePost(thread, post, function (err, res, body) {
+					if (err) {
+						return res.json(400, {error: msg.ERR_SEARCH_IO});
+					}
+					next(post);
+				});
 			});
 		});
 	}
@@ -345,7 +342,7 @@ exports.register = function (e) {
 		});
 	}
 
-	function updatePost(res, form, post, admin, next) {
+	function updatePost(res, form, thread, post, admin, next) {
 		post.userName = form.userName ;
 		post.text = form.text;
 		if (admin) {
@@ -364,17 +361,13 @@ exports.register = function (e) {
 					return res.json(400, {error: msg.ERR_FILE_IO});
 				}
 				mongo.updatePost(post);
-				next();
+				es.updatePost(thread, post, function (err, res, body) {
+					if (err) {
+						return res.json(400, {error: msg.ERR_SEARCH_IO});
+					}
+					next();
+				});
 			});
-		});
-	}
-
-	function updateSearchIndex(res, thread, post, next) {
-		es.updatePost(thread, post, function (err, res, body) {
-			if (err) {
-				return res.json(400, {error: msg.ERR_SEARCH_IO});
-			}
-			next();
 		});
 	}
 
