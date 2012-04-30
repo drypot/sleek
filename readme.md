@@ -1,9 +1,17 @@
 # Sleek Server
 
-실험용 게시판 시스템의 서버 파트입니다.
-Node 와 관련된 기초 기능들 엮어쓰는 예를 보여드리기 위해서 코드를 오픈합니다.
-Git 리포지터리 업데이트는 계속 하겠지만 아직 한참 만드는 중이고
-완성되더라도 타인이 실서비스에 쓰는 것을 전제하고 있지 않습니다.
-하위 호환성 같은 것 아예 없을 것이고 언제 형태가 바뀔지 모르는 불안정한 코드입니다.
-코드 뜯어다 필요하시면 쓰셔도 되는데 전체 코드를 내려서 서비스 돌리진 마세요.
-위험합니다. ^^;
+개인적인 기술 실험용 게시판 시스템의 서버 파트입니다.
+사용하는 DB 나 주변기술을 자주 바꾸기 때문에 이 코드를 실 서비스에 사용하시는 것은 권장하지 않습니다.
+
+
+# License
+
+The MIT License (MIT)
+
+Copyright (c) 2012 Hyuhyun Park
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
