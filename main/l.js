@@ -2,6 +2,7 @@ var _ = require('underscore');
 var should = require('should');
 var async = require('async');
 var fs = require('fs');
+var request = require('request');
 
 // Object
 
@@ -111,3 +112,100 @@ exports.mkdirs = function (sub, next) {
 		next(err, dir);
 	});
 }
+
+// Request
+
+exports.RequestBase = function (urlBase) {
+	this.urlBase = urlBase;
+};
+
+var requestBase = exports.RequestBase.prototype;
+
+requestBase.get = function (url, a) {
+	var rw = new RequestWrapper(this, 'GET', url);
+	return a ? rw.end(a) : rw;
+}
+
+requestBase.post = function (url, a, b, c) {
+	var rw = new RequestWrapper(this, 'POST', url);
+	return c ? rw.send(a).file(b).end(c) : b ? rw.send(a).end(b) : a ? rw.end(a) : rw;
+}
+
+requestBase.put = function (url, a, b, c) {
+	var rw = new RequestWrapper(this, 'PUT', url);
+	return c ? rw.send(a).file(b).end(c) : b ? rw.send(a).end(b) : a ? rw.end(a) : rw;
+}
+
+requestBase.del = function (url, a) {
+	var rw = new RequestWrapper(this, 'DELETE', url);
+	return a ? rw.end(a) : rw;
+}
+
+requestBase.url = function (path) {
+	return this.urlBase + path;
+}
+
+var RequestWrapper = function (base, method, url) {
+	this.opt = {
+		method: method,
+		url: base.urlBase + url,
+		json: true,
+		headers: {},
+		qs: {},
+		body: {}
+	}
+};
+
+var rw = RequestWrapper.prototype;
+
+rw.query = function (query) {
+	this.opt.qs = _.extend(this.opt.qs, query);
+	return this;
+};
+
+rw.send = function (body) {
+	this.opt.body = _.extend(this.opt.body, body);
+	return this;
+};
+
+rw.set = function (key, value) {
+	this.opt.headers[key] = value
+	return this;
+};
+
+rw.file = function (file) {
+	var opt = this.opt;
+	opt.headers['content-type'] = 'multipart/form-data';
+	opt.multipart = [];
+	_.each(_.keys(opt.body), function (key) {
+		opt.multipart.push({
+			'content-disposition': 'form-data; name="' + key + '"',
+			body: opt.body[key].toString()
+		});
+	});
+	delete opt.json;
+	delete opt.body;
+	_.each(file, function (file) {
+		opt.multipart.push({
+			'content-disposition': 'form-data; name="file"; filename="' + file + '"',
+			'content-type': 'text/plain',
+			body: file + ' dummy content.'
+		});
+	});
+	return this;
+};
+
+rw.end = function (next) {
+	var opt = this.opt;
+	request(opt, function (err, res, body) {
+		res.ok = res.statusCode / 100 == 2;
+		res.status = res.statusCode;
+		if (opt.multipart) {
+			res.body = JSON.parse(body);
+		} else {
+			res.body = body;
+		}
+		next(err, res);
+	});
+};
+

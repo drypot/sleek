@@ -14,12 +14,16 @@ var e;
 l.addInit(function (next) {
 	e = express();
 
-	e.configure(function () {
-		e.use(express.cookieParser(config.cookieSecret));
-		e.use(express.session({store: new redisStore()}));
-		e.use(express.bodyParser({uploadDir: upload.tmpDir}));
-		e.use(e.router);
+e.configure(function () {
+	e.use(express.cookieParser(config.cookieSecret));
+	e.use(express.session({store: new redisStore()}));
+	e.use(express.bodyParser({uploadDir: upload.tmpDir}));
+	e.use(function (req, res, next) {
+		res.set('Cache-Control', 'no-cache');
+		next();
 	});
+	e.use(e.router);
+});
 	e.configure('development', function () {
 		e.use(express.errorHandler({dumpExceptions: true, showStack: true}));
 	});

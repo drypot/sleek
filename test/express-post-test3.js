@@ -24,30 +24,30 @@ describe("search-post", function () {
 	];
 
 	it('assume logged out', function (next) {
-		test.request('/api/logout', next);
+		test.request.post('/api/logout', next);
 	});
 	it("can not search post when not logged in", function (next) {
-		test.request('/api/search-post', function (err, res, body) {
-			res.should.status(400);
-			body.error.should.equal(msg.ERR_LOGIN_FIRST);
+		test.request.post('/api/search-post', function (err, res) {
+			res.status.should.equal(400);
+			res.body.error.should.equal(msg.ERR_LOGIN_FIRST);
 			next(err);
 		});
 	});
 	it('assume admin', function (next) {
-		test.request('/api/login', { password: '3' }, next);
+		test.request.post('/api/login', { password: '3' }, next);
 	});
 	it("can search after login", function (next) {
-		test.request('/api/search-post', { query: 'hello' }, function (err, res, body) {
-			res.should.status(200);
-			body.should.length(0);
+		test.request.post('/api/search-post', { query: 'hello' }, function (err, res) {
+			res.status.should.equal(200);
+			res.body.should.length(0);
 			next(err);
 		});
 	});
 	it('prepare threads', function (next) {
 		async.forEachSeries(doc, function (doc, next) {
-			test.request('/api/create-post-head', doc, function (err, res, body) {
-				doc.postId = body.postId;
-				doc.threadId = body.threadId;
+			test.request.post('/api/create-post-head', doc, function (err, res) {
+				doc.postId = res.body.postId;
+				doc.threadId = res.body.threadId;
 				next(err);
 			});
 		}, next);
@@ -56,75 +56,75 @@ describe("search-post", function () {
 		es.flush(next);
 	});
 	it('assume user', function (next) {
-		test.request('/api/login', { password: '1' }, next);
+		test.request.post('/api/login', { password: '1' }, next);
 	});
 	it("can search user", function (next) {
-		test.request('/api/search-post', { query: 'snowman' }, function (err, res, body) {
-			res.should.status(200);
-			body.should.length(3);
-			body[0].title.should.equal('title 3');
-			body[1].title.should.equal('title 2');
-			body[2].title.should.equal('title 1');
+		test.request.post('/api/search-post', { query: 'snowman' }, function (err, res) {
+			res.status.should.equal(200);
+			res.body.should.length(3);
+			res.body[0].title.should.equal('title 3');
+			res.body[1].title.should.equal('title 2');
+			res.body[2].title.should.equal('title 1');
 			next(err);
 		});
 	});
 	it("can search title", function (next) {
-		test.request('/api/search-post', { query: 'title 4' }, function (err, res, body) {
-			res.should.status(200);
-			body.should.length(1);
-			body[0].title.should.equal('title 4');
+		test.request.post('/api/search-post', { query: 'title 4' }, function (err, res) {
+			res.status.should.equal(200);
+			res.body.should.length(1);
+			res.body[0].title.should.equal('title 4');
 			next(err);
 		});
 	});
 	it("can search text", function (next) {
-		test.request('/api/search-post', { query: 'apple orange' }, function (err, res, body) {
-			res.should.status(200);
-			body.should.length(2);
-			body[0].title.should.equal('title 2');
-			body[1].title.should.equal('title 1');
+		test.request.post('/api/search-post', { query: 'apple orange' }, function (err, res) {
+			res.status.should.equal(200);
+			res.body.should.length(2);
+			res.body[0].title.should.equal('title 2');
+			res.body[1].title.should.equal('title 1');
 			next(err);
 		});
 	});
 	it("can search text 2", function (next) {
-		test.request('/api/search-post', { query: 'apple banana' }, function (err, res, body) {
-			res.should.status(200);
-			body.should.length(1);
-			body[0].title.should.equal('title 1');
+		test.request.post('/api/search-post', { query: 'apple banana' }, function (err, res) {
+			res.status.should.equal(200);
+			res.body.should.length(1);
+			res.body[0].title.should.equal('title 1');
 			next(err);
 		});
 	});
 	it("can search text 2", function (next) {
-		test.request('/api/search-post', { query: 'apple banana' }, function (err, res, body) {
-			res.should.status(200);
-			body.should.length(1);
-			body[0].title.should.equal('title 1');
+		test.request.post('/api/search-post', { query: 'apple banana' }, function (err, res) {
+			res.status.should.equal(200);
+			res.body.should.length(1);
+			res.body[0].title.should.equal('title 1');
 			next(err);
 		});
 	});
 	it("can search hangul", function (next) {
-		test.request('/api/search-post', { query: '둥글' }, function (err, res, body) {
-			res.should.status(200);
-			body.should.length(3);
-			body[0].title.should.equal('title 5');
-			body[1].title.should.equal('title 4');
-			body[2].title.should.equal('title 3');
+		test.request.post('/api/search-post', { query: '둥글' }, function (err, res) {
+			res.status.should.equal(200);
+			res.body.should.length(3);
+			res.body[0].title.should.equal('title 5');
+			res.body[1].title.should.equal('title 4');
+			res.body[2].title.should.equal('title 3');
 			next(err);
 		});
 	});
 	it("can not search admin category", function (next) {
-		test.request('/api/search-post', { query: 'admin' }, function (err, res, body) {
-			res.should.status(200);
-			body.should.length(0);
+		test.request.post('/api/search-post', { query: 'admin' }, function (err, res) {
+			res.status.should.equal(200);
+			res.body.should.length(0);
 			next(err);
 		});
 	});
 	it('assume admin', function (next) {
-		test.request('/api/login', { password: '3' }, next);
+		test.request.post('/api/login', { password: '3' }, next);
 	});
 	it("can search admin category", function (next) {
-		test.request('/api/search-post', { query: 'admin' }, function (err, res, body) {
-			res.should.status(200);
-			body.should.length(2);
+		test.request.post('/api/search-post', { query: 'admin' }, function (err, res) {
+			res.status.should.equal(200);
+			res.body.should.length(2);
 			next(err);
 		});
 	});

@@ -11,9 +11,9 @@ before(function (next) {
 
 describe('hello', function () {
 	it('should return hello', function (next) {
-		test.request('/api/hello', function (err, res, body) {
-			res.should.status(200);
-			body.should.equal('hello');
+		test.request.post('/api/hello', function (err, res) {
+			res.status.should.equal(200);
+			res.body.should.equal('hello');
 			next(err);
 		});
 	});
@@ -21,16 +21,16 @@ describe('hello', function () {
 
 describe('session', function () {
 	it('can save session value', function (next) {
-		test.request('/api/test/set-session-var', {value: 'book217' }, function (err, res, body) {
-			res.should.status(200);
-			body.should.equal('ok');
+		test.request.post('/api/test/set-session-var', {value: 'book217' }, function (err, res) {
+			res.status.should.equal(200);
+			res.body.should.equal('ok');
 			next(err);
 		});
 	});
 	it('can get session value', function (next) {
-		test.request('/api/test/get-session-var', function (err, res, body) {
-			res.should.status(200);
-			body.should.equal('book217');
+		test.request.post('/api/test/get-session-var', function (err, res) {
+			res.status.should.equal(200);
+			res.body.should.equal('book217');
 			next(err);
 		});
 	});
@@ -39,16 +39,16 @@ describe('session', function () {
 
 describe('login', function () {
 	it('should success for user', function (next) {
-		test.request('/api/login', { password: '1' }, function (err, res, body) {
-			res.should.status(200);
-			body.role.name.should.equal('user');
+		test.request.post('/api/login', { password: '1' }, function (err, res) {
+			res.status.should.equal(200);
+			res.body.role.name.should.equal('user');
 			next(err);
 		});
 	});
 	it('should fail with wrong password', function (next) {
-		test.request('/api/login', { password: 'xxx' }, function (err, res, body) {
-			res.should.status(400);
-			body.error.should.equal(msg.ERR_LOGIN_FAILED);
+		test.request.post('/api/login', { password: 'xxx' }, function (err, res) {
+			res.status.should.equal(400);
+			res.body.error.should.equal(msg.ERR_LOGIN_FAILED);
 			next(err);
 		});
 	});
@@ -56,8 +56,8 @@ describe('login', function () {
 
 describe('logout', function () {
 	it("should success", function (next) {
-		test.request('/api/logout', function (err, res, body) {
-			res.should.status(200);
+		test.request.post('/api/logout', function (err, res) {
+			res.status.should.equal(200);
 			next(err);
 		});
 	});
@@ -65,35 +65,35 @@ describe('logout', function () {
 
 describe("test/assert-role-any", function () {
 	it('assume logged out', function (next) {
-		test.request('/api/logout', next);
+		test.request.post('/api/logout', next);
 	})
 	it('should fail before login', function (next) {
-		test.request('/api/test/assert-role-any', function (err, res, body) {
-			res.should.status(400);
-			body.error.should.equal(msg.ERR_LOGIN_FIRST);
+		test.request.post('/api/test/assert-role-any', function (err, res) {
+			res.status.should.equal(400);
+			res.body.error.should.equal(msg.ERR_LOGIN_FIRST);
 			next(err);
 		});
 	});
 	it('assume logged in as user', function (next) {
-		test.request('/api/login', { password: '1' }, function (err, res, body) {
-			res.should.status(200);
-			body.role.name.should.equal('user');
+		test.request.post('/api/login', { password: '1' }, function (err, res) {
+			res.status.should.equal(200);
+			res.body.role.name.should.equal('user');
 			next(err);
 		});
 	});
 	it('should success after login', function (next) {
-		test.request('/api/test/assert-role-any', function (err, res, body) {
-			res.should.status(200);
+		test.request.post('/api/test/assert-role-any', function (err, res) {
+			res.status.should.equal(200);
 			next(err);
 		});
 	});
 	it('assume logged out', function (next) {
-		test.request('/api/logout', next);
+		test.request.post('/api/logout', next);
 	});
 	it('should fail after logout', function (next) {
-		test.request('/api/test/assert-role-any', function (err, res, body) {
-			res.should.status(400);
-			body.error.should.equal(msg.ERR_LOGIN_FIRST);
+		test.request.post('/api/test/assert-role-any', function (err, res) {
+			res.status.should.equal(400);
+			res.body.error.should.equal(msg.ERR_LOGIN_FIRST);
 			next(err);
 		});
 	});
@@ -101,22 +101,22 @@ describe("test/assert-role-any", function () {
 
 describe("test/assert-role-user", function () {
 	it('assume logged out', function (next) {
-		test.request('/api/logout', next);
+		test.request.post('/api/logout', next);
 	});
 	it('should fail before login', function (next) {
-		test.request('/api/test/assert-role-user', function (err, res, body) {
-			res.should.status(400);
-			body.error.should.equal(msg.ERR_LOGIN_FIRST);
+		test.request.post('/api/test/assert-role-user', function (err, res) {
+			res.status.should.equal(400);
+			res.body.error.should.equal(msg.ERR_LOGIN_FIRST);
 			next(err);
 		});
 	});
 	it('assume logged in as user', function (next) {
-		test.request('/api/login', { password: '1' }, next);
+		test.request.post('/api/login', { password: '1' }, next);
 	});
 	it('should success after login', function (next) {
-		test.request('/api/test/assert-role-user', function (err, res, body) {
-			res.should.status(200);
-			body.should.equal('ok');
+		test.request.post('/api/test/assert-role-user', function (err, res) {
+			res.status.should.equal(200);
+			res.body.should.equal('ok');
 			next(err);
 		});
 	});
@@ -124,43 +124,53 @@ describe("test/assert-role-user", function () {
 
 describe("test/assert-role-admin", function () {
 	it('assume logged out', function (next) {
-		test.request('/api/logout', next);
+		test.request.post('/api/logout', next);
 	});
 	it('should fail before login', function (next) {
-		test.request('/api/test/assert-role-admin', function (err, res, body) {
-			res.should.status(400);
-			body.error.should.equal(msg.ERR_LOGIN_FIRST);
+		test.request.post('/api/test/assert-role-admin', function (err, res) {
+			res.status.should.equal(400);
+			res.body.error.should.equal(msg.ERR_LOGIN_FIRST);
 			next(err);
 		});
 	});
 	it('assume logged in as user', function (next) {
-		test.request('/api/login', { password: '1' }, next);
+		test.request.post('/api/login', { password: '1' }, next);
 	});
 	it('should fail as user', function (next) {
-		test.request('/api/test/assert-role-admin', function (err, res, body) {
-			res.should.status(400);
-			body.error.should.equal(msg.ERR_NOT_AUTHORIZED);
+		test.request.post('/api/test/assert-role-admin', function (err, res) {
+			res.status.should.equal(400);
+			res.body.error.should.equal(msg.ERR_NOT_AUTHORIZED);
 			next(err);
 		});
 	});
 	it('assume logged in as admin', function (next) {
-		test.request('/api/login', { password: '3' }, next);
+		test.request.post('/api/login', { password: '3' }, next);
 	});
 	it('should success as admin', function (next) {
-		test.request('/api/test/assert-role-admin', function (err, res, body) {
-			res.should.status(200);
+		test.request.post('/api/test/assert-role-admin', function (err, res) {
+			res.status.should.equal(200);
 			next(err);
 		});
 	});
 });
 
 describe("get-category", function () {
+	it('assume logged out', function (next) {
+		test.request.post('/api/logout', next);
+	});
+	it('should fail before login', function (next) {
+		test.request.post('/api/get-category', function (err, res) {
+			res.status.should.equal(400);
+			res.body.error.should.equal(msg.ERR_LOGIN_FIRST);
+			next(err);
+		});
+	});
 	it('assume user', function (next) {
-		test.request('/api/login', { password: '1' }, next);
+		test.request.post('/api/login', { password: '1' }, next);
 	});
 	it('should success', function (next) {
-		test.request('/api/get-category', function (err, res, body) {
-			res.should.status(200);
+		test.request.post('/api/get-category', function (err, res) {
+			res.status.should.equal(200);
 			next(err);
 		});
 	});
@@ -169,11 +179,11 @@ describe("get-category", function () {
 describe("category for user", function () {
 	var c;
 	before(function (next) {
-		test.request('/api/login', { password: '1' }, next);
+		test.request.post('/api/login', { password: '1' }, next);
 	});
 	before(function (next) {
-		test.request('/api/get-category', function (err, res, body) {
-			c = body;
+		test.request.post('/api/get-category', function (err, res) {
+			c = res.body;
 			next(err);
 		});
 	});
@@ -193,11 +203,11 @@ describe("category for user", function () {
 describe("category for admin", function () {
 	var c;
 	before(function (next) {
-		test.request('/api/login', { password: '3' }, next);
+		test.request.post('/api/login', { password: '3' }, next);
 	});
 	before(function (next) {
-		test.request('/api/get-category', function (err, res, body) {
-			c = body;
+		test.request.post('/api/get-category', function (err, res) {
+			c = res.body;
 			next(err);
 		});
 	});

@@ -68,10 +68,10 @@ describe('es', function () {
 			}
 		];
 		async.forEachSeries(doc, function (doc, next) {
-			es.updatePost(doc.thread, doc.post, function (err, res, body) {
+			es.updatePost(doc.thread, doc.post, function (err, res) {
 				if (err) return next(err);
 				should(res.statusCode == 201 || res.statusCode == 200);
-				body.ok.should.true;
+				res.body.ok.should.true;
 				next(err);
 			});
 		}, next);
@@ -81,10 +81,10 @@ describe('es', function () {
 	});
 	it('can get post head', function (next) {
 		var doc0 = doc[0];
-		es.getPost(doc0.post._id, function (err, res, body) {
-			res.should.status(200);
-			body._id.should.equal(doc0.post._id);
-			var s = body._source;
+		es.getPost(doc0.post._id, function (err, res) {
+			res.status.should.equal(200);
+			res.body._id.should.equal(doc0.post._id);
+			var s = res.body._source;
 			s.threadId.should.equal(doc0.thread._id);
 			s.categoryId.should.equal(doc0.thread.categoryId);
 			s.cdate.getTime().should.equal(doc0.post.cdate.getTime());
@@ -97,10 +97,10 @@ describe('es', function () {
 	});
 	it('can get post reply', function (next) {
 		var doc1 = doc[1];
-		es.getPost(doc1.post._id, function (err, res, body) {
-			res.should.status(200);
-			body._id.should.equal(doc1.post._id);
-			var s = body._source;
+		es.getPost(doc1.post._id, function (err, res) {
+			res.status.should.equal(200);
+			res.body._id.should.equal(doc1.post._id);
+			var s = res.body._source;
 			s.threadId.should.equal(doc1.thread._id);
 			s.categoryId.should.equal(doc1.thread.categoryId);
 			s.cdate.getTime().should.equal(doc1.post.cdate.getTime());
@@ -116,10 +116,10 @@ describe('es', function () {
 				query: { query_string: { query: 'hello', default_operator: 'and' }},
 				sort:[{cdate : "asc"}]
 			},
-			function (err, res, body) {
-				res.should.status(200);
-				body.hits.total.should.equal(1);
-				body.hits.hits[0]._id.should.equal(doc[0].post._id);
+			function (err, res) {
+				res.status.should.equal(200);
+				res.body.hits.total.should.equal(1);
+				res.body.hits.hits[0]._id.should.equal(doc[0].post._id);
 				next(err);
 			}
 		);
@@ -129,11 +129,11 @@ describe('es', function () {
 				query: { query_string: { query: 'snowman', default_operator: 'and' }},
 				sort:[{cdate : "asc"}]
 			},
-			function (err, res, body) {
-				res.should.status(200);
-				body.hits.total.should.equal(2);
-				body.hits.hits[0]._id.should.equal(doc[0].post._id);
-				body.hits.hits[1]._id.should.equal(doc[1].post._id);
+			function (err, res) {
+				res.status.should.equal(200);
+				res.body.hits.total.should.equal(2);
+				res.body.hits.hits[0]._id.should.equal(doc[0].post._id);
+				res.body.hits.hits[1]._id.should.equal(doc[1].post._id);
 				next(err);
 			}
 		);
@@ -143,11 +143,11 @@ describe('es', function () {
 				query: { query_string: { query: 'apple', default_operator: 'and' }},
 				sort:[{cdate : "asc"}]
 			},
-			function (err, res, body) {
-				res.should.status(200);
-				body.hits.total.should.equal(2);
-				body.hits.hits[0]._id.should.equal(doc[0].post._id);
-				body.hits.hits[1]._id.should.equal(doc[1].post._id);
+			function (err, res) {
+				res.status.should.equal(200);
+				res.body.hits.total.should.equal(2);
+				res.body.hits.hits[0]._id.should.equal(doc[0].post._id);
+				res.body.hits.hits[1]._id.should.equal(doc[1].post._id);
 				next(err);
 			}
 		);
@@ -157,10 +157,10 @@ describe('es', function () {
 				query: { query_string: { query: 'orange', default_operator: 'and' }},
 				sort:[{cdate : "asc"}]
 			},
-			function (err, res, body) {
-				res.should.status(200);
-				body.hits.total.should.equal(1);
-				body.hits.hits[0]._id.should.equal(doc[1].post._id);
+			function (err, res) {
+				res.status.should.equal(200);
+				res.body.hits.total.should.equal(1);
+				res.body.hits.hits[0]._id.should.equal(doc[1].post._id);
 				next(err);
 			}
 		);
@@ -170,10 +170,10 @@ describe('es', function () {
 				query: { query_string: { query: 'apple orange', default_operator: 'and' }},
 				sort:[{cdate : "asc"}]
 			},
-			function (err, res, body) {
-				res.should.status(200);
-				body.hits.total.should.equal(1);
-				body.hits.hits[0]._id.should.equal(doc[1].post._id);
+			function (err, res) {
+				res.status.should.equal(200);
+				res.body.hits.total.should.equal(1);
+				res.body.hits.hits[0]._id.should.equal(doc[1].post._id);
 				next(err);
 			}
 		);
@@ -183,12 +183,12 @@ describe('es', function () {
 				query: { query_string: { query: '둥글게', default_operator: 'and' }},
 				sort:[{cdate : "desc"}]
 			},
-			function (err, res, body) {
-				res.should.status(200);
-				body.hits.hits.should.length(3);
-				body.hits.hits[0]._id.should.equal(doc[4].post._id);
-				body.hits.hits[1]._id.should.equal(doc[3].post._id);
-				body.hits.hits[2]._id.should.equal(doc[2].post._id);
+			function (err, res) {
+				res.status.should.equal(200);
+				res.body.hits.hits.should.length(3);
+				res.body.hits.hits[0]._id.should.equal(doc[4].post._id);
+				res.body.hits.hits[1]._id.should.equal(doc[3].post._id);
+				res.body.hits.hits[2]._id.should.equal(doc[2].post._id);
 				next(err);
 			}
 		);
@@ -199,11 +199,11 @@ describe('es', function () {
 				sort:[{cdate : "desc"}],
 				size: 16, from: 1
 			},
-			function (err, res, body) {
-				res.should.status(200);
-				body.hits.hits.should.length(2);
-				body.hits.hits[0]._id.should.equal(doc[3].post._id);
-				body.hits.hits[1]._id.should.equal(doc[2].post._id);
+			function (err, res) {
+				res.status.should.equal(200);
+				res.body.hits.hits.should.length(2);
+				res.body.hits.hits[0]._id.should.equal(doc[3].post._id);
+				res.body.hits.hits[1]._id.should.equal(doc[2].post._id);
 				next(err);
 			}
 		);
@@ -213,11 +213,11 @@ describe('es', function () {
 				query: { query_string: { query: '안녕', default_operator: 'and' }},
 				sort:[{cdate : "asc"}]
 			},
-			function (err, res, body) {
-				res.should.status(200);
-				body.hits.total.should.equal(2);
-				body.hits.hits[0]._id.should.equal(doc[2].post._id);
-				body.hits.hits[1]._id.should.equal(doc[3].post._id);
+			function (err, res) {
+				res.status.should.equal(200);
+				res.body.hits.total.should.equal(2);
+				res.body.hits.hits[0]._id.should.equal(doc[2].post._id);
+				res.body.hits.hits[1]._id.should.equal(doc[3].post._id);
 				next(err);
 			}
 		);
@@ -227,11 +227,11 @@ describe('es', function () {
 				query: { query_string: { query: '파랗게', default_operator: 'and' }},
 				sort:[{cdate : "asc"}]
 			},
-			function (err, res, body) {
-				res.should.status(200);
-				body.hits.total.should.equal(2);
-				body.hits.hits[0]._id.should.equal(doc[2].post._id);
-				body.hits.hits[1]._id.should.equal(doc[4].post._id);
+			function (err, res) {
+				res.status.should.equal(200);
+				res.body.hits.total.should.equal(2);
+				res.body.hits.hits[0]._id.should.equal(doc[2].post._id);
+				res.body.hits.hits[1]._id.should.equal(doc[4].post._id);
 				next(err);
 			}
 		);
@@ -241,10 +241,10 @@ describe('es', function () {
 				query: { query_string: { query: '파랗게 말똥이', default_operator: 'and' }},
 				sort:[{cdate : "asc"}]
 			},
-			function (err, res, body) {
-				res.should.status(200);
-				body.hits.total.should.equal(1);
-				body.hits.hits[0]._id.should.equal(doc[4].post._id);
+			function (err, res) {
+				res.status.should.equal(200);
+				res.body.hits.total.should.equal(1);
+				res.body.hits.hits[0]._id.should.equal(doc[4].post._id);
 				next(err);
 			}
 		);

@@ -79,12 +79,12 @@ exports.register = function (e) {
 				sort:[{cdate : "desc"}],
 				size: limit, from: offset
 			},
-			function (err, sres, body) {
+			function (err, sres) {
 				if (err) {
 					return res.json(400, {error: msg.ERR_SEARCH_IO});
 				}
 				var r = [];
-				_.each(body.hits.hits, function (hit) {
+				_.each(sres.body.hits.hits, function (hit) {
 					var s = hit._source;
 					if (!role.category[s.categoryId]) return;
 					if (!s.visible) return;
@@ -320,7 +320,7 @@ exports.register = function (e) {
 				if (err) {
 					return res.json(400, {error: msg.ERR_DB_IO});
 				}
-				es.updatePost(thread, post, function (err, res, body) {
+				es.updatePost(thread, post, function (err, res) {
 					if (err) {
 						return res.json(400, {error: msg.ERR_SEARCH_IO});
 					}
@@ -361,7 +361,7 @@ exports.register = function (e) {
 					return res.json(400, {error: msg.ERR_FILE_IO});
 				}
 				mongo.updatePost(post);
-				es.updatePost(thread, post, function (err, res, body) {
+				es.updatePost(thread, post, function (err, res) {
 					if (err) {
 						return res.json(400, {error: msg.ERR_SEARCH_IO});
 					}

@@ -1,28 +1,26 @@
 var _ = require('underscore');
-var request = require('request');
 
 var l = require('./l.js');
 var config = require('./config.js');
 
 var param = exports.param = {};
-var urlBase;
+var request;
 
 l.addInit(function (next) {
 	param.indexName = param.indexName || config.esIndexName;
-	urlBase = config.esUrl + '/' + param.indexName;
+	request = new l.RequestBase(config.esUrl + '/' + param.indexName);
 	next();
 });
 
 l.addInit(function (next) {
 	if (param.dropIndex) {
-		var opt = { method: 'DELETE', url: urlBase };
-		return request(opt, next);
+		return request.del('', next);
 	}
 	next();
 });
 
 l.addInit(function (next) {
-	var opt = { method: 'POST', url: urlBase, json: true, body: {
+	request.post('', {
 		settings: {
 			index: {
 				number_of_shards : 1,
@@ -43,73 +41,47 @@ l.addInit(function (next) {
 				}
 			}
 		}
-	}};
-	request(opt, next);
+	}, next);
 });
 
 l.addInit(function (next) {
-	console.info('elasticsearch initialized: ' + urlBase);
+	console.info('elasticsearch initialized: ' + request.url(''));
 	next();
 });
 
 exports.flush = function (next) {
-	var opt = {
-		method: 'POST',
-		url: urlBase + '/_flush',
-		json: true
-	};
-	request(opt, next);
+	request.post('/_flush', next);
 }
 
 exports.updatePost = function (thread, post, next) {
-	var opt = {
-		method: 'PUT',
-		url: urlBase + '/post/' + post._id,
-		json: true,
-		body: {
-			threadId: thread._id,
-			categoryId: thread.categoryId,
-			cdate: post.cdate,
-			title: thread.title,
-			titlei: '',
-			userName: post.userName,
-			text: post.text,
-			visible: post.visible
-		}
-	};
-	if (thread.cdate.getTime() === post.cdate.getTime()) {
-		opt.body.titlei = thread.title;
-	}
-	request(opt, next);
+	request.put('/post/' + post._id, {
+		threadId: thread._id,
+		categoryId: thread.categoryId,
+		cdate: post.cdate,
+		title: thread.title,
+		titlei: thread.cdate.getTime() === post.cdate.getTime() ? thread.title : '',
+		userName: post.userName,
+		text: post.text,
+		visible: post.visible
+	}, next);
 }
 
 exports.getPost = function (postId, next) {
-	var opt = {
-		method: 'GET',
-		url: urlBase + '/post/' + postId,
-		json: true
-	};
-	request(opt, function (err, res, body) {
+	request.get('/post/' + postId, function (err, res) {
 		if (err) return next(err);
-		body._id = parseInt(body._id);
-		body._source.cdate = new Date(body._source.cdate);
-		next(err, res, body);
+		res.body._id = parseInt(res.body._id);
+		res.body._source.cdate = new Date(res.body._source.cdate);
+		next(err, res);
 	});
 }
 
 exports.searchPost = function (body, next) {
-	var opt = {
-		method: 'POST',
-		url: urlBase + '/post/_search',
-		body: body,
-		json: true
-	};
-	request(opt, function (err, res, body) {
+	request.post('/post/_search', body, function (err, res) {
 		if (err) return next(err);
-		_.each(body.hits.hits, function (hit) {
+		_.each(res.body.hits.hits, function (hit) {
 			hit._id = parseInt(hit._id);
 			hit._source.cdate = new Date(hit._source.cdate);
 		});
-		next(err, res, body);
+		next(err, res);
 	});
 }
