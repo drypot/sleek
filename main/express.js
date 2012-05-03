@@ -17,7 +17,7 @@ l.addInit(function (next) {
 	e.configure(function () {
 		e.use(express.cookieParser(config.cookieSecret));
 		e.use(express.session({store: new redisStore()}));
-		e.use(express.bodyParser({uploadDir: upload.tmpDir}));
+		e.use(express.bodyParser({uploadDir: upload.tmpFileDir}));
 		e.use(function (req, res, next) {
 			res.set('Cache-Control', 'no-cache');
 			next();
@@ -45,6 +45,7 @@ l.addInit(function (next) {
 			req.session.regenerate(function (err) {
 				req.session.roleName = role.name;
 				req.session.post = [];
+				req.session.file = {};
 				if (req.cookies && req.cookies.lv3) {
 					res.clearCookie('lv3');
 					res.clearCookie('lv');

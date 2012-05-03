@@ -6,24 +6,55 @@ var path = require('path');
 var l = require('./l.js');
 var config = require('./config.js');
 
+var tmpFileDir;
+var postFileDir;
+
 l.addInit(function (next) {
+	exports.tmpFileDir = tmpFileDir = config.uploadDir + '/tmp';
 	l.mkdirs([config.uploadDir, 'tmp'], next);
 });
 
 l.addInit(function (next) {
+	postFileDir = config.uploadDir + '/post'
 	l.mkdirs([config.uploadDir, 'post'], next);
 });
 
 l.addInit(function (next) {
-	var tmpDir = exports.tmpDir = config.uploadDir + '/tmp';
-	console.log('upload tmp directory: ' + tmpDir);
-	fs.readdir(tmpDir, function (err, files) {
-		_.each(files, function (file) {
-			fs.unlink(tmpDir + '/' + file);
+	console.log('upload tmp directory: ' + tmpFileDir);
+	fs.readdir(tmpFileDir, function (err, file) {
+		_.each(file, function (file) {
+			fs.unlink(tmpFileDir + '/' + file);
 		});
 		next();
 	});
 });
+
+exports.tmpFileExists = function(basename) {
+	return path.existsSync(tmpFileDir + '/' + basename);
+}
+
+exports.receiveFile = function(req, next) {
+	var file = req.files && req.files.file;
+	if (!file) {
+		return next(null, []);
+	}
+
+	var saved = [];
+	if (!_.isArray(file)) file = [file];
+	async.forEachSeries(
+		file,
+		function (file, next) {
+			if (!file.size) return next();
+			var basename = path.basename(file.path);
+			saved.push(basename);
+			req.session.file[basename] = file.name;
+			next();
+		},
+		function (err) {
+			next(err, saved);
+		}
+	);
+};
 
 function saveFile (sub, file, next /* (err, saved) */) {
 	l.mkdirs(sub, function (err, dir) {
@@ -67,8 +98,12 @@ function deleteFile (dir, delFile, next /* (err, deleted) */) {
 
 // post
 
-exports.getPostDir = function (post) {
-	return config.uploadDir + '/post/' + Math.floor(post._id / 10000) + '/' + post._id
+exports.getPostFileDir = function (post) {
+	return postFileDir + '/' + Math.floor(post._id / 10000) + '/' + post._id
+};
+
+exports.postFileExists = function(post, basename) {
+	return path.existsSync(exports.getPostFileDir(post) + '/' + basename);
 };
 
 exports.savePostFile = function (post, file, next) {
@@ -84,7 +119,7 @@ exports.savePostFile = function (post, file, next) {
 
 exports.deletePostFile = function (post, delFile, next) {
 	if (!delFile) return next();
-	deleteFile(exports.getPostDir(post), delFile, function (err, deleted) {
+	deleteFile(exports.getPostFileDir(post), delFile, function (err, deleted) {
 		if (err) return next(err);
 		if (deleted) {
 			post.file = _.without(post.file, deleted);

@@ -586,7 +586,7 @@ describe('file upload', function () {
 		);
 	});
 	function fexists(id, file) {
-		return path.existsSync(upload.getPostDir({_id: id}) + '/' + file);
+		return path.existsSync(upload.getPostFileDir({_id: id}) + '/' + file);
 	}
 	it('can upload file', function (next) {
 		test.request.post(

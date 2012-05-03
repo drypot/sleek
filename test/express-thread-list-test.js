@@ -155,7 +155,7 @@ describe("get-thread", function () {
 			}
 		);
 	});
-	it('can get thead with 3 posts', function (next) {
+	it('can get thread with 3 posts', function (next) {
 		test.request.post('/api/get-thread', { threadId: tid },function (err, res) {
 			res.status.should.equal(200);
 			res.body.post.should.length(3);
@@ -179,7 +179,7 @@ describe("get-thread", function () {
 			}
 		);
 	});
-	it('can get thead with 3 posts', function (next) {
+	it('can get thread with 3 posts', function (next) {
 		test.request.post('/api/get-thread', { threadId: tid }, function (err, res) {
 			res.status.should.equal(200);
 			res.body.post.should.length(3);
@@ -189,7 +189,7 @@ describe("get-thread", function () {
 	it('assume user', function (next) {
 		test.request.post('/api/login', { password: '1' }, next);
 	});
-	it('can get thead with just 2 posts as user', function (next) {
+	it('can get thread with just 2 posts as user', function (next) {
 		test.request.post('/api/get-thread', { threadId: tid }, function (err, res) {
 			res.status.should.equal(200);
 			res.body.post.should.length(2);

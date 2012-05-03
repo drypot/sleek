@@ -128,7 +128,7 @@ exports.register = function (e) {
 		var role = getRole(req);
 		var form = getForm(req);
 		prepareWritableCategory(res, role, form.categoryId, function (category) {
-			checkFormThreadAndPost(res, form, function () {
+			checkThreadAndPostForm(res, form, function () {
 				insertThread(res, form, function (thread) {
 					insertPost(req, res, form, thread, function (post) {
 						res.json(200, {threadId: thread._id, postId: post._id});
@@ -143,7 +143,7 @@ exports.register = function (e) {
 		var form = getForm(req);
 		prepareThread(res, form.threadId, function (thread){
 			prepareWritableCategory(res, role, thread.categoryId, function (category) {
-				checkFormPost(res, form, function () {
+				checkPostForm(res, form, function () {
 					insertPost(req, res, form, thread, function (post) {
 						mongo.updateThreadLength(thread, form.now);
 						res.json(200, {threadId: thread._id, postId: post._id});
@@ -160,7 +160,7 @@ exports.register = function (e) {
 			prepareWritableCategory(res, role, thread.categoryId, function (category) {
 				checkPostOwnership(req, res, category, form.postId, function () {
 					prepareWritableCategory(res, role, form.categoryId, function (formCategory) {
-						checkFormThreadAndPost(res, form, function () {
+						checkThreadAndPostForm(res, form, function () {
 							updateThread(res, form, thread, function () {
 								updatePost(res, form, thread, post, category.editable, function () {
 									res.json(200, 'ok');
@@ -179,13 +179,19 @@ exports.register = function (e) {
 		prepareThreadAndPost(res, form.threadId, form.postId, function (thread, post) {
 			prepareWritableCategory(res, role, thread.categoryId, function (category) {
 				checkPostOwnership(req, res, category, form.postId, function () {
-					checkFormPost(res, form, function () {
+					checkPostForm(res, form, function () {
 						updatePost(res, form, thread, post, category.editable, function () {
 							res.json(200, 'ok');
 						});
 					});
 				});
 			});
+		});
+	});
+
+	e.post('/api/file', auth.checkLogin(), function (req, res, next) {
+		upload.receiveFile(req, function (err, saved) {
+			res.json(saved);
 		});
 	});
 
@@ -240,7 +246,7 @@ exports.register = function (e) {
 		next();
 	}
 
-	function checkFormThreadAndPost(res, form, next) {
+	function checkThreadAndPostForm(res, form, next) {
 		var error = [];
 		fillThreadError(form, error);
 		fillPostError(form, error);
@@ -250,7 +256,7 @@ exports.register = function (e) {
 		next();
 	}
 
-	function checkFormPost(res, form, next) {
+	function checkPostForm(res, form, next) {
 		var error = [];
 		fillPostError(form, error);
 		if (error.length) {
