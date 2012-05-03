@@ -26,29 +26,29 @@
 		{ "id": 104, "name": "health", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"] },
 		{ "id": 401, "name": "trade", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"] },
 		{ "id": 400, "name": "house109", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"] },
-		{ "id": 300, "name": "house", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"], "newLine": true },
+		{ "id": 300, "name": "house", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"], "sep": true },
 
 		{ "id": 102, "name": "blackkid", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"] },
-		{ "id": 220, "name": "epicure", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"], "newLine": true },
+		{ "id": 220, "name": "epicure", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"], "sep": true },
 
 		{ "id": 215, "name": "apple", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"] },
 		{ "id": 909, "name": "google", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"] },
-		{ "id": 200, "name": "microsoft", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"], "newLine": true },
+		{ "id": 200, "name": "microsoft", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"], "sep": true },
 
 		{ "id": 210, "name": "linux", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"] },
 		{ "id": 203, "name": "java", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"] },
 		{ "id": 217, "name": "pda", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"] },
-		{ "id": 110, "name": "tool", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"], "newLine": true },
+		{ "id": 110, "name": "tool", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"], "sep": true },
 
 		{ "id": 120, "name": "game", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"] },
 		{ "id": 130, "name": "music", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"] },
 		{ "id": 140, "name": "movie", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"] },
-		{ "id": 150, "name": "anime", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"], "newLine": true },
+		{ "id": 150, "name": "anime", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"], "sep": true },
 
 		{ "id": 101, "name": "who is it ?", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"] },
-		{ "id": 910, "name": "obituary", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"], "newLine": true },
+		{ "id": 910, "name": "obituary", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"], "sep": true },
 
-		{ "id": 60, "name": "cheat", "read": ["cheater", "admin"], "write": ["cheater", "admin"], "edit": ["admin"], "newLine": true },
+		{ "id": 60, "name": "cheat", "read": ["cheater", "admin"], "write": ["cheater", "admin"], "edit": ["admin"], "sep": true },
 
 		{ "id": 40, "name": "recycle bin", "read": ["admin"], "write": ["admin"], "edit": ["admin"] },
 		{ "id": 50, "name": "test", "read": ["admin"], "write": ["admin"], "edit": ["admin"] }

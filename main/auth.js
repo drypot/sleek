@@ -14,7 +14,8 @@ l.addInit(function (next) {
 		var role = roleMap[r.name] = {
 			name: r.name,
 			hash: r.hash,
-			category: {}
+			category: {},
+			categoryAsArray : []
 		}
 		_.each(config.category, function (c) {
 			var category = {
@@ -22,12 +23,14 @@ l.addInit(function (next) {
 				name: c.name,
 				all: c.id == 0,
 				sep: c.sep,
-				newLine: c.newLine,
 				readable: _.include(c.read, role.name),
 				writable: _.include(c.write, role.name),
 				editable: _.include(c.edit, role.name)
 			};
-			if (category.readable) role.category[category.id] = category;
+			if (category.readable) {
+				role.category[category.id] = category;
+				role.categoryAsArray.push(category);
+			}
 		});
 	});
 	console.log('auth initialized:');

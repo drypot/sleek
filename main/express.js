@@ -14,16 +14,16 @@ var e;
 l.addInit(function (next) {
 	e = express();
 
-e.configure(function () {
-	e.use(express.cookieParser(config.cookieSecret));
-	e.use(express.session({store: new redisStore()}));
-	e.use(express.bodyParser({uploadDir: upload.tmpDir}));
-	e.use(function (req, res, next) {
-		res.set('Cache-Control', 'no-cache');
-		next();
+	e.configure(function () {
+		e.use(express.cookieParser(config.cookieSecret));
+		e.use(express.session({store: new redisStore()}));
+		e.use(express.bodyParser({uploadDir: upload.tmpDir}));
+		e.use(function (req, res, next) {
+			res.set('Cache-Control', 'no-cache');
+			next();
+		});
+		e.use(e.router);
 	});
-	e.use(e.router);
-});
 	e.configure('development', function () {
 		e.use(express.errorHandler({dumpExceptions: true, showStack: true}));
 	});
@@ -34,29 +34,41 @@ e.configure(function () {
 	expressPost.register(e);
 
 	e.post('/api/login', function (req, res) {
-		var role = auth.getRoleByPassword(req.body.password);
-		if (!role) {
-			return res.json(400, { error: msg.ERR_LOGIN_FAILED });
+		var role;
+		if (req.session.roleName && req.body.keepCurrentSession) {
+			role = auth.getRoleByName(req.session.roleName);
+		} else {
+			role = auth.getRoleByPassword(req.body.password);
+			if (!role) {
+				return res.json(400, { error: msg.ERR_LOGIN_FAILED });
+			}
+			req.session.regenerate(function (err) {
+				req.session.roleName = role.name;
+				req.session.post = [];
+				if (req.cookies && req.cookies.lv3) {
+					res.clearCookie('lv3');
+					res.clearCookie('lv');
+					res.clearCookie('ph');
+					res.clearCookie('uname');
+				}
+				returnResult();
+			});
+			return;
 		}
-		req.session.roleName = role.name;
-		req.session.post = [];
-		if (req.cookies && req.cookies.lv3) {
-			res.clearCookie('lv3');
-			res.clearCookie('lv');
-			res.clearCookie('ph');
-			res.clearCookie('uname');
+		returnResult();
+
+		function returnResult() {
+			var r = { role: { name: role.name } }
+			if (req.body.returnCategory) {
+				r.role.category = role.categoryAsArray;
+			}
+			res.json(r);
 		}
-		res.json({ role: { name: role.name } });
 	});
 
 	e.post('/api/logout', function (req, res) {
 		req.session.destroy();
 		res.json('ok');
-	});
-
-	e.post('/api/get-category', auth.checkLogin(), function (req, res) {
-		var role = auth.getRoleByName(req.session.roleName);
-		res.json(role && role.category);
 	});
 
 	e.post('/api/hello', function (req, res) {
