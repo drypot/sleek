@@ -45,7 +45,6 @@ l.addInit(function (next) {
 			req.session.regenerate(function (err) {
 				req.session.roleName = role.name;
 				req.session.post = [];
-				req.session.file = {};
 				if (req.cookies && req.cookies.lv3) {
 					res.clearCookie('lv3');
 					res.clearCookie('lv');
@@ -72,29 +71,35 @@ l.addInit(function (next) {
 		res.json('ok');
 	});
 
-	e.post('/api/hello', function (req, res) {
+	e.get('/api/hello', function (req, res) {
 		res.json('hello');
 	});
 
+	e.post('/api/file', auth.checkLogin(), function (req, res, next) {
+		upload.keepTmpFile(req.files && req.files.file, function (err, saved) {
+			res.json(saved);
+		});
+	});
+
 	e.configure('development', function () {
-		e.post('/api/test/set-session-var', function (req, res) {
+		e.put('/api/test/session-var', function (req, res) {
 			req.session.test_var = req.body.value;
 			res.json('ok');
 		});
 
-		e.post('/api/test/get-session-var', function (req, res) {
+		e.get('/api/test/session-var', function (req, res) {
 			res.json(req.session.test_var);
 		});
 
-		e.post('/api/test/assert-role-any', auth.checkLogin(), function (req, res) {
+		e.get('/api/test/role/any', auth.checkLogin(), function (req, res) {
 			res.json('ok');
 		});
 
-		e.post('/api/test/assert-role-user', auth.checkLogin(), auth.checkRole('user'), function (req, res) {
+		e.get('/api/test/role/user', auth.checkLogin(), auth.checkRole('user'), function (req, res) {
 			res.json('ok');
 		});
 
-		e.post('/api/test/assert-role-admin', auth.checkLogin(), auth.checkRole('admin'), function (req, res) {
+		e.get('/api/test/role/admin', auth.checkLogin(), auth.checkRole('admin'), function (req, res) {
 			res.json('ok');
 		});
 	});

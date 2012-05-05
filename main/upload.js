@@ -29,45 +29,72 @@ l.addInit(function (next) {
 	});
 });
 
+// Tmp File
+
 exports.tmpFileExists = function(basename) {
 	return path.existsSync(tmpFileDir + '/' + basename);
 }
 
-exports.receiveFile = function(req, next) {
-	var file = req.files && req.files.file;
-	if (!file) {
-		return next(null, []);
-	}
-
+exports.keepTmpFile = function(upload, next) {
+	if (_.isEmpty(upload)) return next(null, []);
 	var saved = [];
-	if (!_.isArray(file)) file = [file];
-	async.forEachSeries(
-		file,
-		function (file, next) {
-			if (!file.size) return next();
-			var basename = path.basename(file.path);
-			saved.push(basename);
-			req.session.file[basename] = file.name;
-			next();
-		},
-		function (err) {
-			next(err, saved);
-		}
-	);
+	_.each(_.isArray(upload) ? upload : [upload], function (upload) {
+		if (!upload.size) return;
+		saved.push({ org: upload.name, tmp: path.basename(upload.path)});
+	});
+	next(null, saved);
 };
 
-function saveFile (sub, file, next /* (err, saved) */) {
-	l.mkdirs(sub, function (err, dir) {
+// Post File
+
+exports.getPostFileDir = function (postId) {
+	return postFileDir + '/' + Math.floor(postId / 10000) + '/' + postId
+};
+
+exports.postFileExists = function(postId, basename) {
+	return path.existsSync(exports.getPostFileDir(postId) + '/' + basename);
+};
+
+exports.savePostFile = function (post, tmp, next) {
+	if (_.isEmpty(tmp)) return next();
+	saveFile([config.uploadDir, 'post', Math.floor(post._id / 10000), post._id], tmp, function (err, saved) {
+		if (err) return next(err);
+		if (saved) {
+			post.file = !post.file ? saved : _.union(post.file, saved);
+		}
+		next();
+	});
+};
+
+exports.deletePostFile = function (post, delFile, next) {
+	if (_.isEmpty(delFile)) return next();
+	deleteFile(exports.getPostFileDir(post._id), delFile, function (err, deleted) {
+		if (err) return next(err);
+		if (deleted) {
+			post.file = _.without(post.file, deleted);
+			if (post.file.length == 0) delete post.file;
+		}
+		next();
+	});
+};
+
+// Common
+
+function saveFile (sub, tmp, next /* (err, saved) */) {
+	l.mkdirs(sub, function (err, tar) {
 		if (err) return next(err);
 		var saved = [];
-		if (!_.isArray(file)) file = [file];
 		async.forEachSeries(
-			file,
-			function (file, next) {
-				if (!file.size) return next();
-				saved.push(file.name);
-				if (file.__skip) return next();
-				fs.rename(file.path, dir + '/' + file.name, next);
+			tmp,
+			function (tmp, next) {
+				var org = l.safeFilename(path.basename(tmp.org));
+				fs.rename(tmpFileDir + '/' + tmp.tmp, tar + '/' + org, function (err) {
+					if (err && err.code !== 'ENOENT') {
+						return next(err);
+					}
+					saved.push(org);
+					next();
+				});
 			},
 			function (err) {
 				next(err, saved);
@@ -86,7 +113,9 @@ function deleteFile (dir, delFile, next /* (err, deleted) */) {
 			//console.log('deleting: ' + path);
 			deleted.push(basename);
 			fs.unlink(p, function (err) {
-				if (err && err.code !== 'ENOENT') return next(err);
+				if (err && err.code !== 'ENOENT') {
+					return next(err);
+				}
 				next();
 			});
 		},
@@ -94,37 +123,4 @@ function deleteFile (dir, delFile, next /* (err, deleted) */) {
 			next(err, deleted);
 		}
 	);
-};
-
-// post
-
-exports.getPostFileDir = function (post) {
-	return postFileDir + '/' + Math.floor(post._id / 10000) + '/' + post._id
-};
-
-exports.postFileExists = function(post, basename) {
-	return path.existsSync(exports.getPostFileDir(post) + '/' + basename);
-};
-
-exports.savePostFile = function (post, file, next) {
-	if (!file) return next();
-	saveFile([config.uploadDir, 'post', Math.floor(post._id / 10000), post._id], file, function (err, saved) {
-		if (err) return next(err);
-		if (saved) {
-			post.file = !post.file ? saved : _.union(post.file, saved);
-		}
-		next();
-	});
-};
-
-exports.deletePostFile = function (post, delFile, next) {
-	if (!delFile) return next();
-	deleteFile(exports.getPostFileDir(post), delFile, function (err, deleted) {
-		if (err) return next(err);
-		if (deleted) {
-			post.file = _.without(post.file, deleted);
-			if (post.file.length == 0) delete post.file;
-		}
-		next();
-	});
 };

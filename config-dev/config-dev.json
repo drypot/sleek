@@ -20,7 +20,7 @@
 	],
 
 	"category": [
-		{ "id": 0, "name": "all", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"], "sep": true },
+		{ "id": 0, "name": "all", "read": ["user", "cheater", "admin"], "write": [], "edit": [], "sep": true },
 
 		{ "id": 100, "name": "freetalk", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"] },
 		{ "id": 104, "name": "health", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"] },

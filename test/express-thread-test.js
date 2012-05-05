@@ -10,7 +10,7 @@ before(function (next) {
 	test.prepare('config,mongo,es,express', next);
 });
 
-describe("get-thread-list", function () {
+describe("get thread list", function () {
 	var samples = [
 		{ categoryId: 100, userName : 'snowman', title: 'title 1', text: 'text 1' },
 		{ categoryId: 100, userName : 'snowman', title: 'title 2', text: 'text 2' },
@@ -25,7 +25,7 @@ describe("get-thread-list", function () {
 		test.request.post('/api/logout', next);
 	});
 	it("can not get thread list when not logged in", function (next) {
-		test.request.post('/api/get-thread-list', function (err, res) {
+		test.request.post('/api/thread', function (err, res) {
 			res.status.should.equal(400);
 			res.body.error.should.equal(msg.ERR_LOGIN_FIRST);
 			next(err);
@@ -36,12 +36,12 @@ describe("get-thread-list", function () {
 	});
 	it('prepare threads', function (next) {
 		async.forEachSeries(samples, function (item, next) {
-			test.request.post('/api/create-post-head', item, next);
+			test.request.post('/api/thread', item, next);
 		}, next);
 	});
 	var t;
-	it('can get threads with category=all', function (next) {
-		test.request.post('/api/get-thread-list', { cateogryId: 0, limit: 0 }, function (err, res) {
+	it('can get threads with category all', function (next) {
+		test.request.get('/api/thread', { c: 0, limit: 0 }, function (err, res) {
 			res.status.should.equal(200);
 			res.body.should.length(7);
 
@@ -61,8 +61,8 @@ describe("get-thread-list", function () {
 			next(err);
 		});
 	});
-	it('can get threads with category=all, limit=3', function (next) {
-		test.request.post('/api/get-thread-list', { categoryId:0, limit: 3 }, function (err, res) {
+	it('can get threads with category all, limit 3', function (next) {
+		test.request.get('/api/thread', { c: 0, limit: 3 }, function (err, res) {
 			res.status.should.equal(200);
 			res.body.should.length(3);
 
@@ -82,8 +82,8 @@ describe("get-thread-list", function () {
 			next(err);
 		});
 	});
-	it('can get threads with category=all, lastUdate', function (next) {
-		test.request.post('/api/get-thread-list', { categoryId:0, lastUdate: 0 }, function (err, res) {
+	it('can get threads with category all, lastUdate', function (next) {
+		test.request.get('/api/thread', { c :0, udate: 0 }, function (err, res) {
 			res.status.should.equal(200);
 			res.body.should.length(0);
 			next(err);
@@ -91,12 +91,12 @@ describe("get-thread-list", function () {
 	});
 });
 
-describe("get-thread", function () {
+describe("get thread", function () {
 	it('assume logged out', function (next) {
 		test.request.post('/api/logout', next);
 	});
 	it("can not get thread when not logged in", function (next) {
-		test.request.post('/api/get-thread', function (err, res) {
+		test.request.get('/api/thread/0', function (err, res) {
 			res.status.should.equal(400);
 			res.body.error.should.equal(msg.ERR_LOGIN_FIRST);
 			next(err);
@@ -107,8 +107,7 @@ describe("get-thread", function () {
 	});
 	var tid;
 	it('prepare head', function (next) {
-		test.request.post(
-			'/api/create-post-head',
+		test.request.post('/api/thread',
 			{ categoryId: 101, userName : 'snowman', title: 'title', text: 'head text' },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -117,10 +116,19 @@ describe("get-thread", function () {
 			}
 		);
 	});
+	var tmp;
+	it('can upload file1.txt', function (next) {
+		test.request.post('/api/file', {}, ['file1.txt'],
+			function (err, res) {
+				res.status.should.equal(200);
+				tmp = res.body;
+				next(err);
+			}
+		);
+	});
 	it('prepare reply', function (next) {
-		test.request.post('/api/create-post-reply',
-			{ threadId: tid, userName : 'snowman2', text: 'reply text 1' },
-			['file1.txt'],
+		test.request.post('/api/thread/' + tid,
+			{ userName : 'snowman2', text: 'reply text 1', file: tmp },
 			function (err, res) {
 				res.status.should.equal(200);
 				next(err);
@@ -128,7 +136,7 @@ describe("get-thread", function () {
 		);
 	});
 	it('can get thread', function (next) {
-		test.request.post('/api/get-thread', { threadId: tid }, function (err, res) {
+		test.request.get('/api/thread/' + tid, function (err, res) {
 			res.status.should.equal(200);
 			res.body.thread.id.should.equal(tid);
 			res.body.thread.categoryId.should.equal(101);
@@ -145,9 +153,8 @@ describe("get-thread", function () {
 	});
 	var pid;
 	it('can append reply', function (next) {
-		test.request.post(
-			'/api/create-post-reply',
-			{ threadId: tid, userName : 'admin', text: 'reply text 2' },
+		test.request.post('/api/thread/' + tid,
+			{ userName : 'admin', text: 'reply text 2' },
 			function (err, res) {
 				res.status.should.equal(200);
 				pid = res.body.postId;
@@ -155,8 +162,8 @@ describe("get-thread", function () {
 			}
 		);
 	});
-	it('can get thread with 3 posts', function (next) {
-		test.request.post('/api/get-thread', { threadId: tid },function (err, res) {
+	it('can get 3 posts', function (next) {
+		test.request.get('/api/thread/' + tid, function (err, res) {
 			res.status.should.equal(200);
 			res.body.post.should.length(3);
 			next(err);
@@ -166,21 +173,16 @@ describe("get-thread", function () {
 		test.request.post('/api/login', { password: '3' }, next);
 	});
 	it('can update visible', function (next) {
-		test.request.post(
-			'/api/update-post-reply',
-			{
-				threadId: tid, postId: pid,
-				userName: 'admin2', text: 'reply text 2u',
-				visible: false
-			},
+		test.request.put('/api/thread/' + tid + '/' + pid,
+			{ userName: 'admin2', text: 'reply text 2u', visible: false },
 			function (err, res) {
 				res.status.should.equal(200);
 				next(err);
 			}
 		);
 	});
-	it('can get thread with 3 posts', function (next) {
-		test.request.post('/api/get-thread', { threadId: tid }, function (err, res) {
+	it('can get 3 posts', function (next) {
+		test.request.get('/api/thread/' + tid, function (err, res) {
 			res.status.should.equal(200);
 			res.body.post.should.length(3);
 			next(err);
@@ -189,8 +191,8 @@ describe("get-thread", function () {
 	it('assume user', function (next) {
 		test.request.post('/api/login', { password: '1' }, next);
 	});
-	it('can get thread with just 2 posts as user', function (next) {
-		test.request.post('/api/get-thread', { threadId: tid }, function (err, res) {
+	it('can get just 2 posts as user', function (next) {
+		test.request.get('/api/thread/' + tid, function (err, res) {
 			res.status.should.equal(200);
 			res.body.post.should.length(2);
 			next(err);

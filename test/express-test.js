@@ -11,7 +11,7 @@ before(function (next) {
 
 describe('hello', function () {
 	it('should return hello', function (next) {
-		test.request.post('/api/hello', function (err, res) {
+		test.request.get('/api/hello', function (err, res) {
 			res.status.should.equal(200);
 			res.body.should.equal('hello');
 			next(err);
@@ -21,14 +21,14 @@ describe('hello', function () {
 
 describe('session', function () {
 	it('can save session value', function (next) {
-		test.request.post('/api/test/set-session-var', {value: 'book217' }, function (err, res) {
+		test.request.put('/api/test/session-var', {value: 'book217' }, function (err, res) {
 			res.status.should.equal(200);
 			res.body.should.equal('ok');
 			next(err);
 		});
 	});
 	it('can get session value', function (next) {
-		test.request.post('/api/test/get-session-var', function (err, res) {
+		test.request.get('/api/test/session-var', function (err, res) {
 			res.status.should.equal(200);
 			res.body.should.equal('book217');
 			next(err);
@@ -116,12 +116,12 @@ describe('login useCurrentSession option', function () {
 	});
 });
 
-describe("test/assert-role-any", function () {
+describe("test/role/any", function () {
 	it('assume logged out', function (next) {
 		test.request.post('/api/logout', next);
 	})
 	it('should fail before login', function (next) {
-		test.request.post('/api/test/assert-role-any', function (err, res) {
+		test.request.get('/api/test/role/any', function (err, res) {
 			res.status.should.equal(400);
 			res.body.error.should.equal(msg.ERR_LOGIN_FIRST);
 			next(err);
@@ -135,7 +135,7 @@ describe("test/assert-role-any", function () {
 		});
 	});
 	it('should success after login', function (next) {
-		test.request.post('/api/test/assert-role-any', function (err, res) {
+		test.request.get('/api/test/role/any', function (err, res) {
 			res.status.should.equal(200);
 			next(err);
 		});
@@ -144,7 +144,7 @@ describe("test/assert-role-any", function () {
 		test.request.post('/api/logout', next);
 	});
 	it('should fail after logout', function (next) {
-		test.request.post('/api/test/assert-role-any', function (err, res) {
+		test.request.get('/api/test/role/any', function (err, res) {
 			res.status.should.equal(400);
 			res.body.error.should.equal(msg.ERR_LOGIN_FIRST);
 			next(err);
@@ -152,12 +152,12 @@ describe("test/assert-role-any", function () {
 	});
 });
 
-describe("test/assert-role-user", function () {
+describe("test/role/user", function () {
 	it('assume logged out', function (next) {
 		test.request.post('/api/logout', next);
 	});
 	it('should fail before login', function (next) {
-		test.request.post('/api/test/assert-role-user', function (err, res) {
+		test.request.get('/api/test/role/user', function (err, res) {
 			res.status.should.equal(400);
 			res.body.error.should.equal(msg.ERR_LOGIN_FIRST);
 			next(err);
@@ -167,7 +167,7 @@ describe("test/assert-role-user", function () {
 		test.request.post('/api/login', { password: '1' }, next);
 	});
 	it('should success after login', function (next) {
-		test.request.post('/api/test/assert-role-user', function (err, res) {
+		test.request.get('/api/test/role/user', function (err, res) {
 			res.status.should.equal(200);
 			res.body.should.equal('ok');
 			next(err);
@@ -175,12 +175,12 @@ describe("test/assert-role-user", function () {
 	});
 });
 
-describe("test/assert-role-admin", function () {
+describe("test/role/admin", function () {
 	it('assume logged out', function (next) {
 		test.request.post('/api/logout', next);
 	});
 	it('should fail before login', function (next) {
-		test.request.post('/api/test/assert-role-admin', function (err, res) {
+		test.request.get('/api/test/role/admin', function (err, res) {
 			res.status.should.equal(400);
 			res.body.error.should.equal(msg.ERR_LOGIN_FIRST);
 			next(err);
@@ -190,7 +190,7 @@ describe("test/assert-role-admin", function () {
 		test.request.post('/api/login', { password: '1' }, next);
 	});
 	it('should fail as user', function (next) {
-		test.request.post('/api/test/assert-role-admin', function (err, res) {
+		test.request.get('/api/test/role/admin', function (err, res) {
 			res.status.should.equal(400);
 			res.body.error.should.equal(msg.ERR_NOT_AUTHORIZED);
 			next(err);
@@ -200,7 +200,7 @@ describe("test/assert-role-admin", function () {
 		test.request.post('/api/login', { password: '3' }, next);
 	});
 	it('should success as admin', function (next) {
-		test.request.post('/api/test/assert-role-admin', function (err, res) {
+		test.request.get('/api/test/role/admin', function (err, res) {
 			res.status.should.equal(200);
 			next(err);
 		});

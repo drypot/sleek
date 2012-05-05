@@ -15,42 +15,37 @@ describe('file api', function () {
 	it('assume user', function (next) {
 		test.request.post('/api/login', { password: '1' }, next);
 	});
-	it('can receive file', function (next) {
-		test.request.post(
-			'/api/file',
-			{},
-			['file1.txt'],
-			function (err, res) {
+	it('can keep tmp file', function (next) {
+		test.request.post('/api/file', {}, ['file1.txt'], function (err, res) {
 				res.status.should.equal(200);
+				l.c(res.body);
 				var body = res.body;
 				body.should.length(1);
-				should(upload.tmpFileExists(body[0]));
+				body[0].org.should.equal('file1.txt');
+				should(upload.tmpFileExists(body[0].tmp));
 				next(err);
 			}
 		);
 	});
-	it('can receive two files', function (next) {
-		test.request.post(
-			'/api/file',
-			{},
-			['file1.txt', 'file2.txt'],
-			function (err, res) {
+	it('can keep two tmp files', function (next) {
+		test.request.post('/api/file', {}, ['file1.txt', 'file2.txt'], function (err, res) {
 				res.status.should.equal(200);
+				l.c(res.body);
 				var body = res.body;
 				body.should.length(2);
-				should(upload.tmpFileExists(body[0]));
-				should(upload.tmpFileExists(body[1]));
+				body[0].org.should.equal('file1.txt');
+				body[1].org.should.equal('file2.txt');
+				should(upload.tmpFileExists(body[0].tmp));
+				should(upload.tmpFileExists(body[1].tmp));
 				next(err);
 			}
 		);
 	});
 	it('can receive none', function (next) {
-		test.request.post(
-			'/api/file',
-			{ dummy: 'dummy' },
-			[],
+		test.request.post('/api/file', { dummy: 'dummy' }, [],
 			function (err, res) {
 				res.status.should.equal(200);
+				l.c(res.body);
 				var body = res.body;
 				body.should.length(0);
 				next(err);

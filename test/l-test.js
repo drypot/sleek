@@ -131,3 +131,26 @@ describe('fs', function () {
 		});
 	});
 });
+
+describe('safeFilename', function () {
+	it('should success', function () {
+		var table = [
+			[ "`", "`" ], [ "~", "~" ],
+			[ "!", "!" ], [ "@", "@" ], [ "#", "#" ], [ "$", "$" ],	[ "%", "%" ],
+			[ "^", "^" ], [ "&", "&" ], [ "*", "_" ], [ "(", "(" ], [ ")", ")" ],
+			[ "-", "-" ], [ "_", "_" ], [ "=", "=" ], [ "+", "+" ],
+			[ "[", "[" ], [ "[", "[" ], [ "]", "]" ], [ "]", "]" ], [ "\\", "_" ], [ "|", "_" ],
+			[ ";", ";" ], [ ":", "_" ], [ "'", "'" ], [ "\"", "_" ],
+			[ ",", "," ], [ "<", "_" ], [ ".", "." ], [ ">", "_" ], [ "/", "_" ], [ "?", "_" ],
+			[ "aaa\tbbb", "aaa_bbb" ],
+			[ "abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890", "abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890" ],
+			[ "이상한 '한글' 이름을 가진 파일", "이상한 '한글' 이름을 가진 파일" ]
+		];
+		_.each(table, function (pair) {
+			var a = l.safeFilename(pair[0]);
+			var b = pair[1];
+			if (a !== b) l.c(pair);
+			should(l.safeFilename(a) === b);
+		})
+	});
+});

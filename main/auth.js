@@ -21,7 +21,6 @@ l.addInit(function (next) {
 			var category = {
 				id: c.id,
 				name: c.name,
-				all: c.id == 0,
 				sep: c.sep,
 				readable: _.include(c.read, role.name),
 				writable: _.include(c.write, role.name),

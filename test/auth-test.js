@@ -38,16 +38,14 @@ describe('category', function () {
 			var c = role.category[0];
 			c.should.ok;
 			c.name.should.equal('all');
-			c.all.should.be.ok;
 			c.readable.should.ok;
-			c.writable.should.ok;
+			c.writable.should.not.ok;
 			c.editable.should.not.ok;
 		});
 		it('has freetalk', function () {
 			var c = role.category[100];
 			c.should.ok;
 			c.name.should.equal('freetalk');
-			c.all.should.not.ok;
 			c.readable.should.ok;
 			c.writable.should.ok;
 			c.editable.should.not.ok;
@@ -66,16 +64,14 @@ describe('category', function () {
 			var c = role.category[0];
 			c.should.ok;
 			c.name.should.equal('all');
-			c.all.should.be.ok;
 			c.readable.should.ok;
-			c.writable.should.ok;
-			c.editable.should.ok;
+			c.writable.should.not.ok;
+			c.editable.should.not.ok;
 		});
 		it('has freetalk', function () {
 			var c = role.category[100];
 			c.should.ok;
 			c.name.should.equal('freetalk');
-			c.all.should.not.ok;
 			c.readable.should.ok;
 			c.writable.should.ok;
 			c.editable.should.ok;
@@ -84,7 +80,6 @@ describe('category', function () {
 			var c = role.category[60];
 			c.should.ok;
 			c.name.should.equal('cheat');
-			c.all.should.not.ok;
 			c.readable.should.ok;
 			c.writable.should.ok;
 			c.editable.should.ok;

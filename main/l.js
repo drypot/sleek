@@ -4,6 +4,14 @@ var async = require('async');
 var fs = require('fs');
 var request = require('request');
 
+// Console
+
+exports.c = function () {
+	_.each(arguments, function (msg) {
+		console.log(msg);
+	});
+}
+
 // Object
 
 exports.isObject = function (obj) {
@@ -113,37 +121,24 @@ exports.mkdirs = function (sub, next) {
 	});
 }
 
-// Request
-
-exports.RequestBase = function (urlBase) {
-	this.urlBase = urlBase;
-};
-
-var requestBase = exports.RequestBase.prototype;
-
-requestBase.get = function (url, a) {
-	var rw = new RequestWrapper(this, 'GET', url);
-	return a ? rw.end(a) : rw;
+exports.safeFilename = function (name) {
+	var i = 0;
+	var len = name.length;
+	var r = [];
+	for (; i < len; i++) {
+		var ch = name.charAt(i);
+		var code = name.charCodeAt(i);
+		if ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9') || "`~!@#$%^&()-_+=[{]};',. ".indexOf(ch) >= 0)
+			r.push(ch);
+		else if (code < 128)
+			r.push('_');
+		else
+			r.push(ch);
+	}
+	return r.join('');
 }
 
-requestBase.post = function (url, a, b, c) {
-	var rw = new RequestWrapper(this, 'POST', url);
-	return c ? rw.send(a).file(b).end(c) : b ? rw.send(a).end(b) : a ? rw.end(a) : rw;
-}
-
-requestBase.put = function (url, a, b, c) {
-	var rw = new RequestWrapper(this, 'PUT', url);
-	return c ? rw.send(a).file(b).end(c) : b ? rw.send(a).end(b) : a ? rw.end(a) : rw;
-}
-
-requestBase.del = function (url, a) {
-	var rw = new RequestWrapper(this, 'DELETE', url);
-	return a ? rw.end(a) : rw;
-}
-
-requestBase.url = function (path) {
-	return this.urlBase + path;
-}
+// RequestWrapper
 
 var RequestWrapper = function (base, method, url) {
 	this.opt = {
@@ -208,4 +203,37 @@ rw.end = function (next) {
 		next(err, res);
 	});
 };
+
+
+// RequestBase
+
+exports.RequestBase = function (urlBase) {
+	this.urlBase = urlBase;
+};
+
+var requestBase = exports.RequestBase.prototype;
+
+requestBase.get = function (url, a, b) {
+	var rw = new RequestWrapper(this, 'GET', url);
+	return b ? rw.query(a).end(b) : a ? rw.end(a) : rw;
+}
+
+requestBase.post = function (url, a, b, c) {
+	var rw = new RequestWrapper(this, 'POST', url);
+	return c ? rw.send(a).file(b).end(c) : b ? rw.send(a).end(b) : a ? rw.end(a) : rw;
+}
+
+requestBase.put = function (url, a, b, c) {
+	var rw = new RequestWrapper(this, 'PUT', url);
+	return c ? rw.send(a).file(b).end(c) : b ? rw.send(a).end(b) : a ? rw.end(a) : rw;
+}
+
+requestBase.del = function (url, a) {
+	var rw = new RequestWrapper(this, 'DELETE', url);
+	return a ? rw.end(a) : rw;
+}
+
+requestBase.url = function (path) {
+	return this.urlBase + path;
+}
 

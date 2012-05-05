@@ -45,7 +45,7 @@ describe("search-post", function () {
 	});
 	it('prepare threads', function (next) {
 		async.forEachSeries(doc, function (doc, next) {
-			test.request.post('/api/create-post-head', doc, function (err, res) {
+			test.request.post('/api/thread', doc, function (err, res) {
 				doc.postId = res.body.postId;
 				doc.threadId = res.body.threadId;
 				next(err);
