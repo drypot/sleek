@@ -9,15 +9,13 @@ var ObjectId = exports.ObjectId = mongolian.ObjectId;
 var Timestamp = exports.Timestamp = mongolian.Timestamp;
 var DBRef = exports.DBRef = mongolian.DBRef;
 
-var param = exports.param = {};
 var server;
 var db;
 
 l.addInit(function (next) {
-	param.dbName = param.dbName || config.mongoDbName;
 	server = exports.server = new mongolian;
-	db = exports.db = server.db(param.dbName);
-	if (param.dropDatabase) {
+	db = exports.db = server.db(config.mongoDbName);
+	if (config.mongoDropDatabase) {
 		db.dropDatabase();
 	}
 	console.info('mongo initialized: ' + db.name);

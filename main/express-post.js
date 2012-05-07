@@ -139,12 +139,11 @@ exports.register = function (e) {
 		});
 	});
 
-	e.get('/api/search-post', auth.checkLogin(), function (req, res) {
+	e.get('/api/search', auth.checkLogin(), function (req, res) {
 		var role = getRole(req);
-		var body = req.body;
-		var query = l.defString(body, 'query', '');
-		var offset = l.defInt(body, 'offset', 0);
-		var limit = l.defInt(body, 'limit', 16, 0, 64);
+		var query = l.defString(req.query, 'q', '');
+		var offset = l.defInt(req.query, 'offset', 0);
+		var limit = l.defInt(req.query, 'limit', 16, 0, 64);
 		es.searchPost({
 				query: { query_string: { query: query, default_operator: 'and' }},
 				sort:[{cdate : "desc"}],
@@ -153,6 +152,9 @@ exports.register = function (e) {
 			function (err, sres) {
 				if (err) {
 					return res.json(400, {error: msg.ERR_SEARCH_IO});
+				}
+				if (!sres.body.hits) {
+					return res.json(200, []);
 				}
 				var r = [];
 				_.each(sres.body.hits.hits, function (hit) {
@@ -189,7 +191,7 @@ exports.register = function (e) {
 		r.title = l.defString(body, 'title', '');
 		r.text = l.defString(body, 'text', '');
 		r.visible = l.defBool(body, 'visible', true);
-		r.delFile = body.delFile;
+		r.fileToDel = body.fileToDel;
 		r.file = body.file;
 		return r;
 	}
@@ -331,7 +333,7 @@ exports.register = function (e) {
 		if (admin) {
 			post.visible = form.visible;
 		}
-		upload.deletePostFile(post, form.delFile, function (err, deleted) {
+		upload.deletePostFile(post, form.fileToDel, function (err, deleted) {
 			if (err) {
 				return res.json(400, {error: msg.ERR_FILE_IO});
 			}

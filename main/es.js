@@ -3,18 +3,17 @@ var _ = require('underscore');
 var l = require('./l.js');
 var config = require('./config.js');
 
-var param = exports.param = {};
 var request;
 
 l.addInit(function (next) {
-	param.indexName = param.indexName || config.esIndexName;
-	request = new l.RequestBase(config.esUrl + '/' + param.indexName);
+	request = new l.RequestBase(config.esUrl + '/' + config.esIndexName);
 	next();
 });
 
 l.addInit(function (next) {
-	if (param.dropIndex) {
-		return request.del('', next);
+	if (config.esDropIndex) {
+		request.del('', next);
+		return;
 	}
 	next();
 });
@@ -78,10 +77,11 @@ exports.getPost = function (postId, next) {
 exports.searchPost = function (body, next) {
 	request.post('/post/_search', body, function (err, res) {
 		if (err) return next(err);
+		if (!res.body.hits) return next(null, res);
 		_.each(res.body.hits.hits, function (hit) {
 			hit._id = parseInt(hit._id);
 			hit._source.cdate = new Date(hit._source.cdate);
 		});
-		next(err, res);
+		next(null, res);
 	});
 }

@@ -5,10 +5,11 @@ var path = require('path');
 var l = require('../main/l.js');
 var msg = require('../main/msg.js');
 var upload = require('../main/upload.js');
-var test = require('../main/test.js');
+var express = require('../main/express.js');
+var test = require('./test.js');
 
 before(function (next) {
-	test.prepare('config,mongo,es,express', next);
+	test.prepare(next);
 });
 
 describe('post upload file', function () {
@@ -29,7 +30,7 @@ describe('post upload file', function () {
 	});
 	var tmp;
 	it('can upload file1.txt, file2.txt', function (next) {
-		test.request.post('/api/file', {}, ['file1.txt', 'file2.txt'],
+		test.request.post('/api/upload', {}, ['file1.txt', 'file2.txt'],
 			function (err, res) {
 				res.status.should.equal(200);
 				tmp = res.body;
@@ -53,7 +54,7 @@ describe('post upload file', function () {
 	});
 	it('can delete file1.txt', function (next) {
 		test.request.put('/api/thread/' + tid1 + '/' + pid12,
-			{ userName: 'snowman', text: 'reply text', delFile: ['file1.txt'] },
+			{ userName: 'snowman', text: 'reply text', fileToDel: ['file1.txt'] },
 			function (err, res) {
 				res.status.should.equal(200);
 				should(!upload.postFileExists(pid12, 'file1.txt'));
@@ -63,7 +64,7 @@ describe('post upload file', function () {
 		);
 	});
 	it('can upload file1.txt', function (next) {
-		test.request.post('/api/file', {}, ['file1.txt'],
+		test.request.post('/api/upload', {}, ['file1.txt'],
 			function (err, res) {
 				res.status.should.equal(200);
 				tmp = res.body;
@@ -84,7 +85,7 @@ describe('post upload file', function () {
 	});
 	it('can delete file1.txt and file2.txt', function (next) {
 		test.request.put('/api/thread/' + tid1 + '/' + pid12,
-			{ userName: 'snowman', text: 'reply text', delFile: ['file1.txt', 'file2.txt'] },
+			{ userName: 'snowman', text: 'reply text', fileToDel: ['file1.txt', 'file2.txt'] },
 			function (err, res) {
 				res.status.should.equal(200);
 				should(!upload.postFileExists(pid12, 'file1.txt'));
@@ -103,7 +104,7 @@ describe('post upload file', function () {
 		);
 	});
 	it('can upload file3.txt', function (next) {
-		test.request.post('/api/file', {}, ['file3.txt'],
+		test.request.post('/api/upload', {}, ['file3.txt'],
 			function (err, res) {
 				res.status.should.equal(200);
 				tmp = res.body;
@@ -123,7 +124,7 @@ describe('post upload file', function () {
 		);
 	});
 	it('can upload file4.txt', function (next) {
-		test.request.post('/api/file', {}, ['file4.txt'],
+		test.request.post('/api/upload', {}, ['file4.txt'],
 			function (err, res) {
 				res.status.should.equal(200);
 				tmp = res.body;
@@ -143,7 +144,7 @@ describe('post upload file', function () {
 		);
 	});
 	it('can upload file5.txt', function (next) {
-		test.request.post('/api/file', {}, ['file4.txt'],
+		test.request.post('/api/upload', {}, ['file4.txt'],
 			function (err, res) {
 				res.status.should.equal(200);
 				tmp = res.body;

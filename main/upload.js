@@ -6,24 +6,20 @@ var path = require('path');
 var l = require('./l.js');
 var config = require('./config.js');
 
-var tmpFileDir;
-var postFileDir;
-
 l.addInit(function (next) {
-	exports.tmpFileDir = tmpFileDir = config.uploadDir + '/tmp';
-	l.mkdirs([config.uploadDir, 'tmp'], next);
+	l.mkdirs([config.uploadTmpDir], next);
 });
 
 l.addInit(function (next) {
-	postFileDir = config.uploadDir + '/post'
 	l.mkdirs([config.uploadDir, 'post'], next);
 });
 
 l.addInit(function (next) {
-	console.log('upload tmp directory: ' + tmpFileDir);
-	fs.readdir(tmpFileDir, function (err, file) {
+	console.log('upload directory: ' + config.uploadDir);
+	console.log('upload tmp directory: ' + config.uploadTmpDir);
+	fs.readdir(config.uploadTmpDir, function (err, file) {
 		_.each(file, function (file) {
-			fs.unlink(tmpFileDir + '/' + file);
+			fs.unlink(config.uploadTmpDir + '/' + file);
 		});
 		next();
 	});
@@ -32,7 +28,7 @@ l.addInit(function (next) {
 // Tmp File
 
 exports.tmpFileExists = function(basename) {
-	return path.existsSync(tmpFileDir + '/' + basename);
+	return path.existsSync(config.uploadTmpDir + '/' + basename);
 }
 
 exports.keepTmpFile = function(upload, next) {
@@ -48,7 +44,7 @@ exports.keepTmpFile = function(upload, next) {
 // Post File
 
 exports.getPostFileDir = function (postId) {
-	return postFileDir + '/' + Math.floor(postId / 10000) + '/' + postId
+	return config.uploadDir + '/post/' + Math.floor(postId / 10000) + '/' + postId
 };
 
 exports.postFileExists = function(postId, basename) {
@@ -66,9 +62,9 @@ exports.savePostFile = function (post, tmp, next) {
 	});
 };
 
-exports.deletePostFile = function (post, delFile, next) {
-	if (_.isEmpty(delFile)) return next();
-	deleteFile(exports.getPostFileDir(post._id), delFile, function (err, deleted) {
+exports.deletePostFile = function (post, fileToDel, next) {
+	if (_.isEmpty(fileToDel)) return next();
+	deleteFile(exports.getPostFileDir(post._id), fileToDel, function (err, deleted) {
 		if (err) return next(err);
 		if (deleted) {
 			post.file = _.without(post.file, deleted);
@@ -88,7 +84,7 @@ function saveFile (sub, tmp, next /* (err, saved) */) {
 			tmp,
 			function (tmp, next) {
 				var org = l.safeFilename(path.basename(tmp.org));
-				fs.rename(tmpFileDir + '/' + tmp.tmp, tar + '/' + org, function (err) {
+				fs.rename(config.uploadTmpDir + '/' + tmp.tmp, tar + '/' + org, function (err) {
 					if (err && err.code !== 'ENOENT') {
 						return next(err);
 					}
@@ -103,12 +99,12 @@ function saveFile (sub, tmp, next /* (err, saved) */) {
 	});
 }
 
-function deleteFile (dir, delFile, next /* (err, deleted) */) {
+function deleteFile (dir, fileToDel, next /* (err, deleted) */) {
 	var deleted = [];
 	async.forEachSeries(
-		delFile,
-		function (delFile, next) {
-			var basename = path.basename(delFile)
+		fileToDel,
+		function (fileToDel, next) {
+			var basename = path.basename(fileToDel)
 			var p = dir + '/' + basename;
 			//console.log('deleting: ' + path);
 			deleted.push(basename);

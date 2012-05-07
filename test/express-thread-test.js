@@ -4,10 +4,11 @@ var async = require('async');
 
 var l = require('../main/l.js');
 var msg = require('../main/msg.js');
-var test = require('../main/test.js');
+var express = require('../main/express.js');
+var test = require('./test.js');
 
 before(function (next) {
-	test.prepare('config,mongo,es,express', next);
+	test.prepare(next);
 });
 
 describe("get thread list", function () {
@@ -118,7 +119,7 @@ describe("get thread", function () {
 	});
 	var tmp;
 	it('can upload file1.txt', function (next) {
-		test.request.post('/api/file', {}, ['file1.txt'],
+		test.request.post('/api/upload', {}, ['file1.txt'],
 			function (err, res) {
 				res.status.should.equal(200);
 				tmp = res.body;

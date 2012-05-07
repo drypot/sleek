@@ -3,10 +3,11 @@ var should = require('should');
 
 var l = require('../main/l');
 var msg = require('../main/msg.js');
-var test = require('../main/test.js');
+var express = require('../main/express.js');
+var test = require('./test.js');
 
 before(function (next) {
-	test.prepare('config,express', next);
+	test.prepare(next);
 });
 
 describe('hello', function () {
@@ -78,7 +79,7 @@ describe('login category option', function () {
 		});
 	});
 	it('should return category', function (next) {
-		test.request.post('/api/login', { password: '1', returnCategory: true }, function (err, res) {
+		test.request.post('/api/login', { password: '1', sendExtra: true }, function (err, res) {
 			res.status.should.equal(200);
 			res.body.role.category.should.ok;
 			next(err);
@@ -210,7 +211,7 @@ describe("test/role/admin", function () {
 describe("category for user", function () {
 	var c;
 	before(function (next) {
-		test.request.post('/api/login', { password: '1', returnCategory: true }, function (err, res) {
+		test.request.post('/api/login', { password: '1', sendExtra: true }, function (err, res) {
 			c = res.body.role.category;
 			next(err);
 		});
@@ -231,7 +232,7 @@ describe("category for user", function () {
 describe("category for admin", function () {
 	var c;
 	before(function (next) {
-		test.request.post('/api/login', { password: '3', returnCategory: true }, function (err, res) {
+		test.request.post('/api/login', { password: '3', sendExtra: true }, function (err, res) {
 			c = res.body.role.category;
 			next(err);
 		});

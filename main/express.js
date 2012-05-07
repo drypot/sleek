@@ -17,7 +17,7 @@ l.addInit(function (next) {
 	e.configure(function () {
 		e.use(express.cookieParser(config.cookieSecret));
 		e.use(express.session({store: new redisStore()}));
-		e.use(express.bodyParser({uploadDir: upload.tmpFileDir}));
+		e.use(express.bodyParser({uploadDir: config.uploadTmpDir}));
 		e.use(function (req, res, next) {
 			res.set('Cache-Control', 'no-cache');
 			next();
@@ -59,8 +59,9 @@ l.addInit(function (next) {
 
 		function returnResult() {
 			var r = { role: { name: role.name } }
-			if (req.body.returnCategory) {
+			if (req.body.sendExtra) {
 				r.role.category = role.categoryAsArray;
+				r.uploadUrl = config.uploadUrl;
 			}
 			res.json(r);
 		}
@@ -75,7 +76,7 @@ l.addInit(function (next) {
 		res.json('hello');
 	});
 
-	e.post('/api/file', auth.checkLogin(), function (req, res, next) {
+	e.post('/api/upload', auth.checkLogin(), function (req, res, next) {
 		upload.keepTmpFile(req.files && req.files.file, function (err, saved) {
 			res.json(saved);
 		});
@@ -108,7 +109,7 @@ l.addInit(function (next) {
 });
 
 l.addAfterInit(function (next) {
-	e.listen(config.appServerPort);
-	console.info("express listening on port: %d", config.appServerPort);
+	e.listen(config.serverPort);
+	console.info("express listening on port: %d", config.serverPort);
 	next();
 });

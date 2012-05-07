@@ -10,8 +10,13 @@ process.on('uncaughtException', function (err) {
 });
 
 l.addBeforeInit(function (next) {
-	config.param.configPath = process.argv[2] || "config-dev/config-dev.json";
+	if (process.argv.length < 3) {
+		console.log('specify configuration file path.');
+		process.exit();
+	}
+	config.configPath = process.argv[2];
 	next();
 });
+
 l.runInit();
 

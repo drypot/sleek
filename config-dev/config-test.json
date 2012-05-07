@@ -1,18 +1,18 @@
 {
-	"siteTitle": "sleek dev",
+	"siteTitle": "sleek test",
 
 	"serverPort": 8010,
 	"cookieSecret": "o;iejf832ndvs",
 
 	"uploadUrl": "http://sleekfile:8080",
-	"uploadDir": "/Users/drypot/data/sleek/upload/sleek-dev",
-	"uploadTmpDir": "/Users/drypot/data/sleek/upload/sleek-dev-tmp",
+	"uploadDir": "/Users/drypot/data/sleek/upload/sleek-test",
+	"uploadTmpDir": "/Users/drypot/data/sleek/upload/sleek-test-tmp",
 	"uploadMax": 512,
 
 	"esUrl": "http://localhost:9200",
-	"esIndexName": "sleek-dev",
+	"esIndexName": "sleek-test",
 
-	"mongoDbName": "sleek-dev",
+	"mongoDbName": "sleek-test",
 
 	"role": [
 		{ "name": "user", "hash": "$2a$10$ku7nymS.1CPd8jMttYXZMe4wVWweWr1EqaYst75tzimQh2iAAqvZW" },

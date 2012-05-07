@@ -5,10 +5,10 @@ var async = require('async');
 var l = require('../main/l');
 var mongo = require('../main/mongo.js');
 var es = require('../main/es.js');
-var test = require('../main/test.js');
+var test = require('./test.js');
 
 before(function (next) {
-	test.prepare('config,mongo,es', next);
+	test.prepare(next);
 });
 
 describe('es', function () {

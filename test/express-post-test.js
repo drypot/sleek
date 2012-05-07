@@ -5,10 +5,11 @@ var path = require('path');
 var l = require('../main/l.js');
 var msg = require('../main/msg.js');
 var upload = require('../main/upload.js');
-var test = require('../main/test.js');
+var express = require('../main/express.js');
+var test = require('./test.js');
 
 before(function (next) {
-	test.prepare('config,mongo,es,express', next);
+	test.prepare(next);
 });
 
 describe('post new thread', function () {

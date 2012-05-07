@@ -5,10 +5,11 @@ var path = require('path');
 var l = require('../main/l.js');
 var msg = require('../main/msg.js');
 var upload = require('../main/upload.js');
-var test = require('../main/test.js');
+var express = require('../main/express.js');
+var test = require('./test.js');
 
 before(function (next) {
-	test.prepare('config,express', next);
+	test.prepare(next);
 });
 
 describe('file api', function () {
@@ -16,9 +17,9 @@ describe('file api', function () {
 		test.request.post('/api/login', { password: '1' }, next);
 	});
 	it('can keep tmp file', function (next) {
-		test.request.post('/api/file', {}, ['file1.txt'], function (err, res) {
+		test.request.post('/api/upload', {}, ['file1.txt'], function (err, res) {
 				res.status.should.equal(200);
-				l.c(res.body);
+//				l.c(res.body);
 				var body = res.body;
 				body.should.length(1);
 				body[0].org.should.equal('file1.txt');
@@ -28,9 +29,9 @@ describe('file api', function () {
 		);
 	});
 	it('can keep two tmp files', function (next) {
-		test.request.post('/api/file', {}, ['file1.txt', 'file2.txt'], function (err, res) {
+		test.request.post('/api/upload', {}, ['file1.txt', 'file2.txt'], function (err, res) {
 				res.status.should.equal(200);
-				l.c(res.body);
+//				l.c(res.body);
 				var body = res.body;
 				body.should.length(2);
 				body[0].org.should.equal('file1.txt');
@@ -42,10 +43,10 @@ describe('file api', function () {
 		);
 	});
 	it('can receive none', function (next) {
-		test.request.post('/api/file', { dummy: 'dummy' }, [],
+		test.request.post('/api/upload', { dummy: 'dummy' }, [],
 			function (err, res) {
 				res.status.should.equal(200);
-				l.c(res.body);
+//				l.c(res.body);
 				var body = res.body;
 				body.should.length(0);
 				next(err);

@@ -4,17 +4,17 @@ var async = require('async');
 
 var l = require('../main/l');
 var mongo = require('../main/mongo.js');
-var test = require('../main/test.js');
+var test = require('./test.js');
 
 before(function (next) {
-	test.prepare('config,mongo', next);
+	test.prepare(next);
 });
 
 describe('mongo', function () {
 	it('should have db property', function () {
 		mongo.should.property('db');
 	});
-	describe('db', function () {
+	xdescribe('db', function () {
 		it('should have name', function () {
 			mongo.db.name.should.equal('sleek-test');
 		});
@@ -71,7 +71,7 @@ describe('post', function () {
 			}
 		], function (post, next) {
 			post._id = mongo.getNewPostId();
-			mongo.insertPost(post, null, function (err) {
+			mongo.insertPost(post, function (err) {
 				if (post.text === 'cool post 21') ppost = post;
 				next();
 			});
@@ -94,8 +94,8 @@ describe('post', function () {
 	});
 	it('can update', function (next) {
 		ppost.userName  = "fireman";
-		ppost.hit = 17;
-		mongo.updatePost(ppost, null, null, function (err) {
+		ppost.hxit = 17;
+		mongo.updatePost(ppost, function (err) {
 			mongo.findPostById(ppost._id, function (err, post) {
 				if (err) return next();
 				post.should.eql(ppost);
@@ -226,7 +226,7 @@ describe('thread', function () {
 		mongo.findThreadById(pthread._id, function (err, thread) {
 			if (err) return next(err);
 			thread.length.should.equal(pthread.length + 1);
-			thread.udate.should.eql(now);
+			thread.udate.should.equal(now);
 			next();
 		});
 	});
@@ -251,9 +251,9 @@ describe('thread', function () {
 		mongo.findThreadByCategory(0, new Date(20), 99, function (err, thread) {
 			if (err) return next(err);
 			thread.should.length(4);
-			thread[0].udate.should.eql(new Date(20));
-			thread[1].udate.should.eql(new Date(20));
-			thread[2].udate.should.eql(new Date(11));
+			thread[0].udate.should.equal(new Date(20));
+			thread[1].udate.should.equal(new Date(20));
+			thread[2].udate.should.equal(new Date(11));
 			next();
 		})
 	});

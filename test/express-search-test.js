@@ -5,13 +5,14 @@ var async = require('async');
 var l = require('../main/l.js');
 var msg = require('../main/msg.js');
 var es = require('../main/es.js');
-var test = require('../main/test.js');
+var express = require('../main/express.js');
+var test = require('./test.js');
 
 before(function (next) {
-	test.prepare('config,mongo,es,express', next);
+	test.prepare(next);
 });
 
-describe("search-post", function () {
+describe("search", function () {
 	var doc = [
 		{ categoryId: 100, userName : 'snowman', title: 'title 1', text: 'apple orange banana' },
 		{ categoryId: 100, userName : 'snowman', title: 'title 2', text: 'apple orange pine' },
@@ -27,7 +28,7 @@ describe("search-post", function () {
 		test.request.post('/api/logout', next);
 	});
 	it("can not search post when not logged in", function (next) {
-		test.request.post('/api/search-post', function (err, res) {
+		test.request.get('/api/search', function (err, res) {
 			res.status.should.equal(400);
 			res.body.error.should.equal(msg.ERR_LOGIN_FIRST);
 			next(err);
@@ -37,7 +38,7 @@ describe("search-post", function () {
 		test.request.post('/api/login', { password: '3' }, next);
 	});
 	it("can search after login", function (next) {
-		test.request.post('/api/search-post', { query: 'hello' }, function (err, res) {
+		test.request.get('/api/search', { q: 'hello' }, function (err, res) {
 			res.status.should.equal(200);
 			res.body.should.length(0);
 			next(err);
@@ -59,7 +60,7 @@ describe("search-post", function () {
 		test.request.post('/api/login', { password: '1' }, next);
 	});
 	it("can search user", function (next) {
-		test.request.post('/api/search-post', { query: 'snowman' }, function (err, res) {
+		test.request.get('/api/search', { q: 'snowman' }, function (err, res) {
 			res.status.should.equal(200);
 			res.body.should.length(3);
 			res.body[0].title.should.equal('title 3');
@@ -69,7 +70,7 @@ describe("search-post", function () {
 		});
 	});
 	it("can search title", function (next) {
-		test.request.post('/api/search-post', { query: 'title 4' }, function (err, res) {
+		test.request.get('/api/search', { q: 'title 4' }, function (err, res) {
 			res.status.should.equal(200);
 			res.body.should.length(1);
 			res.body[0].title.should.equal('title 4');
@@ -77,7 +78,7 @@ describe("search-post", function () {
 		});
 	});
 	it("can search text", function (next) {
-		test.request.post('/api/search-post', { query: 'apple orange' }, function (err, res) {
+		test.request.get('/api/search', { q: 'apple orange' }, function (err, res) {
 			res.status.should.equal(200);
 			res.body.should.length(2);
 			res.body[0].title.should.equal('title 2');
@@ -86,7 +87,7 @@ describe("search-post", function () {
 		});
 	});
 	it("can search text 2", function (next) {
-		test.request.post('/api/search-post', { query: 'apple banana' }, function (err, res) {
+		test.request.get('/api/search', { q: 'apple banana' }, function (err, res) {
 			res.status.should.equal(200);
 			res.body.should.length(1);
 			res.body[0].title.should.equal('title 1');
@@ -94,7 +95,7 @@ describe("search-post", function () {
 		});
 	});
 	it("can search text 2", function (next) {
-		test.request.post('/api/search-post', { query: 'apple banana' }, function (err, res) {
+		test.request.get('/api/search', { q: 'apple banana' }, function (err, res) {
 			res.status.should.equal(200);
 			res.body.should.length(1);
 			res.body[0].title.should.equal('title 1');
@@ -102,7 +103,7 @@ describe("search-post", function () {
 		});
 	});
 	it("can search hangul", function (next) {
-		test.request.post('/api/search-post', { query: '둥글' }, function (err, res) {
+		test.request.get('/api/search', { q: '둥글' }, function (err, res) {
 			res.status.should.equal(200);
 			res.body.should.length(3);
 			res.body[0].title.should.equal('title 5');
@@ -112,7 +113,7 @@ describe("search-post", function () {
 		});
 	});
 	it("can not search admin category", function (next) {
-		test.request.post('/api/search-post', { query: 'admin' }, function (err, res) {
+		test.request.get('/api/search', { q: 'admin' }, function (err, res) {
 			res.status.should.equal(200);
 			res.body.should.length(0);
 			next(err);
@@ -122,7 +123,7 @@ describe("search-post", function () {
 		test.request.post('/api/login', { password: '3' }, next);
 	});
 	it("can search admin category", function (next) {
-		test.request.post('/api/search-post', { query: 'admin' }, function (err, res) {
+		test.request.get('/api/search', { q: 'admin' }, function (err, res) {
 			res.status.should.equal(200);
 			res.body.should.length(2);
 			next(err);

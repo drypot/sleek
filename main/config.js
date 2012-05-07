@@ -4,12 +4,13 @@ var fs = require("fs");
 
 var l = require('./l.js');
 
-var param = exports.param = {};
+exports.configPath = undefined;
+exports.override = {};
 
 l.addInit(function (next) {
-	if (!param.configPath) {
-		console.log('configuration file passed.');
-		return next();
+	if (!exports.configPath) {
+		console.info('specify configuration file path.')
+		process.exit();
 	}
 
 //	new xml2js.Parser().parseString(fs.readFileSync(param.configPath, 'utf8'), function (err, config) {
@@ -21,9 +22,9 @@ l.addInit(function (next) {
 //		next();
 //	});
 
-	var text = fs.readFileSync(param.configPath, 'utf8');
+	var text = fs.readFileSync(exports.configPath, 'utf8');
 	var config = JSON.parse(text);
-	_.extend(exports, config);
-	console.info('configuration file loaded: ' + param.configPath);
+	_.extend(exports, config, exports.override);
+	console.info('configuration file loaded: ' + exports.configPath);
 	next();
 });
