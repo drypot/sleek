@@ -1,25 +1,34 @@
 var _ = require('underscore');
-var mongolian = require("mongolian")
+var async = require('async');
+var mongo = require("mongodb")
 
 var l = require('./l.js');
 var config = require('./config.js');
-
-var Long = exports.Long = mongolian.Long;
-var ObjectId = exports.ObjectId = mongolian.ObjectId;
-var Timestamp = exports.Timestamp = mongolian.Timestamp;
-var DBRef = exports.DBRef = mongolian.DBRef;
 
 var server;
 var db;
 
 l.addInit(function (next) {
-	server = exports.server = new mongolian;
-	db = exports.db = server.db(config.mongoDbName);
-	if (config.mongoDropDatabase) {
-		db.dropDatabase();
-	}
-	console.info('mongo initialized: ' + db.name);
-	next();
+	server = new mongo.Server("127.0.0.1", 27017, { auto_reconnect: true });
+	db = exports.db = new mongo.Db(config.mongoDbName, server);
+	async.series([
+		function (next) {
+			db.open(function (err, db) {
+				if (err) return next(err);
+				next();
+			});
+		},
+		function (next) {
+			if (config.mongoDropDatabase) {
+				return db.dropDatabase(next);
+			}
+			next();
+		},
+		function (next) {
+			console.info('mongo initialized: ' + db.databaseName);
+			next();
+		}
+	], next);
 });
 
 // postThread
@@ -38,13 +47,21 @@ var threadIdSeed;
 
 l.addInit(function (next) {
 	threadCol = exports.threadCol = db.collection("postThread");
-	threadCol.ensureIndex({ categoryId: 1, udate: -1 });
-	threadCol.ensureIndex({ udate: -1 });
-	threadCol.find({}, { _id: 1 }).sort({ _id: -1 }).limit(1).next(function (err, obj) {
-		threadIdSeed = obj ? obj._id : 0;
-		console.info('thread id seed: ' + threadIdSeed);
-		next(err);
-	});
+	async.series([
+		function (next) {
+			threadCol.ensureIndex({ categoryId: 1, udate: -1 }, next);
+		},
+		function (next) {
+			threadCol.ensureIndex({ udate: -1 }, next);
+		},
+		function (next) {
+			threadCol.find({}, { _id: 1 }).sort({ _id: -1 }).limit(1).nextObject(function (err, obj) {
+				threadIdSeed = obj ? obj._id : 0;
+				console.info('thread id seed: ' + threadIdSeed);
+				next(err);
+			});
+		}
+	], next);
 });
 
 exports.getNewThreadId = function () {
@@ -102,13 +119,19 @@ var postIdSeed;
 
 l.addInit(function (next) {
 	postCol = exports.postCol = db.collection("post");
-	postCol.ensureIndex({ threadId: 1, cdate: 1 });
-	postCol.find({}, { _id: 1 }).sort({ _id: -1 }).limit(1).next(function (err, obj) {
-		if (err) return next(err);
-		postIdSeed = obj ? obj._id : 0;
-		console.info('post id seed: ' + postIdSeed);
-		next();
-	});
+	async.series([
+		function (next) {
+			postCol.ensureIndex({ threadId: 1, cdate: 1 }, next);
+		},
+		function (next) {
+			postCol.find({}, { _id: 1 }).sort({ _id: -1 }).limit(1).nextObject(function (err, obj) {
+				if (err) return next(err);
+				postIdSeed = obj ? obj._id : 0;
+				console.info('post id seed: ' + postIdSeed);
+				next();
+			});
+		}
+	], next);
 });
 
 exports.getNewPostId = function () {
@@ -116,8 +139,7 @@ exports.getNewPostId = function () {
 };
 
 exports.insertPost = function (post, next) {
-	postCol.insert(post);
-	next();
+	postCol.insert(post, next);
 };
 
 exports.updatePost = function (post, next) {

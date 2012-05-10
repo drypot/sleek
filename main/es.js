@@ -1,24 +1,31 @@
 var _ = require('underscore');
+var async = require('async');
 
 var l = require('./l.js');
 var config = require('./config.js');
 
+var baseUrl;
 var request;
 
 l.addInit(function (next) {
-	request = new l.RequestBase(config.esUrl + '/' + config.esIndexName);
-	next();
+	baseUrl = config.esUrl + '/' + config.esIndexName;
+	request = new l.RequestBase(baseUrl);
+	async.series([
+		function (next) {
+			if (config.esDropIndex) {
+				exports.dropIndex(next);
+			} else {
+				setSchema(next);
+			}
+		},
+		function (next) {
+			console.info('elasticsearch initialized: ' + baseUrl);
+			next();
+		}
+	], next);
 });
 
-l.addInit(function (next) {
-	if (config.esDropIndex) {
-		request.del('', next);
-		return;
-	}
-	next();
-});
-
-l.addInit(function (next) {
+function setSchema(next) {
 	request.post('', {
 		settings: {
 			index: {
@@ -40,13 +47,16 @@ l.addInit(function (next) {
 				}
 			}
 		}
-	}, next);
-});
+	}, function (err) {
+		next(null);
+	});
+}
 
-l.addInit(function (next) {
-	console.info('elasticsearch initialized: ' + request.url(''));
-	next();
-});
+exports.dropIndex = function (next) {
+	request.del('', function (err) {
+		setSchema(next);
+	});
+};
 
 exports.flush = function (next) {
 	request.post('/_flush', next);
@@ -77,11 +87,13 @@ exports.getPost = function (postId, next) {
 exports.searchPost = function (body, next) {
 	request.post('/post/_search', body, function (err, res) {
 		if (err) return next(err);
-		if (!res.body.hits) return next(null, res);
-		_.each(res.body.hits.hits, function (hit) {
-			hit._id = parseInt(hit._id);
-			hit._source.cdate = new Date(hit._source.cdate);
-		});
-		next(null, res);
+		console.log(res.body);
+		if (res.body.hits) {
+			_.each(res.body.hits.hits, function (hit) {
+				hit._id = parseInt(hit._id);
+				hit._source.cdate = new Date(hit._source.cdate);
+			});
+		}
+		next(err, res);
 	});
 }

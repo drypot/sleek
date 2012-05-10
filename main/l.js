@@ -237,3 +237,17 @@ requestBase.url = function (path) {
 	return this.urlBase + path;
 }
 
+// SuperAgent hack
+
+//var superagent = require('superagent');
+//
+//superagent.Request.prototype.endWithoutErr = superagent.Request.prototype.end;
+//superagent.Request.prototype.end = function (fn) {
+//	this.endWithoutErr(function (res) {
+//		if(res.ok){
+//			fn(null, res);
+//		} else {
+//			fn(res.text);
+//		}
+//	});
+//};

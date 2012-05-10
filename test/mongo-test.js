@@ -14,13 +14,12 @@ describe('mongo', function () {
 	it('should have db property', function () {
 		mongo.should.property('db');
 	});
-	xdescribe('db', function () {
+	describe('db', function () {
 		it('should have name', function () {
-			mongo.db.name.should.equal('sleek-test');
+			mongo.db.databaseName.should.equal('sleek-test');
 		});
 	});
 });
-
 
 describe('post', function () {
 	it('should be ok', function () {
@@ -34,10 +33,10 @@ describe('post', function () {
 		})
 	});
 	it('should have two index', function (next) {
-		mongo.postCol.indexes(function (err, indexList) {
+		mongo.postCol.indexes(function (err, index) {
 			if (err) return next(err);
-			indexList.should.be.instanceof(Array);
-			indexList.should.be.length(2);
+			index.should.be.instanceof(Array);
+			index.should.be.length(2);
 			next();
 		});
 	});

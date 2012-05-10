@@ -9,7 +9,7 @@
 	"uploadTmpDir": "/Users/drypot/data/sleek/upload/sleek-dev-tmp",
 	"uploadMax": 512,
 
-	"esUrl": "http://localhost:9200",
+	"esUrl": "http://127.0.0.1:9200",
 	"esIndexName": "sleek-dev",
 
 	"mongoDbName": "sleek-dev",
