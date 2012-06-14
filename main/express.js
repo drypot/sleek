@@ -34,49 +34,65 @@ l.addInit(function (next) {
 	expressPost.register(e);
 
 	e.post('/api/login', function (req, res) {
+		loginPrepareRole(req, res);
+	});
+
+	function loginPrepareRole(req, res) {
 		var role;
-		if (req.session.roleName && req.body.keepCurrentSession) {
+		var useCurrentSession = req.body.keepCurrentSession && req.session.roleName;
+		if (useCurrentSession) {
 			role = auth.getRoleByName(req.session.roleName);
 		} else {
-			role = auth.getRoleByPassword(req.body.password);
+			role = auth.getRoleByPassword(req.body.password || '');
 			if (!role) {
-				return res.json(400, { error: msg.ERR_LOGIN_FAILED });
+				res.json(400, { error: msg.ERR_LOGIN_FAILED });
+				return;
 			}
+		}
+		loginMakeNewSession(req, res, role, useCurrentSession);
+	}
+
+	function loginMakeNewSession(req, res, role, useCurrentSession) {
+		if (useCurrentSession) {
+			loginDone(req, res, role);
+		} else {
 			req.session.regenerate(function (err) {
 				req.session.roleName = role.name;
 				req.session.post = [];
-				if (req.cookies && req.cookies.lv3) {
-					res.clearCookie('lv3');
-					res.clearCookie('lv');
-					res.clearCookie('ph');
-					res.clearCookie('uname');
-				}
-				returnResult();
+				loginClearOldCookies(req, res);
+				loginDone(req, res, role);
 			});
-			return;
 		}
-		returnResult();
+	}
 
-		function returnResult() {
-			var r = { role: { name: role.name } }
-			if (req.body.sendExtra) {
-				r.role.category = role.categoryAsArray;
-				r.uploadUrl = config.uploadUrl;
-			}
-			res.json(r);
+	function loginClearOldCookies(req, res) {
+		if (req.cookies && req.cookies.lv3) {
+			res.clearCookie('lv3');
+			res.clearCookie('lv');
+			res.clearCookie('ph');
+			res.clearCookie('uname');
 		}
-	});
+	}
+
+	function loginDone(req, res, role) {
+		var r = { role: { name: role.name } }
+		if (req.body.sendExtra) {
+			r.role.category = role.categoryAsArray;
+			r.uploadUrl = config.uploadUrl;
+		}
+		res.json(r);
+	}
 
 	e.post('/api/logout', function (req, res) {
-		req.session.destroy();
-		res.json('ok');
+			req.session.destroy();
+			res.json('ok');
 	});
 
 	e.get('/api/hello', function (req, res) {
-		res.json('hello');
+			res.json('hello');
 	});
 
-	e.post('/api/upload', auth.checkLogin(), function (req, res, next) {
+	e.post('/api/upload', auth.checkLogin(), function (req, res) {
 		upload.keepTmpFile(req.files && req.files.file, function (err, saved) {
 			res.json(saved);
 		});
