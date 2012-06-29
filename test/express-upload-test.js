@@ -19,7 +19,7 @@ describe('file api', function () {
 	it('can keep tmp file', function (next) {
 		test.request.post('/api/upload', {}, ['file1.txt'], function (err, res) {
 				res.status.should.equal(200);
-//				l.c(res.body);
+//				l.log(res.body);
 				var body = res.body;
 				body.should.length(1);
 				body[0].org.should.equal('file1.txt');
@@ -31,7 +31,7 @@ describe('file api', function () {
 	it('can keep two tmp files', function (next) {
 		test.request.post('/api/upload', {}, ['file1.txt', 'file2.txt'], function (err, res) {
 				res.status.should.equal(200);
-//				l.c(res.body);
+//				l.log(res.body);
 				var body = res.body;
 				body.should.length(2);
 				body[0].org.should.equal('file1.txt');
@@ -46,7 +46,7 @@ describe('file api', function () {
 		test.request.post('/api/upload', { dummy: 'dummy' }, [],
 			function (err, res) {
 				res.status.should.equal(200);
-//				l.c(res.body);
+//				l.log(res.body);
 				var body = res.body;
 				body.should.length(0);
 				next(err);

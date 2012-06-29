@@ -149,7 +149,7 @@ describe('safeFilename', function () {
 		_.each(table, function (pair) {
 			var a = l.safeFilename(pair[0]);
 			var b = pair[1];
-			if (a !== b) l.c(pair);
+			if (a !== b) l.log(pair);
 			should(l.safeFilename(a) === b);
 		})
 	});

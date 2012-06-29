@@ -63,14 +63,14 @@ if (module === require.main) {
 				es.dropIndex(next);
 			},
 			function (next) {
-				l.c('start search index rebuilding.');
+				l.log('start search index rebuilding.');
 				exports.rebuild(next);
 			},
 			function (next) {
 				mongo.db.close(next);
 			},
 			function (next) {
-				l.c('completed.');
+				l.log('completed.');
 				next();
 			}
 		]);

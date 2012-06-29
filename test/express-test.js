@@ -64,7 +64,7 @@ describe('login', function () {
 	it('should fail with wrong password', function (next) {
 		test.request.post('/api/login', { password: 'xxx' }, function (err, res) {
 			res.status.should.equal(400);
-			res.body.error.should.equal(msg.ERR_LOGIN_FAILED);
+			res.body.error.should.equal(msg.ERR_INVALID_PASSWORD);
 			next(err);
 		});
 	});
