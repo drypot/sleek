@@ -6,7 +6,7 @@ var request = require('request');
 
 // Console
 
-exports.c = function () {
+exports.log = function () {
 	_.each(arguments, function (msg) {
 		console.log(msg);
 	});

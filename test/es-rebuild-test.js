@@ -9,7 +9,7 @@ var express = require('../main/express.js');
 var test = require('./test.js');
 
 before(function (next) {
-	test.prepare(next);
+	test.runInit(next);
 });
 
 describe('es-rebuild', function () {
@@ -57,7 +57,7 @@ describe('es-rebuild', function () {
 	it("should success to search p1", function (next) {
 		test.request.get('/api/search', { q: '첫번째' }, function (err, res) {
 			res.status.should.equal(200);
-			res.body.should.length(1);
+			res.body.length.should.equal(1);
 			res.body[0].postId.should.equal(p1);
 			next(err);
 		});
@@ -107,11 +107,20 @@ describe('es-rebuild', function () {
 		es.flush(next);
 	});
 	it("should success to search p1", function (next) {
-		test.request.get('/api/search', { q: '첫번째' }, function (err, res) {
-			res.status.should.equal(200);
-			res.body.should.length(1);
-			res.body[0].postId.should.equal(p1);
-			next(err);
-		});
+		setTimeout(function () {
+			test.request.get('/api/search', { q: '첫번째' }, function (err, res) {
+				res.status.should.equal(200);
+				res.body.length.should.equal(1);
+				res.body[0].postId.should.equal(p1);
+				next(err);
+			});
+
+		}, 1000);
+//		test.request.get('/api/search', { q: '첫번째' }, function (err, res) {
+//			res.status.should.equal(200);
+//			res.body.length.should.equal(1);
+//			res.body[0].postId.should.equal(p1);
+//			next(err);
+//		});
 	});
 });

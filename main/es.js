@@ -87,7 +87,7 @@ exports.getPost = function (postId, next) {
 exports.searchPost = function (body, next) {
 	request.post('/post/_search', body, function (err, res) {
 		if (err) return next(err);
-		console.log(res.body);
+		//l.log(res.body);
 		if (res.body.hits) {
 			_.each(res.body.hits.hits, function (hit) {
 				hit._id = parseInt(hit._id);

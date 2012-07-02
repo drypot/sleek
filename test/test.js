@@ -9,11 +9,9 @@ l.addInit(function (next) {
 	next();
 });
 
-exports.prepare = function (next) {
-	config.configPath = "config-dev/config-dev.json";
-	config.override.mongoDbName = 'sleek-test';
+exports.runInit = function (next) {
+	config.configPath = "config-dev/config-test.json";
 	config.override.mongoDropDatabase = true;
-	config.override.esIndexName = 'sleek-test';
 	config.override.esDropIndex = true;
 	l.runInit(next);
 };

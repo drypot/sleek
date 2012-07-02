@@ -6,7 +6,7 @@ var auth = require('../main/auth.js');
 var test = require('./test.js');
 
 before(function (next) {
-	test.prepare(next);
+	test.runInit(next);
 });
 
 describe('role', function () {

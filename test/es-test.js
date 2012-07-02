@@ -8,7 +8,7 @@ var es = require('../main/es.js');
 var test = require('./test.js');
 
 before(function (next) {
-	test.prepare(next);
+	test.runInit(next);
 });
 
 describe('es', function () {

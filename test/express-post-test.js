@@ -9,7 +9,7 @@ var express = require('../main/express.js');
 var test = require('./test.js');
 
 before(function (next) {
-	test.prepare(next);
+	test.runInit(next);
 });
 
 describe('post new thread', function () {
