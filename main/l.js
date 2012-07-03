@@ -9,6 +9,7 @@ var request = require('request');
 exports.log = function () {
 	_.each(arguments, function (arg) {
 		console.log(arg);
+		// this on try
 	});
 }
 
