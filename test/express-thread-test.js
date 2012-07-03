@@ -28,7 +28,7 @@ describe("get thread list", function () {
 	it("can not get thread list when not logged in", function (next) {
 		test.request.post('/api/thread', function (err, res) {
 			res.status.should.equal(400);
-			res.body.error.should.equal(msg.ERR_LOGIN_FIRST);
+			res.body.msg.should.equal(msg.ERR_LOGIN_FIRST);
 			next(err);
 		});
 	});
@@ -99,7 +99,7 @@ describe("get thread", function () {
 	it("can not get thread when not logged in", function (next) {
 		test.request.get('/api/thread/0', function (err, res) {
 			res.status.should.equal(400);
-			res.body.error.should.equal(msg.ERR_LOGIN_FIRST);
+			res.body.msg.should.equal(msg.ERR_LOGIN_FIRST);
 			next(err);
 		});
 	});

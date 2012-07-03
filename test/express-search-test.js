@@ -30,7 +30,7 @@ describe("search", function () {
 	it("can not search post when not logged in", function (next) {
 		test.request.get('/api/search', function (err, res) {
 			res.status.should.equal(400);
-			res.body.error.should.equal(msg.ERR_LOGIN_FIRST);
+			res.body.msg.should.equal(msg.ERR_LOGIN_FIRST);
 			next(err);
 		});
 	});

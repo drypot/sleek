@@ -45,7 +45,7 @@ l.addInit(function (next) {
 		} else {
 			role = auth.getRoleByPassword(req.body.password || '');
 			if (!role) {
-				res.json(400, { error: msg.ERR_INVALID_PASSWORD });
+				res.json(400, { msg: msg.ERR_INVALID_PASSWORD });
 				return;
 			}
 			loginMakeNewSession(req, res, role);

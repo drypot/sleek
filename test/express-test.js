@@ -64,7 +64,7 @@ describe('login', function () {
 	it('should fail with wrong password', function (next) {
 		test.request.post('/api/login', { password: 'xxx' }, function (err, res) {
 			res.status.should.equal(400);
-			res.body.error.should.equal(msg.ERR_INVALID_PASSWORD);
+			res.body.msg.should.equal(msg.ERR_INVALID_PASSWORD);
 			next(err);
 		});
 	});
@@ -124,7 +124,7 @@ describe("test/role/any", function () {
 	it('should fail before login', function (next) {
 		test.request.get('/api/test/role/any', function (err, res) {
 			res.status.should.equal(400);
-			res.body.error.should.equal(msg.ERR_LOGIN_FIRST);
+			res.body.msg.should.equal(msg.ERR_LOGIN_FIRST);
 			next(err);
 		});
 	});
@@ -147,7 +147,7 @@ describe("test/role/any", function () {
 	it('should fail after logout', function (next) {
 		test.request.get('/api/test/role/any', function (err, res) {
 			res.status.should.equal(400);
-			res.body.error.should.equal(msg.ERR_LOGIN_FIRST);
+			res.body.msg.should.equal(msg.ERR_LOGIN_FIRST);
 			next(err);
 		});
 	});
@@ -160,7 +160,7 @@ describe("test/role/user", function () {
 	it('should fail before login', function (next) {
 		test.request.get('/api/test/role/user', function (err, res) {
 			res.status.should.equal(400);
-			res.body.error.should.equal(msg.ERR_LOGIN_FIRST);
+			res.body.msg.should.equal(msg.ERR_LOGIN_FIRST);
 			next(err);
 		});
 	});
@@ -183,7 +183,7 @@ describe("test/role/admin", function () {
 	it('should fail before login', function (next) {
 		test.request.get('/api/test/role/admin', function (err, res) {
 			res.status.should.equal(400);
-			res.body.error.should.equal(msg.ERR_LOGIN_FIRST);
+			res.body.msg.should.equal(msg.ERR_LOGIN_FIRST);
 			next(err);
 		});
 	});
@@ -193,7 +193,7 @@ describe("test/role/admin", function () {
 	it('should fail as user', function (next) {
 		test.request.get('/api/test/role/admin', function (err, res) {
 			res.status.should.equal(400);
-			res.body.error.should.equal(msg.ERR_NOT_AUTHORIZED);
+			res.body.msg.should.equal(msg.ERR_NOT_AUTHORIZED);
 			next(err);
 		});
 	});

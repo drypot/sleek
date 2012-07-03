@@ -19,7 +19,7 @@ describe('post new thread', function () {
 	it("can not create head when not logged in", function (next) {
 		test.request.post('/api/thread', function (err, res) {
 			res.status.should.equal(400);
-			res.body.error.should.equal(msg.ERR_LOGIN_FIRST);
+			res.body.msg.should.equal(msg.ERR_LOGIN_FIRST);
 			next(err);
 		});
 	});
@@ -42,7 +42,7 @@ describe('post new thread', function () {
 			{ categoryId: 10100, userName : 'snowman', title: 'title', text: 'text' },
 			function (err, res) {
 				res.status.should.equal(400);
-				res.body.error.should.equal(msg.ERR_INVALID_CATEGORY);
+				res.body.msg.should.equal(msg.ERR_INVALID_CATEGORY);
 				next(err);
 			}
 		);
@@ -52,7 +52,7 @@ describe('post new thread', function () {
 			{ categoryId: 101, userName : 'snowman', title: ' ', text: 'text' },
 			function (err, res) {
 				res.status.should.equal(400);
-				res.body.error.should.equal(msg.ERR_INVALID_DATA);
+				res.body.msg.should.equal(msg.ERR_INVALID_DATA);
 				res.body.field[0].title.should.equal(msg.ERR_FILL_TITLE);
 				next(err);
 			}
@@ -63,7 +63,7 @@ describe('post new thread', function () {
 			{ categoryId: 101, userName : 'snowman', text: 'text', title: 'big title title title title title title title title title title title title title title title title title title title title title title title title title title title title'},
 			function (err, res) {
 				res.status.should.equal(400);
-				res.body.error.should.equal(msg.ERR_INVALID_DATA);
+				res.body.msg.should.equal(msg.ERR_INVALID_DATA);
 				res.body.field[0].title.should.equal(msg.ERR_SHORTEN_TITLE);
 				next(err);
 			}
@@ -74,7 +74,7 @@ describe('post new thread', function () {
 			{ categoryId: 101, userName : ' ', title: 'title', text: 'text' },
 			function (err, res) {
 				res.status.should.equal(400);
-				res.body.error.should.equal(msg.ERR_INVALID_DATA);
+				res.body.msg.should.equal(msg.ERR_INVALID_DATA);
 				res.body.field[0].userName.should.equal(msg.ERR_FILL_USERNAME);
 				next(err);
 			}
@@ -85,7 +85,7 @@ describe('post new thread', function () {
 			{ categoryId: 101, userName : '123456789012345678901234567890123', title: 'title', text: 'text' },
 			function (err, res) {
 				res.status.should.equal(400);
-				res.body.error.should.equal(msg.ERR_INVALID_DATA);
+				res.body.msg.should.equal(msg.ERR_INVALID_DATA);
 				res.body.field[0].userName.should.equal(msg.ERR_SHORTEN_USERNAME);
 				next(err);
 			}
@@ -96,7 +96,7 @@ describe('post new thread', function () {
 			{ categoryId: 40, userName : 'snowman', title: 'title', text: 'text' },
 			function (err, res) {
 				res.status.should.equal(400);
-				res.body.error.should.equal(msg.ERR_INVALID_CATEGORY);
+				res.body.msg.should.equal(msg.ERR_INVALID_CATEGORY);
 				next(err);
 			}
 		);
@@ -122,7 +122,7 @@ describe('post reply', function () {
 	it("can not create head when not logged in", function (next) {
 		test.request.post('/api/thread/0', function (err, res) {
 			res.status.should.equal(400);
-			res.body.error.should.equal(msg.ERR_LOGIN_FIRST);
+			res.body.msg.should.equal(msg.ERR_LOGIN_FIRST);
 			next(err);
 		});
 	});
@@ -155,7 +155,7 @@ describe('post reply', function () {
 			{ userName : 'snowman', text: 'text' },
 			function (err, res) {
 				res.status.should.equal(400);
-				res.body.error.should.equal(msg.ERR_INVALID_THREAD);
+				res.body.msg.should.equal(msg.ERR_INVALID_THREAD);
 				next(err);
 			}
 		);
@@ -174,7 +174,7 @@ describe('post reply', function () {
 			{ userName : ' ', text: 'text' },
 			function (err, res) {
 				res.status.should.equal(400);
-				res.body.error.should.equal(msg.ERR_INVALID_DATA);
+				res.body.msg.should.equal(msg.ERR_INVALID_DATA);
 				res.body.field[0].userName.should.equal(msg.ERR_FILL_USERNAME);
 				next(err);
 			}
@@ -202,7 +202,7 @@ describe('post reply', function () {
 			{ userName : 'snowman', text: 'text' },
 			function (err, res) {
 				res.status.should.equal(400);
-				res.body.error.should.equal(msg.ERR_INVALID_CATEGORY);
+				res.body.msg.should.equal(msg.ERR_INVALID_CATEGORY);
 				next(err);
 			}
 		);
@@ -278,7 +278,7 @@ describe('get post', function () {
 	it("can not get post when not logged in", function (next) {
 		test.request.get('/api/thread/' + tid1 + '/' + pid11, function (err, res) {
 			res.status.should.equal(400);
-			res.body.error.should.equal(msg.ERR_LOGIN_FIRST);
+			res.body.msg.should.equal(msg.ERR_LOGIN_FIRST);
 			next(err);
 		});
 	});
@@ -311,14 +311,14 @@ describe('get post', function () {
 	it('can not get head in recycle bin', function (next) {
 		test.request.get('/api/thread/' + tid2 + '/' + pid21, function (err, res) {
 			res.status.should.equal(400);
-			res.body.error.should.equal(msg.ERR_INVALID_CATEGORY);
+			res.body.msg.should.equal(msg.ERR_INVALID_CATEGORY);
 			next(err);
 		});
 	});
 	it('can not get reply in recycle bin', function (next) {
 		test.request.get('/api/thread/' + tid2 + '/' + pid22, function (err, res) {
 			res.status.should.equal(400);
-			res.body.error.should.equal(msg.ERR_INVALID_CATEGORY);
+			res.body.msg.should.equal(msg.ERR_INVALID_CATEGORY);
 			next(err);
 		});
 	});
@@ -346,7 +346,7 @@ describe('put head post', function () {
 	it("can not update head when not logged in", function (next) {
 		test.request.put('/api/thread/0/0', function (err, res) {
 			res.status.should.equal(400);
-			res.body.error.should.equal(msg.ERR_LOGIN_FIRST);
+			res.body.msg.should.equal(msg.ERR_LOGIN_FIRST);
 			next(err);
 		});
 	});
@@ -407,7 +407,7 @@ describe('put head post', function () {
 			{ categoryId: 40, userName: 'snowman u1', title: 'title u1', text: 'head text u1', visible: true },
 			function (err, res) {
 				res.status.should.equal(400);
-				res.body.error.should.equal(msg.ERR_INVALID_CATEGORY);
+				res.body.msg.should.equal(msg.ERR_INVALID_CATEGORY);
 				next(err);
 			}
 		);
@@ -417,7 +417,7 @@ describe('put head post', function () {
 			{ categoryId: 101, userName: 'snowman u1', title: ' ', text: 'text', visible: true },
 			function (err, res) {
 				res.status.should.equal(400);
-				res.body.error.should.equal(msg.ERR_INVALID_DATA);
+				res.body.msg.should.equal(msg.ERR_INVALID_DATA);
 				res.body.field[0].title.should.equal(msg.ERR_FILL_TITLE);
 				next(err);
 			}
@@ -428,7 +428,7 @@ describe('put head post', function () {
 			{ categoryId: 101, userName: ' ', title: 'title', text: 'text', visible: true },
 			function (err, res) {
 				res.status.should.equal(400);
-				res.body.error.should.equal(msg.ERR_INVALID_DATA);
+				res.body.msg.should.equal(msg.ERR_INVALID_DATA);
 				res.body.field[0].userName.should.equal(msg.ERR_FILL_USERNAME);
 				next(err);
 			}
@@ -455,7 +455,7 @@ describe('put reply', function () {
 	it("can not update reply when not logged in", function (next) {
 		test.request.put('/api/thread/0/0', function (err, res) {
 			res.status.should.equal(400);
-			res.body.error.should.equal(msg.ERR_LOGIN_FIRST);
+			res.body.msg.should.equal(msg.ERR_LOGIN_FIRST);
 			next(err);
 		});
 	});
@@ -508,7 +508,7 @@ describe('put reply', function () {
 			{ userName: ' ', text: 'text', visible: true },
 			function (err, res) {
 				res.status.should.equal(400);
-				res.body.error.should.equal(msg.ERR_INVALID_DATA);
+				res.body.msg.should.equal(msg.ERR_INVALID_DATA);
 				res.body.field[0].userName.should.equal(msg.ERR_FILL_USERNAME);
 				next(err);
 			}

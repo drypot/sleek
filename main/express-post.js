@@ -150,7 +150,7 @@ exports.register = function (e) {
 				size: limit, from: offset
 			},
 			function (err, sres) {
-				if (err) return res.json(400, {error: msg.ERR_SEARCH_IO});
+				if (err) return res.json(400, {msg: msg.ERR_SEARCH_IO});
 				if (!sres.body.hits) return res.json(200, []);
 				var r = [];
 				_.each(sres.body.hits.hits, function (hit) {
@@ -195,23 +195,23 @@ exports.register = function (e) {
 
 	function prepareReadableCategory(res, role, categoryId, next) {
 		var category = role.category[categoryId];
-		if (!category) return res.json(400, {error: msg.ERR_INVALID_CATEGORY});
-		if (!category.readable) return res.json(400, {error: msg.ERR_NOT_AUTHORIZED});
+		if (!category) return res.json(400, {msg: msg.ERR_INVALID_CATEGORY});
+		if (!category.readable) return res.json(400, {msg: msg.ERR_NOT_AUTHORIZED});
 		next(category);
 	}
 
 	function prepareWritableCategory(res, role, categoryId, next) {
 		if (_.isUndefined(categoryId)) return next(null); // for form.categoryId
 		var category = role.category[categoryId];
-		if (!category) return res.json(400, {error: msg.ERR_INVALID_CATEGORY});
-		if (!category.writable) return res.json(400, {error: msg.ERR_NOT_AUTHORIZED});
+		if (!category) return res.json(400, {msg: msg.ERR_INVALID_CATEGORY});
+		if (!category.writable) return res.json(400, {msg: msg.ERR_NOT_AUTHORIZED});
 		next(category);
 	}
 
 	function checkPostOwnership(req, res, category, postId, next) {
 		if (!category.editable) {
 			if (!_.include(req.session.post, postId)) {
-				return res.json(400, {error: msg.ERR_NOT_AUTHORIZED});
+				return res.json(400, {msg: msg.ERR_NOT_AUTHORIZED});
 			}
 		}
 		next();
@@ -225,13 +225,13 @@ exports.register = function (e) {
 		}
 		if (!form.userName) error.push({userName : msg.ERR_FILL_USERNAME});
 		if (form.userName .length > 32) error.push({userName : msg.ERR_SHORTEN_USERNAME});
-		if (error.length) return res.json(400, {error: msg.ERR_INVALID_DATA, field: error});
+		if (error.length) return res.json(400, {msg: msg.ERR_INVALID_DATA, field: error});
 		next();
 	}
 
 	function prepareThread(res, threadId, next) {
 		mongo.findThreadById(threadId, function (err, thread) {
-			if (err || !thread) return res.json(400, {error: msg.ERR_INVALID_THREAD});
+			if (err || !thread) return res.json(400, {msg: msg.ERR_INVALID_THREAD});
 			next(thread);
 		});
 	}
@@ -239,7 +239,7 @@ exports.register = function (e) {
 	function prepareThreadAndPost(res, threadId, postId, next) {
 		prepareThread(res, threadId, function (thread) {
 			mongo.findPostById(postId, function (err, post) {
-				if (err || !post) return res.json(400, {error: msg.ERR_INVALID_POST});
+				if (err || !post) return res.json(400, {msg: msg.ERR_INVALID_POST});
 				next(thread, post, thread.cdate.getTime() === post.cdate.getTime());
 			});
 		});
@@ -253,7 +253,7 @@ exports.register = function (e) {
 			userName : form.userName , title: form.title
 		};
 		mongo.insertThread(thread, function (err) {
-			if (err) return res.json(400, {error: msg.ERR_DB_IO});
+			if (err) return res.json(400, {msg: msg.ERR_DB_IO});
 			next(thread);
 		});
 	}
@@ -267,11 +267,11 @@ exports.register = function (e) {
 		};
 		req.session.post.push(post._id);
 		upload.savePostFile(post, form.file, function (err) {
-			if (err) return res.json(400, {error: msg.ERR_FILE_IO});
+			if (err) return res.json(400, {msg: msg.ERR_FILE_IO});
 			mongo.insertPost(post, function (err) {
-				if (err) return res.json(400, {error: msg.ERR_DB_IO});
+				if (err) return res.json(400, {msg: msg.ERR_DB_IO});
 				es.updatePost(thread, post, function (err, res) {
-					if (err) return res.json(400, {error: msg.ERR_SEARCH_IO});
+					if (err) return res.json(400, {msg: msg.ERR_SEARCH_IO});
 					next(post);
 				});
 			});
@@ -284,7 +284,7 @@ exports.register = function (e) {
 			thread.title = form.title;
 			thread.userName  = form.userName ;
 			mongo.updateThread(thread, function (err) {
-				if (err) return res.json(400, {error: msg.ERR_DB_IO});
+				if (err) return res.json(400, {msg: msg.ERR_DB_IO});
 				next();
 			});
 			return;
@@ -299,16 +299,16 @@ exports.register = function (e) {
 			post.visible = form.visible;
 		}
 		upload.deletePostFile(post, form.fileToDel, function (err, deleted) {
-			if (err) return res.json(400, {error: msg.ERR_FILE_IO});
+			if (err) return res.json(400, {msg: msg.ERR_FILE_IO});
 			if (deleted) {
 				post.file = _.without(post.file, deleted);
 				if (post.file.length == 0) delete post.file;
 			}
 			upload.savePostFile(post, form.file, function (err, saved) {
-				if (err) return res.json(400, {error: msg.ERR_FILE_IO});
+				if (err) return res.json(400, {msg: msg.ERR_FILE_IO});
 				mongo.updatePost(post);
 				es.updatePost(thread, post, function (err, res) {
-					if (err) return res.json(400, {error: msg.ERR_SEARCH_IO});
+					if (err) return res.json(400, {msg: msg.ERR_SEARCH_IO});
 					next();
 				});
 			});

@@ -7,8 +7,8 @@ var request = require('request');
 // Console
 
 exports.log = function () {
-	_.each(arguments, function (msg) {
-		console.log(msg);
+	_.each(arguments, function (arg) {
+		console.log(arg);
 	});
 }
 

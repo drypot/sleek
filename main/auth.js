@@ -53,7 +53,7 @@ exports.filter = {};
 exports.checkLogin = function () {
 	return function (req, res, next) {
 		if (!req.session.roleName) {
-			return res.json(400, {error: msg.ERR_LOGIN_FIRST});
+			return res.json(400, {msg: msg.ERR_LOGIN_FIRST});
 		}
 		next();
 	}
@@ -62,7 +62,7 @@ exports.checkLogin = function () {
 exports.checkRole = function (roleName) {
 	return function(req, res, next) {
 		if (req.session.roleName !== roleName) {
-			return res.json(400, {error: msg.ERR_NOT_AUTHORIZED});
+			return res.json(400, {msg: msg.ERR_NOT_AUTHORIZED});
 		}
 		next();
 	}
