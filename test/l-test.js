@@ -1,33 +1,7 @@
 var _ = require('underscore');
 var should = require('should');
-var path = require('path');
 var fs = require('fs');
-
 var l = require('../main/l.js');
-
-describe('initList', function () {
-	var a = [];
-	before(function (next) {
-		l.addInit(function (next) {
-			a.push(2);
-			next();
-		});
-		l.addAfterInit(function (next) {
-			a.push(3);
-			next();
-		});
-		l.addBeforeInit(function (next) {
-			a.push(1);
-			next();
-		});
-		l.runInit(next);
-	});
-	it('should have 1, 2, 3', function () {
-		a[0].should.equal(1);
-		a[1].should.equal(2);
-		a[2].should.equal(3);
-	})
-})
 
 describe('property', function () {
 	it('should', function () {
@@ -99,58 +73,125 @@ describe('property', function () {
 	});
 });
 
-describe('fs', function () {
-	var base = '/Users/drypot/tmp/node-test'
-	before(function (next) {
-		try {
-			fs.rmdirSync(base + '/sub1/sub2');
-			fs.rmdirSync(base + '/sub1');
-		} catch (e) {
-		}
-		next();
+describe('init', function () {
+	it('can add sync func', function (next) {
+		var a = [];
+		l.init.reset();
+		l.init.init(function () {
+			a.push(3);
+		});
+		l.init.run(function () {
+			a.should.length(1);
+			a[0].should.equal(3);
+			next();
+		});
 	});
-	describe('mkdirs', function () {
-		it("confirms base exists", function () {
-			should(path.existsSync(base));
+
+	it('can add async func', function (next) {
+		var a = [];
+		l.init.reset();
+		l.init.init(function (next) {
+			a.push(33);
+			next();
 		});
-		it("confirms sub not exists", function () {
-			should(!path.existsSync(base + '/sub1' + '/sub2'));
+		l.init.run(function () {
+			a.should.length(1);
+			a[0].should.equal(33);
+			next();
 		});
-		it('can make sub1', function (next) {
-			l.mkdirs([base, 'sub1'], function (err) {
-				should(path.existsSync(base + '/sub1'));
-				next();
-			});
+	});
+
+	it('can add before func', function (next) {
+		var a = [];
+		l.init.reset();
+		l.init.beforeInit(function () {
+			a.push(1);
 		});
-		it('can make sub2', function (next) {
-			l.mkdirs([base, 'sub1', 'sub2'], function (err, dir) {
-				dir.should.equal(base + '/sub1/sub2');
-				should(path.existsSync(dir));
-				next();
-			});
+		l.init.init(function () {
+			a.push(2);
+		});
+		l.init.beforeInit(function () {
+			a.push(3);
+		});
+		l.init.run(function () {
+			a.should.length(3);
+			a[0].should.equal(1);
+			a[1].should.equal(3);
+			a[2].should.equal(2);
+			next();
+		});
+	});
+
+	it('can add after func', function (next) {
+		var a = [];
+		l.init.reset();
+		l.init.afterInit(function () {
+			a.push(1);
+		});
+		l.init.init(function () {
+			a.push(2);
+		});
+		l.init.afterInit(function () {
+			a.push(3);
+		});
+		l.init.run(function () {
+			a.should.length(3);
+			a[0].should.equal(2);
+			a[1].should.equal(1);
+			a[2].should.equal(3);
+			next();
 		});
 	});
 });
 
-describe('safeFilename', function () {
-	it('should success', function () {
-		var table = [
-			[ "`", "`" ], [ "~", "~" ],
-			[ "!", "!" ], [ "@", "@" ], [ "#", "#" ], [ "$", "$" ],	[ "%", "%" ],
-			[ "^", "^" ], [ "&", "&" ], [ "*", "_" ], [ "(", "(" ], [ ")", ")" ],
-			[ "-", "-" ], [ "_", "_" ], [ "=", "=" ], [ "+", "+" ],
-			[ "[", "[" ], [ "[", "[" ], [ "]", "]" ], [ "]", "]" ], [ "\\", "_" ], [ "|", "_" ],
-			[ ";", ";" ], [ ":", "_" ], [ "'", "'" ], [ "\"", "_" ],
-			[ ",", "," ], [ "<", "_" ], [ ".", "." ], [ ">", "_" ], [ "/", "_" ], [ "?", "_" ],
-			[ "aaa\tbbb", "aaa_bbb" ],
-			[ "abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890", "abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890" ],
-			[ "이상한 '한글' 이름을 가진 파일", "이상한 '한글' 이름을 가진 파일" ]
-		];
-		_.each(table, function (pair) {
-			var a = l.safeFilename(pair[0]);
-			var b = pair[1];
-			if (a !== b) l.log(pair);
-			should(l.safeFilename(a) === b);
-		})
+describe('module', function () {
+	it('can register module with sync init methods', function (next) {
+		var a = [];
+		l.init.reset();
+		l.module({
+			aa: a,
+			init: function () {
+				this.aa.push(1);
+			},
+			beforeInit: function () {
+				this.aa.push(2);
+			},
+			afterInit: function () {
+				this.aa.push(3);
+			}
+		});
+		l.init.run(function () {
+			a.should.length(3);
+			a[0].should.equal(2);
+			a[1].should.equal(1);
+			a[2].should.equal(3);
+			next();
+		});
+	});
+
+	it('can register module with async init methods', function (next) {
+		var a = [];
+		l.init.reset();
+		l.module({
+			init: function (next) {
+				a.push(1);
+				next();
+			},
+			beforeInit: function (next) {
+				a.push(2);
+				next();
+			},
+			afterInit: function (next) {
+				a.push(3);
+				next();
+			}
+		});
+		l.init.run(function () {
+			a.should.length(3);
+			a[0].should.equal(2);
+			a[1].should.equal(1);
+			a[2].should.equal(3);
+			next();
+		});
 	});
 });

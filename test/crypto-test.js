@@ -13,12 +13,12 @@ describe('crypot', function () {
 });
 
 describe('bcrypt', function () {
-	it('can test same', function () {
+	it('should be ok', function () {
 		bcrypt.compareSync("1", '$2a$10$jGas7QsBV5ca6AqkUzW72uOpP9JD/czOkdBvnjna9ZpcdEfjplHfq').should.ok;
 		bcrypt.compareSync("1", '$2a$10$rXNp3FTBsGYU.kAZYvBMQeKbxuEWZAw2W5fVB4h7PgKqfIV0CDWoy').should.ok;
 		bcrypt.compareSync("1", '$2a$10$iwUk043ejFJBsVI1har7B.1f0jW0L5h74ZPTB7YDUCh9KCUZdRPxy').should.ok;
 	});
-	it('can test not same', function () {
+	it('should not be ok', function () {
 		bcrypt.compareSync("2", '$2a$10$jGas7QsBV5ca6AqkUzW72uOpP9JD/czOkdBvnjna9ZpcdEfjplHfq').should.not.ok;
 		bcrypt.compareSync("2", '$2a$10$rXNp3FTBsGYU.kAZYvBMQeKbxuEWZAw2W5fVB4h7PgKqfIV0CDWoy').should.not.ok;
 		bcrypt.compareSync("2", '$2a$10$iwUk043ejFJBsVI1har7B.1f0jW0L5h74ZPTB7YDUCh9KCUZdRPxy').should.not.ok;

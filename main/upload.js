@@ -2,121 +2,147 @@ var _ = require('underscore');
 var async = require('async');
 var fs = require('fs');
 var path = require('path');
-
 var l = require('./l.js');
-var config = require('./config.js');
 
-l.addInit(function (next) {
-	l.mkdirs([config.uploadTmpDir], next);
-});
+require('./config.js');
+require('./fs.js');
 
-l.addInit(function (next) {
-	l.mkdirs([config.uploadDir, 'post'], next);
-});
+l.upload = {};
 
-l.addInit(function (next) {
-	console.log('upload directory: ' + config.uploadDir);
-	console.log('upload tmp directory: ' + config.uploadTmpDir);
-	fs.readdir(config.uploadTmpDir, function (err, file) {
-		_.each(file, function (file) {
-			fs.unlink(config.uploadTmpDir + '/' + file);
-		});
-		next();
-	});
-});
+l.init.init(function (next) {
 
-// Tmp File
-
-exports.tmpFileExists = function(basename) {
-	return path.existsSync(config.uploadTmpDir + '/' + basename);
-}
-
-exports.keepTmpFile = function(upload, next) {
-	if (_.isEmpty(upload)) return next(null, []);
-	var saved = [];
-	_.each(_.isArray(upload) ? upload : [upload], function (upload) {
-		if (!upload.size) return;
-		saved.push({ org: upload.name, tmp: path.basename(upload.path)});
-	});
-	next(null, saved);
-};
-
-// Post File
-
-exports.getPostFileDir = function (postId) {
-	return config.uploadDir + '/post/' + Math.floor(postId / 10000) + '/' + postId
-};
-
-exports.postFileExists = function(postId, basename) {
-	return path.existsSync(exports.getPostFileDir(postId) + '/' + basename);
-};
-
-exports.savePostFile = function (post, tmp, next) {
-	if (_.isEmpty(tmp)) return next();
-	saveFile([config.uploadDir, 'post', Math.floor(post._id / 10000), post._id], tmp, function (err, saved) {
-		if (err) return next(err);
-		if (saved) {
-			post.file = !post.file ? saved : _.union(post.file, saved);
-		}
-		next();
-	});
-};
-
-exports.deletePostFile = function (post, fileToDel, next) {
-	if (_.isEmpty(fileToDel)) return next();
-	deleteFile(exports.getPostFileDir(post._id), fileToDel, function (err, deleted) {
-		if (err) return next(err);
-		if (deleted) {
-			post.file = _.without(post.file, deleted);
-			if (post.file.length == 0) delete post.file;
-		}
-		next();
-	});
-};
-
-// Common
-
-function saveFile (sub, tmp, next /* (err, saved) */) {
-	l.mkdirs(sub, function (err, tar) {
-		if (err) return next(err);
-		var saved = [];
-		async.forEachSeries(
-			tmp,
-			function (tmp, next) {
-				var org = l.safeFilename(path.basename(tmp.org));
-				fs.rename(config.uploadTmpDir + '/' + tmp.tmp, tar + '/' + org, function (err) {
-					if (err && err.code !== 'ENOENT') {
-						return next(err);
-					}
-					saved.push(org);
-					next();
+	async.series([
+		function (next) {
+			l.fs.mkdirs([l.config.uploadTmpDir], next);
+		},
+		function (next) {
+			l.fs.mkdirs([l.config.uploadDir, 'post'], next);
+		},
+		function (next) {
+			l.log('upload directory: ' + l.config.uploadDir);
+			l.log('upload tmp directory: ' + l.config.uploadTmpDir);
+			fs.readdir(l.config.uploadTmpDir, function (err, file) {
+				_.each(file, function (file) {
+					fs.unlink(l.config.uploadTmpDir + '/' + file);
 				});
-			},
-			function (err) {
-				next(err, saved);
-			}
-		);
-	});
-}
-
-function deleteFile (dir, fileToDel, next /* (err, deleted) */) {
-	var deleted = [];
-	async.forEachSeries(
-		fileToDel,
-		function (fileToDel, next) {
-			var basename = path.basename(fileToDel)
-			var p = dir + '/' + basename;
-			//console.log('deleting: ' + path);
-			deleted.push(basename);
-			fs.unlink(p, function (err) {
-				if (err && err.code !== 'ENOENT') {
-					return next(err);
-				}
 				next();
 			});
 		},
-		function (err) {
-			next(err, deleted);
+	], next);
+
+	// Tmp File
+
+	l.upload.existsTmp = function (basename) {
+		return fs.existsSync(l.config.uploadTmpDir + '/' + basename);
+	};
+
+	l.upload.getTmp = function (uploading) {
+		var tmp = [];
+		if (!_.isEmpty(uploading)) {
+			_.each(_.isArray(uploading) ? uploading : [uploading], function (uploading) {
+				if (uploading.size) {
+					tmp.push({ org: uploading.name, tmp: path.basename(uploading.path)});
+				}
+			});
 		}
-	);
-};
+		return tmp;
+	};
+
+	// Post File
+
+	l.upload.getPostFileDir = function (postId) {
+		return l.config.uploadDir + '/post/' + Math.floor(postId / 10000) + '/' + postId
+	};
+
+	l.upload.postFileExists = function (postId, basename) {
+		return fs.existsSync(l.upload.getPostFileDir(postId) + '/' + basename);
+	};
+
+	l.upload.savePostFile = function (post, tmp, next) {
+		if (_.isEmpty(tmp)) {
+			next();
+		} else {
+			saveFile([l.config.uploadDir, 'post', Math.floor(post._id / 10000), post._id], tmp, function (err, saved) {
+				if (err) {
+					next(err);
+				} else {
+					if (saved) {
+						post.file = !post.file ? saved : _.union(post.file, saved);
+					}
+					next();
+				}
+			});
+		}
+	};
+
+	l.upload.deletePostFile = function (post, deleting, next) {
+		if (_.isEmpty(deleting)) {
+			next();
+		} else {
+			deleteFile(l.upload.getPostFileDir(post._id), deleting, function (err, deleted) {
+				if (err) {
+					next(err);
+				} else {
+					if (deleted) {
+						post.file = _.without(post.file, deleted);
+						if (post.file.length == 0) delete post.file;
+					}
+					next();
+				}
+			});
+		}
+	};
+
+	// Common
+
+	function saveFile(sub, tmp, next /* (err, saved) */) {
+		l.fs.mkdirs(sub, function (err, tar) {
+			if (err) {
+				next(err);
+			} else {
+				var saved = [];
+				async.forEachSeries(
+					tmp,
+					function (tmp, next) {
+						var org = l.fs.safeFilename(path.basename(tmp.org));
+						fs.rename(l.config.uploadTmpDir + '/' + tmp.tmp, tar + '/' + org, function (err) {
+							if (err && err.code !== 'ENOENT') {
+								next(err);
+							} else {
+								saved.push(org);
+								next();
+							}
+						});
+					},
+					function (err) {
+						next(err, saved);
+					}
+				);
+			}
+		});
+	}
+
+	function deleteFile(dir, deleting, next /* (err, deleted) */) {
+		var deleted = [];
+		async.forEachSeries(
+			deleting,
+			function (deleting, next) {
+				var basename = path.basename(deleting)
+				var p = dir + '/' + basename;
+				//l.log('deleting: ' + path);
+				deleted.push(basename);
+				fs.unlink(p, function (err) {
+					if (err && err.code !== 'ENOENT') {
+						next(err);
+					} else {
+						next();
+					}
+				});
+			},
+			function (err) {
+				next(err, deleted);
+			}
+		);
+	}
+
+});

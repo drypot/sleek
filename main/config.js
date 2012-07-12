@@ -1,20 +1,20 @@
 var _ = require('underscore');
-var fs = require("fs");
-
+var fs = require('fs');
 var l = require('./l.js');
 
-exports.configPath = undefined;
-exports.override = {};
+l.config = {};
 
-l.addInit(function (next) {
-	if (!exports.configPath) {
-		console.info('specify configuration file path.')
+l.config.path = undefined;
+l.config.override = {};
+
+l.init.init(function () {
+	if (!l.config.path) {
+		l.log('specify configuration file path.')
 		process.exit();
+	} else {
+		var text = fs.readFileSync(l.config.path, 'utf8');
+		var config = JSON.parse(text);
+		_.extend(l.config, config, l.config.override);
+		l.log('configuration file loaded: ' + l.config.path);
 	}
-
-	var text = fs.readFileSync(exports.configPath, 'utf8');
-	var config = JSON.parse(text);
-	_.extend(exports, config, exports.override);
-	console.info('configuration file loaded: ' + exports.configPath);
-	next();
 });
