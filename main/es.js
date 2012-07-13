@@ -27,9 +27,7 @@ l.init.init(function (next) {
 		}
 	], next);
 
-	l.es.dropIndex = dropIndex;
-
-	function dropIndex(next) {
+	l.es.dropIndex = dropIndex; function dropIndex(next) {
 		request.del('', function (err) {
 			setSchema(next);
 		});
@@ -62,15 +60,11 @@ l.init.init(function (next) {
 		});
 	}
 
-	l.es.flush = flush;
-
-	function flush(next) {
+	l.es.flush = flush; function flush(next) {
 		request.post('/_flush', next);
 	}
 
-	l.es.updatePost = updatePost;
-
-	function updatePost(thread, post, next) {
+	l.es.updatePost = updatePost; function updatePost(thread, post, next) {
 		request.put('/post/' + post._id, {
 			threadId: thread._id,
 			categoryId: thread.categoryId,
@@ -83,9 +77,7 @@ l.init.init(function (next) {
 		}, next);
 	}
 
-	l.es.getPost = getPost;
-
-	function getPost(postId, next) {
+	l.es.getPost = function (postId, next) {
 		request.get('/post/' + postId, function (err, res) {
 			if (err) return next(err);
 			res.body._id = parseInt(res.body._id);
@@ -94,9 +86,7 @@ l.init.init(function (next) {
 		});
 	}
 
-	l.es.searchPost = searchPost;
-
-	function searchPost(body, next) {
+	l.es.searchPost = searchPost; function searchPost(body, next) {
 		request.post('/post/_search', body, function (err, res) {
 			if (err) {
 				next(err);
@@ -112,9 +102,7 @@ l.init.init(function (next) {
 		});
 	}
 
-	l.es.rebuild = rebuild;
-
-	function rebuild(next) {
+	l.es.rebuild = function (next) {
 		var threadCursor = l.mongo.threadCol.find();
 		var postCursor;
 		var count = 0;

@@ -4,8 +4,6 @@ var l = require('./l.js');
 
 l.init.init(function () {
 
-	// factory function
-
 	l.request = function (urlBase) {
 		return new RequestBase(urlBase);
 	}

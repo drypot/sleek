@@ -10,16 +10,6 @@ l.init.init(function () {
 
 	var roleMap = {};
 
-	l.role.getRoleByName = function (roleName) {
-		return roleMap[roleName];
-	};
-
-	l.role.getRoleByPassword = function (password) {
-		return _.find(roleMap, function (role) {
-			return bcrypt.compareSync(password, role.hash);
-		});
-	};
-
 	_.each(l.config.role, function (r) {
 		var role = roleMap[r.name] = {
 			name: r.name,
@@ -44,5 +34,15 @@ l.init.init(function () {
 	});
 
 	l.log('role initialized:');
+
+	l.role.getRoleByName = function (roleName) {
+		return roleMap[roleName];
+	};
+
+	l.role.getRoleByPassword = function (password) {
+		return _.find(roleMap, function (role) {
+			return bcrypt.compareSync(password, role.hash);
+		});
+	};
 
 });

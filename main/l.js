@@ -65,26 +65,35 @@ l.method = function (con, methodName, func) {
 
 // init
 
-l.init = {
-	reset: function () {
-		this.initList = [];
-		this.beforeList = [];
-		this.afterList = [];
-	},
+l.init = {};
 
-	init: function (func) {
-		return this.add(this.initList, func);
-	},
+(function () {
 
-	beforeInit: function (func) {
-		return this.add(this.beforeList, func);
-	},
+	var initList = [];
+	var beforeList = [];
+	var afterList = [];
 
-	afterInit: function (func) {
-		return this.add(this.afterList, func);
-	},
+	reset();
 
-	add: function(list, func) {
+	l.init.reset = reset; function reset() {
+		initList = [];
+		beforeList = [];
+		afterList = [];
+	}
+
+	l.init.init = function init(func) {
+		return add(initList, func);
+	};
+
+	l.init.beforeInit = function (func) {
+		return add(beforeList, func);
+	};
+
+	l.init.afterInit = function (func) {
+		return add(afterList, func);
+	};
+
+	function add(list, func) {
 		if (func.length == 0) {
 			list.push(function (next) {
 				func();
@@ -93,18 +102,18 @@ l.init = {
 		} else {
 			list.push(func);
 		}
-	},
+	}
 
-	run: function (next) {
-		var all = this.beforeList.concat(this.initList, this.afterList);
+	l.init.run = function (next) {
+		var all = beforeList.concat(initList, afterList);
 		async.series(all, function (err) {
 			if (err) throw err;
 			if (next) next();
 		});
-	}
-};
+	};
 
-l.init.reset();
+})();
+
 
 // module
 
