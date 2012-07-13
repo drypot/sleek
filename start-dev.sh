@@ -1,1 +1,1 @@
-NODE_ENV=production node main/express.js config-dev/config-dev.json
+NODE_ENV=development node app.js config-dev/config-dev.json

@@ -4,9 +4,9 @@ var l = require('./l.js');
 
 require('./config.js');
 
-l.init.init(function () {
+l.role = {};
 
-	l.role = {};
+l.init.init(function () {
 
 	var roleMap = {};
 
@@ -43,6 +43,6 @@ l.init.init(function () {
 		});
 	});
 
-	l.log('auth initialized:');
+	l.log('role initialized:');
 
 });

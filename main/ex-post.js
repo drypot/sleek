@@ -195,10 +195,10 @@ l.init.init(function () {
 		} else {
 			var category = role.category[categoryId];
 			if (!category) {
-				res.json({ rc: l.rc.INVALID_CATEGORY});
+				res.json({ rc: l.rc.INVALID_CATEGORY });
 			} else {
 				if (!category.writable) {
-					res.json({ rc: l.rc.NOT_AUTHORIZED});
+					res.json({ rc: l.rc.NOT_AUTHORIZED });
 				} else {
 					next(category);
 				}
@@ -208,7 +208,7 @@ l.init.init(function () {
 
 	function checkPostOwnership(req, res, category, postId, next) {
 		if (!category.editable && !_.include(req.session.post, postId)) {
-			res.json({ rc: l.rc.NOT_AUTHORIZED});
+			res.json({ rc: l.rc.NOT_AUTHORIZED });
 		} else {
 			next();
 		}
@@ -217,17 +217,17 @@ l.init.init(function () {
 	function checkForm(res, form, head, next) {
 		var error = [];
 		if (head) {
-			if (!form.title) error.push({title: l.msg.FILL_TITLE});
-			if (form.title.length > 128) error.push({title: l.msg.SHORTEN_TITLE});
+			if (!form.title) error.push({ title: l.msg.FILL_TITLE });
+			if (form.title.length > 128) error.push({ title: l.msg.SHORTEN_TITLE });
 		}
 		if (!form.userName) {
-			error.push({userName : l.msg.FILL_USERNAME});
+			error.push({ userName : l.msg.FILL_USERNAME });
 		}
 		if (form.userName .length > 32) {
-			error.push({userName : l.msg.SHORTEN_USERNAME});
+			error.push({ userName : l.msg.SHORTEN_USERNAME });
 		}
 		if (error.length) {
-			res.json({ rc: l.rc.INVALID_DATA, field: error});
+			res.json({ rc: l.rc.INVALID_DATA, field: error });
 		} else {
 			next();
 		}
@@ -236,7 +236,7 @@ l.init.init(function () {
 	function prepareThread(res, threadId, next) {
 		l.mongo.findThreadById(threadId, function (err, thread) {
 			if (err || !thread) {
-				res.json({ rc: l.rc.INVALID_THREAD});
+				res.json({ rc: l.rc.INVALID_THREAD });
 			} else {
 				next(thread);
 			}
@@ -247,7 +247,7 @@ l.init.init(function () {
 		prepareThread(res, threadId, function (thread) {
 			l.mongo.findPostById(postId, function (err, post) {
 				if (err || !post) {
-					res.json({ rc: l.rc.INVALID_POST});
+					res.json({ rc: l.rc.INVALID_POST });
 				} else {
 					next(thread, post, thread.cdate.getTime() === post.cdate.getTime());
 				}
@@ -264,7 +264,7 @@ l.init.init(function () {
 		};
 		l.mongo.insertThread(thread, function (err) {
 			if (err) {
-				res.json({ rc: l.rc.DB_IO_ERR});
+				res.json({ rc: l.rc.DB_IO_ERR });
 			} else {
 				next(thread);
 			}
@@ -281,15 +281,15 @@ l.init.init(function () {
 		req.session.post.push(post._id);
 		l.upload.savePostFile(post, form.uploading, function (err) {
 			if (err) {
-				res.json({ rc: l.rc.FILE_IO_ERR});
+				res.json({ rc: l.rc.FILE_IO_ERR });
 			} else {
 				l.mongo.insertPost(post, function (err) {
 					if (err) {
-						res.json({ rc: l.rc.DB_IO_ERR});
+						res.json({ rc: l.rc.DB_IO_ERR });
 					} else {
 						l.es.updatePost(thread, post, function (err, res) {
 							if (err) {
-								res.json({ rc: l.rc.SEARCH_IO_ERR});
+								res.json({ rc: l.rc.SEARCH_IO_ERR });
 							} else {
 								next(post);
 							}
@@ -309,7 +309,7 @@ l.init.init(function () {
 			thread.userName  = form.userName ;
 			l.mongo.updateThread(thread, function (err) {
 				if (err) {
-					res.json({ rc: l.rc.DB_IO_ERR});
+					res.json({ rc: l.rc.DB_IO_ERR });
 				} else {
 					next();
 				}
@@ -325,7 +325,7 @@ l.init.init(function () {
 		}
 		l.upload.deletePostFile(post, form.deleting, function (err, deleted) {
 			if (err) {
-				res.json({ rc: l.rc.FILE_IO_ERR});
+				res.json({ rc: l.rc.FILE_IO_ERR });
 			} else {
 				if (deleted) {
 					post.file = _.without(post.file, deleted);
@@ -333,12 +333,12 @@ l.init.init(function () {
 				}
 				l.upload.savePostFile(post, form.uploading, function (err, saved) {
 					if (err) {
-						res.json({ rc: l.rc.FILE_IO_ERR});
+						res.json({ rc: l.rc.FILE_IO_ERR });
 					} else {
 						l.mongo.updatePost(post);
 						l.es.updatePost(thread, post, function (err, res) {
 							if (err) {
-								res.json({ rc: l.rc.SEARCH_IO_ERR});
+								res.json({ rc: l.rc.SEARCH_IO_ERR });
 							} else {
 								next();
 							}
