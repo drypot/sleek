@@ -22,7 +22,7 @@ l.init.init(function (next) {
 			}
 		},
 		function (next) {
-			l.log('elasticsearch initialized: ' + baseUrl);
+			console.log('elasticsearch initialized: ' + baseUrl);
 			next();
 		}
 	], next);

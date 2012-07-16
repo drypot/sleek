@@ -35,5 +35,5 @@ l.init.afterInit(function () {
 	});
 
 	e.listen(l.config.serverPort);
-	l.log("express listening on port: %d", l.config.serverPort);
+	console.log("express listening on port: %d", l.config.serverPort);
 });

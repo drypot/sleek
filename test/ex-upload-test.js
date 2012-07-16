@@ -19,7 +19,7 @@ describe('upload api', function () {
 		l.test.request.post('/api/upload', {}, ['file1.txt'], function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(l.rc.SUCCESS);
-//				l.log(res.body);
+//				console.log(res.body);
 				var tmp = res.body.tmp;
 				tmp.should.length(1);
 				tmp[0].org.should.equal('file1.txt');
@@ -32,7 +32,7 @@ describe('upload api', function () {
 		l.test.request.post('/api/upload', {}, ['file1.txt', 'file2.txt'], function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(l.rc.SUCCESS);
-//				l.log(res.body);
+//				console.log(res.body);
 				var tmp = res.body.tmp;
 				tmp.should.length(2);
 				tmp[0].org.should.equal('file1.txt');
@@ -48,7 +48,7 @@ describe('upload api', function () {
 			function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(l.rc.SUCCESS);
-//				l.log(res.body);
+//				console.log(res.body);
 				var tmp = res.body.tmp;
 				tmp.should.be.empty;
 				next(err);

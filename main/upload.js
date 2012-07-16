@@ -19,8 +19,8 @@ l.init.init(function (next) {
 			l.fs.mkdirs([l.config.uploadDir, 'post'], next);
 		},
 		function (next) {
-			l.log('upload directory: ' + l.config.uploadDir);
-			l.log('upload tmp directory: ' + l.config.uploadTmpDir);
+			console.log('upload directory: ' + l.config.uploadDir);
+			console.log('upload tmp directory: ' + l.config.uploadTmpDir);
 			fs.readdir(l.config.uploadTmpDir, function (err, file) {
 				_.each(file, function (file) {
 					fs.unlink(l.config.uploadTmpDir + '/' + file);
@@ -129,7 +129,7 @@ l.init.init(function (next) {
 			function (deleting, next) {
 				var basename = path.basename(deleting)
 				var p = dir + '/' + basename;
-				//l.log('deleting: ' + path);
+				//console.log('deleting: ' + path);
 				deleted.push(basename);
 				fs.unlink(p, function (err) {
 					if (err && err.code !== 'ENOENT') {

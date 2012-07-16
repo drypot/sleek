@@ -4,12 +4,6 @@ var async = require('async');
 
 var l = exports;
 
-// console
-
-l.log = function () {
-	console.log.apply(null, arguments);
-};
-
 // object
 
 l.isObject = function (obj) {

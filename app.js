@@ -7,8 +7,8 @@ require('./main/ex-search.js');
 
 (function () {
 	process.on('uncaughtException', function (err) {
-		l.log('UNCAUGHT EXCEPTION');
-		l.log(err);
+		console.log('UNCAUGHT EXCEPTION');
+		console.log(err);
 	});
 })();
 

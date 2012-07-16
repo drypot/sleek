@@ -59,7 +59,7 @@ describe('safeFilename', function () {
 		_.each(table, function (pair) {
 			var a = l.fs.safeFilename(pair[0]);
 			var b = pair[1];
-			if (a !== b) l.log(pair);
+			if (a !== b) console.log(pair);
 			should(a === b);
 		})
 	});

@@ -5,8 +5,8 @@ require('./main/es.js');
 
 (function () {
 	process.on('uncaughtException', function (err) {
-		l.log('UNCAUGHT EXCEPTION');
-		l.log(err);
+		console.log('UNCAUGHT EXCEPTION');
+		console.log(err);
 	});
 })();
 
@@ -30,14 +30,14 @@ require('./main/es.js');
 				l.es.dropIndex(next);
 			},
 			function (next) {
-				l.log('start search index rebuilding.');
+				console.log('start search index rebuilding.');
 				l.es.rebuild(next);
 			},
 			function (next) {
 				l.mongo.db.close(next);
 			},
 			function (next) {
-				l.log('completed.');
+				console.log('completed.');
 				next();
 			}
 		]);

@@ -33,7 +33,7 @@ l.init.init(function () {
 		});
 	});
 
-	l.log('role initialized:');
+	console.log('role initialized:');
 
 	l.role.getRoleByName = function (roleName) {
 		return roleMap[roleName];

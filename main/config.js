@@ -9,12 +9,12 @@ l.config.override = {};
 
 l.init.init(function () {
 	if (!l.config.path) {
-		l.log('specify configuration file path.')
+		console.log('specify configuration file path.')
 		process.exit();
 	} else {
 		var text = fs.readFileSync(l.config.path, 'utf8');
 		var config = JSON.parse(text);
 		_.extend(l.config, config, l.config.override);
-		l.log('configuration file loaded: ' + l.config.path);
+		console.log('configuration file loaded: ' + l.config.path);
 	}
 });

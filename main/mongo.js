@@ -28,7 +28,7 @@ l.init.init(function (next) {
 			}
 		},
 		function (next) {
-			l.log('mongo initialized: ' + db.databaseName);
+			console.log('mongo initialized: ' + db.databaseName);
 			next();
 		},
 	], next);
@@ -49,7 +49,7 @@ l.init.init(function (next) {
 		function (next) {
 			threadCol.find({}, { _id: 1 }).sort({ _id: -1 }).limit(1).nextObject(function (err, obj) {
 				threadIdSeed = obj ? obj._id : 0;
-				l.log('thread id seed: ' + threadIdSeed);
+				console.log('thread id seed: ' + threadIdSeed);
 				next(err);
 			});
 		}
@@ -109,7 +109,7 @@ l.init.init(function (next) {
 			postCol.find({}, { _id: 1 }).sort({ _id: -1 }).limit(1).nextObject(function (err, obj) {
 				if (err) return next(err);
 				postIdSeed = obj ? obj._id : 0;
-				l.log('post id seed: ' + postIdSeed);
+				console.log('post id seed: ' + postIdSeed);
 				next();
 			});
 		}
