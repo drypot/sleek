@@ -14,25 +14,26 @@ describe('mongo', function () {
 	it('should have db property', function () {
 		should(l.mongo.db);
 	});
-	describe('db', function () {
-		it('should have name', function () {
-			l.mongo.db.databaseName.should.equal('sleek-test');
-		});
+});
+
+describe('db', function () {
+	it('should have databaseName, sleek-test', function () {
+		l.mongo.db.databaseName.should.equal('sleek-test');
 	});
 });
 
 describe('post collection', function () {
-	it('should be ok', function () {
+	it('should exist', function () {
 		should(l.mongo.postCol);
 	});
-	it('should have no record', function (next) {
+	it('should be empty', function (next) {
 		l.mongo.postCol.count(function (err, count) {
 			if (err) return next(err);
 			count.should.equal(0);
 			next();
 		})
 	});
-	it('should have two index', function (next) {
+	it('should have two indexes', function (next) {
 		l.mongo.postCol.indexes(function (err, index) {
 			if (err) return next(err);
 			index.should.be.instanceof(Array);
@@ -40,13 +41,13 @@ describe('post collection', function () {
 			next();
 		});
 	});
-	it('can make new id', function () {
+	it('can make serialized ids', function () {
 		var id1 = l.mongo.getNewPostId();
 		var id2 = l.mongo.getNewPostId();
 		should(id1 < id2);
 	});
 	var ppost;
-	it('can insert records', function (next) {
+	it('given records', function (next) {
 		async.forEachSeries([
 			{
 				threadId: 1000, cdate: new Date(10), visible: true,
@@ -127,17 +128,17 @@ describe('post collection', function () {
 });
 
 describe('thread collection', function () {
-	it('should be ok', function () {
+	it('should exist', function () {
 		should(l.mongo.threadCol);
 	});
-	it('should have no record', function (next) {
+	it('should be empty', function (next) {
 		l.mongo.threadCol.count(function (err, count) {
 			if (err) return next(err);
 			count.should.equal(0);
 			next(err);
 		})
 	});
-	it('should have index', function (next) {
+	it('should have one index', function (next) {
 		l.mongo.threadCol.indexes(function (err, indexList) {
 			if (err) return next(err);
 			indexList.should.be.instanceof(Array);
@@ -145,13 +146,13 @@ describe('thread collection', function () {
 			next(err);
 		});
 	});
-	it('can set new id', function () {
+	it('can make serialized ids', function () {
 		var id1 = l.mongo.getNewThreadId();
 		var id2 = l.mongo.getNewThreadId();
 		should(id1 < id2);
 	});
 	var pthread;
-	it('can insert thread', function () {
+	it('given records', function () {
 		function insertThread(thread) {
 			thread._id = l.mongo.getNewThreadId();
 			l.mongo.insertThread(thread);
@@ -186,14 +187,14 @@ describe('thread collection', function () {
 			userName : 'snowman', title: 'cool thread 7'
 		});
 	});
-	it('can count record', function (next) {
+	it('can count records', function (next) {
 		l.mongo.threadCol.count(function (err, count) {
 			if (err) return next(err);
 			count.should.equal(7);
 			next();
 		});
 	});
-	it('can get by id', function (next) {
+	it('can find by id', function (next) {
 		l.mongo.findThreadById(pthread._id, function (err, thread) {
 			if (err) return next(err);
 			thread._id.should.equal(pthread._id);
@@ -249,10 +250,9 @@ describe('thread collection', function () {
 	it('can find with lastUpdate', function (next) {
 		l.mongo.findThreadByCategory(0, new Date(20), 99, function (err, thread) {
 			if (err) return next(err);
-			thread.should.length(4);
-			thread[0].udate.should.equal(new Date(20));
-			thread[1].udate.should.equal(new Date(20));
-			thread[2].udate.should.equal(new Date(11));
+			thread.should.length(2);
+			thread[0].udate.should.equal(new Date(11));
+			thread[1].udate.should.equal(new Date(10));
 			next();
 		})
 	});

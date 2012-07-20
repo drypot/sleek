@@ -80,17 +80,19 @@ l.init.init(function (next) {
 	};
 
 	l.mongo.findThreadByCategory = function (categoryId, lastUdate, limit, next) {
+		// 스레드의 lastUdate 가 동일한 경우 페이지 경계 부분에서 데이터 누락이 발생할 수 있다.
+		// 개선하려면 udate 를 유니크하게 생성해야.
 		if (!categoryId) {
 			if (!lastUdate) {
 				threadCol.find().sort({ udate: -1 }).limit(limit).toArray(next);
 			} else {
-				threadCol.find({ udate: { $lte: lastUdate }}).sort({ udate: -1 }).limit(limit).toArray(next);
+				threadCol.find({ udate: { $lt: lastUdate }}).sort({ udate: -1 }).limit(limit).toArray(next);
 			}
 		} else {
 			if (!lastUdate) {
 				threadCol.find({ categoryId: categoryId }).sort({ udate: -1 }).limit(limit).toArray(next);
 			} else {
-				threadCol.find({ categoryId: categoryId, udate: { $lte: lastUdate }}).sort({ udate: -1 }).limit(limit).toArray(next);
+				threadCol.find({ categoryId: categoryId, udate: { $lt: lastUdate }}).sort({ udate: -1 }).limit(limit).toArray(next);
 			}
 		}
 	};
