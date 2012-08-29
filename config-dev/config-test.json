@@ -5,8 +5,7 @@
 	"cookieSecret": "o;iejf832ndvs",
 
 	"uploadUrl": "http://sleekfile:8080",
-	"uploadDir": "/Users/drypot/data/sleek/upload/sleek-test",
-	"uploadTmpDir": "/Users/drypot/data/sleek/upload/sleek-test-tmp",
+	"uploadDir": "/Users/drypot/data/sleek-test-upload",
 	"uploadMax": 512,
 
 	"esUrl": "http://localhost:9200",

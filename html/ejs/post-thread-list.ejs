@@ -1,0 +1,38 @@
+<% include layout/header %>
+
+<script>
+	l.init.init(function () {
+		l.post.initThreadListPage();
+	});
+</script>
+
+<script id="template" type="text/template">
+	{#thread}
+		<tr class="new">
+			<td>
+				<a class="a2" href="/thread?c={categoryId}">{categoryName}</a>
+			</td>
+			<td>{writer}</td>
+			<td>
+				<a class="a2" href="/thread/{id}">
+					<span>{title}</span>
+					{#reply}
+					<span class="l">[{reply}]</span>
+					{/reply}
+				</a>
+			</td>
+			<td>{hit}</td>
+			<td>{updatedStr}</td>
+		</tr>
+	{/thread}
+</script>
+
+<table class="table threads">
+	<tbody id="thread-list"></tbody>
+</table>
+
+<buton id="load">load</buton>
+
+<div id="spin-holder" style="padding-left:14px; padding-top:0px;"></div>
+
+<% include layout/footer %>

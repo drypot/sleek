@@ -1,0 +1,44 @@
+<% include layout/header %>
+
+<script>
+	l.init.init(function () {
+		l.post.initThreadPage();
+	});
+</script>
+
+<script id="template" type="text/template">
+	<h1 class="page-header">{thread.title}</h1>
+	<div class="posts">
+		{#post}
+			<div id="{id}" class="post">
+				<div class="writer">{writer}</div>
+				<div class="created">{createdStr}</div>
+				{?upload}
+					<div class="files">
+						{#upload}
+							<div class="file">
+								{#img}
+								<span class="ipt-img">
+									<a href="{url|s}" target="_blank">{name}</a>
+								</span>
+								{:else}
+								<a href="{url|s}" target="_blank">{name}</a>
+								{/img}
+							</div>
+						{/upload}
+					</div>
+				{/upload}
+				<div class="text">{text|s}</div>
+				{#editable}
+					<div class="cmd">
+						<a href="/thread/{thread.id}/{id}/edit">edit</a>
+					</div>
+				{/editable}
+			</div>
+		{/post}
+	</div>
+</script>
+
+<div id="thread"></div>
+
+<% include layout/footer %>

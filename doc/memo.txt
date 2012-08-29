@@ -1,0 +1,25 @@
+db.postThread.update(
+	{},
+	{
+		$rename: {
+			userName: 'writer',
+			cdate: 'created',
+			udate: 'updated',
+		}
+	},
+	false, true
+);
+
+db.post.update(
+	{},
+	{
+		$rename: {
+			userName: 'writer',
+			cdate: 'created',
+			fileNameList: 'upload',
+		}
+	},
+	false, true
+);
+
+upload-file 디렉토리를 upload 로 변경
