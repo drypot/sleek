@@ -1,0 +1,4 @@
+l.setSearchPage = function () {
+
+}
+
