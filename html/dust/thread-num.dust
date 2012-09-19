@@ -1,0 +1,39 @@
+{>"html/dust/layout.dust"/}
+
+{<content}
+
+	<script>
+		l.init.add(function () {
+			l.post.initThreadPage();
+		});
+	</script>
+
+	<div id="content">
+
+		<div class="posts">
+			{#post}
+				<div id="{id}" class="post">
+					<div class="writer">{writer}</div>
+					<div class="created">{createdStr}</div>
+					{?upload}
+						<div class="files">
+							{#upload}
+								<div class="file">
+									<a href="{url|s}" target="_blank">{name}</a>
+								</div>
+							{/upload}
+						</div>
+					{/upload}
+					<div class="text"><pre>{text}</pre></div>
+					{#editable}
+						<div class="cmd">
+							<a class="btn" href="/thread/{threadId|s}/{id|s}/edit">edit</a>
+						</div>
+					{/editable}
+				</div>
+			{/post}
+		</div>
+
+	</div>
+
+{/content}

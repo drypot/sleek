@@ -11,7 +11,7 @@ before(function (next) {
 describe('config', function () {
 	it('should have path', function () {
 		should(l.config.path);
-		l.config.path.should.equal("config-dev/config-test.json");
+		l.config.path.should.equal("config/config-test.json");
 	});
 
 	it('should have siteTitle', function () {

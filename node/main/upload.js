@@ -11,7 +11,7 @@ require('./session.js');
 
 l.upload = {};
 
-l.init.init(function (next) {
+l.init.add(function (next) {
 
 	var publicDir = l.config.uploadDir + '/public';
 	var tmpDir = l.config.uploadDir + '/tmp';
@@ -156,7 +156,7 @@ l.init.init(function (next) {
 
 });
 
-l.init.init(function () {
+l.init.add(function () {
 
 	l.e.post('/api/upload', function (req, res) {
 		l.session.authorized(res, function () {

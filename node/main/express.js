@@ -1,12 +1,14 @@
 var _ = require('underscore');
 var express = require('express');
 var redisStore = require('connect-redis')(express);
+var dust = require('dustjs-linkedin');
+var consolidate = require('consolidate');
 var l = require('./l.js');
 
 require('./config.js');
 require('./role.js');
 
-l.init.init(function () {
+l.init.add(function () {
 
 	var e = l.e = express();
 
@@ -15,19 +17,22 @@ l.init.init(function () {
 		e.use(express.session({ store: new redisStore() }));
 		e.use(express.bodyParser({ uploadDir: l.config.uploadDir + '/tmp' }));
 		e.use(function (req, res, next) {
-
 			res.locals.role = l.role.getRoleByName(req.session.roleName);
-
 			next();
 		});
 		e.use(e.router);
 
-		e.set('views', process.cwd() + '/html/ejs');
-		e.set('view engine', 'ejs');
+		// NODE_ENV=production 상태에서는 케쉬 때문에 *.dust 파일 수정해도 반영이 안 된다.
+		e.engine('dust', consolidate.dust); // 뷰 확장자 등록
+		e.set('view engine', 'dust'); // 뷰 기본 확장자 등록
+		e.set('views', process.cwd() + '/html/dust'); // 뷰 루트 디렉토리 등록
 
-		e.locals.l = l;
-		e.locals._ = _;
-		e.locals._with = false;
+		// To disable whitespace compression
+		//dust.optimizers.format = function(ctx, node) { return node };
+
+		e.locals.siteTitle = l.config.siteTitle;
+		//e.locals._ = _;
+		//e.locals._with = false; // for ejs
 
 		e.all('/api/*', function (req, res, next) {
 			// to solve IE ajax caching problem.
@@ -46,7 +51,7 @@ l.init.init(function () {
 
 });
 
-l.init.afterInit(function () {
+l.init.add(1, function () {
 
 	var e = l.e;
 

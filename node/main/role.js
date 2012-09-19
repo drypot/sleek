@@ -6,7 +6,7 @@ require('./config.js');
 
 l.role = {};
 
-l.init.init(function () {
+l.init.add(function () {
 
 	var roleMap = {};
 

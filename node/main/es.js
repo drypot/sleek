@@ -11,7 +11,7 @@ require('./session.js');
 
 l.es = {};
 
-l.init.init(function (next) {
+l.init.add(function (next) {
 
 	var baseUrl = l.config.esUrl + '/' + l.config.esIndexName;
 	var request = l.request(baseUrl);
@@ -168,7 +168,7 @@ l.init.init(function (next) {
 
 });
 
-l.init.init(function () {
+l.init.add(function () {
 
 	l.e.get('/api/search', function (req, res) {
 		l.session.authorized(res, function () {

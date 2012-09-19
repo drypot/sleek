@@ -7,7 +7,7 @@ require('./config.js');
 
 l.mongo = {};
 
-l.init.init(function (next) {
+l.init.add(function (next) {
 
 	var server = l.mongo.server = new mongo.Server("127.0.0.1", 27017, { auto_reconnect: true });
 	var db = l.mongo.db = new mongo.Db(l.config.mongoDbName, server);
@@ -35,7 +35,7 @@ l.init.init(function (next) {
 
 });
 
-l.init.init(function (next) {
+l.init.add(function (next) {
 	var threadCol = l.mongo.threadCol = l.mongo.db.collection("postThread");
 	var threadIdSeed;
 
@@ -79,27 +79,20 @@ l.init.init(function (next) {
 		return threadCol.findOne({ _id: id }, next);
 	};
 
-	l.mongo.findThreadByCategory = function (categoryId, lastUdate, limit, next) {
-		// 스레드의 lastUdate 가 동일한 경우 페이지 경계 부분에서 데이터 누락이 발생할 수 있다.
-		// 개선하려면 updated 를 유니크하게 생성해야.
-		if (!categoryId) {
-			if (!lastUdate) {
-				threadCol.find().sort({ updated: -1 }).limit(limit).toArray(next);
-			} else {
-				threadCol.find({ updated: { $lt: lastUdate }}).sort({ updated: -1 }).limit(limit).toArray(next);
-			}
-		} else {
-			if (!lastUdate) {
-				threadCol.find({ categoryId: categoryId }).sort({ updated: -1 }).limit(limit).toArray(next);
-			} else {
-				threadCol.find({ categoryId: categoryId, updated: { $lt: lastUdate }}).sort({ updated: -1 }).limit(limit).toArray(next);
-			}
+	l.mongo.findThreadByCategory = function (categoryId, page, pageSize, next) {
+		var findOp = {};
+		var dir = page > 0 ? 1 : -1;
+		var skip = (Math.abs(page) - 1) * pageSize;
+
+		if (categoryId) {
+			findOp.categoryId = categoryId;
 		}
+		threadCol.find(findOp).sort({ updated: -1 * dir }).skip(skip).limit(pageSize).toArray(next);
 	};
 
 });
 
-l.init.init(function (next) {
+l.init.add(function (next) {
 	var postCol = l.mongo.postCol = l.mongo.db.collection("post");
 	var postIdSeed;
 

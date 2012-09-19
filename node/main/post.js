@@ -9,53 +9,165 @@ require('./session.js');
 require('./es.js');
 require('./upload.js');
 
-l.init.init(function () {
+l.init.add(function () {
 
 	var e = l.e;
 
-	// thread list
+	// thread
 
-	e.get('/api/thread', function (req, res) {
+	e.get('/api/thread', function (req, res, next) {
 		l.session.authorized(res, function () {
-			var categoryId = l.defInt(req.query, 'c', 0);
-			var lastUdate = new Date(l.defInt(req.query, 'updated', Date.now()));
-			var limit = l.defInt(req.query, 'limit', 32, 0, 64);
-			prepareReadableCategory(res, categoryId, function (category) {
-				l.mongo.findThreadByCategory(categoryId, lastUdate, limit, function (err, thread) {
-					if (err) {
-						next(err);
-					} else {
-						var r = {
-							rc: l.rc.SUCCESS,
-							thread: []
-						};
-						_.each(thread, function (thread) {
-							if (categoryId === 0 && !res.locals.role.category[thread.categoryId]) {
-								//
-							} else {
-								r.thread.push({
-									id: thread._id,
-									categoryId: thread.categoryId,
-									hit: thread.hit,
-									length: thread.length,
-									updated: thread.updated.getTime(),
-									writer: thread.writer,
-									title: thread.title
-								});
-							}
-						});
-						res.json(r);
-					}
+			prepareThreadListParam(req, function (categoryId, page, pageSize) {
+				prepareReadableCategory(res, categoryId, function (category) {
+					l.mongo.findThreadByCategory(categoryId, page, pageSize, function (err, thread) {
+						if (err) {
+							next(err);
+						} else {
+							var r = {
+								rc: l.rc.SUCCESS,
+								thread: []
+							};
+							iterThreadList(page, thread, function (thread) {
+								if (category.id === 0 && !res.locals.role.category[thread.categoryId]) {
+									//
+								} else {
+									r.thread.push({
+										id: thread._id,
+										categoryId: thread.categoryId,
+										hit: thread.hit,
+										length: thread.length,
+										updated: thread.updated.getTime(),
+										writer: thread.writer,
+										title: thread.title
+									});
+								}
+							});
+							res.json(r);
+						}
+					});
 				});
 			});
 		});
 	});
 
-	// thread
+	function prepareThreadListParam(req, next) {
+		var categoryId = l.defInt(req.query, 'c', 0);
+		var page = l.defInt(req.query, 'p', 1);
+		var pageSize = l.defInt(req.query, 'ps', 32, 1, 128);
+		if (page === 0) {
+			page = 1;
+		}
+		next(categoryId, page, pageSize);
+	}
+
+	function prepareReadableCategory(res, categoryId, next) {
+		var category = res.locals.role.category[categoryId];
+		if (!category) {
+			res.json({ rc: l.rc.INVALID_CATEGORY });
+		} else {
+			if (!category.readable) {
+				res.json({ rc: l.rc.NOT_AUTHORIZED });
+			} else {
+				next(category);
+			}
+		}
+	}
+
+	function iterThreadList(page, thread, func) {
+		var len = thread.length;
+		for (var i = 0; i < len; i++) {
+			if (page > 0) {
+				func(thread[i]);
+			} else {
+				func(thread[len - i - 1]);
+			}
+		}
+	}
+
+	e.get('/thread', function (req, res, next) {
+		l.session.authorized(res, function () {
+			prepareThreadListParam(req, function (categoryId, page, pageSize) {
+				prepareReadableCategory(res, categoryId, function (category) {
+					l.mongo.findThreadByCategory(categoryId, page, pageSize, function (err, thread) {
+						if (err) {
+							next(err);
+						} else {
+							var categories = res.locals.role.category;
+							var r = {
+								title: category.name,
+								category: {
+									id: categoryId,
+									name: category.name,
+									// TODO: check this
+									writable: category.writable
+								},
+								thread: [],
+								prevUrl: null,
+								nextUrl: null
+							};
+							iterThreadList(page, thread, function (thread) {
+								if (category.id === 0 && !role.category[thread.categoryId]) {
+									//
+								} else {
+									r.thread.push({
+										id: thread._id,
+										categoryId: thread.categoryId,
+										hit: thread.hit,
+										//length: thread.length,
+										//updated: thread.updated.getTime(),
+										writer: thread.writer,
+										title: thread.title,
+
+										categoryName: role.category[thread.categoryId].name,
+										reply: thread.length - 1,
+										updatedStr: thread.updated.format('yyyy-MM-dd HH:mm')
+									});
+								}
+							});
+							// TODO: 최근글 하일라이트
+//							CharSequence titleCss = "thread" +
+//								(thread.getUdate().getMillis() > authService.getLastVisit().getMillis() ? " tn" : "") +
+//								(thread.getId() == postContext.getParam().getThreadId() ? " tc" : "");
+
+							prevNext(page, pageSize, thread, function (prev, next) {
+								var u;
+								if (prev) {
+									u = new l.UrlMaker('/thread');
+									u.addIfNot('c', categoryId, 0);
+									u.addIfNot('p', prev, 1);
+									r.prevUrl = u.toString();
+								}
+								if (next) {
+									u = new l.UrlMaker('/thread');
+									u.addIfNot('c', categoryId, 0);
+									u.addIfNot('p', next, 1);
+									r.nextUrl = u.toString();
+								}
+							})
+							res.render('thread', r);
+						}
+					});
+				});
+			});
+		});
+	});
+
+	function prevNext(page, pageSize, array, func) {
+		var prev, next;
+		if (page > 0) {
+			prev = page === 1 ? null : page - 1;
+			next = array.length !== pageSize ? null : page + 1;
+		} else {
+			prev = array.length !== pageSize ? null : page - 1;
+			next = page === -1 ? null : page + 1;
+		}
+		func(prev, next);
+	}
+
+	// thread-num
 
 	e.get('/api/thread/:threadId([0-9]+)', function (req, res) {
 		l.session.authorized(res, function () {
-			var body = req.body;
 			var threadId = l.defInt(req.params, 'threadId', 0);
 			prepareThread(res, threadId, function (thread) {
 				prepareReadableCategory(res, thread.categoryId, function (category) {
@@ -68,29 +180,89 @@ l.init.init(function () {
 						},
 						post: []
 					};
-					var admin = category.editable;
 					l.mongo.findPostByThread(threadId, function (err, post) {
 						if (err) {
 							next(err);
 						} else {
-							_.each(post, function (post) {
-								if (!post.visible && !admin) {
-									//
-								} else {
-									r.post.push({
-										id: post._id,
-										writer: post.writer,
-										created: post.created,
-										text: post.text,
-										upload: uploadUrl(post)
-									});
-								}
+							iterPostList(category, post, function (post) {
+								r.post.push({
+									id: post._id,
+									writer: post.writer,
+									created: post.created,
+									text: post.text,
+									upload: uploadUrl(post)
+								});
 							});
 							res.json(r);
 						}
 					});
 				});
 			});
+		});
+	});
+
+	function iterPostList(category, post, func) {
+		var admin = category.editable;
+		_.each(post, function (post) {
+			if (!post.visible && !admin) {
+				//
+			} else {
+				func(post);
+			}
+		});
+	}
+
+	function uploadUrl(post) {
+		if (!post.upload) {
+			return undefined;
+		} else {
+			var url = [];
+			_.each(post.upload, function (upload) {
+				url.push({
+					name: upload,
+					url: l.upload.postUploadUrl(post._id, upload)
+				});
+			});
+			return url;
+		}
+	}
+
+	e.get('/thread/:threadId([0-9]+)', function (req, res, next) {
+		l.session.authorized(res, function () {
+			var threadId = l.defInt(req.params, 'threadId', 0);
+			prepareThread(res, threadId, function (thread) {
+				prepareReadableCategory(res, thread.categoryId, function (category) {
+					var r = {
+						title: thread.title,
+						categoryId: category.id,
+						categoryName: category.name,
+						threadId: thread._id,
+						post: []
+					};
+					l.mongo.findPostByThread(threadId, function (err, post) {
+						if (err) {
+							next(err);
+						} else {
+							iterPostList(category, post, function (post) {
+								r.post.push({
+									id: post._id,
+									writer: post.writer,
+									//created: post.created,
+									text: post.text,
+									upload: uploadUrl(post),
+
+									createdStr: new Date(post.created).format('yyyy-MM-dd HH:mm'),
+									editable: category.editable || _.include(req.session.post, post.id),
+								});
+
+
+							});
+							res.render('thread-num', r);
+						}
+					});
+				});
+			});
+
 		});
 	});
 
@@ -126,19 +298,6 @@ l.init.init(function () {
 		return category.editable || _.include(req.session.post, post._id)
 	}
 
-	function uploadUrl(post) {
-		var url = undefined;
-		if (post.upload) {
-			url = [];
-			_.each(post.upload, function (upload) {
-				url.push({
-					name: upload,
-					url: l.upload.postUploadUrl(post._id, upload)
-				});
-			});
-		}
-		return url;
-	}
 
 	// new thread
 
@@ -153,6 +312,22 @@ l.init.init(function () {
 						});
 					});
 				});
+			});
+		});
+	});
+
+	e.get('/thread/new', function (req, res, next) {
+		l.session.authorized(res, function () {
+			var categoryId = l.defInt(body, 'categoryId', 0);
+			prepareWritableCategory(res, categoryId, function (category) {
+				var r = {
+					title: 'New',
+					categoryId: category.id,
+					categoryName: category.name,
+					threadId: thread._id,
+					post: []
+				};
+				res.render('thread-num', r);
 			});
 		});
 	});
@@ -215,19 +390,6 @@ l.init.init(function () {
 		r.deleting = body.deleting;
 		r.uploadTmp = body.uploadTmp;
 		return r;
-	}
-
-	function prepareReadableCategory(res, categoryId, next) {
-		var category = res.locals.role.category[categoryId];
-		if (!category) {
-			res.json({ rc: l.rc.INVALID_CATEGORY });
-		} else {
-			if (!category.readable) {
-				res.json({ rc: l.rc.NOT_AUTHORIZED });
-			} else {
-				next(category);
-			}
-		}
 	}
 
 	function prepareWritableCategory(res, categoryId, next) {
@@ -390,17 +552,3 @@ l.init.init(function () {
 		});
 	}
 });
-
-l.init.init(function () {
-
-	var e = l.e;
-
-	e.get('/thread', function (req, res, next) {
-		res.render('post-thread-list');
-	});
-
-	e.get('/thread/:threadId([0-9]+)', function (req, res, next) {
-		res.render('post-thread');
-	});
-
-})

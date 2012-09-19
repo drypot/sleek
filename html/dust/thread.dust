@@ -1,0 +1,67 @@
+{>"html/dust/layout.dust"/}
+
+{<content}
+
+	<div id="content">
+
+		<table id="thread-list" class="table table-hover hidden-phone thread-list">
+			<tbody>
+				{#thread}
+					<tr>
+						<td>
+							<a href="/thread?c={categoryId}">{categoryName}</a>
+						</td>
+						<td>{writer}</td>
+						<td>
+							<a href="/thread/{id}">
+								<span>{title}</span>
+								{#reply}
+									[{reply|s}]
+								{/reply}
+							</a>
+						</td>
+						<td>{hit|s}</td>
+						<td>{updatedStr|s}</td>
+					</tr>
+				{/thread}
+			</tbody>
+		</table>
+
+		<table id="thread-list-phone" class="table table-hover visible-phone thread-list-phone">
+			<tbody>
+				{#thread}
+					<tr>
+						<td>
+							<a href="/thread/{id}">
+								<span>{title}</span>
+								{#reply}
+									[{reply|s}]
+								{/reply}
+							</a>
+							<div>
+								<small>{writer}</small>
+								<small><a href="/thread?c={categoryId}">{categoryName}</a></small>
+								<small>{updatedStr|s}</small>
+							</div>
+						</td>
+					</tr>
+				{/thread}
+			</tbody>
+		</table>
+
+		<ul class="pager pager-left" style="text-align: left">
+			{#prevUrl}
+				<li><a href="{prevUrl|s}">Previous</a></li>
+			{:else}
+				<li class="disabled"><a href="javascript:void(0)">Previous</a></li>
+			{/prevUrl}
+			{#nextUrl}
+				<li><a href="{nextUrl|s}">Next</a></li>
+			{:else}
+				<li class="disabled"><a href="javascript:void(0)">Next</a></li>
+			{/nextUrl}
+		</ul>
+
+	</div>
+
+{/content}

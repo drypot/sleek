@@ -4,7 +4,7 @@ var l = require('./l.js');
 
 l.fs = {};
 
-l.init.init(function () {
+l.init.add(function () {
 
 	l.fs.mkdirs = function (sub, next) {
 		var dir;

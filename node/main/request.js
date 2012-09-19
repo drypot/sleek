@@ -2,7 +2,7 @@ var _ = require('underscore');
 var request = require('request');
 var l = require('./l.js');
 
-l.init.init(function () {
+l.init.add(function () {
 
 	l.request = function (urlBase) {
 		return new RequestBase(urlBase);

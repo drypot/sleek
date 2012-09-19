@@ -9,12 +9,18 @@ require('./express.js');
 
 l.session = {};
 
-l.init.init(function () {
+l.init.add(function () {
+
+	var apiExp = /^\/api\//;
 
 	l.session.authorized = function (res, roleName, next) {
 		var role = res.locals.role;
 		if (!role) {
-			res.json({ rc: l.rc.NOT_AUTHENTICATED });
+			if (apiExp.test(res.req.path)) {
+				res.json({ rc: l.rc.NOT_AUTHENTICATED });
+			} else {
+				res.redirect('/');
+			}
 		} else {
 			if (_.isString(roleName)) {
 				if (role.name !== roleName) {
@@ -31,7 +37,7 @@ l.init.init(function () {
 
 });
 
-l.init.init(function () {
+l.init.add(function () {
 
 	var e = l.e;
 
@@ -85,6 +91,15 @@ l.init.init(function () {
 		}
 	})();
 
+	e.get('/', function (req, res) {
+		if (res.locals.role) {
+			res.redirect('/thread');
+		} else {
+			res.locals.title = 'Login';
+			res.render('index');
+		}
+	});
+
 	e.del('/api/session', function (req, res) {
 		req.session.destroy();
 		res.json({ rc: l.rc.SUCCESS });
@@ -117,16 +132,6 @@ l.init.init(function () {
 				res.json({ rc: l.rc.SUCCESS });
 			});
 		});
-	});
-
-});
-
-l.init.init(function () {
-
-	var e = l.e;
-
-	e.get('/', function (req, res) {
-		res.render('index');
 	});
 
 });

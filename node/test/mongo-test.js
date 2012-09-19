@@ -160,37 +160,49 @@ describe('thread collection', function () {
 		}
 		insertThread({
 			categoryId: 101, hit: 10, length: 5, created: new Date(10), updated: new Date(10),
-			writer : 'snowman', title: 'cool thread 1'
-		});
-		insertThread({
-			categoryId: 101, hit: 10, length: 5, created: new Date(10), updated: new Date(11),
-			writer : 'snowman', title: 'cool thread 2'
+			writer : 'snowman', title: 'title1'
 		});
 		insertThread({
 			categoryId: 101, hit: 10, length: 5, created: new Date(10), updated: new Date(20),
-			writer : 'snowman', title: 'cool thread 3'
+			writer : 'snowman', title: 'title2'
 		});
 		insertThread({
-			categoryId: 101, hit: 10, length: 5, created: new Date(10), updated: new Date(20),
-			writer : 'snowman', title: 'cool thread 4'
+			categoryId: 101, hit: 10, length: 5, created: new Date(10), updated: new Date(30),
+			writer : 'snowman', title: 'title3'
 		});
 		insertThread({
-			categoryId: 103, hit: 10, length: 5, created: new Date(10), updated: new Date(30),
-			writer : 'snowman', title: 'cool thread 5'
+			categoryId: 101, hit: 10, length: 5, created: new Date(10), updated: new Date(40),
+			writer : 'snowman', title: 'title4'
 		});
 		insertThread({
-			categoryId: 103, hit: 10, length: 5, created: new Date(10), updated: new Date(40),
-			writer : 'snowman', title: 'cool thread 6'
+			categoryId: 103, hit: 10, length: 5, created: new Date(10), updated: new Date(50),
+			writer : 'snowman', title: 'title5'
+		});
+		insertThread({
+			categoryId: 103, hit: 10, length: 5, created: new Date(10), updated: new Date(60),
+			writer : 'snowman', title: 'title6'
+		});
+		insertThread({
+			categoryId: 104, hit: 10, length: 5, created: new Date(10), updated: new Date(70),
+			writer : 'snowman', title: 'title7'
+		});
+		insertThread({
+			categoryId: 104, hit: 10, length: 5, created: new Date(10), updated: new Date(80),
+			writer : 'snowman', title: 'title8'
+		});
+		insertThread({
+			categoryId: 104, hit: 10, length: 5, created: new Date(10), updated: new Date(90),
+			writer : 'snowman', title: 'title9'
 		});
 		pthread = insertThread({
-			categoryId: 104, hit: 10, length: 5, created: new Date(10), updated: new Date(50),
-			writer : 'snowman', title: 'cool thread 7'
+			categoryId: 104, hit: 10, length: 5, created: new Date(10), updated: new Date(100),
+			writer : 'snowman', title: 'title10'
 		});
 	});
 	it('can count records', function (next) {
 		l.mongo.threadCol.count(function (err, count) {
 			if (err) return next(err);
-			count.should.equal(7);
+			count.should.equal(10);
 			next();
 		});
 	});
@@ -230,44 +242,44 @@ describe('thread collection', function () {
 			next();
 		});
 	});
-	it('can find all', function (next) {
-		l.mongo.findThreadByCategory(0, null, 99, function (err, list) {
-			if (err) return next(err);
-			list.should.length(7);
-			list[0].updated.should.above(list[1].updated);
-			list[1].updated.should.above(list[2].updated);
-			list[2].updated.should.above(list[3].updated);
-			next();
-		})
-	});
-	it('can find with limited', function (next) {
-		l.mongo.findThreadByCategory(0, null, 3, function (err, thread) {
-			if (err) return next(err);
-			thread.should.length(3);
-			next();
-		})
-	});
-	it('can find with lastUpdate', function (next) {
-		l.mongo.findThreadByCategory(0, new Date(20), 99, function (err, thread) {
-			if (err) return next(err);
-			thread.should.length(2);
-			thread[0].updated.should.equal(new Date(11));
-			thread[1].updated.should.equal(new Date(10));
-			next();
-		})
-	});
-	it('can find with categoryId', function (next) {
-		l.mongo.findThreadByCategory(101, null, 99, function (err, thread) {
-			if (err) return next(err);
-			thread.should.length(4);
-			next(err);
+	describe('findThreadByCategory', function () {
+		it('when categoryId is 0, should success', function (next) {
+			l.mongo.findThreadByCategory(0, 1, 99, function (err, thread) {
+				if (err) return next(err);
+				thread.should.length(10);
+				thread[0].title.should.equal('title10');
+				thread[1].title.should.equal('title9');
+				thread[2].title.should.equal('title8');
+				thread[9].title.should.equal('title1');
+				next();
+			})
 		});
-	});
-	it('can find with categoryId 2', function (next) {
-		l.mongo.findThreadByCategory(103, null, 99, function (err, thread) {
-			if (err) return next(err);
-			thread.should.length(2);
-			next(err);
+		it('when categoryId is 101, should success', function (next) {
+			l.mongo.findThreadByCategory(101, 1, 99, function (err, thread) {
+				if (err) return next(err);
+				thread.should.length(4);
+				next(err);
+			});
+		});
+		it('when page is 2, should success', function (next) {
+			l.mongo.findThreadByCategory(0, 2, 3, function (err, thread) {
+				if (err) return next(err);
+				thread.should.length(3);
+				thread[0].title.should.equal('title7');
+				thread[1].title.should.equal('title6');
+				thread[2].title.should.equal('title5');
+				next();
+			})
+		});
+		it('when page is -1, should success', function (next) {
+			l.mongo.findThreadByCategory(0, -1, 3, function (err, thread) {
+				if (err) return next(err);
+				thread.should.length(3);
+				thread[0].title.should.equal('title1');
+				thread[1].title.should.equal('title2');
+				thread[2].title.should.equal('title3');
+				next();
+			})
 		});
 	});
 });
