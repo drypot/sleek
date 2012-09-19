@@ -6,44 +6,44 @@ var l = exports;
 
 (function () {
 
-	var funcsByPri = {};
+	var func = {};
 
 	reset();
 
-	l.init = function (pri, func) {
-		var funcs;
+	l.init = function (pri, func0) {
+		var funcAtPri;
 
 		if (_.isFunction(pri)) {
-			func = pri;
+			func0 = pri;
 			pri = 0;
 		}
 
-		funcs = funcsByPri[pri];
-		if (!funcs) {
-			funcs = funcsByPri[pri] = [];
+		funcAtPri = func[pri];
+		if (!funcAtPri) {
+			funcAtPri = func[pri] = [];
 		}
 
-		if (func.length == 0) {
-			funcs.push(function (next) {
-				func();
+		if (func0.length == 0) {
+			funcAtPri.push(function (next) {
+				func0();
 				next();
 			})
 		} else {
-			funcs.push(func);
+			funcAtPri.push(func0);
 		}
 	};
 
 	l.init.reset = reset;
 
 	function reset() {
-		funcsByPri = {};
+		func = {};
 	}
 
 	l.init.run = function (next) {
 		var all = [];
 
-		_.each(_.keys(funcsByPri).sort(), function (pri) {
-			all = all.concat(funcsByPri[pri]);
+		_.each(_.keys(func).sort(), function (pri) {
+			all = all.concat(func[pri]);
 		});
 
 		async.series(all, function (err) {

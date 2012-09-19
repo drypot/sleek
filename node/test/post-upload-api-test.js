@@ -36,8 +36,8 @@ describe('uploading post file', function () {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(l.rc.SUCCESS);
 				uploadTmp = res.body.uploadTmp;
-				l.upload.tmpExists(uploadTmp[0].tmpName).should.be.true;
-				l.upload.tmpExists(uploadTmp[1].tmpName).should.be.true;
+				should.exist(uploadTmp['file1.txt']);
+				should.exist(uploadTmp['file2.txt']);
 				next(err);
 			}
 		);
@@ -133,7 +133,8 @@ describe('uploading post file', function () {
 		);
 	});
 	it('when updating with invalid file name, should success', function (next) {
-		uploadTmp[0].name = './../.../newName.txt';
+		uploadTmp['./../.../newName.txt'] = uploadTmp['file3.txt'];
+		delete uploadTmp['file3.txt'];
 		l.test.request.put('/api/thread/' + t1 + '/' + p12,
 			{ writer: 'snowman', text: 'reply text', uploadTmp: uploadTmp },
 			function (err, res) {
@@ -155,7 +156,8 @@ describe('uploading post file', function () {
 		);
 	});
 	it('when updating with invalid file name 2, should success', function (next) {
-		uploadTmp[0].name = './../.../mygod#1 그리고 한글.txt';
+		uploadTmp['./../.../mygod#1 그리고 한글.txt'] = uploadTmp['file4.txt'];
+		delete uploadTmp['file4.txt'];
 		l.test.request.put('/api/thread/' + t1 + '/' + p12,
 			{ writer: 'snowman', text: 'reply text', uploadTmp: uploadTmp },
 			function (err, res) {
@@ -177,7 +179,8 @@ describe('uploading post file', function () {
 		);
 	});
 	it('when updating with invalid file name 3, should success', function (next) {
-		uploadTmp[0].name = './../.../mygod#2 :?<>|.txt';
+		uploadTmp['./../.../mygod#2 :?<>|.txt'] = uploadTmp['file4.txt'];
+		delete uploadTmp['file4.txt'];
 		l.test.request.put('/api/thread/' + t1 + '/' + p12,
 			{ writer: 'snowman', text: 'reply text', uploadTmp: uploadTmp },
 			function (err, res) {

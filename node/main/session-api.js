@@ -14,7 +14,7 @@ l.init(function () {
 				rc: l.rc.SUCCESS,
 				role: {
 					name: res.locals.role.name,
-					categoriesUnsorted: res.locals.role.categoriesUnsorted
+					unsortedCategory: res.locals.role.unsortedCategory
 				},
 				uploadUrl: l.config.uploadUrl
 			});

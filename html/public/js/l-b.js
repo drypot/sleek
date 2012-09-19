@@ -4,37 +4,37 @@ var l = {};
 
 (function () {
 
-	var funcsByPri = {};
+	var func = {};
 
 	reset();
 
-	l.init = function (pri, func) {
-		var funcs;
+	l.init = function (pri, func0) {
+		var funcAtPri;
 
 		if (_.isFunction(pri)) {
-			func = pri;
+			func0 = pri;
 			pri = 0;
 		}
 
-		funcs = funcsByPri[pri];
-		if (!funcs) {
-			funcs = funcsByPri[pri] = [];
+		funcAtPri = func[pri];
+		if (!funcAtPri) {
+			funcAtPri = func[pri] = [];
 		}
 
-		funcs.push(func);
+		funcAtPri.push(func0);
 	};
 
 	l.init.reset = reset;
 
 	function reset() {
-		funcsByPri = {};
+		func = {};
 	}
 
 	l.init.run = function (next) {
 		var all = [];
 
-		_.each(_.keys(funcsByPri).sort(), function (pri) {
-			all = all.concat(funcsByPri[pri]);
+		_.each(_.keys(func).sort(), function (pri) {
+			all = all.concat(func[pri]);
 		});
 
 		var i = 0, len = all.length;

@@ -38,12 +38,12 @@ l.init(function (next) {
 		return fs.existsSync(tmpDir + '/' + basename);
 	};
 
-	l.upload.uploadTmp = function (uploadings) {
-		var uploadTmp = [];
-		if (!_.isEmpty(uploadings)) {
-			_.each(_.isArray(uploadings) ? uploadings : [uploadings], function (uploading) {
+	l.upload.uploadTmp = function (uploading) {
+		var uploadTmp = {};
+		if (!_.isEmpty(uploading)) {
+			_.each(_.isArray(uploading) ? uploading : [uploading], function (uploading) {
 				if (uploading.size) {
-					uploadTmp.push({ name: uploading.name, tmpName: path.basename(uploading.path)});
+					uploadTmp[uploading.name] = path.basename(uploading.path);
 				}
 			});
 		}
@@ -85,7 +85,7 @@ l.init(function (next) {
 		if (_.isEmpty(deleting)) {
 			next();
 		} else {
-			deleteUpload(l.upload.postUploadDir(post._id), deleting, function (err, deleted) {
+			deleteUploads(l.upload.postUploadDir(post._id), deleting, function (err, deleted) {
 				if (err) {
 					next(err);
 				} else {
@@ -101,22 +101,22 @@ l.init(function (next) {
 
 	// Common
 
-	function saveUploadTmp(sub, tmp, next /* (err, saved) */) {
-		l.fs.mkdirs(sub, function (err, tar) {
+	function saveUploadTmp(subs, tmp, next /* (err, saved) */) {
+		l.fs.mkdirs(subs, function (err, tar) {
 			if (err) {
 				next(err);
 			} else {
 				var saved = [];
 				async.forEachSeries(
-					tmp,
-					function (tmp, next) {
-						var name = l.fs.safeFilename(path.basename(tmp.name));
-						var tmpName = path.basename(tmp.tmpName);
-						fs.rename(tmpDir + '/' + tmpName, tar + '/' + name, function (err) {
+					_.keys(tmp),
+					function (name, next) {
+						var safeName = l.fs.safeFilename(path.basename(name));
+						var tmpName = path.basename(tmp[name]);
+						fs.rename(tmpDir + '/' + tmpName, tar + '/' + safeName, function (err) {
 							if (err && err.code !== 'ENOENT') {
 								next(err);
 							} else {
-								saved.push(name);
+								saved.push(safeName);
 								next();
 							}
 						});
@@ -129,15 +129,15 @@ l.init(function (next) {
 		});
 	}
 
-	function deleteUpload(dir, deleting, next /* (err, deleted) */) {
+	function deleteUploads(dir, deleting, next /* (err, deleted) */) {
 		var deleted = [];
 		async.forEachSeries(
 			deleting,
 			function (deleting, next) {
-				var basename = path.basename(deleting)
-				var p = dir + '/' + basename;
+				var name = path.basename(deleting)
+				var p = dir + '/' + name;
 				//console.log('deleting: ' + path);
-				deleted.push(basename);
+				deleted.push(name);
 				fs.unlink(p, function (err) {
 					if (err && err.code !== 'ENOENT') {
 						next(err);

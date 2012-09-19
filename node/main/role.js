@@ -8,28 +8,28 @@ l.init(function () {
 
 	l.role = {};
 
-	var roles = {};
+	var role = {};
 
-	_.each(l.config.roles, function (r) {
-		var role = {
-			name: r.name,
-			hash: r.hash,
-			categories: {},
-			categoriesUnsorted : []
+	_.each(l.config.role, function (role0) {
+		var role1 = {
+			name: role0.name,
+			hash: role0.hash,
+			category: {},
+			unsortedCategory : []
 		}
-		roles[r.name] = role;
-		_.each(l.config.categories, function (c) {
-			var category = {
-				id: c.id,
-				name: c.name,
-				sep: c.sep,
-				readable: _.include(c.read, role.name),
-				writable: _.include(c.write, role.name),
-				editable: _.include(c.edit, role.name)
+		role[role1.name] = role1;
+		_.each(l.config.category, function (category0) {
+			var category1 = {
+				id: category0.id,
+				name: category0.name,
+				sep: category0.sep,
+				readable: _.include(category0.read, role1.name),
+				writable: _.include(category0.write, role1.name),
+				editable: _.include(category0.edit, role1.name)
 			};
-			if (category.readable) {
-				role.categories[category.id] = category;
-				role.categoriesUnsorted.push(category);
+			if (category1.readable) {
+				role1.category[category1.id] = category1;
+				role1.unsortedCategory.push(category1);
 			}
 		});
 	});
@@ -37,11 +37,11 @@ l.init(function () {
 	console.log('role initialized:');
 
 	l.role.roleByName = function (roleName) {
-		return roles[roleName];
+		return role[roleName];
 	};
 
 	l.role.roleByPassword = function (password) {
-		return _.find(roles, function (role) {
+		return _.find(role, function (role) {
 			return bcrypt.compareSync(password, role.hash);
 		});
 	};

@@ -26,7 +26,7 @@ l.init(function () {
 								thread: []
 							};
 							iterThreadList(page, thread, function (thread) {
-								if (category.id === 0 && !res.locals.role.categories[thread.categoryId]) {
+								if (category.id === 0 && !res.locals.role.category[thread.categoryId]) {
 									//
 								} else {
 									r.thread.push({
@@ -59,7 +59,7 @@ l.init(function () {
 	}
 
 	function prepareReadableCategory(res, categoryId, next) {
-		var category = res.locals.role.categories[categoryId];
+		var category = res.locals.role.category[categoryId];
 		if (!category) {
 			res.json({ rc: l.rc.INVALID_CATEGORY });
 		} else {
@@ -90,7 +90,7 @@ l.init(function () {
 						if (err) {
 							next(err);
 						} else {
-							var categories = res.locals.role.categories;
+							var categories = res.locals.role.category;
 							var r = {
 								title: category.name,
 								category: {
@@ -104,7 +104,7 @@ l.init(function () {
 								nextUrl: null
 							};
 							iterThreadList(page, thread, function (thread) {
-								if (category.id === 0 && !role.categories[thread.categoryId]) {
+								if (category.id === 0 && !categories[thread.categoryId]) {
 									//
 								} else {
 									r.thread.push({
@@ -116,7 +116,7 @@ l.init(function () {
 										writer: thread.writer,
 										title: thread.title,
 
-										categoryName: role.categories[thread.categoryId].name,
+										categoryName: categories[thread.categoryId].name,
 										reply: thread.length - 1,
 										updatedStr: thread.updated.format('yyyy-MM-dd HH:mm')
 									});
@@ -394,7 +394,7 @@ l.init(function () {
 		if (_.isUndefined(categoryId)) {
 			next(null); // for form.categoryId
 		} else {
-			var category = res.locals.role.categories[categoryId];
+			var category = res.locals.role.category[categoryId];
 			if (!category) {
 				res.json({ rc: l.rc.INVALID_CATEGORY });
 			} else {
