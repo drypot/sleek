@@ -6,46 +6,44 @@ var l = exports;
 
 (function () {
 
-	l.init = {};
-
-	var priCol = {};
+	var funcsByPri = {};
 
 	reset();
+
+	l.init = function (pri, func) {
+		var funcs;
+
+		if (_.isFunction(pri)) {
+			func = pri;
+			pri = 0;
+		}
+
+		funcs = funcsByPri[pri];
+		if (!funcs) {
+			funcs = funcsByPri[pri] = [];
+		}
+
+		if (func.length == 0) {
+			funcs.push(function (next) {
+				func();
+				next();
+			})
+		} else {
+			funcs.push(func);
+		}
+	};
 
 	l.init.reset = reset;
 
 	function reset() {
-		priCol = {};
+		funcsByPri = {};
 	}
-
-	l.init.add = function (pri, fn) {
-		var fnList;
-
-		if (_.isFunction(pri)) {
-			fn = pri;
-			pri = 0;
-		}
-
-		fnList = priCol[pri];
-		if (!fnList) {
-			fnList = priCol[pri] = [];
-		}
-
-		if (fn.length == 0) {
-			fnList.push(function (next) {
-				fn();
-				next();
-			})
-		} else {
-			fnList.push(fn);
-		}
-	};
 
 	l.init.run = function (next) {
 		var all = [];
 
-		_.each(_.keys(priCol).sort(), function (pri) {
-			all = all.concat(priCol[pri]);
+		_.each(_.keys(funcsByPri).sort(), function (pri) {
+			all = all.concat(funcsByPri[pri]);
 		});
 
 		async.series(all, function (err) {
@@ -59,7 +57,7 @@ var l = exports;
 
 })();
 
-l.init.add(function () {
+l.init(function () {
 
 	// object
 
@@ -67,7 +65,7 @@ l.init.add(function () {
 		return Object.prototype.toString.call(obj) === '[object Object]';
 	};
 
-	l.def = function (obj, prop, def) {
+	l.value = function (obj, prop, def) {
 		if (!obj) {
 			return def;
 		} else if (!_.has(obj, prop)) {
@@ -77,7 +75,7 @@ l.init.add(function () {
 		}
 	};
 
-	l.defInt = function (obj, prop, def, min, max) {
+	l.int = function (obj, prop, def, min, max) {
 		var i;
 		if (!obj) {
 			return def;
@@ -95,7 +93,7 @@ l.init.add(function () {
 		}
 	};
 
-	l.defString = function (obj, prop, def) {
+	l.string = function (obj, prop, def) {
 		if (!obj) {
 			return def;
 		} else if (!_.has(obj, prop)) {
@@ -105,7 +103,7 @@ l.init.add(function () {
 		}
 	};
 
-	l.defBool = function (obj, prop, def) {
+	l.bool = function (obj, prop, def) {
 		var v;
 		if (!obj) {
 			return def;
@@ -117,7 +115,7 @@ l.init.add(function () {
 		}
 	};
 
-	l.mergeProperty = function (tar, src, props) {
+	l.merge = function (tar, src, props) {
 		_.each(props, function (p) {
 			if (src.hasOwnProperty(p)) {
 				tar[p] = src[p];
@@ -136,7 +134,7 @@ l.init.add(function () {
 
 });
 
-l.init.add(function () {
+l.init(function () {
 
 	// http://stove99.tistory.com/46
 
@@ -169,7 +167,7 @@ l.init.add(function () {
 
 });
 
-l.init.add(function () {
+l.init(function () {
 
 	// should
 
@@ -184,7 +182,7 @@ l.init.add(function () {
 
 });
 
-l.init.add(function () {
+l.init(function () {
 
 	// UrlMaker
 

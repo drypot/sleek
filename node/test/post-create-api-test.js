@@ -3,8 +3,8 @@ var should = require('should');
 var path = require('path');
 var l = require('../main/l.js');
 
-require('../main/session.js');
-require('../main/post.js');
+require('../main/session-api.js');
+require('../main/post-api.js');
 require('../main/test.js');
 
 before(function (next) {

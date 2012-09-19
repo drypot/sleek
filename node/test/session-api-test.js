@@ -2,7 +2,7 @@ var _ = require('underscore');
 var should = require('should');
 var l = require('../main/l.js');
 
-require('../main/session.js');
+require('../main/session-api.js');
 require('../main/test.js');
 
 before(function (next) {
@@ -86,7 +86,7 @@ describe('session info retrieving', function () {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(l.rc.SUCCESS);
 			res.body.role.name.should.equal('user');
-			should.exist(res.body.role.categoryList);
+			should.exist(res.body.role.categoriesUnsorted);
 			next(err);
 		});
 	});
@@ -178,7 +178,7 @@ describe("session category", function () {
 	it('given user session', function (next) {
 		l.test.request.post('/api/session', { password: '1' }, function (err, res) {
 			l.test.request.get('/api/session', function (err, res) {
-				c = res.body.role.categoryList;
+				c = res.body.role.categoriesUnsorted;
 				next(err);
 			});
 		});
@@ -197,7 +197,7 @@ describe("session category", function () {
 	it('given admin session', function (next) {
 		l.test.request.post('/api/session', { password: '3' }, function (err, res) {
 			l.test.request.get('/api/session', function (err, res) {
-				c = res.body.role.categoryList;
+				c = res.body.role.categoriesUnsorted;
 				next(err);
 			});
 		});

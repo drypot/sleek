@@ -1,9 +1,8 @@
 var l = require('./main/l.js');
 
-require('./main/session.js');
-require('./main/upload.js');
-require('./main/post.js');
-require('./main/es.js');
+require('./main/session-api.js');
+require('./main/upload-api.js');
+require('./main/post-api.js');
 
 (function () {
 	process.on('uncaughtException', function (err) {

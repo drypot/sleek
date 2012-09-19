@@ -4,39 +4,37 @@ var l = {};
 
 (function () {
 
-	l.init = {};
-
-	var priCol = {};
+	var funcsByPri = {};
 
 	reset();
+
+	l.init = function (pri, func) {
+		var funcs;
+
+		if (_.isFunction(pri)) {
+			func = pri;
+			pri = 0;
+		}
+
+		funcs = funcsByPri[pri];
+		if (!funcs) {
+			funcs = funcsByPri[pri] = [];
+		}
+
+		funcs.push(func);
+	};
 
 	l.init.reset = reset;
 
 	function reset() {
-		priCol = {};
+		funcsByPri = {};
 	}
-
-	l.init.add = function (pri, fn) {
-		var fnList;
-
-		if (_.isFunction(pri)) {
-			fn = pri;
-			pri = 0;
-		}
-
-		fnList = priCol[pri];
-		if (!fnList) {
-			fnList = priCol[pri] = [];
-		}
-
-		fnList.push(fn);
-	};
 
 	l.init.run = function (next) {
 		var all = [];
 
-		_.each(_.keys(priCol).sort(), function (pri) {
-			all = all.concat(priCol[pri]);
+		_.each(_.keys(funcsByPri).sort(), function (pri) {
+			all = all.concat(funcsByPri[pri]);
 		});
 
 		var i = 0, len = all.length;
@@ -52,7 +50,7 @@ var l = {};
 
 })();
 
-l.init.add(function () {
+l.init(function () {
 
 	l.rc = {
 		SUCCESS: 0,
@@ -95,19 +93,19 @@ l.init.add(function () {
 
 });
 
-l.init.add(function () {
+l.init(function () {
 
 	l.isObject = function (obj) {
 		return Object.prototype.toString.call(obj) === '[object Object]';
 	};
 
-	l.def = function (obj, prop, def) {
+	l.value = function (obj, prop, def) {
 		if (!obj) return def;
 		if (!_.has(obj, prop)) return def;
 		return obj[prop];
 	};
 
-	l.defInt = function (obj, prop, def, min, max) {
+	l.int = function (obj, prop, def, min, max) {
 		if (!obj) return def;
 		if (!_.has(obj, prop)) return def;
 		var i = parseInt(obj[prop]);
@@ -116,20 +114,20 @@ l.init.add(function () {
 		return i > max ? max : i < min ? min : i;
 	};
 
-	l.defString = function (obj, prop, def) {
+	l.string = function (obj, prop, def) {
 		if (!obj) return def;
 		if (!_.has(obj, prop)) return def;
 		return String(obj[prop]).trim();
 	};
 
-	l.defBool = function (obj, prop, def) {
+	l.bool = function (obj, prop, def) {
 		if (!obj) return def;
 		if (!_.has(obj, prop)) return def;
 		var v = obj[prop];
 		return v === true || v === 'true';
 	};
 
-	l.mergeProperty = function (tar, src, props) {
+	l.merge = function (tar, src, props) {
 		_.each(props, function (p) {
 			if (src.hasOwnProperty(p)) {
 				tar[p] = src[p];
@@ -138,9 +136,11 @@ l.init.add(function () {
 		return tar;
 	}
 
+	var space = /^\s+|\s+$/g;
+
 	if (!String.prototype.trim) {
 		String.prototype.trim = function() {
-			return this.replace(/^\s+|\s+$/g, '');
+			return this.replace(space, '');
 		};
 	}
 
@@ -162,7 +162,7 @@ l.init.add(function () {
 
 });
 
-l.init.add(function () {
+l.init(function () {
 
 	// global var
 
@@ -175,7 +175,7 @@ l.init.add(function () {
 
 });
 
-l.init.add(function() {
+l.init(function() {
 
 	// error dialog
 
@@ -197,7 +197,7 @@ l.init.add(function() {
 });
 
 
-l.init.add(function () {
+l.init(function () {
 
 	l.menu = {};
 
@@ -208,7 +208,7 @@ l.init.add(function () {
 
 });
 
-l.init.add(function () {
+l.init(function () {
 
 	l.form = {};
 
@@ -225,7 +225,7 @@ l.init.add(function () {
 
 });
 
-l.init.add(function () {
+l.init(function () {
 
 	// superagent
 
@@ -268,7 +268,7 @@ l.init.add(function () {
 
 });
 
-l.init.add(function () {
+l.init(function () {
 
 	l.spinner = new Spinner({
 		lines: 11, // The number of lines to draw
@@ -289,7 +289,7 @@ l.init.add(function () {
 
 });
 
-l.init.add(function () {
+l.init(function () {
 
 	l.ping = function () {
 		request.get('/api/hello').end();
@@ -301,7 +301,7 @@ l.init.add(function () {
 
 });
 
-l.init.add(function () {
+l.init(function () {
 
 	// TODO:
 

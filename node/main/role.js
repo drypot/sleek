@@ -4,20 +4,21 @@ var l = require('./l.js');
 
 require('./config.js');
 
-l.role = {};
+l.init(function () {
 
-l.init.add(function () {
+	l.role = {};
 
-	var roleMap = {};
+	var roles = {};
 
-	_.each(l.config.role, function (r) {
-		var role = roleMap[r.name] = {
+	_.each(l.config.roles, function (r) {
+		var role = {
 			name: r.name,
 			hash: r.hash,
-			category: {},
-			categoryList : []
+			categories: {},
+			categoriesUnsorted : []
 		}
-		_.each(l.config.category, function (c) {
+		roles[r.name] = role;
+		_.each(l.config.categories, function (c) {
 			var category = {
 				id: c.id,
 				name: c.name,
@@ -27,20 +28,20 @@ l.init.add(function () {
 				editable: _.include(c.edit, role.name)
 			};
 			if (category.readable) {
-				role.category[category.id] = category;
-				role.categoryList.push(category);
+				role.categories[category.id] = category;
+				role.categoriesUnsorted.push(category);
 			}
 		});
 	});
 
 	console.log('role initialized:');
 
-	l.role.getRoleByName = function (roleName) {
-		return roleMap[roleName];
+	l.role.roleByName = function (roleName) {
+		return roles[roleName];
 	};
 
-	l.role.getRoleByPassword = function (password) {
-		return _.find(roleMap, function (role) {
+	l.role.roleByPassword = function (password) {
+		return _.find(roles, function (role) {
 			return bcrypt.compareSync(password, role.hash);
 		});
 	};

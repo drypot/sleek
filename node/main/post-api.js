@@ -2,20 +2,18 @@ var _ = require('underscore');
 var l = require('./l.js');
 
 require('./const.js');
-require('./mongo.js');
-require('./express.js');
 require('./role.js');
-require('./session.js');
+require('./mongo.js');
 require('./es.js');
 require('./upload.js');
+require('./express.js');
+require('./session.js');
 
-l.init.add(function () {
-
-	var e = l.e;
+l.init(function () {
 
 	// thread
 
-	e.get('/api/thread', function (req, res, next) {
+	l.e.get('/api/thread', function (req, res, next) {
 		l.session.authorized(res, function () {
 			prepareThreadListParam(req, function (categoryId, page, pageSize) {
 				prepareReadableCategory(res, categoryId, function (category) {
@@ -28,7 +26,7 @@ l.init.add(function () {
 								thread: []
 							};
 							iterThreadList(page, thread, function (thread) {
-								if (category.id === 0 && !res.locals.role.category[thread.categoryId]) {
+								if (category.id === 0 && !res.locals.role.categories[thread.categoryId]) {
 									//
 								} else {
 									r.thread.push({
@@ -51,9 +49,9 @@ l.init.add(function () {
 	});
 
 	function prepareThreadListParam(req, next) {
-		var categoryId = l.defInt(req.query, 'c', 0);
-		var page = l.defInt(req.query, 'p', 1);
-		var pageSize = l.defInt(req.query, 'ps', 32, 1, 128);
+		var categoryId = l.int(req.query, 'c', 0);
+		var page = l.int(req.query, 'p', 1);
+		var pageSize = l.int(req.query, 'ps', 32, 1, 128);
 		if (page === 0) {
 			page = 1;
 		}
@@ -61,7 +59,7 @@ l.init.add(function () {
 	}
 
 	function prepareReadableCategory(res, categoryId, next) {
-		var category = res.locals.role.category[categoryId];
+		var category = res.locals.role.categories[categoryId];
 		if (!category) {
 			res.json({ rc: l.rc.INVALID_CATEGORY });
 		} else {
@@ -84,7 +82,7 @@ l.init.add(function () {
 		}
 	}
 
-	e.get('/thread', function (req, res, next) {
+	l.e.get('/thread', function (req, res, next) {
 		l.session.authorized(res, function () {
 			prepareThreadListParam(req, function (categoryId, page, pageSize) {
 				prepareReadableCategory(res, categoryId, function (category) {
@@ -92,7 +90,7 @@ l.init.add(function () {
 						if (err) {
 							next(err);
 						} else {
-							var categories = res.locals.role.category;
+							var categories = res.locals.role.categories;
 							var r = {
 								title: category.name,
 								category: {
@@ -106,7 +104,7 @@ l.init.add(function () {
 								nextUrl: null
 							};
 							iterThreadList(page, thread, function (thread) {
-								if (category.id === 0 && !role.category[thread.categoryId]) {
+								if (category.id === 0 && !role.categories[thread.categoryId]) {
 									//
 								} else {
 									r.thread.push({
@@ -118,7 +116,7 @@ l.init.add(function () {
 										writer: thread.writer,
 										title: thread.title,
 
-										categoryName: role.category[thread.categoryId].name,
+										categoryName: role.categories[thread.categoryId].name,
 										reply: thread.length - 1,
 										updatedStr: thread.updated.format('yyyy-MM-dd HH:mm')
 									});
@@ -166,9 +164,9 @@ l.init.add(function () {
 
 	// thread-num
 
-	e.get('/api/thread/:threadId([0-9]+)', function (req, res) {
+	l.e.get('/api/thread/:threadId([0-9]+)', function (req, res) {
 		l.session.authorized(res, function () {
-			var threadId = l.defInt(req.params, 'threadId', 0);
+			var threadId = l.int(req.params, 'threadId', 0);
 			prepareThread(res, threadId, function (thread) {
 				prepareReadableCategory(res, thread.categoryId, function (category) {
 					var r = {
@@ -227,9 +225,9 @@ l.init.add(function () {
 		}
 	}
 
-	e.get('/thread/:threadId([0-9]+)', function (req, res, next) {
+	l.e.get('/thread/:threadId([0-9]+)', function (req, res, next) {
 		l.session.authorized(res, function () {
-			var threadId = l.defInt(req.params, 'threadId', 0);
+			var threadId = l.int(req.params, 'threadId', 0);
 			prepareThread(res, threadId, function (thread) {
 				prepareReadableCategory(res, thread.categoryId, function (category) {
 					var r = {
@@ -268,10 +266,10 @@ l.init.add(function () {
 
 	// post
 
-	e.get('/api/thread/:threadId([0-9]+)/:postId([0-9]+)', function (req, res, next) {
+	l.e.get('/api/thread/:threadId([0-9]+)/:postId([0-9]+)', function (req, res, next) {
 		l.session.authorized(res, function () {
-			var threadId = l.defInt(req.params, 'threadId', 0);
-			var postId = l.defInt(req.params, 'postId', 0);
+			var threadId = l.int(req.params, 'threadId', 0);
+			var postId = l.int(req.params, 'postId', 0);
 			prepareThreadAndPost(res, threadId, postId, function (thread, post, head) {
 				prepareReadableCategory(res, thread.categoryId, function (category) {
 					var r = {
@@ -301,7 +299,7 @@ l.init.add(function () {
 
 	// new thread
 
-	e.post('/api/thread', function (req, res, next) {
+	l.e.post('/api/thread', function (req, res, next) {
 		l.session.authorized(res, function () {
 			var form = getForm(req);
 			prepareWritableCategory(res, form.categoryId, function (category) {
@@ -316,9 +314,9 @@ l.init.add(function () {
 		});
 	});
 
-	e.get('/thread/new', function (req, res, next) {
+	l.e.get('/thread/new', function (req, res, next) {
 		l.session.authorized(res, function () {
-			var categoryId = l.defInt(body, 'categoryId', 0);
+			var categoryId = l.int(body, 'categoryId', 0);
 			prepareWritableCategory(res, categoryId, function (category) {
 				var r = {
 					title: 'New',
@@ -334,10 +332,10 @@ l.init.add(function () {
 
 	// new reply
 
-	e.post('/api/thread/:threadId([0-9]+)', function (req, res, next) {
+	l.e.post('/api/thread/:threadId([0-9]+)', function (req, res, next) {
 		l.session.authorized(res, function () {
 			var form = getForm(req);
-			var threadId = l.defInt(req.params, 'threadId', 0);
+			var threadId = l.int(req.params, 'threadId', 0);
 			prepareThread(res, threadId, function (thread){
 				prepareWritableCategory(res, thread.categoryId, function (category) {
 					checkForm(res, form, false, function () {
@@ -353,11 +351,11 @@ l.init.add(function () {
 
 	// update post
 
-	e.put('/api/thread/:threadId([0-9]+)/:postId([0-9]+)', function (req, res, next) {
+	l.e.put('/api/thread/:threadId([0-9]+)/:postId([0-9]+)', function (req, res, next) {
 		l.session.authorized(res, function () {
 			var form = getForm(req);
-			var threadId = l.defInt(req.params, 'threadId', 0);
-			var postId = l.defInt(req.params, 'postId', 0);
+			var threadId = l.int(req.params, 'threadId', 0);
+			var postId = l.int(req.params, 'postId', 0);
 			prepareThreadAndPost(res, threadId, postId, function (thread, post, head) {
 				prepareWritableCategory(res, thread.categoryId, function (category) {
 					checkPostOwnership(req, res, category, postId, function () {
@@ -380,13 +378,13 @@ l.init.add(function () {
 		var body = req.body;
 		var r = {};
 		r.now = new Date();
-//		r.threadId = l.defInt(body, 'threadId', 0);
-//		r.postId = l.defInt(body, 'postId', 0);
-		r.categoryId = l.defInt(body, 'categoryId', 0);
-		r.writer  = l.defString(body, 'writer', '');
-		r.title = l.defString(body, 'title', '');
-		r.text = l.defString(body, 'text', '');
-		r.visible = l.defBool(body, 'visible', true);
+//		r.threadId = l.int(body, 'threadId', 0);
+//		r.postId = l.int(body, 'postId', 0);
+		r.categoryId = l.int(body, 'categoryId', 0);
+		r.writer  = l.string(body, 'writer', '');
+		r.title = l.string(body, 'title', '');
+		r.text = l.string(body, 'text', '');
+		r.visible = l.bool(body, 'visible', true);
 		r.deleting = body.deleting;
 		r.uploadTmp = body.uploadTmp;
 		return r;
@@ -396,7 +394,7 @@ l.init.add(function () {
 		if (_.isUndefined(categoryId)) {
 			next(null); // for form.categoryId
 		} else {
-			var category = res.locals.role.category[categoryId];
+			var category = res.locals.role.categories[categoryId];
 			if (!category) {
 				res.json({ rc: l.rc.INVALID_CATEGORY });
 			} else {
@@ -551,4 +549,6 @@ l.init.add(function () {
 			}
 		});
 	}
+
 });
+

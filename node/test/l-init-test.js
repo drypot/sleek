@@ -6,7 +6,7 @@ describe('init', function () {
 	it('with normal fn, should success', function (next) {
 		var a = [];
 		l.init.reset();
-		l.init.add(function () {
+		l.init(function () {
 			a.push(3);
 		});
 		l.init.run(function () {
@@ -19,7 +19,7 @@ describe('init', function () {
 	it('with async fn, should success', function (next) {
 		var a = [];
 		l.init.reset();
-		l.init.add(function (next) {
+		l.init(function (next) {
 			a.push(33);
 			next();
 		});
@@ -33,13 +33,13 @@ describe('init', function () {
 	it('with -1 priority fn, should success', function (next) {
 		var a = [];
 		l.init.reset();
-		l.init.add(-1, function () {
+		l.init(-1, function () {
 			a.push(1);
 		});
-		l.init.add(function () {
+		l.init(function () {
 			a.push(2);
 		});
-		l.init.add(-1, function () {
+		l.init(-1, function () {
 			a.push(3);
 		});
 		l.init.run(function () {
@@ -54,13 +54,13 @@ describe('init', function () {
 	it('with +1 priority fn, should success', function (next) {
 		var a = [];
 		l.init.reset();
-		l.init.add(1, function () {
+		l.init(1, function () {
 			a.push(1);
 		});
-		l.init.add(function () {
+		l.init(function () {
 			a.push(2);
 		});
-		l.init.add(1, function () {
+		l.init(1, function () {
 			a.push(3);
 		});
 		l.init.run(function () {

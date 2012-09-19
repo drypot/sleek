@@ -3,7 +3,8 @@ var should = require('should');
 var path = require('path');
 var l = require('../main/l.js');
 
-require('../main/upload.js');
+require('../main/session-api.js');
+require('../main/upload-api.js');
 require('../main/test.js');
 
 before(function (next) {
@@ -22,7 +23,7 @@ describe('upload api', function () {
 				var uploadTmp = res.body.uploadTmp;
 				uploadTmp.should.length(1);
 				uploadTmp[0].name.should.equal('file1.txt');
-				l.upload.existsTmp(uploadTmp[0].tmpName).should.be.ok;
+				l.upload.tmpExists(uploadTmp[0].tmpName).should.be.ok;
 				next(err);
 			}
 		);
@@ -36,8 +37,8 @@ describe('upload api', function () {
 				uploadTmp.should.length(2);
 				uploadTmp[0].name.should.equal('file1.txt');
 				uploadTmp[1].name.should.equal('file2.txt');
-				l.upload.existsTmp(uploadTmp[0].tmpName).should.be.ok;
-				l.upload.existsTmp(uploadTmp[1].tmpName).should.be.ok;
+				l.upload.tmpExists(uploadTmp[0].tmpName).should.be.ok;
+				l.upload.tmpExists(uploadTmp[1].tmpName).should.be.ok;
 				next(err);
 			}
 		);

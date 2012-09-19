@@ -7,7 +7,7 @@ l.config = {};
 l.config.path = undefined;
 l.config.override = {};
 
-l.init.add(function () {
+l.init(function () {
 	if (!l.config.path) {
 		console.log('specify configuration file path.')
 		process.exit();

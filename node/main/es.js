@@ -4,17 +4,15 @@ var l = require('./l.js');
 
 require('./config.js');
 require('./request.js');
-require('./mongo.js');
-require('./express.js');
 require('./role.js');
-require('./session.js');
+require('./mongo.js');
 
-l.es = {};
+l.init(function (next) {
 
-l.init.add(function (next) {
+	l.es = {};
 
 	var baseUrl = l.config.esUrl + '/' + l.config.esIndexName;
-	var request = l.request(baseUrl);
+	var request = new l.Request(baseUrl);
 
 	async.series([
 		function (next) {
@@ -165,56 +163,6 @@ l.init.add(function (next) {
 			next();
 		}
 	}
-
-});
-
-l.init.add(function () {
-
-	l.e.get('/api/search', function (req, res) {
-		l.session.authorized(res, function () {
-			var query = l.defString(req.query, 'q', '');
-			var offset = l.defInt(req.query, 'offset', 0);
-			var limit = l.defInt(req.query, 'limit', 16, 0, 64);
-			l.es.searchPost({
-					query: { query_string: { query: query, default_operator: 'and' }},
-					sort:[{created : "desc"}],
-					size: limit, from: offset
-				},
-				function (err, sres) {
-					if (err) {
-						res.json({ rc: l.rc.SEARCH_IO_ERR});
-					} else {
-						if (!sres.body.hits) {
-							res.json({ rc: l.rc.SUCCESS, result: [] });
-						} else {
-							var r = {
-								rc: l.rc.SUCCESS,
-								result: []
-							};
-							_.each(sres.body.hits.hits, function (hit) {
-								var s = hit._source;
-								var c = res.locals.role.category[s.categoryId];
-								if (!c || (!s.visible && !c.editable)) {
-									//
-								} else {
-									r.result.push({
-										postId: hit._id,
-										threadId: s.threadId,
-										categoryId: s.categoryId,
-										created: s.created.getTime(),
-										writer: s.writer,
-										title: s.title,
-										text: s.text.substring(0, 512)
-									});
-								}
-							});
-							res.json(r);
-						}
-					}
-				}
-			);
-		});
-	});
 
 });
 

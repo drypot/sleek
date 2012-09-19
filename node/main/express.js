@@ -8,7 +8,7 @@ var l = require('./l.js');
 require('./config.js');
 require('./role.js');
 
-l.init.add(function () {
+l.init(function () {
 
 	var e = l.e = express();
 
@@ -17,13 +17,13 @@ l.init.add(function () {
 		e.use(express.session({ store: new redisStore() }));
 		e.use(express.bodyParser({ uploadDir: l.config.uploadDir + '/tmp' }));
 		e.use(function (req, res, next) {
-			res.locals.role = l.role.getRoleByName(req.session.roleName);
+			res.locals.role = l.role.roleByName(req.session.roleName);
 			next();
 		});
 		e.use(e.router);
 
 		// NODE_ENV=production 상태에서는 케쉬 때문에 *.dust 파일 수정해도 반영이 안 된다.
-		e.engine('dust', consolidate.dust); // 뷰 확장자 등록
+		e.engine('dust', consolidate.dust); // 확장자별 뷰 처리 엔진 등록
 		e.set('view engine', 'dust'); // 뷰 기본 확장자 등록
 		e.set('views', process.cwd() + '/html/dust'); // 뷰 루트 디렉토리 등록
 
@@ -51,7 +51,7 @@ l.init.add(function () {
 
 });
 
-l.init.add(1, function () {
+l.init(1, function () {
 
 	var e = l.e;
 

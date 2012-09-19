@@ -6,12 +6,10 @@ var l = require('./l.js');
 
 require('./config.js');
 require('./fs.js');
-require('./express.js');
-require('./session.js');
 
 l.upload = {};
 
-l.init.add(function (next) {
+l.init(function (next) {
 
 	var publicDir = l.config.uploadDir + '/public';
 	var tmpDir = l.config.uploadDir + '/tmp';
@@ -36,14 +34,14 @@ l.init.add(function (next) {
 
 	// Tmp File
 
-	l.upload.existsTmp = function (basename) {
+	l.upload.tmpExists = function (basename) {
 		return fs.existsSync(tmpDir + '/' + basename);
 	};
 
-	l.upload.uploadTmp = function (uploading) {
+	l.upload.uploadTmp = function (uploadings) {
 		var uploadTmp = [];
-		if (!_.isEmpty(uploading)) {
-			_.each(_.isArray(uploading) ? uploading : [uploading], function (uploading) {
+		if (!_.isEmpty(uploadings)) {
+			_.each(_.isArray(uploadings) ? uploadings : [uploadings], function (uploading) {
 				if (uploading.size) {
 					uploadTmp.push({ name: uploading.name, tmpName: path.basename(uploading.path)});
 				}
@@ -153,18 +151,5 @@ l.init.add(function (next) {
 			}
 		);
 	}
-
-});
-
-l.init.add(function () {
-
-	l.e.post('/api/upload', function (req, res) {
-		l.session.authorized(res, function () {
-			res.json({
-				rc: l.rc.SUCCESS,
-				uploadTmp: l.upload.uploadTmp(req.files && req.files.uploading)
-			});
-		});
-	});
 
 });

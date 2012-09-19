@@ -7,7 +7,7 @@ require('./config.js');
 
 l.mongo = {};
 
-l.init.add(function (next) {
+l.init(function (next) {
 
 	var server = l.mongo.server = new mongo.Server("127.0.0.1", 27017, { auto_reconnect: true });
 	var db = l.mongo.db = new mongo.Db(l.config.mongoDbName, server);
@@ -35,7 +35,7 @@ l.init.add(function (next) {
 
 });
 
-l.init.add(function (next) {
+l.init(function (next) {
 	var threadCol = l.mongo.threadCol = l.mongo.db.collection("postThread");
 	var threadIdSeed;
 
@@ -92,7 +92,7 @@ l.init.add(function (next) {
 
 });
 
-l.init.add(function (next) {
+l.init(function (next) {
 	var postCol = l.mongo.postCol = l.mongo.db.collection("post");
 	var postIdSeed;
 

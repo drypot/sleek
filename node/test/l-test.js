@@ -10,53 +10,53 @@ describe('property', function () {
 
 	describe('def', function () {
 		it('should success', function () {
-			l.def({x: 'def'}, 'x', 'abc').should.equal('def');
-			l.def({y: 'def'}, 'x', 'abc').should.equal('abc');
-			l.def(null, 'x', 'abc').should.equal('abc');
+			l.value({x: 'def'}, 'x', 'abc').should.equal('def');
+			l.value({y: 'def'}, 'x', 'abc').should.equal('abc');
+			l.value(null, 'x', 'abc').should.equal('abc');
 		});
 	});
 
 	describe('defInt', function () {
 		it('should success', function () {
-			l.defInt({x: '10'}, 'x', 30).should.equal(10);
-			l.defInt({x: 10}, 'x', 30).should.equal(10);
-			l.defInt({x: 'def'}, 'x', 30).should.equal(30);
-			l.defInt({y: '10'}, 'x', 30).should.equal(30);
-			l.defInt(null, 'x', 30).should.equal(30);
+			l.int({x: '10'}, 'x', 30).should.equal(10);
+			l.int({x: 10}, 'x', 30).should.equal(10);
+			l.int({x: 'def'}, 'x', 30).should.equal(30);
+			l.int({y: '10'}, 'x', 30).should.equal(30);
+			l.int(null, 'x', 30).should.equal(30);
 		});
 
 		it('when min, max given, should success', function () {
-			l.defInt({x: '10'}, 'x', 30, 0, 50).should.equal(10);
-			l.defInt({x: 10}, 'x', 30, 0, 50).should.equal(10);
-			l.defInt({x: 'def'}, 'x', 30, 0, 50).should.equal(30);
-			l.defInt({y: '10'}, 'x', 30, 0, 50).should.equal(30);
-			l.defInt(null, 'x', 30, 0, 50).should.equal(30);
-			l.defInt({x: 60}, 'x', 30, 0, 50).should.equal(50);
-			l.defInt({x: -60}, 'x', 30, 0, 50).should.equal(0);
+			l.int({x: '10'}, 'x', 30, 0, 50).should.equal(10);
+			l.int({x: 10}, 'x', 30, 0, 50).should.equal(10);
+			l.int({x: 'def'}, 'x', 30, 0, 50).should.equal(30);
+			l.int({y: '10'}, 'x', 30, 0, 50).should.equal(30);
+			l.int(null, 'x', 30, 0, 50).should.equal(30);
+			l.int({x: 60}, 'x', 30, 0, 50).should.equal(50);
+			l.int({x: -60}, 'x', 30, 0, 50).should.equal(0);
 		});
 	});
 
 	describe('defString', function () {
 		it('should success', function () {
-			l.defString({x: 'def'}, 'x', 'abc').should.equal('def');
-			l.defString({x: 10}, 'x', 'abc').should.equal('10');
-			l.defString({x: ' def '}, 'x', 'abc').should.equal('def');
-			l.defString({y: 'def'}, 'x', 'abc').should.equal('abc');
-			l.defString(null, 'x', 'abc').should.equal('abc');
+			l.string({x: 'def'}, 'x', 'abc').should.equal('def');
+			l.string({x: 10}, 'x', 'abc').should.equal('10');
+			l.string({x: ' def '}, 'x', 'abc').should.equal('def');
+			l.string({y: 'def'}, 'x', 'abc').should.equal('abc');
+			l.string(null, 'x', 'abc').should.equal('abc');
 		});
 	});
 
 	describe('defBool', function () {
 		it('should success', function () {
-			l.defBool({x: 'true'}, 'x', true).should.equal(true);
-			l.defBool({x: true}, 'x', true).should.equal(true);
-			l.defBool({x: 'false'}, 'x', true).should.equal(false);
-			l.defBool({x: false}, 'x', true).should.equal(false);
-			l.defBool({y: true}, 'x', true).should.equal(true);
-			l.defBool({y: true}, 'x', false).should.equal(false);
-			l.defBool({y: false}, 'x', true).should.equal(true);
-			l.defBool(null, 'x', true).should.equal(true);
-			l.defBool(null, 'x', false).should.equal(false);
+			l.bool({x: 'true'}, 'x', true).should.equal(true);
+			l.bool({x: true}, 'x', true).should.equal(true);
+			l.bool({x: 'false'}, 'x', true).should.equal(false);
+			l.bool({x: false}, 'x', true).should.equal(false);
+			l.bool({y: true}, 'x', true).should.equal(true);
+			l.bool({y: true}, 'x', false).should.equal(false);
+			l.bool({y: false}, 'x', true).should.equal(true);
+			l.bool(null, 'x', true).should.equal(true);
+			l.bool(null, 'x', false).should.equal(false);
 		});
 	});
 
@@ -68,7 +68,7 @@ describe('property', function () {
 			f4 : 4
 		}
 		it('should success', function () {
-			var tar = l.mergeProperty({}, src, ['f1', 'f2', 'f3']);
+			var tar = l.merge({}, src, ['f1', 'f2', 'f3']);
 			tar.should.ok;
 			tar.should.have.keys(['f1', 'f2', 'f3']);
 			tar.f2.should.equal(2);

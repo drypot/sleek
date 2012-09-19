@@ -3,9 +3,9 @@ var should = require('should');
 var path = require('path');
 var l = require('../main/l.js');
 
-require('../main/session.js');
-require('../main/upload.js');
-require('../main/post.js');
+require('../main/session-api.js');
+require('../main/upload-api.js');
+require('../main/post-api.js');
 require('../main/test.js');
 
 before(function (next) {
@@ -36,8 +36,8 @@ describe('uploading post file', function () {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(l.rc.SUCCESS);
 				uploadTmp = res.body.uploadTmp;
-				l.upload.existsTmp(uploadTmp[0].tmpName).should.be.true;
-				l.upload.existsTmp(uploadTmp[1].tmpName).should.be.true;
+				l.upload.tmpExists(uploadTmp[0].tmpName).should.be.true;
+				l.upload.tmpExists(uploadTmp[1].tmpName).should.be.true;
 				next(err);
 			}
 		);

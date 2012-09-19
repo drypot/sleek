@@ -1,6 +1,6 @@
 l.post = {};
 
-l.init.add(function () {
+l.init(function () {
 
 	// thread
 
@@ -96,7 +96,7 @@ l.init.add(function () {
 
 
 
-l.init.add(function() {
+l.init(function() {
 
 	// post form
 
