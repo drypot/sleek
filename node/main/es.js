@@ -7,9 +7,9 @@ require('./request.js');
 require('./role.js');
 require('./mongo.js');
 
-l.init(function (next) {
+l.es = {};
 
-	l.es = {};
+l.init(function (next) {
 
 	var baseUrl = l.config.esUrl + '/' + l.config.esIndexName;
 	var request = new l.Request(baseUrl);

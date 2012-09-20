@@ -25,7 +25,7 @@
 		{ "id": 100, "name": "freetalk", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"] },
 		{ "id": 104, "name": "health", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"] },
 		{ "id": 401, "name": "trade", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"] },
-		{ "id": 400, "name": "house109", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"] },
+		{ "id": 400, "name": "unwritable", "read": ["user", "cheater", "admin"], "write": ["cheater", "admin"], "edit": ["admin"] },
 		{ "id": 300, "name": "house", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"], "sep": true },
 
 		{ "id": 102, "name": "blackkid", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"] },

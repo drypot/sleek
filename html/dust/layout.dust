@@ -54,8 +54,9 @@
 					<li><a href="/thread">{siteTitle}</a></li>
 					<li class="divider-vertical"></li>
 					<li><a href="/logout">logout</a></li>
+					{!-- all 카테고리 때문에 New 버튼 표시를 분기하는 것은 쉽지 않다 --!}
 					<li class="divider-vertical"></li>
-					<li><button class="btn btn-primary" onclick="location='/thread/new?c={categoryId}'; return false;">New</button></li>
+					<li><button class="btn btn-primary" onclick="location='/thread/new?c={category.id}'; return false;">New</button></li>
 				</ul>
 				<div class="nav-collapse">
 					<form class="navbar-search pull-right">
@@ -80,8 +81,8 @@
 			{?role}
 				<div id="category" class="well well-small hidden-phone" style="margin-top:100px;">
 					<ul class="nav nav-list">
-						{#role.categoryList}
-							{@if cond="{id} === {categoryId}"}
+						{#role.unsortedCategory pageCategoryId=category.id}
+							{@if cond="{id} === {pageCategoryId}"}
 								<li class="active">
 							{:else}
 								<li>
@@ -97,7 +98,7 @@
 									<li class="divider"></li>
 								{/sep}
 							{/sep}
-						{/role.categoryList}
+						{/role.unsortedCategory}
 					</ul>
 				</div>
 				<div id="category-phone" class="visible-phone">
@@ -107,7 +108,7 @@
 							<span class="caret"></span>
 						</a>
 						<ul class="dropdown-menu">
-							{#role.categoryList}
+							{#role.unsortedCategory}
 								<li>
 									{@if cond="{id} === 0"}
 										<a href="/thread">{name}</a>
@@ -120,7 +121,7 @@
 										<li class="divider"></li>
 									{/sep}
 								{/sep}
-							{/role.categoryList}
+							{/role.unsortedCategory}
 						</ul>
 					</div>
 				</div>

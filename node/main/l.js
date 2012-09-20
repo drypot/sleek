@@ -187,7 +187,7 @@ l.init(function () {
 	// UrlMaker
 
 	l.UrlMaker = function (baseUrl) {
-		this.part = [baseUrl];
+		this.url = '' + baseUrl;
 		this.qmAdded = false;
 	};
 
@@ -195,14 +195,14 @@ l.init(function () {
 
 	urlMaker.add = function (name, value) {
 		if (!this.qmAdded) {
-			this.part.push('?');
+			this.url += '?';
 			this.qmAdded = true;
 		} else {
-			this.part.push('&');
+			this.url += '&';
 		}
-		this.part.push(name);
-		this.part.push('=');
-		this.part.push(value);
+		this.url += name;
+		this.url += '=';
+		this.url += value;
 
 		return this;
 	}
@@ -216,7 +216,7 @@ l.init(function () {
 	}
 
 	urlMaker.toString = function () {
-		return this.part.join('');
+		return this.url;
 	}
 
 });

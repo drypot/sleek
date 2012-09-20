@@ -59,10 +59,10 @@ describe('uploading post file', function () {
 		l.test.request.get('/api/thread/' + t1 + '/' + p12, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(l.rc.SUCCESS);
-			res.body.upload[0].name.should.equal('file1.txt');
-			res.body.upload[0].url.should.equal(l.upload.postUploadUrl(p12, 'file1.txt'));
-			res.body.upload[1].name.should.equal('file2.txt');
-			res.body.upload[1].url.should.equal(l.upload.postUploadUrl(p12, 'file2.txt'));
+			res.body.post.upload[0].name.should.equal('file1.txt');
+			res.body.post.upload[0].url.should.equal(l.upload.postUploadUrl(p12, 'file1.txt'));
+			res.body.post.upload[1].name.should.equal('file2.txt');
+			res.body.post.upload[1].url.should.equal(l.upload.postUploadUrl(p12, 'file2.txt'));
 			next(err);
 		});
 	});

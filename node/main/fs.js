@@ -26,18 +26,18 @@ l.init(function () {
 	l.fs.safeFilename = function (name) {
 		var i = 0;
 		var len = name.length;
-		var safe = [];
+		var safe = '';
 		for (; i < len; i++) {
 			var ch = name.charAt(i);
 			var code = name.charCodeAt(i);
 			if ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9') || "`~!@#$%^&()-_+=[{]};',. ".indexOf(ch) >= 0)
-				safe.push(ch);
+				safe += ch;
 			else if (code < 128)
-				safe.push('_');
+				safe += '_';
 			else
-				safe.push(ch);
+				safe += ch;
 		}
-		return safe.join('');
+		return safe;
 	};
 
 });

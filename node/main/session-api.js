@@ -21,44 +21,43 @@ l.init(function () {
 		});
 	});
 
-	(function () {
-		l.e.post('/api/session', function (req, res) {
-			var role = l.role.roleByPassword(req.body.password || '');
-			if (!role) {
-				res.json({ rc: l.rc.INVALID_PASSWORD });
-			} else {
-				makeNewSession(req, res, role, function () {
-					clearOldCookies(req, res);
-					res.json({
-						rc: l.rc.SUCCESS,
-						role: {
-							name: role.name
-						}
-					});
+	l.e.post('/api/session', function (req, res) {
+		var role = l.role.roleByPassword(req.body.password || '');
+		if (!role) {
+			res.json({ rc: l.rc.INVALID_PASSWORD });
+		} else {
+			makeNewSession(req, res, role, function () {
+				clearOldCookies(req, res);
+				res.json({
+					rc: l.rc.SUCCESS,
+					role: {
+						name: role.name
+					}
 				});
-			}
-		});
-
-		function makeNewSession(req, res, role, next) {
-			var _this = this;
-			req.session.regenerate(function (err) {
-				req.session.roleName = role.name;
-				req.session.post = [];
-				next();
 			});
 		}
+	});
 
-		function clearOldCookies(req, res) {
-			if (req.cookies && req.cookies.lv3) {
-				res.clearCookie('lv3');
-				res.clearCookie('lv');
-				res.clearCookie('ph');
-				res.clearCookie('uname');
-			}
+	function makeNewSession(req, res, role, next) {
+		var _this = this;
+		req.session.regenerate(function (err) {
+			req.session.roleName = role.name;
+			req.session.post = [];
+			next();
+		});
+	}
+
+	function clearOldCookies(req, res) {
+		if (req.cookies && req.cookies.lv3) {
+			res.clearCookie('lv3');
+			res.clearCookie('lv');
+			res.clearCookie('ph');
+			res.clearCookie('uname');
 		}
-	})();
+	}
 
 	l.e.get('/', function (req, res) {
+		console.log('/');
 		if (res.locals.role) {
 			res.redirect('/thread');
 		} else {

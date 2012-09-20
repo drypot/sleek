@@ -16,10 +16,12 @@ l.init(function () {
 		e.use(express.cookieParser(l.config.cookieSecret));
 		e.use(express.session({ store: new redisStore() }));
 		e.use(express.bodyParser({ uploadDir: l.config.uploadDir + '/tmp' }));
+
 		e.use(function (req, res, next) {
 			res.locals.role = l.role.roleByName(req.session.roleName);
 			next();
 		});
+
 		e.use(e.router);
 
 		// NODE_ENV=production 상태에서는 케쉬 때문에 *.dust 파일 수정해도 반영이 안 된다.
@@ -42,7 +44,7 @@ l.init(function () {
 	});
 
 	e.configure('development', function () {
-		e.use(express.errorHandler({dumpExceptions: true, showStack: true}));
+		e.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
 	});
 
 	e.configure('production', function () {

@@ -3,6 +3,7 @@ var l = require('./main/l.js');
 require('./main/session-api.js');
 require('./main/upload-api.js');
 require('./main/post-api.js');
+require('./main/search-api.js');
 
 (function () {
 	process.on('uncaughtException', function (err) {

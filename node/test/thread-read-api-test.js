@@ -52,7 +52,7 @@ describe("getting thread", function () {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(l.rc.SUCCESS);
 			res.body.thread.id.should.equal(tid);
-			res.body.thread.categoryId.should.equal(101);
+			res.body.category.id.should.equal(101);
 			res.body.thread.title.should.equal('title');
 			res.body.post.should.length(2);
 			res.body.post[0].writer.should.equal('snowman');

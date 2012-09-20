@@ -4,9 +4,9 @@ var l = require('./l.js');
 
 require('./config.js');
 
-l.init(function () {
+l.role = {};
 
-	l.role = {};
+l.init(function () {
 
 	var role = {};
 

@@ -83,12 +83,12 @@ describe('reading post', function () {
 		l.test.request.get('/api/thread/' + t1 + '/' + p11, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(l.rc.SUCCESS);
-			res.body.head.should.true;
-			res.body.categoryId.should.equal(101);
-			res.body.writer.should.equal('snowman');
-			res.body.title.should.equal('title 1');
-			res.body.text.should.equal('head text 1');
-			res.body.visible.should.ok;
+			res.body.post.head.should.true;
+			res.body.category.id.should.equal(101);
+			res.body.post.writer.should.equal('snowman');
+			res.body.thread.title.should.equal('title 1');
+			res.body.post.text.should.equal('head text 1');
+			res.body.post.visible.should.ok;
 			next(err);
 		});
 	});
@@ -96,9 +96,9 @@ describe('reading post', function () {
 		l.test.request.get('/api/thread/' + t1 + '/' + p12, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(l.rc.SUCCESS);
-			res.body.head.should.not.ok;
-			res.body.writer.should.equal('snowman');
-			res.body.text.should.equal('reply text 1');
+			res.body.post.head.should.not.ok;
+			res.body.post.writer.should.equal('snowman');
+			res.body.post.text.should.equal('reply text 1');
 			next(err);
 		});
 	});
@@ -167,7 +167,7 @@ describe('editable field', function () {
 		l.test.request.get('/api/thread/' + t1 + '/' + p11, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(l.rc.SUCCESS);
-			res.body.editable.should.be.true;
+			res.body.post.editable.should.be.true;
 			next(err);
 		});
 	});
@@ -175,7 +175,7 @@ describe('editable field', function () {
 		l.test.request.get('/api/thread/' + t1 + '/' + p12, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(l.rc.SUCCESS);
-			res.body.editable.should.be.true;
+			res.body.post.editable.should.be.true;
 			next(err);
 		});
 	});
@@ -186,7 +186,7 @@ describe('editable field', function () {
 		l.test.request.get('/api/thread/' + t1 + '/' + p11, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(l.rc.SUCCESS);
-			res.body.editable.should.be.false;
+			res.body.post.editable.should.be.false;
 			next(err);
 		});
 	});
@@ -194,7 +194,7 @@ describe('editable field', function () {
 		l.test.request.get('/api/thread/' + t1 + '/' + p12, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(l.rc.SUCCESS);
-			res.body.editable.should.be.false;
+			res.body.post.editable.should.be.false;
 			next(err);
 		});
 	});
@@ -205,7 +205,7 @@ describe('editable field', function () {
 		l.test.request.get('/api/thread/' + t1 + '/' + p11, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(l.rc.SUCCESS);
-			res.body.editable.should.be.true;
+			res.body.post.editable.should.be.true;
 			next(err);
 		});
 	});
@@ -213,7 +213,7 @@ describe('editable field', function () {
 		l.test.request.get('/api/thread/' + t1 + '/' + p12, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(l.rc.SUCCESS);
-			res.body.editable.should.be.true;
+			res.body.post.editable.should.be.true;
 			next(err);
 		});
 	});

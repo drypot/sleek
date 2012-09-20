@@ -31,7 +31,9 @@ l.init(function () {
 								} else {
 									r.thread.push({
 										id: thread._id,
-										categoryId: thread.categoryId,
+										category: {
+											id: thread.categoryId
+										},
 										hit: thread.hit,
 										length: thread.length,
 										updated: thread.updated.getTime(),
@@ -94,10 +96,8 @@ l.init(function () {
 							var r = {
 								title: category.name,
 								category: {
-									id: categoryId,
-									name: category.name,
-									// TODO: check this
-									writable: category.writable
+									id: category.id,
+									name: category.name
 								},
 								thread: [],
 								prevUrl: null,
@@ -109,14 +109,16 @@ l.init(function () {
 								} else {
 									r.thread.push({
 										id: thread._id,
-										categoryId: thread.categoryId,
+										category: {
+											id: thread.categoryId,
+											name: categories[thread.categoryId].name
+										},
 										hit: thread.hit,
 										//length: thread.length,
 										//updated: thread.updated.getTime(),
 										writer: thread.writer,
 										title: thread.title,
 
-										categoryName: categories[thread.categoryId].name,
 										reply: thread.length - 1,
 										updatedStr: thread.updated.format('yyyy-MM-dd HH:mm')
 									});
@@ -173,8 +175,10 @@ l.init(function () {
 						rc: l.rc.SUCCESS,
 						thread: {
 							id: thread._id,
-							categoryId: category.id,
 							title: thread.title
+						},
+						category: {
+							id: category.id
 						},
 						post: []
 					};
@@ -232,8 +236,10 @@ l.init(function () {
 				prepareReadableCategory(res, thread.categoryId, function (category) {
 					var r = {
 						title: thread.title,
-						categoryId: category.id,
-						categoryName: category.name,
+						category: {
+							id: category.id,
+							name: category.name
+						},
 						threadId: thread._id,
 						post: []
 					};
@@ -274,17 +280,23 @@ l.init(function () {
 				prepareReadableCategory(res, thread.categoryId, function (category) {
 					var r = {
 						rc: l.rc.SUCCESS,
-						id: post._id,
-						threadId: post.threadId,
-						categoryId: thread.categoryId,
-						title: thread.title,
-						writer: post.writer,
-						created: post.created,
-						text: post.text,
-						visible: post.visible,
-						upload: uploadUrl(post),
-						head: head,
-						editable: editable(post, category, req)
+						thread: {
+							id: post.threadId,
+							title: thread.title
+						},
+						category: {
+							id: thread.categoryId
+						},
+						post: {
+							id: post._id,
+							writer: post.writer,
+							created: post.created,
+							text: post.text,
+							visible: post.visible,
+							upload: uploadUrl(post),
+							head: head,
+							editable: editable(post, category, req)
+						}
 					};
 					res.json(r);
 				});
@@ -320,10 +332,10 @@ l.init(function () {
 			prepareWritableCategory(res, categoryId, function (category) {
 				var r = {
 					title: 'New',
-					categoryId: category.id,
-					categoryName: category.name,
-					threadId: thread._id,
-					post: []
+					category: {
+						id: category.id,
+						name: category.name
+					}
 				};
 				res.render('thread-num', r);
 			});

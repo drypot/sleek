@@ -52,12 +52,12 @@ describe('updating head post', function () {
 		l.test.request.get('/api/thread/' + tid1 + '/' + pid11, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(l.rc.SUCCESS);
-			res.body.head.should.true;
-			res.body.categoryId.should.equal(101);
-			res.body.writer.should.equal('snowman u1');
-			res.body.title.should.equal('title u1');
-			res.body.text.should.equal('head text u1');
-			res.body.visible.should.true;
+			res.body.post.head.should.true;
+			res.body.category.id.should.equal(101);
+			res.body.post.writer.should.equal('snowman u1');
+			res.body.thread.title.should.equal('title u1');
+			res.body.post.text.should.equal('head text u1');
+			res.body.post.visible.should.true;
 			next(err);
 		});
 	});
@@ -75,7 +75,7 @@ describe('updating head post', function () {
 		l.test.request.get('/api/thread/' + tid1 + '/' + pid11, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(l.rc.SUCCESS);
-			res.body.categoryId.should.equal(102);
+			res.body.category.id.should.equal(102);
 			next(err);
 		});
 	});
@@ -178,10 +178,10 @@ describe('updating reply post', function () {
 		l.test.request.get('/api/thread/' + tid1 + '/' + pid12, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(l.rc.SUCCESS);
-			res.body.head.should.false;
-			res.body.writer.should.equal('snowman u1');
-			res.body.text.should.equal('reply text u1');
-			res.body.visible.should.true;
+			res.body.post.head.should.false;
+			res.body.post.writer.should.equal('snowman u1');
+			res.body.post.text.should.equal('reply text u1');
+			res.body.post.visible.should.true;
 			next(err);
 		});
 	});

@@ -49,7 +49,7 @@ describe("getting thread list", function () {
 
 			t = res.body.thread[0];
 			t.id.should.ok;
-			t.categoryId.should.equal(400);
+			t.category.id.should.equal(400);
 			t.writer.should.equal('snowman');
 			t.title.should.equal('title 7');
 			t.hit.should.equal(0);
@@ -57,7 +57,7 @@ describe("getting thread list", function () {
 
 			t = res.body.thread[6];
 			t.id.should.ok;
-			t.categoryId.should.equal(100);
+			t.category.id.should.equal(100);
 			t.writer.should.equal('snowman');
 			t.title.should.equal('title 1');
 			next(err);

@@ -9,7 +9,7 @@
 				{#thread}
 					<tr>
 						<td>
-							<a href="/thread?c={categoryId}">{categoryName}</a>
+							<a href="/thread?c={category.id}">{category.name}</a>
 						</td>
 						<td>{writer}</td>
 						<td>
@@ -40,7 +40,7 @@
 							</a>
 							<div>
 								<small>{writer}</small>
-								<small><a href="/thread?c={categoryId}">{categoryName}</a></small>
+								<small><a href="/thread?c={category.id}">{category.name}</a></small>
 								<small>{updatedStr|s}</small>
 							</div>
 						</td>

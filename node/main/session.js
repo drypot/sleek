@@ -5,9 +5,9 @@ var l = require('./l.js');
 require('./const.js');
 require('./express.js');
 
-l.init(function () {
+l.session = {};
 
-	l.session = {};
+l.init(function () {
 
 	var api = /^\/api\//;
 
