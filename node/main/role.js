@@ -10,28 +10,32 @@ l.init(function () {
 
 	var role = {};
 
-	_.each(l.config.role, function (role0) {
-		var role1 = {
-			name: role0.name,
-			hash: role0.hash,
+	_.each(l.config.role, function (rawRole) {
+		var newRole = {
+			name: rawRole.name,
+			hash: rawRole.hash,
 			category: {},
-			unsortedCategory : []
-		}
-		role[role1.name] = role1;
-		_.each(l.config.category, function (category0) {
-			var category1 = {
-				id: category0.id,
-				name: category0.name,
-				sep: category0.sep,
-				readable: _.include(category0.read, role1.name),
-				writable: _.include(category0.write, role1.name),
-				editable: _.include(category0.edit, role1.name)
+			readableCategory : [],
+			writableCategory : []
+		};
+		_.each(l.config.category, function (rawCategory) {
+			var newCategory = {
+				id: rawCategory.id,
+				name: rawCategory.name,
+				sep: rawCategory.sep,
+				readable: _.include(rawCategory.read, newRole.name),
+				writable: _.include(rawCategory.write, newRole.name),
+				editable: _.include(rawCategory.edit, newRole.name)
 			};
-			if (category1.readable) {
-				role1.category[category1.id] = category1;
-				role1.unsortedCategory.push(category1);
+			if (newCategory.readable) {
+				newRole.category[newCategory.id] = newCategory;
+				newRole.readableCategory.push(newCategory);
+			}
+			if (newCategory.writable) {
+				newRole.writableCategory.push(newCategory);
 			}
 		});
+		role[newRole.name] = newRole;
 	});
 
 	console.log('role initialized:');

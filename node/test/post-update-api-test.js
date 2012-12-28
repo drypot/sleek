@@ -95,7 +95,7 @@ describe('updating head post', function () {
 			function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(l.rc.INVALID_DATA);
-				res.body.field[0].title.should.equal(l.msg.FILL_TITLE);
+				res.body.error.title[0].should.equal(l.msg.FILL_TITLE);
 				next(err);
 			}
 		);
@@ -106,7 +106,7 @@ describe('updating head post', function () {
 			function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(l.rc.INVALID_DATA);
-				res.body.field[0].writer.should.equal(l.msg.FILL_WRITER);
+				res.body.error.writer[0].should.equal(l.msg.FILL_WRITER);
 				next(err);
 			}
 		);
@@ -191,7 +191,7 @@ describe('updating reply post', function () {
 			function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(l.rc.INVALID_DATA);
-				res.body.field[0].writer.should.equal(l.msg.FILL_WRITER);
+				res.body.error.writer[0].should.equal(l.msg.FILL_WRITER);
 				next(err);
 			}
 		);

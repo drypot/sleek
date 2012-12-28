@@ -31,6 +31,7 @@
 	<script src="/lib/spin.min.js"></script>
 	<!--<script src="/lib/URI.js"></script>-->
 	<script src="/js/l-b.js"></script>
+	<script src="/js/msg-b.js"></script>
 	<script src="/js/session-b.js"></script>
 	<script src="/js/post-b.js"></script>
 	<!--<script src="js/search.js"></script>-->
@@ -78,11 +79,11 @@
 <div class="container-fluid">
 	<div class="row-fluid">
 		<div class="span2">
-			{?role}
+			{?category}
 				<div id="category" class="well well-small hidden-phone" style="margin-top:100px;">
 					<ul class="nav nav-list">
-						{#role.unsortedCategory pageCategoryId=category.id}
-							{@if cond="{id} === {pageCategoryId}"}
+						{#role.readableCategory curCategoryId=category.id}
+							{@if cond="{id} === {curCategoryId}"}
 								<li class="active">
 							{:else}
 								<li>
@@ -98,17 +99,17 @@
 									<li class="divider"></li>
 								{/sep}
 							{/sep}
-						{/role.unsortedCategory}
+						{/role.readableCategory}
 					</ul>
 				</div>
 				<div id="category-phone" class="visible-phone">
 					<div class="btn-group">
 						<a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-							{categoryName}{~s}
+							{category.name}{~s}
 							<span class="caret"></span>
 						</a>
 						<ul class="dropdown-menu">
-							{#role.unsortedCategory}
+							{#role.readableCategory}
 								<li>
 									{@if cond="{id} === 0"}
 										<a href="/thread">{name}</a>
@@ -121,11 +122,11 @@
 										<li class="divider"></li>
 									{/sep}
 								{/sep}
-							{/role.unsortedCategory}
+							{/role.readableCategory}
 						</ul>
 					</div>
 				</div>
-			{/role}
+			{/category}
 		</div>
 
 		<div class="span10">

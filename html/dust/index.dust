@@ -3,12 +3,13 @@
 {<content}
 
 	<script>
-		l.init.add(function () {
+		l.init(function () {
 			l.session.initLoginPage();
 		});
 	</script>
 
 	<div id="content">
+
 		<form>
 			<div class="control-group">
 				<input name="password" type="password" class="span3" placeholder="password">
@@ -20,6 +21,7 @@
 				<button name="submit" type="submit" class="btn">Submit</button>
 			</div>
 		</form>
+
 	</div>
 
 {/content}

@@ -2,7 +2,7 @@ l.post = {};
 
 l.init(function () {
 
-	// thread
+	// Thread
 
 	l.post.initThreadPage = function () {
 
@@ -98,7 +98,83 @@ l.init(function () {
 
 l.init(function() {
 
-	// post form
+	// New Thread
+
+	var $form,
+		$category,
+		$writer,
+		$title,
+		$text,
+		$send,
+		$sending;
+
+	l.post.initNewThread = function () {
+		$form = $('#new-thread');
+		$category = $form.find('[name=category]');
+		$writer = $form.find('[name=writer]');
+		$title = $form.find('[name=title]');
+		$text = $form.find('[name=text]');
+		$send = $form.find('[name=send]');
+		$sending = $form.find('[name=sending]');
+
+		$writer.val(l.post.savedWriter());
+		if ($writer.val()) {
+			$title.focus();
+		} else {
+			$writer.focus();
+		}
+		$send.click(sendForm);
+	}
+
+	function sendForm() {
+		var post = {
+			categoryId: $category.val(),
+			writer: $writer.val(),
+			title: $title.val(),
+			text: $text.val()
+		}
+		l.form.clearAlert(l.$content);
+		showSending();
+		request.post('/api/thread').send(post).endEx(function (err, res) {
+			showSend();
+			if (err) {
+				l.systemError(err);
+			} else if (res.body.rc === l.rc.INVALID_DATA) {
+				_.each(res.body.error, function (error, field) {
+					_.each(error, function (error) {
+						l.form.addAlert($form.find('[name="' + field + '"]'), error);
+					});
+				})
+			} else if (res.body.rc !== l.rc.SUCCESS) {
+				l.unhandledError(res.body.rc)
+			} else {
+				l.post.saveWriter(post.writer);
+				location = '/thread/' + res.body.threadId;
+			}
+		});
+
+		return false;
+	}
+
+	function showSend() {
+		$send.removeClass('hide');
+		$sending.addClass('hide');
+	}
+
+	function showSending() {
+		$send.addClass('hide');
+		$sending.removeClass('hide');
+	}
+
+	l.post.saveWriter = function (writer) {
+		localStorage.setItem('writer', writer);
+	}
+
+	l.post.savedWriter = function () {
+		return localStorage.getItem('writer') || '';
+	}
+
+	// TODO: 파일 첨부
 
 //	var fileCount = 0;
 //

@@ -1,7 +1,7 @@
 var _ = require('underscore');
 var l = require('./l.js');
 
-require('./const.js');
+require('./msg.js');
 require('./role.js');
 require('./mongo.js');
 require('./es.js');

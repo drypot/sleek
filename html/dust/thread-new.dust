@@ -3,29 +3,40 @@
 {<content}
 
 	<script>
-		/*l.init.add(function () {
-			l.post.initThreadPage();
-		});*/
+		l.init(function () {
+			l.post.initNewThread();
+		});
 	</script>
-
 
 	<div id="content">
 
-		<form id="new-post">
+		<form id="new-thread">
 			<select name="category" style="display:block">
-				<option value="100">freetalk</option>
-				<option value="103">absence noti</option>
-				<option value="104">weekly report</option>
+				{#role.writableCategory}
+					<option value="{id}">{name}</option>
+				{/role.writableCategory}
 			</select>
-			<input name="writer" class="span4" type="text" value="박규현" maxlength="32" placeholder="필명">
-			<input name="title" class="span12" type="text" value="" maxlength="128" placeholder="제목">
-			<textarea name="text" class="span12" placeholder="본문" style="height:450px;"></textarea>
+			<script>
+				$(function () {
+					$('#new-thread [name="category"]').val('{category.id}');
+				});
+			</script>
+			<div class="control-group">
+				<input name="writer" class="span4" type="text" value="" maxlength="32" placeholder="필명">
+			</div>
+			<div class="control-group">
+				<input name="title" class="span12" type="text" value="" maxlength="128" placeholder="제목">
+			</div>
+			<div class="control-group">
+				<textarea name="text" class="span12" placeholder="본문" style="height:450px;"></textarea>
+			</div>
 			<div class="well well-small">
 				<input name="upload" type="file" class="file span8" multiple="multiple"><br>
 				<button class="btn btn-small"><i class="icon-plus"></i></button>
 			</div>
 			<hr>
-			<button type="submit" class="btn">Submit</button>
+			<button name="send" type="submit" class="btn">Send</button>
+			<button name="sending" type="button" class="btn disabled hide">Sending</button>
 		</form>
 
 	</div>

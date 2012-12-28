@@ -1,7 +1,7 @@
 var _ = require('underscore');
 var l = require('./l.js');
 
-require('./const.js');
+require('./msg.js');
 require('./role.js');
 require('./mongo.js');
 require('./es.js');
@@ -11,7 +11,7 @@ require('./session.js');
 
 l.init(function () {
 
-	// thread
+	// get thread list
 
 	l.e.get('/api/thread', function (req, res, next) {
 		l.session.authorized(res, function () {
@@ -63,10 +63,10 @@ l.init(function () {
 	function prepareReadableCategory(res, categoryId, next) {
 		var category = res.locals.role.category[categoryId];
 		if (!category) {
-			res.json({ rc: l.rc.INVALID_CATEGORY });
+			l.resError(res, l.rc.INVALID_CATEGORY);
 		} else {
 			if (!category.readable) {
-				res.json({ rc: l.rc.NOT_AUTHORIZED });
+				l.resError(res, l.rc.NOT_AUTHORIZED);
 			} else {
 				next(category);
 			}
@@ -164,7 +164,7 @@ l.init(function () {
 		func(prev, next);
 	}
 
-	// thread-num
+	// get thread
 
 	l.e.get('/api/thread/:threadId([0-9]+)', function (req, res) {
 		l.session.authorized(res, function () {
@@ -236,11 +236,13 @@ l.init(function () {
 				prepareReadableCategory(res, thread.categoryId, function (category) {
 					var r = {
 						title: thread.title,
+						thread: {
+							id: thread._id
+						},
 						category: {
 							id: category.id,
 							name: category.name
 						},
-						threadId: thread._id,
 						post: []
 					};
 					l.mongo.findPostByThread(threadId, function (err, post) {
@@ -270,7 +272,7 @@ l.init(function () {
 		});
 	});
 
-	// post
+	// get post
 
 	l.e.get('/api/thread/:threadId([0-9]+)/:postId([0-9]+)', function (req, res, next) {
 		l.session.authorized(res, function () {
@@ -328,7 +330,10 @@ l.init(function () {
 
 	l.e.get('/thread/new', function (req, res, next) {
 		l.session.authorized(res, function () {
-			var categoryId = l.int(body, 'categoryId', 0);
+			var categoryId = l.int(req.query, 'c', 0);
+			if (categoryId == 0) {
+				categoryId = res.locals.role.writableCategory[0].id;
+			}
 			prepareWritableCategory(res, categoryId, function (category) {
 				var r = {
 					title: 'New',
@@ -337,7 +342,7 @@ l.init(function () {
 						name: category.name
 					}
 				};
-				res.render('thread-num', r);
+				res.render('thread-new', r);
 			});
 		});
 	});
@@ -408,10 +413,10 @@ l.init(function () {
 		} else {
 			var category = res.locals.role.category[categoryId];
 			if (!category) {
-				res.json({ rc: l.rc.INVALID_CATEGORY });
+				l.resError(res, l.rc.INVALID_CATEGORY);
 			} else {
 				if (!category.writable) {
-					res.json({ rc: l.rc.NOT_AUTHORIZED });
+					l.resError(res, l.rc.NOT_AUTHORIZED);
 				} else {
 					next(category);
 				}
@@ -421,35 +426,49 @@ l.init(function () {
 
 	function checkPostOwnership(req, res, category, postId, next) {
 		if (!category.editable && !_.include(req.session.post, postId)) {
-			res.json({ rc: l.rc.NOT_AUTHORIZED });
+			l.resError(res, l.rc.NOT_AUTHORIZED);
 		} else {
 			next();
 		}
 	}
 
 	function checkForm(res, form, head, next) {
-		var error = [];
+		var error = {};
+
 		if (head) {
-			if (!form.title) error.push({ title: l.msg.FILL_TITLE });
-			if (form.title.length > 128) error.push({ title: l.msg.SHORTEN_TITLE });
+			if (!form.title) {
+				pushError(error, 'title', l.msg.FILL_TITLE );
+			}
+			if (form.title.length > 128) {
+				pushError(error, 'title', l.msg.SHORTEN_TITLE);
+			}
 		}
 		if (!form.writer) {
-			error.push({ writer : l.msg.FILL_WRITER });
+			pushError(error, 'writer', l.msg.FILL_WRITER);
 		}
-		if (form.writer .length > 32) {
-			error.push({ writer : l.msg.SHORTEN_WRITER });
+		if (form.writer.length > 32) {
+			pushError(error, 'writer', l.msg.SHORTEN_WRITER);
 		}
-		if (error.length) {
-			res.json({ rc: l.rc.INVALID_DATA, field: error });
+
+		if (!_.isEmpty(error)) {
+			res.json({ rc: l.rc.INVALID_DATA, error: error });
 		} else {
 			next();
 		}
 	}
 
+	function pushError(error, field, msg) {
+		var errorPerField = error[field];
+		if (!errorPerField) {
+			errorPerField = error[field] = [];
+		}
+		errorPerField.push(msg);
+	}
+
 	function prepareThread(res, threadId, next) {
 		l.mongo.findThreadById(threadId, function (err, thread) {
 			if (err || !thread) {
-				res.json({ rc: l.rc.INVALID_THREAD });
+				l.resError(res, l.rc.INVALID_THREAD);
 			} else {
 				next(thread);
 			}
@@ -460,7 +479,7 @@ l.init(function () {
 		prepareThread(res, threadId, function (thread) {
 			l.mongo.findPostById(postId, function (err, post) {
 				if (err || !post) {
-					res.json({ rc: l.rc.INVALID_POST });
+					l.resError(res, l.rc.INVALID_POST);
 				} else {
 					next(thread, post, thread.created.getTime() === post.created.getTime());
 				}
@@ -477,7 +496,7 @@ l.init(function () {
 		};
 		l.mongo.insertThread(thread, function (err) {
 			if (err) {
-				res.json({ rc: l.rc.DB_IO_ERR });
+				l.resError(res, l.rc.DB_IO_ERR);
 			} else {
 				next(thread);
 			}
@@ -494,15 +513,15 @@ l.init(function () {
 		req.session.post.push(post._id);
 		l.upload.savePostUploadTmp(post, form.uploadTmp, function (err) {
 			if (err) {
-				res.json({ rc: l.rc.FILE_IO_ERR });
+				l.resError(res, l.rc.FILE_IO_ERR);
 			} else {
 				l.mongo.insertPost(post, function (err) {
 					if (err) {
-						res.json({ rc: l.rc.DB_IO_ERR });
+						l.resError(res, l.rc.DB_IO_ERR);
 					} else {
 						l.es.updatePost(thread, post, function (err, res) {
 							if (err) {
-								res.json({ rc: l.rc.SEARCH_IO_ERR });
+								l.resError(res, l.rc.SEARCH_IO_ERR);
 							} else {
 								next(post);
 							}
@@ -522,7 +541,7 @@ l.init(function () {
 			thread.writer  = form.writer ;
 			l.mongo.updateThread(thread, function (err) {
 				if (err) {
-					res.json({ rc: l.rc.DB_IO_ERR });
+					l.resError(res, l.rc.DB_IO_ERR);
 				} else {
 					next();
 				}
@@ -538,7 +557,7 @@ l.init(function () {
 		}
 		l.upload.deletePostUpload(post, form.deleting, function (err, deleted) {
 			if (err) {
-				res.json({ rc: l.rc.FILE_IO_ERR });
+				l.resError(res, l.rc.FILE_IO_ERR);
 			} else {
 				if (deleted) {
 					post.upload = _.without(post.upload, deleted);
@@ -546,12 +565,12 @@ l.init(function () {
 				}
 				l.upload.savePostUploadTmp(post, form.uploadTmp, function (err, saved) {
 					if (err) {
-						res.json({ rc: l.rc.FILE_IO_ERR });
+						l.resError(res, l.rc.FILE_IO_ERR);
 					} else {
 						l.mongo.updatePost(post);
 						l.es.updatePost(thread, post, function (err, res) {
 							if (err) {
-								res.json({ rc: l.rc.SEARCH_IO_ERR });
+								l.resError(res, l.rc.SEARCH_IO_ERR);
 							} else {
 								next();
 							}

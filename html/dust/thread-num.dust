@@ -3,7 +3,7 @@
 {<content}
 
 	<script>
-		l.init.add(function () {
+		l.init(function () {
 			l.post.initThreadPage();
 		});
 	</script>
@@ -27,7 +27,7 @@
 					<div class="text"><pre>{text}</pre></div>
 					{#editable}
 						<div class="cmd">
-							<a class="btn" href="/thread/{threadId|s}/{id|s}/edit">edit</a>
+							<a class="btn" href="/thread/{thread.id|s}/{id|s}/edit">edit</a>
 						</div>
 					{/editable}
 				</div>

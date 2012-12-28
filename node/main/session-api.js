@@ -2,7 +2,7 @@ var _ = require('underscore');
 var bcrypt = require('bcrypt');
 var l = require('./l.js');
 
-require('./const.js');
+require('./msg.js');
 require('./express.js');
 require('./session.js');
 
@@ -14,7 +14,7 @@ l.init(function () {
 				rc: l.rc.SUCCESS,
 				role: {
 					name: res.locals.role.name,
-					unsortedCategory: res.locals.role.unsortedCategory
+					readableCategory: res.locals.role.readableCategory
 				},
 				uploadUrl: l.config.uploadUrl
 			});
@@ -57,7 +57,6 @@ l.init(function () {
 	}
 
 	l.e.get('/', function (req, res) {
-		console.log('/');
 		if (res.locals.role) {
 			res.redirect('/thread');
 		} else {

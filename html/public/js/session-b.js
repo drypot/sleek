@@ -5,7 +5,7 @@ l.init(function () {
 	l.session.initLoginPage = function () {
 		trySavedPassword(function (err, success) {
 			if (err) {
-				l.systemModalError(err);
+				l.systemError(err);
 			} else if (success) {
 				location = '/thread';
 			} else {
@@ -37,7 +37,7 @@ l.init(function () {
 		l.form.clearAlert(l.$content);
 		request.post('/api/session').send({ password: $password.val() }).endEx(function (err, res) {
 			if (err) {
-				l.systemModalError(err);
+				l.systemError(err);
 			} else if (res.body.rc !== l.rc.SUCCESS) {
 				l.form.addAlert($password, l.rcMsg[res.body.rc]);
 			} else {

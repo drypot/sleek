@@ -51,22 +51,39 @@ l.init(function () {
 		e.use(express.errorHandler());
 	});
 
-});
-
-l.init(1, function () {
-
-	var e = l.e;
-
 	e.get('/api/hello', function (req, res) {
 		res.json('hello');
 	});
 
-	e.get('/test', function (req, res) {
-		res.render('test');
-	});
+//	e.get('/error/:rc([0-9]+)', function (req, res) {
+//		var rc = l.int(req.params, 'rc', 0);
+//		res.render('error', {
+//			//title: 'Error',
+//			msg: l.rcMsg[rc]
+//		});
+//	});
+
+	var api = /^\/api\//;
+
+	l.resError = function (res, rc) {
+		if (api.test(res.req.path)) {
+			res.json({ rc: rc });
+		} else {
+			if (rc === l.rc.NOT_AUTHENTICATED) {
+				res.redirect('/');
+			} else {
+				res.render('error', {
+					msg: l.rcMsg[rc]
+				});
+			}
+		}
+	}
+});
+
+l.init(1, function () {
 
 	if (!l.config.expressDisabled) {
-		e.listen(l.config.serverPort);
+		l.e.listen(l.config.serverPort);
 		console.log("express listening on port: %d", l.config.serverPort);
 	}
 
