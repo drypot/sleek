@@ -10,7 +10,7 @@ before(function (next) {
 });
 
 describe('fs', function () {
-	var base = '/Users/drypot/tmp/node-test'
+	var base = 'tmp'
 	before(function (next) {
 		try {
 			fs.rmdirSync(base + '/sub1/sub2');
@@ -20,9 +20,6 @@ describe('fs', function () {
 		next();
 	});
 	describe('mkdirs', function () {
-		it("confirms base exists", function () {
-			should(fs.existsSync(base));
-		});
 		it("confirms sub not exists", function () {
 			should(!fs.existsSync(base + '/sub1' + '/sub2'));
 		});

@@ -10,7 +10,7 @@ l.mongo = {};
 l.init(function (next) {
 
 	var server = l.mongo.server = new mongo.Server("127.0.0.1", 27017, { auto_reconnect: true });
-	var db = l.mongo.db = new mongo.Db(l.config.mongoDbName, server);
+	var db = l.mongo.db = new mongo.Db(l.config.mongoDbName, server, { safe: false });
 
 	async.series([
 		function (next) {
