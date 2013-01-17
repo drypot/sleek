@@ -1,0 +1,57 @@
+<!--
+	Backbone Router 와 a tag 를 사용하는 초간단 예제.
+
+	http://.../tmp/backbone-test/ 로 접근했을 때 아래 페이지가 제공된다고 가정.
+
+	Backbone Page 의 URL 은 반드시 / 로 끝나야 한다.
+	backbone-test.html 등 / 로 끝나지 않는 URL 로 테스트하려 한다면 머리를 쥐어뜯게 될 것이다.
+-->
+
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="/lib/jquery.min.js"></script>
+	<script src="/lib/underscore-min.js"></script>
+	<script src="/lib/backbone-min.js"></script>
+	<script src="/lib/backbone.queryparams.js"></script>
+	<script>
+		function cl(msg) {
+			alert(msg);
+			//console.log(msg);
+		}
+
+		var router;
+
+		$(function () {
+			router = new Backbone.Router();
+
+			router.route('', 'index', function () {
+				cl('at index');
+			});
+
+			router.route('this', 'this', function () {
+				cl('at this');
+			});
+
+			router.route('that', 'that', function () {
+				cl('at that');
+			});
+
+			Backbone.history.start({ pushState: true, root: '/tmp/backbone-test/' });
+		});
+
+		$(document).on('click', 'a[data-nav]', function (e) {
+			router.navigate($(this).attr('href'), true);
+			return false;
+		});
+	</script>
+</head>
+
+<body>
+	<h1>Hello</h1>
+	<a href="/" data-nav>go to index</a><br>
+	<a href="/this" data-nav>go to this</a><br>
+	<a href="/that" data-nav>go to that</a><br>
+</body>
+
+</html>

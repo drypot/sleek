@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>dust test</title>
+	<script src="/lib/jquery.min.js"></script>
+	<script src="/lib/dust-full-1.0.0.min.js"></script>
+
+	<script>
+		$(function () {
+			var template = dust.compileFn($('#template').html());
+			template({ name: 'Snowman', editable: false, editable2: false }, function (err, out) {
+				$("#board").html(out);
+			});
+		});
+	</script>
+
+	<script id="template" type="text/template">
+		Hello?<br>
+		My name is {name}.<br>
+		{#editable}
+			Editable!<br>
+		{/editable}
+		{?editable2}
+			Editable2!<br>
+		{/editable2}
+	</script>
+
+</head>
+
+<body>
+<div id="board"></div>
+</body>
+
+</html>
