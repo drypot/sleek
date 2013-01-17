@@ -2,8 +2,6 @@
 projectFilesBackup/
 node_modules/
 config-live/
-node/tmp/
-html/public/tmp/
-html/jsp/
+client/jsp/
 test-data/
 tmp/

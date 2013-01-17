@@ -1,1 +1,1 @@
-NODE_ENV=development node node/app.js config/config.json
+NODE_ENV=development node server/app.js config/config.json
