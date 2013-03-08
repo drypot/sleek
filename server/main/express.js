@@ -27,7 +27,7 @@ l.init(function () {
 		// NODE_ENV=production 상태에서는 케쉬 때문에 *.dust 파일 수정해도 반영이 안 된다.
 		e.engine('dust', consolidate.dust); // 확장자별 뷰 처리 엔진 등록
 		e.set('view engine', 'dust'); // 뷰 기본 확장자 등록
-		e.set('views', process.cwd() + '/html/dust'); // 뷰 루트 디렉토리 등록
+		e.set('views', process.cwd() + '/client/dust'); // 뷰 루트 디렉토리 등록
 
 		// To disable whitespace compression
 		//dust.optimizers.format = function(ctx, node) { return node };

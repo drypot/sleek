@@ -22,9 +22,10 @@
 	<link href="/css/l.css" rel="stylesheet">
 	<link href="/lib/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
 
+	<script src="/lib/es5-shim.min.js"></script>
 	<script src="/lib/json2.js"></script>
 	<script src="/lib/underscore-min.js"></script>
-	<script src="/lib/jquery.min.js"></script>
+	<script src="/lib/jquery-1.9.1.min.js"></script>
 	<script src="/lib/jquery.simpleplaceholder.js"></script>
 	<script src="/lib/bootstrap/js/bootstrap.min.js"></script>
 	<script src="/lib/superagent.js"></script>
