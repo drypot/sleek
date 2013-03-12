@@ -105,3 +105,10 @@ describe('UrlMaker', function () {
 		u.toString().should.equal('/thread?ps=16');
 	});
 });
+
+describe('formatDate', function () {
+	it('should success', function () {
+		var d = new Date(1974, 4, 16, 12, 0);
+		l.formatDateTime(d).should.equal('1974-05-16 12:00');
+	})
+});

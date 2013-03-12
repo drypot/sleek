@@ -120,7 +120,7 @@ l.init(function () {
 										title: thread.title,
 
 										reply: thread.length - 1,
-										updatedStr: thread.updated.format('yyyy-MM-dd HH:mm')
+										updatedStr: l.formatDateTime(thread.updated)
 									});
 								}
 							});
@@ -257,7 +257,7 @@ l.init(function () {
 									text: post.text,
 									upload: uploadUrl(post),
 
-									createdStr: new Date(post.created).format('yyyy-MM-dd HH:mm'),
+									createdStr: l.formatDateTime(new Date(post.created)),
 									editable: category.editable || _.include(req.session.post, post.id),
 								});
 
