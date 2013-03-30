@@ -23,6 +23,9 @@ require('./main/search-api.js');
 			l.config.path = arg;
 		}
 	}
+//	console.log('specify configuration file path.')
+//	process.exit();
+
 })();
 
 (function () {

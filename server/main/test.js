@@ -15,3 +15,6 @@ l.init(-1, function () {
 l.init(function() {
 	l.test.request = new l.Request("http://localhost:" + l.config.serverPort);
 });
+
+//console.log('specify configuration file path.')
+//process.exit();

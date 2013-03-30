@@ -1,20 +1,12 @@
 var should = require('should');
 var l = require('../main/l.js');
-
-require('../main/config.js');
-require('../main/test.js');
-
-before(function (next) {
-	l.init.run(next);
-});
+var config = require('../main/config.js');
 
 describe('config', function () {
-	it('should have path', function () {
-		should(l.config.path);
-		l.config.path.should.equal("config/config-test.json");
+	it('given config', function () {
+		config.load('config/config-test.json');
 	});
-
-	it('should have siteTitle', function () {
-		l.config.siteTitle.should.equal("sleek test");
+	it('siteTitle', function () {
+		config.siteTitle.should.equal("sleek test");
 	});
 });
