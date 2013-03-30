@@ -6,59 +6,6 @@ var l = exports;
 
 (function () {
 
-	var func = {};
-
-	reset();
-
-	l.init = function (pri, func0) {
-		var funcAtPri;
-
-		if (_.isFunction(pri)) {
-			func0 = pri;
-			pri = 0;
-		}
-
-		funcAtPri = func[pri];
-		if (!funcAtPri) {
-			funcAtPri = func[pri] = [];
-		}
-
-		if (func0.length == 0) {
-			funcAtPri.push(function (next) {
-				func0();
-				next();
-			})
-		} else {
-			funcAtPri.push(func0);
-		}
-	};
-
-	l.init.reset = reset;
-
-	function reset() {
-		func = {};
-	}
-
-	l.init.run = function (next) {
-		var all = [];
-
-		_.each(_.keys(func).sort(), function (pri) {
-			all = all.concat(func[pri]);
-		});
-
-		async.series(all, function (err) {
-			if (err) {
-				throw err;
-			} else if (next) {
-				next();
-			}
-		});
-	};
-
-})();
-
-l.init(function () {
-
 	// object
 
 	l.isObject = function (obj) {
@@ -132,9 +79,9 @@ l.init(function () {
 		);
 	}
 
-});
+})();
 
-l.init(function () {
+(function () {
 
 	// http://ejohn.org/blog/simple-javascript-inheritance/
 
@@ -175,9 +122,9 @@ l.init(function () {
 		Class.subClass = arguments.callee;
 		return Class;
 	}
-});
+})();
 
-l.init(function () {
+(function () {
 
 	function pad(n) {
 		var s = "0" + n;
@@ -188,9 +135,9 @@ l.init(function () {
 		return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
 	};
 
-});
+})();
 
-l.init(function () {
+(function () {
 
 	// should
 
@@ -203,9 +150,9 @@ l.init(function () {
 		return this;
 	}
 
-});
+})();
 
-l.init(function () {
+(function () {
 
 	// UrlMaker
 
@@ -242,4 +189,4 @@ l.init(function () {
 		return this.url;
 	}
 
-});
+})();

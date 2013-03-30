@@ -2,10 +2,6 @@ var _ = require('underscore');
 var should = require('should');
 var l = require('../main/l.js');
 
-before(function (next) {
-	l.init.run(next);
-});
-
 describe('property', function () {
 
 	describe('def', function () {
