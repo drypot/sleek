@@ -1,16 +1,11 @@
 var _ = require('underscore');
 var should = require('should');
 var fs = require('fs');
-var l = require('../main/l.js');
+var fs2 = require('../main/fs.js');
 
-require('../main/fs.js');
+var base = 'tmp';
 
-before(function (next) {
-	l.init.run(next);
-});
-
-describe('fs', function () {
-	var base = 'tmp'
+describe('mkdirs', function () {
 	before(function (next) {
 		try {
 			fs.rmdirSync(base + '/sub1/sub2');
@@ -19,22 +14,20 @@ describe('fs', function () {
 		}
 		next();
 	});
-	describe('mkdirs', function () {
-		it("confirms sub not exists", function () {
-			should(!fs.existsSync(base + '/sub1' + '/sub2'));
+	before(function () {
+		fs.existsSync(base + '/sub1' + '/sub2').should.be.false;
+	});
+	it('can make sub1', function (next) {
+		fs2.mkdirs([base, 'sub1'], function (err) {
+			fs.existsSync(base + '/sub1').should.be.true;
+			next();
 		});
-		it('can make sub1', function (next) {
-			l.fs.mkdirs([base, 'sub1'], function (err) {
-				should(fs.existsSync(base + '/sub1'));
-				next();
-			});
-		});
-		it('can make sub2', function (next) {
-			l.fs.mkdirs([base, 'sub1', 'sub2'], function (err, dir) {
-				dir.should.equal(base + '/sub1/sub2');
-				should(fs.existsSync(dir));
-				next();
-			});
+	});
+	it('can make sub2', function (next) {
+		fs2.mkdirs([base, 'sub1', 'sub2'], function (err, dir) {
+			dir.should.equal(base + '/sub1/sub2');
+			fs.existsSync(dir).should.be.true;
+			next();
 		});
 	});
 });
@@ -53,8 +46,8 @@ describe('safeFilename', function () {
 			[ "abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890", "abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890" ],
 			[ "이상한 '한글' 이름을 가진 파일", "이상한 '한글' 이름을 가진 파일" ]
 		];
-		_.each(table, function (pair) {
-			var a = l.fs.safeFilename(pair[0]);
+		table.forEach(function (pair) {
+			var a = fs2.safeFilename(pair[0]);
 			var b = pair[1];
 			if (a !== b) console.log(pair);
 			should(a === b);
