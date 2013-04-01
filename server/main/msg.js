@@ -16,13 +16,6 @@ var rc = exports.rc = {
 	SEARCH_IO_ERR: 303
 };
 
-var msg = exports.msg = {
-	FILL_TITLE: '제목을 입력해 주십시오.',
-	SHORTEN_TITLE: '제목을 줄여 주십시오.',
-	FILL_WRITER: '필명을 입력해 주십시오.',
-	SHORTEN_WRITER: '필명을 줄여 주십시오.'
-};
-
 var rcMsg = exports.rcMsg = [];
 
 rcMsg[rc.NOT_AUTHENTICATED] = '먼저 로그인 해주십시오.';
@@ -37,3 +30,10 @@ rcMsg[rc.INVALID_POST] = '정상적인 글이 아닙니다.';
 rcMsg[rc.DB_IO_ERR] = '데이터베이스와의 연결에 문제가 발생하였습니다.';
 rcMsg[rc.FILE_IO_ERR] = '파일 처리에 문제가 발생하였습니다.';
 rcMsg[rc.SEARCH_IO_ERR] = '검색 서버와의 연결에 문제가 발생하였습니다.';
+
+var msg = exports.msg = {
+	FILL_TITLE: '제목을 입력해 주십시오.',
+	SHORTEN_TITLE: '제목을 줄여 주십시오.',
+	FILL_WRITER: '필명을 입력해 주십시오.',
+	SHORTEN_WRITER: '필명을 줄여 주십시오.'
+};
