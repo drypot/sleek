@@ -1,19 +1,15 @@
 var l = require('./l.js');
+var config = require('./config.js');
 
-require('./config.js');
-require('./request.js');
-
-l.test = {};
-
-l.init(-1, function () {
-	l.config.path = "config/config-test.json";
-	l.config.override.mongoDropDatabase = true;
-	l.config.override.esDropIndex = true;
-});
-
-l.init(function() {
-	l.test.request = new l.Request("http://localhost:" + l.config.serverPort);
-});
-
-//console.log('specify configuration file path.')
-//process.exit();
+exports.loadTestConfig = function (next) {
+	config.load('config/config-test.json', function (err) {
+		if (err) {
+			next(err);
+		} else {
+			config.mongoDropDatabase = true;
+			config.esDropIndex = true;
+			exports.baseUrl = 'http://localhost:' + config.serverPort;
+			next(err);
+		}
+	});
+};
