@@ -26,7 +26,7 @@ describe('db', function () {
 	});
 });
 
-describe('post collection', function () {
+describe('empty post collection', function () {
 	it('should exist', function () {
 		should(mongo.postCol);
 	});
@@ -50,8 +50,12 @@ describe('post collection', function () {
 		var id2 = mongo.getNewPostId();
 		should(id1 < id2);
 	});
+});
+
+describe('filled post collection', function () {
 	var ppost;
-	it('can insert', function () {
+
+	before(function () {
 		function insert(post) {
 			post._id = mongo.getNewPostId();
 			mongo.insertPost(post);
@@ -128,7 +132,7 @@ describe('post collection', function () {
 	});
 });
 
-describe('thread collection', function () {
+describe('empty thread collection', function () {
 	it('should exist', function () {
 		should.exist(mongo.threadCol);
 	});
@@ -152,8 +156,12 @@ describe('thread collection', function () {
 		var id2 = mongo.getNewThreadId();
 		should(id1 < id2);
 	});
+});
+
+describe('filled thread collection', function () {
 	var pthread;
-	it('can insert', function () {
+
+	before(function () {
 		function insert(thread) {
 			thread._id = mongo.getNewThreadId();
 			mongo.insertThread(thread);
