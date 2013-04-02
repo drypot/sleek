@@ -1,8 +1,7 @@
 #
-.idea/
-projectFilesBackup/
-node_modules/
-config-live/
-client/jsp/
-test-data/
+/.idea/
+/projectFilesBackup/
+/node_modules/
+/config-live/
+/test-data/
 /tmp/
