@@ -4,9 +4,9 @@ var bcrypt = require('bcrypt');
 var l = require('./l.js');
 var config = require('./config.js');
 
-var role = {};
+var roleMap = {};
 
-exports.init = function () {
+exports.init = function (opt, next) {
 	config.role.forEach(function (configRole) {
 		var newRole = {
 			name: configRole.name,
@@ -32,16 +32,21 @@ exports.init = function () {
 				newRole.writableCategory.push(newCategory);
 			}
 		});
-		role[newRole.name] = newRole;
+		roleMap[newRole.name] = newRole;
 	});
+	next();
 };
 
 exports.roleByName = function (roleName) {
-	return role[roleName];
+	return roleMap[roleName];
 };
 
 exports.roleByPassword = function (password) {
-	return _.find(role, function (role) {
-		return bcrypt.compareSync(password, role.hash);
-	});
+	for (var roleName in roleMap) {
+		var role = roleMap[roleName];
+		if (bcrypt.compareSync(password, role.hash)) {
+			return role;
+		}
+	}
+	return null;
 };

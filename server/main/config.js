@@ -12,7 +12,7 @@ exports.init = function (opt, next) {
 			var config = JSON.parse(text);
 			_.extend(exports, config);
 			exports.localUrl = 'http://localhost:' + config.serverPort;
-			console.log('configuration file: ' + opt.path);
+			console.log('config file: ' + opt.path);
 			next(err);
 		}
 	});
