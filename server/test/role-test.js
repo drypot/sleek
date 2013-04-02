@@ -10,7 +10,7 @@ before(function (next) {
 });
 
 before(function (next) {
-	role.init({ test: true }, next);
+	role.init(next);
 });
 
 describe('roleByName()', function () {

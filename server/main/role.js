@@ -6,7 +6,7 @@ var config = require('./config.js');
 
 var roleMap = {};
 
-exports.init = function (opt, next) {
+exports.init = function (next) {
 	config.role.forEach(function (configRole) {
 		var newRole = {
 			name: configRole.name,
