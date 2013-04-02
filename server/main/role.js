@@ -1,31 +1,28 @@
 var _ = require('underscore');
 var bcrypt = require('bcrypt');
+
 var l = require('./l.js');
+var config = require('./config.js');
 
-require('./config.js');
+var role = {};
 
-l.role = {};
-
-l.init(function () {
-
-	var role = {};
-
-	_.each(l.config.role, function (rawRole) {
+exports.init = function () {
+	config.role.forEach(function (configRole) {
 		var newRole = {
-			name: rawRole.name,
-			hash: rawRole.hash,
+			name: configRole.name,
+			hash: configRole.hash,
 			category: {},
 			readableCategory : [],
 			writableCategory : []
 		};
-		_.each(l.config.category, function (rawCategory) {
+		config.category.forEach(function (configCategory) {
 			var newCategory = {
-				id: rawCategory.id,
-				name: rawCategory.name,
-				sep: rawCategory.sep,
-				readable: _.include(rawCategory.read, newRole.name),
-				writable: _.include(rawCategory.write, newRole.name),
-				editable: _.include(rawCategory.edit, newRole.name)
+				id: configCategory.id,
+				name: configCategory.name,
+				sep: configCategory.sep,
+				readable: _.include(configCategory.read, newRole.name),
+				writable: _.include(configCategory.write, newRole.name),
+				editable: _.include(configCategory.edit, newRole.name)
 			};
 			if (newCategory.readable) {
 				newRole.category[newCategory.id] = newCategory;
@@ -37,17 +34,14 @@ l.init(function () {
 		});
 		role[newRole.name] = newRole;
 	});
+};
 
-	console.log('role initialized:');
+exports.roleByName = function (roleName) {
+	return role[roleName];
+};
 
-	l.role.roleByName = function (roleName) {
-		return role[roleName];
-	};
-
-	l.role.roleByPassword = function (password) {
-		return _.find(role, function (role) {
-			return bcrypt.compareSync(password, role.hash);
-		});
-	};
-
-});
+exports.roleByPassword = function (password) {
+	return _.find(role, function (role) {
+		return bcrypt.compareSync(password, role.hash);
+	});
+};

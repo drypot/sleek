@@ -7,6 +7,8 @@ require('./config.js');
 
 l.mongo = {};
 
+// config.mongoDropDatabase = true;
+
 l.init(function (next) {
 
 	var server = l.mongo.server = new mongo.Server("127.0.0.1", 27017, { auto_reconnect: true });

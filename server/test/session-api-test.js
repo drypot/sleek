@@ -9,6 +9,8 @@ before(function (next) {
 	l.init.run(next);
 });
 
+// exports.baseUrl = 'http://localhost:' + config.serverPort;
+
 describe('raw session', function () {
 	it('can save session value', function (next) {
 		l.test.request.put('/api/test/session-var', { value: 'book217' }, function (err, res) {

@@ -5,13 +5,13 @@ var config = require('../main/config.js');
 
 describe('loading config', function () {
 	it('should fail with invalid path', function (next) {
-		config.load('config/config-none.json', function (err) {
+		config.init({ path: 'config/config-none.json' }, function (err) {
 			should(err);
 			next();
 		});
 	});
 	it('should success', function (next) {
-		config.load('config/config-test.json', next);
+		config.init({ path: 'config/config-test.json' }, next);
 	});
 });
 

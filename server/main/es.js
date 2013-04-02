@@ -9,6 +9,8 @@ require('./mongo.js');
 
 l.es = {};
 
+// config.esDropIndex = true;
+
 l.init(function (next) {
 
 	var baseUrl = l.config.esUrl + '/' + l.config.esIndexName;
