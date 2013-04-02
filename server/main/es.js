@@ -1,43 +1,28 @@
 var _ = require('underscore');
 var async = require('async');
+var request = require('superagent').agent();
+
 var l = require('./l.js');
+var config = require('./config.js');
+var role = require('./role.js');
+var mongo = require('./mongo.js');
 
-require('./config.js');
-require('./request.js');
-require('./role.js');
-require('./mongo.js');
+exports.init = function (opt, next) {
 
-l.es = {};
+	var url = config.esUrl + '/' + config.esIndexName;
 
-// config.esDropIndex = true;
-
-l.init(function (next) {
-
-	var baseUrl = l.config.esUrl + '/' + l.config.esIndexName;
-	var request = new l.Request(baseUrl);
-
-	async.series([
-		function (next) {
-			if (l.config.esDropIndex) {
-				dropIndex(next);
+	exports.dropIndex = function (next) {
+		request.del(url, function (err, res) {
+			if (err) {
+				next(err);
 			} else {
 				setSchema(next);
 			}
-		},
-		function (next) {
-			console.log('elasticsearch initialized: ' + baseUrl);
-			next();
-		}
-	], next);
-
-	l.es.dropIndex = dropIndex; function dropIndex(next) {
-		request.del('', function (err) {
-			setSchema(next);
 		});
 	}
 
-	function setSchema(next) {
-		request.post('', {
+	var setSchema = function (next) {
+		request.post(url).send({
 			settings: {
 				index: {
 					number_of_shards : 1,
@@ -58,17 +43,19 @@ l.init(function (next) {
 					}
 				}
 			}
-		}, function (err) {
-			next(null);
+		}).end(function (err, res) {
+			next(err, res);
+		});
+	};
+
+	exports.flush = function (next) {
+		request.post(url + '/_flush', function (err, res) {
+			next(err, res);
 		});
 	}
 
-	l.es.flush = flush; function flush(next) {
-		request.post('/_flush', next);
-	}
-
-	l.es.updatePost = updatePost; function updatePost(thread, post, next) {
-		request.put('/post/' + post._id, {
+	exports.updatePost = function (thread, post, next) {
+		request.put(url + '/post/' + post._id).send({
 			threadId: thread._id,
 			categoryId: thread.categoryId,
 			created: post.created,
@@ -77,36 +64,45 @@ l.init(function (next) {
 			writer: post.writer,
 			text: post.text,
 			visible: post.visible
-		}, next);
-	}
-
-	l.es.getPost = function (postId, next) {
-		request.get('/post/' + postId, function (err, res) {
-			if (err) return next(err);
-			res.body._id = parseInt(res.body._id);
-			res.body._source.created = new Date(res.body._source.created);
+		}).end(function (err, res) {
 			next(err, res);
 		});
 	}
 
-	l.es.searchPost = searchPost; function searchPost(body, next) {
-		request.post('/post/_search', body, function (err, res) {
+	exports.getPost = function (postId, next) {
+		request.get(url + '/post/' + postId, function (err, res) {
+			if (err) {
+				next(err);
+			} else {
+				res.body._id = parseInt(res.body._id);
+				res.body._source.created = new Date(res.body._source.created);
+				next(err, res);
+			}
+		});
+	}
+
+	exports.searchPost = function (body, next) {
+		request.post(url + '/post/_search').send(body).end(function (err, res) {
 			if (err) {
 				next(err);
 			} else {
 				if (res.body.hits) {
-					_.each(res.body.hits.hits, function (hit) {
+					var hits = res.body.hits.hits;
+					var len = hits.length;
+					var i;
+					for (i = 0; i < len; i++) {
+						var hit = hits[i];
 						hit._id = parseInt(hit._id);
 						hit._source.created = new Date(hit._source.created);
-					});
+					}
 				}
 				next(err, res);
 			}
 		});
 	}
 
-	l.es.rebuild = function (next) {
-		var threadCursor = l.mongo.threadCol.find();
+	exports.rebuild = function (next) {
+		var threadCursor = mongo.threadCol.find();
 		var postCursor;
 		var count = 0;
 
@@ -120,7 +116,7 @@ l.init(function (next) {
 					if (!thread) {
 						next();
 					} else {
-						postCursor = l.mongo.postCol.find({ threadId: thread._id });
+						postCursor = mongo.postCol.find({ threadId: thread._id });
 						walkPost(thread, function (err) {
 							if (err) {
 								next(err);
@@ -153,12 +149,15 @@ l.init(function (next) {
 			});
 		}
 
+		var updatePost = exports.updatePost;
+
 		function updateSearchIndex(thread, post, next) {
 			updatePost(thread, post, function (err) {
 				count++;
 				if (count % 1000 === 0) {
 					process.stdout.write(count + ' ');
 				}
+				//next();
 			});
 			// node core 의 request socket 을 재사용하기 위해
 			// callback 을 기다리지 않고 새로운 request 를 계속 밀어 넣는다.
@@ -166,5 +165,19 @@ l.init(function (next) {
 		}
 	}
 
-});
+	async.series([
+		function (next) {
+			if (opt.dropIndex) {
+				exports.dropIndex(next);
+			} else {
+				setSchema(next);
+			}
+		},
+		function (next) {
+			console.log('elasticsearch initialized: ' + url);
+			next();
+		}
+	], next);
+
+};
 
