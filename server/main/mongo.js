@@ -1,18 +1,14 @@
 var _ = require('underscore');
 var async = require('async');
 var mongo = require("mongodb")
+
 var l = require('./l.js');
+var config = require('./config.js');
 
-require('./config.js');
+exports.init = function (opt, next) {
 
-l.mongo = {};
-
-// config.mongoDropDatabase = true;
-
-l.init(function (next) {
-
-	var server = l.mongo.server = new mongo.Server("127.0.0.1", 27017, { auto_reconnect: true });
-	var db = l.mongo.db = new mongo.Db(l.config.mongoDbName, server, { safe: false });
+	var server = exports.server = new mongo.Server("127.0.0.1", 27017, { auto_reconnect: true });
+	var db = exports.db = new mongo.Db(config.mongoDbName, server, { safe: false });
 
 	async.series([
 		function (next) {
@@ -21,9 +17,9 @@ l.init(function (next) {
 			});
 		},
 		function (next) {
-			if (l.config.mongoDropDatabase) {
+			if (opt.dropDatabase) {
 				db.dropDatabase(function (err) {
-					next();
+					next(err);
 				});
 			} else {
 				next();
@@ -33,103 +29,106 @@ l.init(function (next) {
 			console.log('mongo initialized: ' + db.databaseName);
 			next();
 		},
-	], next);
-
-});
-
-l.init(function (next) {
-	var threadCol = l.mongo.threadCol = l.mongo.db.collection("postThread");
-	var threadIdSeed;
-
-	async.series([
 		function (next) {
-			threadCol.ensureIndex({ categoryId: 1, updated: -1 }, next);
+			var threadCol = exports.threadCol = db.collection("postThread");
+			var threadIdSeed;
+
+			async.series([
+				function (next) {
+					threadCol.ensureIndex({ categoryId: 1, updated: -1 }, next);
+				},
+				function (next) {
+					threadCol.ensureIndex({ updated: -1 }, next);
+				},
+				function (next) {
+					threadCol.find({}, { _id: 1 }).sort({ _id: -1 }).limit(1).nextObject(function (err, obj) {
+						if (err) {
+							next(err);
+						} else {
+							threadIdSeed = obj ? obj._id : 0;
+							console.log('thread id seed: ' + threadIdSeed);
+							next(err);
+						}
+					});
+				}
+			], next);
+
+			exports.getNewThreadId = function () {
+				return ++threadIdSeed;
+			};
+
+			exports.insertThread = function (thread, next) {
+				threadCol.insert(thread, next);
+			};
+
+			exports.updateThread = function (thread, next) {
+				threadCol.save(thread, next);
+			};
+
+			exports.updateThreadHit = function (thread, next) {
+				threadCol.update({ _id: thread._id }, { $inc: { hit: 1 }}, next);
+			};
+
+			exports.updateThreadLength = function (thread, now, next) {
+				threadCol.update({ _id: thread._id }, { $inc: { length: 1 }, $set: { updated: now }}, next);
+			};
+
+			exports.findThreadById = function (id, next) {
+				return threadCol.findOne({ _id: id }, next);
+			};
+
+			exports.findThreadByCategory = function (categoryId, page, pageSize, next) {
+				var findOp = {};
+				var dir = page > 0 ? 1 : -1;
+				var skip = (Math.abs(page) - 1) * pageSize;
+
+				if (categoryId) {
+					findOp.categoryId = categoryId;
+				}
+				threadCol.find(findOp).sort({ updated: -1 * dir }).skip(skip).limit(pageSize).toArray(next);
+			};
 		},
 		function (next) {
-			threadCol.ensureIndex({ updated: -1 }, next);
-		},
-		function (next) {
-			threadCol.find({}, { _id: 1 }).sort({ _id: -1 }).limit(1).nextObject(function (err, obj) {
-				threadIdSeed = obj ? obj._id : 0;
-				console.log('thread id seed: ' + threadIdSeed);
-				next(err);
-			});
+			var postCol = exports.postCol = exports.db.collection("post");
+			var postIdSeed;
+
+			async.series([
+				function (next) {
+					postCol.ensureIndex({ threadId: 1, created: 1 }, next);
+				},
+				function (next) {
+					postCol.find({}, { _id: 1 }).sort({ _id: -1 }).limit(1).nextObject(function (err, obj) {
+						if (err) {
+							next(err);
+						} else {
+							postIdSeed = obj ? obj._id : 0;
+							console.log('post id seed: ' + postIdSeed);
+							next();
+						}
+					});
+				}
+			], next);
+
+			exports.getNewPostId = function () {
+				return ++postIdSeed;
+			};
+
+			exports.insertPost = function (post, next) {
+				postCol.insert(post, next);
+			};
+
+			exports.updatePost = function (post, next) {
+				postCol.save(post, next);
+			};
+
+			exports.findPostById = function (id, next) {
+				return postCol.findOne({ _id: id }, next);
+			};
+
+			exports.findPostByThread = function (threadId, next) {
+				postCol.find({ threadId: threadId }).sort({ created: 1 }).toArray(next);
+			};
 		}
 	], next);
 
-	l.mongo.getNewThreadId = function () {
-		return ++threadIdSeed;
-	};
-
-	l.mongo.insertThread = function (thread, next) {
-		threadCol.insert(thread, next);
-	};
-
-	l.mongo.updateThread = function (thread, next) {
-		threadCol.save(thread, next);
-	};
-
-	l.mongo.updateThreadHit = function (thread, next) {
-		threadCol.update({ _id: thread._id }, { $inc: { hit: 1 }}, next);
-	};
-
-	l.mongo.updateThreadLength = function (thread, now, next) {
-		threadCol.update({ _id: thread._id }, { $inc: { length: 1 }, $set: { updated: now }}, next);
-	};
-
-	l.mongo.findThreadById = function (id, next) {
-		return threadCol.findOne({ _id: id }, next);
-	};
-
-	l.mongo.findThreadByCategory = function (categoryId, page, pageSize, next) {
-		var findOp = {};
-		var dir = page > 0 ? 1 : -1;
-		var skip = (Math.abs(page) - 1) * pageSize;
-
-		if (categoryId) {
-			findOp.categoryId = categoryId;
-		}
-		threadCol.find(findOp).sort({ updated: -1 * dir }).skip(skip).limit(pageSize).toArray(next);
-	};
-
-});
-
-l.init(function (next) {
-	var postCol = l.mongo.postCol = l.mongo.db.collection("post");
-	var postIdSeed;
-
-	async.series([
-		function (next) {
-			postCol.ensureIndex({ threadId: 1, created: 1 }, next);
-		},
-		function (next) {
-			postCol.find({}, { _id: 1 }).sort({ _id: -1 }).limit(1).nextObject(function (err, obj) {
-				if (err) return next(err);
-				postIdSeed = obj ? obj._id : 0;
-				console.log('post id seed: ' + postIdSeed);
-				next();
-			});
-		}
-	], next);
-
-	l.mongo.getNewPostId = function () {
-		return ++postIdSeed;
-	};
-
-	l.mongo.insertPost = function (post, next) {
-		postCol.insert(post, next);
-	};
-
-	l.mongo.updatePost = function (post, next) {
-		postCol.save(post, next);
-	};
-
-	l.mongo.findPostById = function (id, next) {
-		return postCol.findOne({ _id: id }, next);
-	};
-
-	l.mongo.findPostByThread = function (threadId, next) {
-		postCol.find({ threadId: threadId }).sort({ created: 1 }).toArray(next);
-	};
-
-});
+};
