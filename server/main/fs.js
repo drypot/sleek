@@ -4,7 +4,7 @@ var async = require('async');
 
 exports.mkdirs = function (subs, next) {
 	var dir;
-	async.eachSeries(subs, function (sub, next) {
+	async.forEachSeries(subs, function (sub, next) {
 		if (!dir) {
 			dir = sub;
 		} else {
