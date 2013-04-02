@@ -7,27 +7,38 @@ var base = 'tmp';
 
 describe('mkdirs', function () {
 	before(function (next) {
-		try {
-			fs.rmdirSync(base + '/sub1/sub2');
-			fs.rmdirSync(base + '/sub1');
-		} catch (e) {
-		}
-		next();
+		fs.rmdir(base + '/sub1/sub2', function (err) {
+			should(!err || err.code === 'ENOENT');
+			next();
+		});
 	});
-	before(function () {
-		fs.existsSync(base + '/sub1' + '/sub2').should.be.false;
+	before(function (next) {
+		fs.rmdir(base + '/sub1',  function (err) {
+			should(!err || err.code === 'ENOENT');
+			next();
+		});
+	});
+	before(function (next) {
+		fs.exists(base + '/sub1' + '/sub2', function (exists) {
+			exists.should.be.false;
+			next();
+		});
 	});
 	it('can make sub1', function (next) {
 		fs2.mkdirs([base, 'sub1'], function (err) {
-			fs.existsSync(base + '/sub1').should.be.true;
-			next();
+			fs.exists(base + '/sub1', function (exists) {
+				exists.should.be.true;
+				next();
+			});
 		});
 	});
 	it('can make sub2', function (next) {
 		fs2.mkdirs([base, 'sub1', 'sub2'], function (err, dir) {
 			dir.should.equal(base + '/sub1/sub2');
-			fs.existsSync(dir).should.be.true;
-			next();
+			fs.exists(dir, function (exists) {
+				exists.should.be.true;
+				next();
+			});
 		});
 	});
 });
