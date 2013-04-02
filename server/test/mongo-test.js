@@ -247,7 +247,7 @@ describe('filled thread collection', function () {
 		mongo.findThreadById(pthread._id, function (err, thread) {
 			should.not.exist(err);
 			thread.length.should.equal(pthread.length + 1);
-			thread.updated.should.equal(now);
+			thread.updated.getTime().should.equal(now.getTime());
 			next();
 		});
 	});
