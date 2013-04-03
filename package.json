@@ -13,8 +13,8 @@
     "express": "~3.1.1",
     "mongodb": "~1.2.14",
     "should": "~1.2.2",
-    "superagent": "~0.13.0",
-    "underscore": "~1.4.4"
+    "underscore": "~1.4.4",
+    "supertest": "~0.5.1"
   },
   "devDependencies": {},
   "scripts": {
