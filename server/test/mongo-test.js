@@ -140,7 +140,7 @@ describe('empty thread collection', function () {
 		mongo.threadCol.count(function (err, count) {
 			should.not.exist(err);
 			count.should.equal(0);
-			next(err);
+			next();
 		})
 	});
 	it('should have one index', function (next) {
@@ -148,7 +148,7 @@ describe('empty thread collection', function () {
 			should.not.exist(err);
 			indexList.should.be.instanceof(Array);
 			indexList.should.be.length(3);
-			next(err);
+			next();
 		});
 	});
 	it('can make serialized ids', function () {
@@ -220,7 +220,7 @@ describe('filled thread collection', function () {
 			should.not.exist(err);
 			thread._id.should.equal(pthread._id);
 			thread.title.should.equal(pthread.title);
-			next(err);
+			next();
 		});
 	});
 	it('can update record', function (next) {
@@ -267,7 +267,7 @@ describe('filled thread collection', function () {
 			mongo.findThreadByCategory(101, 1, 99, function (err, thread) {
 				should.not.exist(err);
 				thread.should.length(4);
-				next(err);
+				next();
 			});
 		});
 		it('should success when page is 2', function (next) {

@@ -12,15 +12,11 @@ exports.init = function (opt, next) {
 
 	async.series([
 		function (next) {
-			db.open(function (err, db) {
-				next(err);
-			});
+			db.open(next);
 		},
 		function (next) {
 			if (opt.dropDatabase) {
-				db.dropDatabase(function (err) {
-					next(err);
-				});
+				db.dropDatabase(next);
 			} else {
 				next();
 			}
@@ -42,13 +38,10 @@ exports.init = function (opt, next) {
 				},
 				function (next) {
 					threadCol.find({}, { _id: 1 }).sort({ _id: -1 }).limit(1).nextObject(function (err, obj) {
-						if (err) {
-							next(err);
-						} else {
-							threadIdSeed = obj ? obj._id : 0;
-							console.log('thread id seed: ' + threadIdSeed);
-							next(err);
-						}
+						if (err) return next(err);
+						threadIdSeed = obj ? obj._id : 0;
+						console.log('thread id seed: ' + threadIdSeed);
+						next(err);
 					});
 				}
 			], next);
@@ -98,13 +91,10 @@ exports.init = function (opt, next) {
 				},
 				function (next) {
 					postCol.find({}, { _id: 1 }).sort({ _id: -1 }).limit(1).nextObject(function (err, obj) {
-						if (err) {
-							next(err);
-						} else {
-							postIdSeed = obj ? obj._id : 0;
-							console.log('post id seed: ' + postIdSeed);
-							next();
-						}
+						if (err) return next(err);
+						postIdSeed = obj ? obj._id : 0;
+						console.log('post id seed: ' + postIdSeed);
+						next();
 					});
 				}
 			], next);
