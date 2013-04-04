@@ -7,6 +7,11 @@ var config = require('./config.js');
 
 exports.init = function (opt, next) {
 
+	if (typeof opt === 'function') {
+		next = opt;
+		opt = {};
+	}
+
 	var server = exports.server = new mongo.Server("127.0.0.1", 27017, { auto_reconnect: true });
 	var db = exports.db = new mongo.Db(config.mongoDbName, server, { safe: false });
 
@@ -22,7 +27,7 @@ exports.init = function (opt, next) {
 			}
 		},
 		function (next) {
-			console.log('mongo initialized: ' + db.databaseName);
+			console.log('mongo: ' + db.databaseName);
 			next();
 		},
 		function (next) {

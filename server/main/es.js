@@ -9,6 +9,11 @@ var mongo = require('./mongo.js');
 
 exports.init = function (opt, next) {
 
+	if (typeof opt === 'function') {
+		next = opt;
+		opt = {};
+	}
+
 	var url = config.esUrl + '/' + config.esIndexName;
 
 	exports.dropIndex = function (next) {
@@ -174,7 +179,7 @@ exports.init = function (opt, next) {
 			}
 		},
 		function (next) {
-			console.log('elasticsearch initialized: ' + url);
+			console.log('elasticsearch: ' + url);
 			next();
 		}
 	], next);
