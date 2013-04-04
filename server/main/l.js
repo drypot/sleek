@@ -1,4 +1,3 @@
-var _ = require('underscore');
 var should = require('should');
 var async = require('async');
 
@@ -15,7 +14,7 @@ var l = exports;
 	l.value = function (obj, prop, def) {
 		if (!obj) {
 			return def;
-		} else if (!_.has(obj, prop)) {
+		} else if (!(prop in obj)) {
 			return def;
 		} else {
 			return obj[prop];
@@ -26,7 +25,7 @@ var l = exports;
 		var i;
 		if (!obj) {
 			return def;
-		} else if (!_.has(obj, prop)) {
+		} else if (!(prop in obj)) {
 			return def;
 		} else {
 			i = parseInt(obj[prop]);
@@ -43,7 +42,7 @@ var l = exports;
 	l.string = function (obj, prop, def) {
 		if (!obj) {
 			return def;
-		} else if (!_.has(obj, prop)) {
+		} else if (!(prop in obj)) {
 			return def;
 		} else {
 			return String(obj[prop]).trim();
@@ -54,7 +53,7 @@ var l = exports;
 		var v;
 		if (!obj) {
 			return def;
-		} else if (!_.has(obj, prop)) {
+		} else if (!(prop in obj)) {
 			return def;
 		} else {
 			v = obj[prop];
@@ -63,15 +62,13 @@ var l = exports;
 	};
 
 	l.merge = function (tar, src, props) {
-		_.each(props, function (p) {
+		props.forEach(function (p) {
 			if (src.hasOwnProperty(p)) {
 				tar[p] = src[p];
 			}
 		});
 		return tar;
 	}
-
-	// method
 
 	l.method = function (con, methodName, fn) {
 		Object.defineProperty(

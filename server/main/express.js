@@ -1,4 +1,3 @@
-var _ = require('underscore');
 var express = require('express');
 var redisStore = require('connect-redis')(express);
 

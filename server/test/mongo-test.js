@@ -1,4 +1,3 @@
-var _ = require('underscore');
 var should = require('should');
 var async = require('async');
 

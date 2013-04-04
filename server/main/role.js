@@ -1,4 +1,3 @@
-var _ = require('underscore');
 var bcrypt = require('bcrypt');
 
 var l = require('./l.js');
@@ -20,9 +19,9 @@ exports.init = function (next) {
 				id: configCategory.id,
 				name: configCategory.name,
 				sep: configCategory.sep,
-				readable: _.include(configCategory.read, newRole.name),
-				writable: _.include(configCategory.write, newRole.name),
-				editable: _.include(configCategory.edit, newRole.name)
+				readable: configCategory.read.indexOf(newRole.name) != -1,
+				writable: configCategory.write.indexOf(newRole.name) != -1,
+				editable: configCategory.edit.indexOf(newRole.name) != -1
 			};
 			if (newCategory.readable) {
 				newRole.category[newCategory.id] = newCategory;

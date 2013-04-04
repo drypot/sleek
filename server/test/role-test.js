@@ -1,4 +1,3 @@
-var _ = require('underscore');
 var should = require('should');
 
 var l = require('../main/l.js');
