@@ -14,6 +14,8 @@ exports.init = function (opt, next) {
 
 	var app = exports.app = express();
 
+	app.disable('x-powered-by');
+
 	app.locals.siteTitle = config.siteTitle;
 
 	app.use(express.cookieParser(config.cookieSecret));
