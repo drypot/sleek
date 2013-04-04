@@ -1,33 +1,56 @@
-var l = require('./main/l.js');
+var async = require('async');
+var util = require('util');
 
-require('./main/session-api.js');
-require('./main/upload-api.js');
-require('./main/post-api.js');
-require('./main/search-api.js');
+var config = require('./main/config.js');
+var role = require('./main/role.js');
+var mongo = require('./main/mongo.js');
+var es = require('./main/es.js');
+var express = require('./main/express.js');
 
-(function () {
-	process.on('uncaughtException', function (err) {
-		console.log('UNCAUGHT EXCEPTION');
-		console.log(err);
-	});
-})();
+//require('./main/session-api.js');
+//require('./main/upload-api.js');
+//require('./main/post-api.js');
+//require('./main/search-api.js');
+//
+//var express = require('./main/express.js');
 
-(function () {
-	var i = 2;
-	var len = process.argv.length;
-	for (; i < len; i++ ) {
-		var arg = process.argv[i];
-		if (arg.indexOf('--') === 0) {
-			//
-		} else {
-			l.config.path = arg;
+process.on('uncaughtException', function (err) {
+	console.error('UNCAUGHT EXCEPTION');
+	console.error(err.stack);
+});
+
+var configPath;
+
+async.series([
+	function (next) {
+		var len = process.argv.length;
+		for (var i = 2; i < len; i++ ) {
+			var arg = process.argv[i];
+			if (arg.indexOf('--') === 0) {
+				//
+			} else {
+				configPath = arg;
+			}
 		}
+		next();
+	},
+	function (next) {
+		config.init({ path: configPath }, next);
+	},
+	function (next) {
+		role.init(next);
+	},
+	function (next) {
+		mongo.init(next);
+	},
+	function (next) {
+		es.init(next);
+	},
+	function (next) {
+		express.init({ redisStore: true }, next);
+	},
+	function (next) {
+		express.listen();
+		next();
 	}
-//	console.log('specify configuration file path.')
-//	process.exit();
-
-})();
-
-(function () {
-	l.init.run();
-})();
+]);
