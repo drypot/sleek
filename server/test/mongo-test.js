@@ -1,9 +1,9 @@
 var should = require('should');
 var async = require('async');
 
-var l = require('../main/l.js');
-var config = require('../main/config.js');
-var mongo = require('../main/mongo.js');
+var l = require('../main/l');
+var config = require('../main/config');
+var mongo = require('../main/mongo');
 
 before(function (next) {
 	config.init({ test: true }, next);

@@ -1,10 +1,10 @@
 var async = require('async');
 var request = require('superagent').agent();
 
-var l = require('./l.js');
-var config = require('./config.js');
-var role = require('./role.js');
-var mongo = require('./mongo.js');
+var l = require('./l');
+var config = require('./config');
+var role = require('./role');
+var mongo = require('./mongo');
 
 exports.init = function (opt, next) {
 

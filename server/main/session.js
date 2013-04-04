@@ -1,9 +1,9 @@
 var _ = require('underscore');
 var bcrypt = require('bcrypt');
-var l = require('./l.js');
+var l = require('./l');
 
-require('./msg.js');
-require('./express.js');
+require('./msg');
+require('./express');
 
 l.session = {};
 

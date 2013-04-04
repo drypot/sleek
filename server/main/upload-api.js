@@ -2,12 +2,12 @@ var _ = require('underscore');
 var async = require('async');
 var fs = require('fs');
 var path = require('path');
-var l = require('./l.js');
+var l = require('./l');
 
-require('./config.js');
-require('./upload.js');
-require('./express.js');
-require('./session.js');
+require('./config');
+require('./upload');
+require('./express');
+require('./session');
 
 l.init(function () {
 

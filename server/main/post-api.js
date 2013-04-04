@@ -1,13 +1,13 @@
 var _ = require('underscore');
-var l = require('./l.js');
+var l = require('./l');
 
-require('./msg.js');
-require('./role.js');
-require('./mongo.js');
-require('./es.js');
-require('./upload.js');
-require('./express.js');
-require('./session.js');
+require('./msg');
+require('./role');
+require('./mongo');
+require('./es');
+require('./upload');
+require('./express');
+require('./session');
 
 l.init(function () {
 

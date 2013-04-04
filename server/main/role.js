@@ -1,7 +1,7 @@
 var bcrypt = require('bcrypt');
 
-var l = require('./l.js');
-var config = require('./config.js');
+var l = require('./l');
+var config = require('./config');
 
 var roleMap = {};
 

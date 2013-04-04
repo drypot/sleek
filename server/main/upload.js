@@ -2,10 +2,10 @@ var _ = require('underscore');
 var async = require('async');
 var fs = require('fs');
 var path = require('path');
-var l = require('./l.js');
+var l = require('./l');
 
-require('./config.js');
-require('./fs.js');
+require('./config');
+require('./fs');
 
 l.upload = {};
 

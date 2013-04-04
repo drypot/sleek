@@ -1,7 +1,7 @@
 var async = require('async');
-var l = require('./main/l.js');
+var l = require('./main/l');
 
-require('./main/es.js');
+require('./main/es');
 
 (function () {
 	process.on('uncaughtException', function (err) {

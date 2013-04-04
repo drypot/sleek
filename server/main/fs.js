@@ -1,7 +1,6 @@
 var fs = require('fs');
 var async = require('async');
 
-
 exports.mkdirs = function (subs, next) {
 	var dir;
 	async.forEachSeries(subs, function (sub, next) {

@@ -1,8 +1,8 @@
 var should = require('should');
 
-var l = require('../main/l.js');
-var config = require('../main/config.js');
-var role = require('../main/role.js');
+var l = require('../main/l');
+var config = require('../main/config');
+var role = require('../main/role');
 
 before(function (next) {
 	config.init({ test: true }, next);

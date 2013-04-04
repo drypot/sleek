@@ -1,8 +1,8 @@
 var async = require('async');
 var mongo = require("mongodb")
 
-var l = require('./l.js');
-var config = require('./config.js');
+var l = require('./l');
+var config = require('./config');
 
 exports.init = function (opt, next) {
 

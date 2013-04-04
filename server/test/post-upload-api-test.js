@@ -1,12 +1,12 @@
 var _ = require('underscore');
 var should = require('should');
 var path = require('path');
-var l = require('../main/l.js');
+var l = require('../main/l');
 
-require('../main/session-api.js');
-require('../main/upload-api.js');
-require('../main/post-api.js');
-require('../main/test.js');
+require('../main/session-api');
+require('../main/upload-api');
+require('../main/post-api');
+require('../main/test');
 
 before(function (next) {
 	l.init.run(next);

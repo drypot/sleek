@@ -1,9 +1,11 @@
-var _ = require('underscore');
 var should = require('should');
-var l = require('../main/l.js');
 
-require('../main/express.js');
-require('../main/test.js');
+var config = require('../main/config');
+var role = require('../main/role');
+var express = require('../main/express');
+
+require('../main/express');
+require('../main/test');
 
 before(function (next) {
 	l.init.run(next);

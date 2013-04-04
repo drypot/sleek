@@ -1,9 +1,9 @@
 var express = require('express');
 var redisStore = require('connect-redis')(express);
 
-var l = require('./l.js');
-var config = require('./config.js');
-var role = require('./role.js');
+var l = require('./l');
+var config = require('./config');
+var role = require('./role');
 
 exports.init = function (opt, next) {
 
