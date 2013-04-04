@@ -9,7 +9,7 @@ before(function (next) {
 	l.init.run(next);
 });
 
-// exports.baseUrl = 'http://localhost:' + config.serverPort;
+// exports.baseUrl = 'http://localhost:' + config.port;
 
 describe('raw session', function () {
 	it('can save session value', function (next) {

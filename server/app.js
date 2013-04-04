@@ -50,7 +50,8 @@ async.series([
 		express.init({ redisStore: true }, next);
 	},
 	function (next) {
-		express.listen();
+		express.app.listen(config.port);
+		console.log("express: %d", config.port);
 		next();
 	}
 ]);

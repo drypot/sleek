@@ -1,7 +1,7 @@
 {
 	"siteTitle": "sleek test",
 
-	"serverPort": 8010,
+	"port": 8010,
 	"cookieSecret": "o;iejf832ndvs",
 
 	"uploadUrl": "http://sleekfile:8080",

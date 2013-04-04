@@ -15,7 +15,7 @@ exports.init = function (opt, next) {
 		} else {
 			var config = JSON.parse(text);
 			_.extend(exports, config);
-			exports.localUrl = 'http://localhost:' + config.serverPort;
+			exports.localUrl = 'http://localhost:' + config.port;
 			console.log('config file: ' + opt.path);
 			next(err);
 		}

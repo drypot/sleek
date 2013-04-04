@@ -20,8 +20,10 @@ exports.init = function (opt, next) {
 
 	if (opt.redisStore) {
 		app.use(express.session({ store: new redisStore() }));
+		console.log('session store: redis');
 	} else {
 		app.use(express.session());
+		console.log('session store: memory');
 	}
 
 	app.use(express.bodyParser({ uploadDir: config.uploadDir + '/tmp' }));
@@ -62,9 +64,4 @@ exports.init = function (opt, next) {
 
 	next();
 
-};
-
-exports.listen = function () {
-	exports.app.listen(config.serverPort);
-	console.log("express: %d", config.serverPort);
 };
