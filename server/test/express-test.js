@@ -33,7 +33,7 @@ describe('hello', function () {
 	it('should return hello', function (next) {
 		request.get(url + '/api/hello', function (err, res) {
 			res.should.status(200);
-			res.body.should.equal('hello');
+			res.text.should.equal('hello');
 			next();
 		});
 	});
