@@ -1,5 +1,5 @@
 var async = require('async');
-var mongo = require("mongodb")
+var mongo = require("mongodb");
 
 module.exports = function (opt, next) {
 

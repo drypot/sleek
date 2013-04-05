@@ -6,7 +6,6 @@ module.exports = function (opt, next) {
 	var exports = {};
 
 	var config = opt.config;
-	var mongo = opt.mongo;
 	var url = config.esUrl + '/' + config.esIndexName;
 
 	exports.dropIndex = function (next) {
@@ -17,7 +16,7 @@ module.exports = function (opt, next) {
 				setSchema(next);
 			}
 		});
-	}
+	};
 
 	var setSchema = function (next) {
 		request.post(url).send({
@@ -50,7 +49,7 @@ module.exports = function (opt, next) {
 		request.post(url + '/_flush', function (err, res) {
 			next(err, res);
 		});
-	}
+	};
 
 	exports.updatePost = function (thread, post, next) {
 		request.put(url + '/post/' + post._id).send({
@@ -65,7 +64,7 @@ module.exports = function (opt, next) {
 		}).end(function (err, res) {
 			next(err, res);
 		});
-	}
+	};
 
 	exports.getPost = function (postId, next) {
 		request.get(url + '/post/' + postId, function (err, res) {
@@ -77,7 +76,7 @@ module.exports = function (opt, next) {
 				next(err, res);
 			}
 		});
-	}
+	};
 
 	exports.searchPost = function (body, next) {
 		request.post(url + '/post/_search').send(body).end(function (err, res) {
@@ -97,71 +96,7 @@ module.exports = function (opt, next) {
 				next(err, res);
 			}
 		});
-	}
-
-	exports.rebuild = function (next) {
-		var threadCursor = mongo.threadCol.find();
-		var postCursor;
-		var count = 0;
-
-		walkThread(next);
-
-		function walkThread(next) {
-			threadCursor.nextObject(function (err, thread) {
-				if (err) {
-					next(err);
-				} else {
-					if (!thread) {
-						next();
-					} else {
-						postCursor = mongo.postCol.find({ threadId: thread._id });
-						walkPost(thread, function (err) {
-							if (err) {
-								next(err);
-							} else {
-								walkThread(next);
-							}
-						});
-					}
-				}
-			});
-		}
-
-		function walkPost(thread, next) {
-			postCursor.nextObject(function (err, post) {
-				if (err) {
-					next(err);
-				} else {
-					if (!post) {
-						next();
-					} else {
-						updateSearchIndex(thread, post, function (err) {
-							if (err) {
-								next(err);
-							} else {
-								walkPost(thread, next);
-							}
-						});
-					}
-				}
-			});
-		}
-
-		var updatePost = exports.updatePost;
-
-		function updateSearchIndex(thread, post, next) {
-			updatePost(thread, post, function (err) {
-				count++;
-				if (count % 1000 === 0) {
-					process.stdout.write(count + ' ');
-				}
-				//next();
-			});
-			// node core 의 request socket 을 재사용하기 위해
-			// callback 을 기다리지 않고 새로운 request 를 계속 밀어 넣는다.
-			next();
-		}
-	}
+	};
 
 	async.series([
 		function (next) {

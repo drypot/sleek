@@ -1,6 +1,6 @@
 var fs = require('fs');
 
-exports = module.exports = function (opt, next) {
+module.exports = function (opt, next) {
 	if (opt.test) {
 		opt.path = 'config/config-test.json';
 	}
@@ -11,4 +11,4 @@ exports = module.exports = function (opt, next) {
 	console.log('config: ' + opt.path);
 	var text = fs.readFileSync(opt.path, 'utf8');
 	next(JSON.parse(text));
-}
+};

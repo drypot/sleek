@@ -1,18 +1,4 @@
-var async = require('async');
-var util = require('util');
-
-var config = require('./main/config.js');
-var role = require('./main/role.js');
-var mongo = require('./main/mongo.js');
-var es = require('./main/es.js');
-var express = require('./main/express.js');
-
-//require('./main/session-api.js');
-//require('./main/upload-api.js');
-//require('./main/post-api.js');
-//require('./main/search-api.js');
-//
-//var express = require('./main/express.js');
+var express = require('express');
 
 process.on('uncaughtException', function (err) {
 	console.error('UNCAUGHT EXCEPTION');
@@ -21,37 +7,30 @@ process.on('uncaughtException', function (err) {
 
 var configPath;
 
-async.series([
-	function (next) {
-		var len = process.argv.length;
-		for (var i = 2; i < len; i++ ) {
-			var arg = process.argv[i];
-			if (arg.indexOf('--') === 0) {
-				//
-			} else {
-				configPath = arg;
-			}
-		}
-		next();
-	},
-	function (next) {
-		config.init({ path: configPath }, next);
-	},
-	function (next) {
-		role.init(next);
-	},
-	function (next) {
-		mongo.init(next);
-	},
-	function (next) {
-		es.init(next);
-	},
-	function (next) {
-		express.init({ redisStore: true }, next);
-	},
-	function (next) {
-		express.app.listen(config.port);
-		console.log("express: %d", config.port);
-		next();
+for (var i = 2; i < process.argv.length; i++) {
+	var arg = process.argv[i];
+	if (arg.indexOf('--') === 0) {
+		//
+	} else {
+		configPath = arg;
 	}
-]);
+}
+
+require('./main/config')({ path: configPath }, function (_config) {
+	require('./main/role')({ config: _config }, function (_role) {
+		require('./main/mongo')({ config: _config }, function (_mongo) {
+			require('./main/es')({ config: _config }, function (_es) {
+				var app = express();
+				require('./main/express')({ config: _config, role: _role, store: 'redis', app: app });
+				require('./main/hello-api')({ app: app });
+				app.listen(_config.port);
+				console.log("express: %d", _config.port);
+			});
+		});
+	});
+});
+
+//require('./main/session-api.js');
+//require('./main/upload-api.js');
+//require('./main/post-api.js');
+//require('./main/search-api.js');

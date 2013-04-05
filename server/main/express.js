@@ -1,18 +1,11 @@
 var express = require('express');
 var redisStore = require('connect-redis')(express);
 
-var l = require('./l');
-var config = require('./config');
-var role = require('./role');
+module.exports = function (opt) {
 
-exports.init = function (opt, next) {
-
-	if (typeof opt === 'function') {
-		next = opt;
-		opt = {};
-	}
-
-	var app = exports.app = express();
+	var config = opt.config;
+	var role = opt.role;
+	var app = opt.app;
 
 	app.disable('x-powered-by');
 
@@ -20,7 +13,7 @@ exports.init = function (opt, next) {
 
 	app.use(express.cookieParser(config.cookieSecret));
 
-	if (opt.redisStore) {
+	if (opt.store === 'redis') {
 		app.use(express.session({ store: new redisStore() }));
 		console.log('session store: redis');
 	} else {
@@ -63,7 +56,5 @@ exports.init = function (opt, next) {
 //			}
 //		}
 //	});
-
-	next();
 
 };

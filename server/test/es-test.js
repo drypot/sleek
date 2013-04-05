@@ -1,5 +1,6 @@
 var should = require('should');
 var async = require('async');
+var request = require('superagent').agent(); // global vars setter
 
 var mongo;
 var es;
@@ -7,7 +8,7 @@ var es;
 before(function (next) {
 	require('../main/config')({ test: true }, function (_config) {
 		require('../main/mongo')({ config: _config, dropDatabase: true }, function (_mongo) {
-			require('../main/es')({ config: _config, mongo: _mongo, dropIndex: true }, function (_es) {
+			require('../main/es')({ config: _config, dropIndex: true }, function (_es) {
 				mongo = _mongo;
 				es = _es;
 				next();
@@ -75,13 +76,10 @@ describe('es', function () {
 		];
 		async.forEachSeries(doc, function (doc, next) {
 			es.updatePost(doc.thread, doc.post, function (err, res) {
-				if (err) {
-					next(err);
-				} else {
-					should(res.statusCode == 201 || res.statusCode == 200);
-					res.body.ok.should.true;
-					next();
-				}
+				should.not.exist(err);
+				should(res.statusCode == 201 || res.statusCode == 200);
+				res.body.ok.should.true;
+				next();
 			});
 		}, next);
 	});

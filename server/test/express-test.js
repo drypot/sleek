@@ -1,32 +1,20 @@
 var should = require('should');
 var request = require('superagent').agent();
-
-var config = require('../main/config');
-var role = require('../main/role');
-var express = require('../main/express');
-var hello = require('../main/hello-api');
-
-before(function (next) {
-	config.init({ test: true }, next);
-});
-
-before(function (next) {
-	role.init(next);
-});
-
-before(function (next) {
-	express.init(next);
-});
-
-before(function (next) {
-	hello.init(next);
-});
+var express = require('express');
 
 var url;
 
-before(function () {
-	url = 'http://localhost:' + config.port;
-	express.app.listen(config.port);
+before(function (next) {
+	require('../main/config')({ test: true }, function (_config) {
+		require('../main/role')({ config: _config }, function (_role) {
+			var app = express();
+			require('../main/express')({ config: _config, role: _role, app: app });
+			require('../main/hello-api')({ app: app });
+			url = 'http://localhost:' + _config.port;
+			app.listen(_config.port);
+			next();
+		});
+	});
 });
 
 describe('hello', function () {
