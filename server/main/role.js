@@ -1,6 +1,6 @@
 var bcrypt = require('bcrypt');
 
-module.exports = function (opt, next) {
+module.exports = function (opt) {
 
 	var exports = {};
 
@@ -49,6 +49,6 @@ module.exports = function (opt, next) {
 		return null;
 	};
 
-	next(exports);
+	return exports;
 };
 
