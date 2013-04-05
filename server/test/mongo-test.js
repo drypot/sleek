@@ -1,15 +1,10 @@
 var should = require('should');
-var async = require('async');
 
-var l = require('../main/l');
 var config = require('../main/config');
 var mongo = require('../main/mongo');
 
 before(function (next) {
-	config.init({ test: true }, next);
-});
-
-before(function (next) {
+	config.init({ test: true });
 	mongo.init({ dropDatabase: true }, next);
 });
 
