@@ -1,21 +1,19 @@
 var should = require('should');
 var async = require('async');
 
-var l = require('../main/l');
-var config = require('../main/config');
-var mongo = require('../main/mongo');
-var es = require('../main/es');
-
-before(function () {
-	config.init({ test: true });
-});
+var mongo;
+var es;
 
 before(function (next) {
-	mongo.init({ dropDatabase: true }, next);
-});
-
-before(function (next) {
-	es.init({ dropIndex: true }, next);
+	require('../main/config')({ test: true }, function (_config) {
+		require('../main/mongo')({ config: _config, dropDatabase: true }, function (_mongo) {
+			require('../main/es')({ config: _config, mongo: _mongo, dropIndex: true }, function (_es) {
+				mongo = _mongo;
+				es = _es;
+				next();
+			});
+		});
+	});
 });
 
 describe('es', function () {

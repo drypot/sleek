@@ -8,7 +8,7 @@ exports = module.exports = function (opt, next) {
 		console.error('specify configuration path.')
 		process.exit();
 	}
-	console.log('config file: ' + opt.path);
+	console.log('config: ' + opt.path);
 	var text = fs.readFileSync(opt.path, 'utf8');
 	next(JSON.parse(text));
 }

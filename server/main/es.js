@@ -1,17 +1,12 @@
 var async = require('async');
 var request = require('superagent').agent();
 
-var l = require('./l');
-var config = require('./config');
-var mongo = require('./mongo');
+module.exports = function (opt, next) {
 
-exports.init = function (opt, next) {
+	var exports = {};
 
-	if (typeof opt === 'function') {
-		next = opt;
-		opt = {};
-	}
-
+	var config = opt.config;
+	var mongo = opt.mongo;
 	var url = config.esUrl + '/' + config.esIndexName;
 
 	exports.dropIndex = function (next) {
@@ -180,7 +175,10 @@ exports.init = function (opt, next) {
 			console.log('elasticsearch: ' + url);
 			next();
 		}
-	], next);
+	], function (err) {
+		if (err) throw err;
+		next(exports);
+	});
 
 };
 
