@@ -1,39 +1,35 @@
 var bcrypt = require('bcrypt');
 
-var l = require('./l');
-var config = require('./config');
-
 var roleMap = {};
 
-exports.init = function (next) {
-	config.role.forEach(function (configRole) {
-		var newRole = {
+exports.init = function (opt) {
+	opt.role.forEach(function (configRole) {
+		var role = {
 			name: configRole.name,
 			hash: configRole.hash,
 			category: {},
 			readableCategory : [],
 			writableCategory : []
 		};
-		config.category.forEach(function (configCategory) {
-			var newCategory = {
+		opt.category.forEach(function (configCategory) {
+			var category = {
 				id: configCategory.id,
 				name: configCategory.name,
 				sep: configCategory.sep,
-				readable: configCategory.read.indexOf(newRole.name) != -1,
-				writable: configCategory.write.indexOf(newRole.name) != -1,
-				editable: configCategory.edit.indexOf(newRole.name) != -1
+				readable: configCategory.read.indexOf(role.name) != -1,
+				writable: configCategory.write.indexOf(role.name) != -1,
+				editable: configCategory.edit.indexOf(role.name) != -1
 			};
-			if (newCategory.readable) {
-				newRole.category[newCategory.id] = newCategory;
-				newRole.readableCategory.push(newCategory);
+			if (category.readable) {
+				role.category[category.id] = category;
+				role.readableCategory.push(category);
 			}
-			if (newCategory.writable) {
-				newRole.writableCategory.push(newCategory);
+			if (category.writable) {
+				role.writableCategory.push(category);
 			}
 		});
-		roleMap[newRole.name] = newRole;
+		roleMap[role.name] = role;
 	});
-	next();
 };
 
 exports.roleByName = function (roleName) {
