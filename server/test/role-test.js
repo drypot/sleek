@@ -1,12 +1,14 @@
 var should = require('should');
 
-var l = require('../main/l');
-var config = require('../main/config');
-var role = require('../main/role');
+var role;
 
-before(function () {
-	config.init({ test: true });
-	role.init();
+before(function (next) {
+	require('../main/config')({ test: true }, function (_config) {
+		require('../main/role')({ config: _config }, function (_role) {
+			role = _role;
+			next();
+		});
+	});
 });
 
 describe('roleByName()', function () {

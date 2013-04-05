@@ -1,13 +1,14 @@
 var bcrypt = require('bcrypt');
 
-var l = require('./l');
-var config = require('./config');
+module.exports = function (opt, next) {
 
-var roleMap = {};
+	var exports = {};
 
-exports.init = function () {
+	var config = opt.config;
+	var roleMap = {};
+
 	config.role.forEach(function (configRole) {
-		var newRole = {
+		var role = {
 			name: configRole.name,
 			hash: configRole.hash,
 			category: {},
@@ -15,36 +16,39 @@ exports.init = function () {
 			writableCategory : []
 		};
 		config.category.forEach(function (configCategory) {
-			var newCategory = {
+			var category = {
 				id: configCategory.id,
 				name: configCategory.name,
 				sep: configCategory.sep,
-				readable: configCategory.read.indexOf(newRole.name) != -1,
-				writable: configCategory.write.indexOf(newRole.name) != -1,
-				editable: configCategory.edit.indexOf(newRole.name) != -1
+				readable: configCategory.read.indexOf(role.name) != -1,
+				writable: configCategory.write.indexOf(role.name) != -1,
+				editable: configCategory.edit.indexOf(role.name) != -1
 			};
-			if (newCategory.readable) {
-				newRole.category[newCategory.id] = newCategory;
-				newRole.readableCategory.push(newCategory);
+			if (category.readable) {
+				role.category[category.id] = category;
+				role.readableCategory.push(category);
 			}
-			if (newCategory.writable) {
-				newRole.writableCategory.push(newCategory);
+			if (category.writable) {
+				role.writableCategory.push(category);
 			}
 		});
-		roleMap[newRole.name] = newRole;
+		roleMap[role.name] = role;
 	});
-};
 
-exports.roleByName = function (roleName) {
-	return roleMap[roleName];
-};
+	exports.roleByName = function (roleName) {
+		return roleMap[roleName];
+	};
 
-exports.roleByPassword = function (password) {
-	for (var roleName in roleMap) {
-		var role = roleMap[roleName];
-		if (bcrypt.compareSync(password, role.hash)) {
-			return role;
+	exports.roleByPassword = function (password) {
+		for (var roleName in roleMap) {
+			var role = roleMap[roleName];
+			if (bcrypt.compareSync(password, role.hash)) {
+				return role;
+			}
 		}
-	}
-	return null;
+		return null;
+	};
+
+	next(exports);
 };
+

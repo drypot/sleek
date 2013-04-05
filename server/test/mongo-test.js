@@ -1,11 +1,14 @@
 var should = require('should');
 
-var config = require('../main/config');
-var mongo = require('../main/mongo');
+var mongo;
 
 before(function (next) {
-	config.init({ test: true });
-	mongo.init({ dropDatabase: true }, next);
+	require('../main/config')({ test: true }, function (_config) {
+		require('../main/mongo')({ config: _config, dropDatabase: true }, function (_mongo) {
+			mongo = _mongo;
+			next();
+		});
+	});
 });
 
 describe('mongo module', function () {
