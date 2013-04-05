@@ -6,8 +6,8 @@ var config = require('../main/config');
 var mongo = require('../main/mongo');
 var es = require('../main/es');
 
-before(function (next) {
-	config.init({ test: true }, next);
+before(function () {
+	config.init({ test: true });
 });
 
 before(function (next) {
