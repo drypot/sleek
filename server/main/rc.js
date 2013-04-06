@@ -1,5 +1,5 @@
 
-var rc = exports.rc = {
+var rc = module.exports = exports = {
 	SUCCESS: 0,
 
 	NOT_AUTHENTICATED: 101,
