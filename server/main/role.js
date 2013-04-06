@@ -5,43 +5,43 @@ module.exports = function (opt) {
 	var exports = {};
 
 	var config = opt.config;
-	var roleMap = {};
+	var roles = {};
 
-	config.role.forEach(function (configRole) {
+	config.roles.forEach(function (_role) {
 		var role = {
-			name: configRole.name,
-			hash: configRole.hash,
-			category: {},
-			readableCategory : [],
-			writableCategory : []
+			name: _role.name,
+			hash: _role.hash,
+			categories: {},
+			readableCategories : [],
+			writableCategories : []
 		};
-		config.category.forEach(function (configCategory) {
+		config.categories.forEach(function (_category) {
 			var category = {
-				id: configCategory.id,
-				name: configCategory.name,
-				sep: configCategory.sep,
-				readable: configCategory.read.indexOf(role.name) != -1,
-				writable: configCategory.write.indexOf(role.name) != -1,
-				editable: configCategory.edit.indexOf(role.name) != -1
+				id: _category.id,
+				name: _category.name,
+				sep: _category.sep,
+				readable: _category.read.indexOf(role.name) != -1,
+				writable: _category.write.indexOf(role.name) != -1,
+				editable: _category.edit.indexOf(role.name) != -1
 			};
 			if (category.readable) {
-				role.category[category.id] = category;
-				role.readableCategory.push(category);
+				role.categories[category.id] = category;
+				role.readableCategories.push(category);
 			}
 			if (category.writable) {
-				role.writableCategory.push(category);
+				role.writableCategories.push(category);
 			}
 		});
-		roleMap[role.name] = role;
+		roles[role.name] = role;
 	});
 
 	exports.roleByName = function (roleName) {
-		return roleMap[roleName];
+		return roles[roleName];
 	};
 
 	exports.roleByPassword = function (password) {
-		for (var roleName in roleMap) {
-			var role = roleMap[roleName];
+		for (var roleName in roles) {
+			var role = roles[roleName];
 			if (bcrypt.compareSync(password, role.hash)) {
 				return role;
 			}
@@ -51,4 +51,3 @@ module.exports = function (opt) {
 
 	return exports;
 };
-

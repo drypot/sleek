@@ -5,7 +5,7 @@
 	"cookieSecret": "o;iejf832ndvs",
 
 	"uploadUrl": "http://sleekfile:8080",
-	"uploadDir": "/Users/drypot/data/sleek-test-upload",
+	"uploadDir": "tmp/upload",
 	"uploadMax": 512,
 
 	"esUrl": "http://localhost:9200",
@@ -13,13 +13,13 @@
 
 	"mongoDbName": "sleek-test",
 
-	"role": [
+	"roles": [
 		{ "name": "user", "hash": "$2a$10$ku7nymS.1CPd8jMttYXZMe4wVWweWr1EqaYst75tzimQh2iAAqvZW" },
 		{ "name": "cheater", "hash": "$2a$10$UujeEPUXiV/ipq9Cl3htK.KrWLKHdxQcM5VFCBoxBV5pdNG3C2Exy" },
 		{ "name": "admin", "hash": "$2a$10$vIl4m5eO71dCHQmZH7/BxOwLIHZ/9NYASyosTHgtLEO/MRlCATU9S" }
 	],
 
-	"category": [
+	"categories": [
 		{ "id": 0, "name": "all", "read": ["user", "cheater", "admin"], "write": [], "edit": [], "sep": true },
 
 		{ "id": 100, "name": "freetalk", "read": ["user", "cheater", "admin"], "write": ["user", "cheater", "admin"], "edit": ["admin"] },

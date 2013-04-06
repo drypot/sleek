@@ -27,7 +27,7 @@ describe('user role', function () {
 		roleX = role.roleByName('user');
 	});
 	it('should have all category', function () {
-		var c = roleX.category[0];
+		var c = roleX.categories[0];
 		c.should.ok;
 		c.name.should.equal('all');
 		c.readable.should.ok;
@@ -35,7 +35,7 @@ describe('user role', function () {
 		c.editable.should.not.ok;
 	});
 	it('should have freetalk', function () {
-		var c = roleX.category[100];
+		var c = roleX.categories[100];
 		c.should.ok;
 		c.name.should.equal('freetalk');
 		c.readable.should.ok;
@@ -43,7 +43,7 @@ describe('user role', function () {
 		c.editable.should.not.ok;
 	});
 	it('should not have cheat', function () {
-		var c = roleX.category[60];
+		var c = roleX.categories[60];
 		should(!c);
 	});
 });
@@ -54,7 +54,7 @@ describe('admin role', function () {
 		roleX = role.roleByName('admin');
 	});
 	it('should have all category', function () {
-		var c = roleX.category[0];
+		var c = roleX.categories[0];
 		c.should.ok;
 		c.name.should.equal('all');
 		c.readable.should.ok;
@@ -62,7 +62,7 @@ describe('admin role', function () {
 		c.editable.should.not.ok;
 	});
 	it('should have freetalk', function () {
-		var c = roleX.category[100];
+		var c = roleX.categories[100];
 		c.should.ok;
 		c.name.should.equal('freetalk');
 		c.readable.should.ok;
@@ -70,7 +70,7 @@ describe('admin role', function () {
 		c.editable.should.ok;
 	});
 	it('should have cheat', function () {
-		var c = roleX.category[60];
+		var c = roleX.categories[60];
 		c.should.ok;
 		c.name.should.equal('cheat');
 		c.readable.should.ok;
