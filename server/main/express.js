@@ -2,7 +2,7 @@ var should = require('should');
 var express = require('express');
 var redisStore = require('connect-redis')(express);
 
-var rcx = require('./rcx');
+var rcs = require('./rcs');
 
 module.exports = function (opt) {
 
@@ -59,12 +59,12 @@ module.exports = function (opt) {
 		if (json) {
 			res.json({ rc: rc });
 		} else {
-			if (rc === rcx.NOT_AUTHENTICATED) {
+			if (rc === rcs.NOT_AUTHENTICATED) {
 				res.redirect('/');
 			} else {
 				should.fail('TODO');
 				res.render('error', {
-					msg: rcx.textx[rc]
+					msg: rcs.msgs[rc]
 				});
 			}
 		}

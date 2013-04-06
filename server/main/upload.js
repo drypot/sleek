@@ -24,7 +24,8 @@ l.init(function (next) {
 		function (next) {
 			console.log('upload directory: ' + l.config.uploadDir);
 			fs.readdir(tmpDir, function (err, tmp) {
-				_.each(tmp, function (tmp) {
+				if (err) return next(err);
+				tmp.forEach(function (tmp) {
 					fs.unlink(tmpDir + '/' + tmp);
 				});
 				next();
@@ -40,8 +41,8 @@ l.init(function (next) {
 
 	l.upload.uploadTmp = function (uploading) {
 		var uploadTmp = {};
-		if (!_.isEmpty(uploading)) {
-			_.each(_.isArray(uploading) ? uploading : [uploading], function (uploading) {
+		if (uploading) {
+			(Array.isArray(uploading) ? uploading : [uploading]).forEach(function (uploading) {
 				if (uploading.size) {
 					uploadTmp[uploading.name] = path.basename(uploading.path);
 				}

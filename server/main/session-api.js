@@ -2,7 +2,7 @@ var _ = require('underscore');
 var bcrypt = require('bcrypt');
 var l = require('./l');
 
-require('./rcx');
+require('./rcs');
 require('./express');
 require('./session');
 

@@ -1,13 +1,13 @@
-var rcx = require('./rcx');
+var rcs = require('./rcs');
 
 exports.authorized = function (res, roleName, next) {
 	var role = res.locals.role;
 	if (!role) {
-		res.sendRc(rcx.NOT_AUTHENTICATED);
+		res.sendRc(rcs.NOT_AUTHENTICATED);
 	} else {
 		if (typeof roleName === 'string') {
 			if (role.name !== roleName) {
-				res.sendRc(rcx.NOT_AUTHORIZED);
+				res.sendRc(rcs.NOT_AUTHORIZED);
 			} else {
 				next();
 			}
