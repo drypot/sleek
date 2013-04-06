@@ -1,7 +1,7 @@
 var _ = require('underscore');
 var l = require('./l');
 
-require('./msg');
+require('./rcx');
 require('./role');
 require('./mongo');
 require('./es');

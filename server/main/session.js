@@ -1,4 +1,4 @@
-var msg = require('./msg');
+var rcx = require('./rcx');
 
 exports.authorized = function (res, roleName, next) {
 	var role = res.locals.role;
