@@ -5,40 +5,29 @@ var fs2 = require('../main/fs');
 var base = 'tmp';
 
 describe('mkdirs', function () {
-	before(function (next) {
-		fs.rmdir(base + '/sub1/sub2', function (err) {
-			should(!err || err.code === 'ENOENT');
-			next();
-		});
+	before(function () {
+		try {
+			fs.rmdirSync(base + '/sub1/sub2');
+		} catch (err) {
+			should(err.code === 'ENOENT');
+		}
 	});
-	before(function (next) {
-		fs.rmdir(base + '/sub1',  function (err) {
-			should(!err || err.code === 'ENOENT');
-			next();
-		});
+	before(function () {
+		try {
+			fs.rmdirSync(base + '/sub1');
+		} catch (err) {
+			should(err.code === 'ENOENT');
+		}
 	});
-	before(function (next) {
-		fs.exists(base + '/sub1' + '/sub2', function (exists) {
-			exists.should.be.false;
-			next();
-		});
+	it('can make sub1', function () {
+		fs.existsSync(base + '/sub1').should.be.false;
+		fs2.mkdirs([base, 'sub1']).should.equal(base + '/sub1');
+		fs.existsSync(base + '/sub1').should.be.true;
 	});
-	it('can make sub1', function (next) {
-		fs2.mkdirs([base, 'sub1'], function (err) {
-			fs.exists(base + '/sub1', function (exists) {
-				exists.should.be.true;
-				next();
-			});
-		});
-	});
-	it('can make sub2', function (next) {
-		fs2.mkdirs([base, 'sub1', 'sub2'], function (err, dir) {
-			dir.should.equal(base + '/sub1/sub2');
-			fs.exists(dir, function (exists) {
-				exists.should.be.true;
-				next();
-			});
-		});
+	it('can make sub2', function () {
+		fs.existsSync(base + '/sub1/sub2').should.be.false;
+		fs2.mkdirs([base, 'sub1', 'sub2']).should.equal(base + '/sub1/sub2');
+		fs.existsSync(base + '/sub1/sub2').should.be.true;
 	});
 });
 

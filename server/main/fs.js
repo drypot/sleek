@@ -1,21 +1,21 @@
 var fs = require('fs');
 var async = require('async');
 
-exports.mkdirs = function (subs, next) {
-	var dir;
-	async.forEachSeries(subs, function (sub, next) {
+exports.mkdirs = function (subs) {
+	var dir = null;
+	subs.forEach(function (sub) {
 		if (!dir) {
 			dir = sub;
 		} else {
 			dir += '/' + sub;
 		}
-		fs.mkdir(dir, 0755, function (err) {
-			if (err && err.code !== 'EEXIST') return next(err);
-			next();
-		});
-	}, function (err) {
-		next(err, dir);
+		try {
+			fs.mkdirSync(dir, 0755);
+		} catch (err) {
+			if (err.code !== 'EEXIST') throw err;
+		}
 	});
+	return dir;
 };
 
 exports.safeFilename = function (name) {
