@@ -64,7 +64,7 @@ module.exports = function (opt) {
 			} else {
 				should.fail('TODO');
 				res.render('error', {
-					msg: rcs.msgs[rc]
+					msg: rcs.msg[rc]
 				});
 			}
 		}
