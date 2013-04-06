@@ -1,5 +1,8 @@
+var should = require('should');
 var express = require('express');
 var redisStore = require('connect-redis')(express);
+
+var rcx = require('./rcx');
 
 module.exports = function (opt) {
 
@@ -43,18 +46,28 @@ module.exports = function (opt) {
 
 	app.use(express.errorHandler());
 
-//	app.use(function (err, req, res, next) {
-//		if (api.test(res.req.path)) {
-//			res.json({ rc: rc });
-//		} else {
-//			if (rc === l.rc.NOT_AUTHENTICATED) {
-//				res.redirect('/');
-//			} else {
-//				res.render('error', {
-//					msg: l.rcMsg[rc]
-//				});
-//			}
-//		}
-//	});
+	var apiExp = /^\/api\//;
+
+	should.not.exist(app.response.sendRc);
+	app.response.sendRc = function (rc) {
+		var res = this;
+		var req = this.req;
+
+		//var json = ~(req.headers.accept || '').indexOf('json');
+		var json = apiExp.test(req.path);
+
+		if (json) {
+			res.json({ rc: rc });
+		} else {
+			if (rc === rcx.NOT_AUTHENTICATED) {
+				res.redirect('/');
+			} else {
+				should.fail('TODO');
+				res.render('error', {
+					msg: rcx.textx[rc]
+				});
+			}
+		}
+	}
 
 };

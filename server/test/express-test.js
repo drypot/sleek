@@ -11,28 +11,39 @@ var app = express();
 require('../main/express')({ config: config, role: role, app: app });
 require('../main/hello-api')({ app: app });
 
+app.get('/', function (req, res) {
+	res.send('home');
+});
+
 app.get('/no-action', function (req, res, next) {
 	next();
 });
 
-app.get('/plain-text-end', function (req, res) {
-	var body = 'end text';
-	res.setHeader('Content-Type', 'text/plain');
-	//res.setHeader('Content-Length', body.length);
-	res.end(body);
-});
-
-app.get('/plain-text-send', function (req, res) {
-	res.send('send text');
+app.get('/api/send-rc-33', function (req, res) {
+	res.sendRc(33);
 });
 
 app.listen(config.port);
 
+//
+
+describe('home', function () {
+	it('should return "home"', function (next) {
+		request.get(url + '/', function (err, res) {
+			res.should.status(200);
+			res.type.should.equal
+			res.text.should.equal('home');
+			next();
+		});
+	});
+});
+
 describe('hello', function () {
-	it('should return hello', function (next) {
+	it('should return "hello"', function (next) {
 		request.get(url + '/api/hello', function (err, res) {
 			res.should.status(200);
-			res.text.should.equal('hello');
+			res.should.be.json;
+			res.body.should.equal('hello');
 			next();
 		});
 	});
@@ -47,21 +58,12 @@ describe('no-action', function () {
 	});
 });
 
-describe('plain-text-end', function () {
-	it('should success', function (next) {
-		request.get(url + '/plain-text-end', function (err, res) {
+describe('/api/send-rc-33', function () {
+	it('should return rc', function (next) {
+		request.get(url + '/api/send-rc-33').end(function (err, res) {
 			res.should.status(200);
-			res.text.should.equal('end text');
-			next();
-		});
-	});
-});
-
-describe('plain-text-send', function () {
-	it('should success', function (next) {
-		request.get(url + '/plain-text-send', function (err, res) {
-			res.should.status(200);
-			res.text.should.equal('send text');
+			res.should.be.json;
+			res.body.rc.should.equal(33);
 			next();
 		});
 	});
