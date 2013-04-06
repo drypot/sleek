@@ -1,80 +1,74 @@
-var _ = require('underscore');
-var async = require('async');
 var fs = require('fs');
 var path = require('path');
-var l = require('./l');
 
-require('./config');
-require('./fs');
+var fs2 = require('./fs');
 
-l.upload = {};
+module.exports = function (opt) {
 
-l.init(function (next) {
+	var config = opt.config;
 
-	var publicDir = l.config.uploadDir + '/public';
-	var tmpDir = l.config.uploadDir + '/tmp';
+	var publicDir = config.uploadDir + '/public';
+	var tmpDir = config.uploadDir + '/tmp';
 
-	async.series([
-		function (next) {
-			l.fs.mkdirs([l.config.uploadDir, 'public', 'post'], next);
-		},
-		function (next) {
-			l.fs.mkdirs([l.config.uploadDir, 'tmp'], next);
-		},
-		function (next) {
-			console.log('upload directory: ' + l.config.uploadDir);
-			fs.readdir(tmpDir, function (err, tmp) {
-				if (err) return next(err);
-				tmp.forEach(function (tmp) {
-					fs.unlink(tmpDir + '/' + tmp);
-				});
-				next();
-			});
-		},
-	], next);
+	console.log('upload directory: ' + config.uploadDir);
+
+	fs2.mkdirs([config.uploadDir, 'public', 'post']);
+	fs2.mkdirs([config.uploadDir, 'tmp']);
+
+	fs.readdirSync(tmpDir).forEach(function (filename) {
+		fs.unlink(tmpDir + '/' + filename);
+	});
 
 	// Tmp File
 
-	l.upload.tmpExists = function (basename) {
-		return fs.existsSync(tmpDir + '/' + basename);
+	exports.tmpExists = function (filename) {
+		return fs.existsSync(tmpDir + '/' + filename);
 	};
 
-	l.upload.uploadTmp = function (uploading) {
-		var uploadTmp = {};
-		if (uploading) {
-			(Array.isArray(uploading) ? uploading : [uploading]).forEach(function (uploading) {
-				if (uploading.size) {
-					uploadTmp[uploading.name] = path.basename(uploading.path);
+	exports.tmpFiles = function (files) {
+		var tmpFiles = {};
+		if (files) {
+			(Array.isArray(files) ? files : [files]).forEach(function (file) {
+				if (file.size) {
+					tmpFiles[file.name] = path.basename(file.path);
 				}
 			});
 		}
-		return uploadTmp;
+		return tmpFiles;
 	};
 
 	// Post File
 
-	l.upload.postUploadDir = function (postId) {
+	exports.postUploadDir = function (postId) {
 		return publicDir + '/post/' + Math.floor(postId / 10000) + '/' + postId
 	};
 
-	l.upload.postUploadUrl = function (postId, upload) {
-		return l.config.uploadUrl + '/post/' + Math.floor(postId / 10000) + '/' + postId + '/' + encodeURIComponent(upload);
+	exports.postUploadUrl = function (postId, upload) {
+		return config.uploadUrl + '/post/' + Math.floor(postId / 10000) + '/' + postId + '/' + encodeURIComponent(upload);
 	}
 
-	l.upload.postUploadExists = function (postId, basename) {
-		return fs.existsSync(l.upload.postUploadDir(postId) + '/' + basename);
+	exports.postUploadExists = function (postId, basename) {
+		return fs.existsSync(exports.postUploadDir(postId) + '/' + basename);
 	};
 
-	l.upload.savePostUploadTmp = function (post, uploadTmp, next) {
-		if (_.isEmpty(uploadTmp)) {
+	exports.savePostUploadTmp = function (post, tmpFiles, next) {
+		if (!tmpFiles || tmpFiles.length == 0) {
 			next();
 		} else {
-			saveUploadTmp([publicDir, 'post', Math.floor(post._id / 10000), post._id], uploadTmp, function (err, saved) {
+			saveUploadTmp([publicDir, 'post', Math.floor(post._id / 10000), post._id], tmpFiles, function (err, saved) {
 				if (err) {
 					next(err);
 				} else {
 					if (saved) {
-						post.upload = !post.upload ? saved : _.union(post.upload, saved);
+						if (post.upload) {
+							saved.forEach(function (saved) {
+								if (post.upload.indexOf(saved) == -1) {
+									post.upload.push(saved);
+								}
+							});
+						} else {
+							post.upload = saved;
+						}
 					}
 					next();
 				}
@@ -82,16 +76,18 @@ l.init(function (next) {
 		}
 	};
 
-	l.upload.deletePostUpload = function (post, deleting, next) {
-		if (_.isEmpty(deleting)) {
+	exports.deletePostUpload = function (post, delFiles, next) {
+		if (!delFiles || delFiles.length == 0) {
 			next();
 		} else {
-			deleteUploads(l.upload.postUploadDir(post._id), deleting, function (err, deleted) {
+			deleteUploads(exports.postUploadDir(post._id), delFiles, function (err, deleted) {
 				if (err) {
 					next(err);
 				} else {
-					if (deleted) {
-						post.upload = _.without(post.upload, deleted);
+					if (deleted && post.upload) {
+						post.upload = post.upload.filter(function (file) {
+							return deleted.indexOf(file) == -1;
+						});
 						if (post.upload.length == 0) delete post.upload;
 					}
 					next();
@@ -103,15 +99,15 @@ l.init(function (next) {
 	// Common
 
 	function saveUploadTmp(subs, tmp, next /* (err, saved) */) {
-		l.fs.mkdirs(subs, function (err, tar) {
+		fs2.mkdirs(subs, function (err, tar) {
 			if (err) {
 				next(err);
 			} else {
 				var saved = [];
 				async.forEachSeries(
-					_.keys(tmp),
+					Object.keys(tmp),
 					function (name, next) {
-						var safeName = l.fs.safeFilename(path.basename(name));
+						var safeName = fs2.safeFilename(path.basename(name));
 						var tmpName = path.basename(tmp[name]);
 						fs.rename(tmpDir + '/' + tmpName, tar + '/' + safeName, function (err) {
 							if (err && err.code !== 'ENOENT') {
@@ -130,12 +126,12 @@ l.init(function (next) {
 		});
 	}
 
-	function deleteUploads(dir, deleting, next /* (err, deleted) */) {
+	function deleteUploads(dir, delFiles, next /* (err, deleted) */) {
 		var deleted = [];
 		async.forEachSeries(
-			deleting,
-			function (deleting, next) {
-				var name = path.basename(deleting)
+			delFiles,
+			function (delFiles, next) {
+				var name = path.basename(delFiles)
 				var p = dir + '/' + name;
 				//console.log('deleting: ' + path);
 				deleted.push(name);
@@ -153,4 +149,4 @@ l.init(function (next) {
 		);
 	}
 
-});
+};

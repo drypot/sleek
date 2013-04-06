@@ -15,7 +15,7 @@ l.init(function () {
 		l.session.authorized(res, function () {
 			res.json({
 				rc: l.rc.SUCCESS,
-				uploadTmp: l.upload.uploadTmp(req.files && req.files.uploading)
+				tmpFiles: l.upload.tmpFiles(req.files && req.files.file)
 			});
 		});
 	});

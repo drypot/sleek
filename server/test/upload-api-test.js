@@ -20,10 +20,10 @@ describe('upload api', function () {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(l.rc.SUCCESS);
 //				console.log(res.body);
-				var uploadTmp = res.body.uploadTmp;
-				console.log(uploadTmp);
-				should.exist(uploadTmp['file1.txt']);
-				l.upload.tmpExists(uploadTmp['file1.txt']).should.be.ok;
+				var tmpFiles = res.body.tmpFiles;
+				console.log(tmpFiles);
+				should.exist(tmpFiles['file1.txt']);
+				l.upload.tmpExists(tmpFiles['file1.txt']).should.be.ok;
 				next(err);
 			}
 		);
@@ -33,11 +33,11 @@ describe('upload api', function () {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(l.rc.SUCCESS);
 //				console.log(res.body);
-				var uploadTmp = res.body.uploadTmp;
-				should.exist(uploadTmp['file1.txt']);
-				should.exist(uploadTmp['file2.txt']);
-				l.upload.tmpExists(uploadTmp['file1.txt']).should.be.ok;
-				l.upload.tmpExists(uploadTmp['file2.txt']).should.be.ok;
+				var tmpFiles = res.body.tmpFiles;
+				should.exist(tmpFiles['file1.txt']);
+				should.exist(tmpFiles['file2.txt']);
+				l.upload.tmpExists(tmpFiles['file1.txt']).should.be.ok;
+				l.upload.tmpExists(tmpFiles['file2.txt']).should.be.ok;
 				next(err);
 			}
 		);
@@ -48,8 +48,8 @@ describe('upload api', function () {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(l.rc.SUCCESS);
 //				console.log(res.body);
-				var uploadTmp = res.body.uploadTmp;
-				_.keys(uploadTmp).should.be.empty;
+				var tmpFiles = res.body.tmpFiles;
+				_.keys(tmpFiles).should.be.empty;
 				next(err);
 			}
 		);

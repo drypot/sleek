@@ -402,8 +402,8 @@ module.exports = function () {
 		r.title = l.string(body, 'title', '');
 		r.text = l.string(body, 'text', '');
 		r.visible = l.bool(body, 'visible', true);
-		r.deleting = body.deleting;
-		r.uploadTmp = body.uploadTmp;
+		r.delFiles = body.delFiles;
+		r.tmpFiles = body.tmpFiles;
 		return r;
 	}
 
@@ -511,7 +511,7 @@ module.exports = function () {
 			writer : form.writer , text: form.text
 		};
 		req.session.post.push(post._id);
-		l.upload.savePostUploadTmp(post, form.uploadTmp, function (err) {
+		l.upload.savePostUploadTmp(post, form.tmpFiles, function (err) {
 			if (err) {
 				res.sendRc(rcs.FILE_IO_ERR);
 			} else {
@@ -555,7 +555,7 @@ module.exports = function () {
 		if (admin) {
 			post.visible = form.visible;
 		}
-		l.upload.deletePostUpload(post, form.deleting, function (err, deleted) {
+		l.upload.deletePostUpload(post, form.delFiles, function (err, deleted) {
 			if (err) {
 				res.sendRc(rcs.FILE_IO_ERR);
 			} else {
@@ -563,7 +563,7 @@ module.exports = function () {
 					post.upload = _.without(post.upload, deleted);
 					if (post.upload.length == 0) delete post.upload;
 				}
-				l.upload.savePostUploadTmp(post, form.uploadTmp, function (err, saved) {
+				l.upload.savePostUploadTmp(post, form.tmpFiles, function (err, saved) {
 					if (err) {
 						res.sendRc(rcs.FILE_IO_ERR);
 					} else {
