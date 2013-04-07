@@ -12,6 +12,10 @@ module.exports = function (opt) {
 
 	app.disable('x-powered-by');
 
+//	app.engine('dust', consolidate.dust); // extention to view engine mapping
+//	app.set('view engine', 'dust'); // default view engine
+//	app.set('views', process.cwd() + '/client/dust'); // view root
+
 	app.locals.siteTitle = config.siteTitle;
 
 	app.use(express.cookieParser(config.cookieSecret));
@@ -26,9 +30,8 @@ module.exports = function (opt) {
 
 	app.use(express.bodyParser({ uploadDir: config.uploadDir + '/tmp' }));
 
-	var roleByName = auth.roleByName;
 	app.use(function (req, res, next) {
-		res.locals.role = roleByName(req.session.roleName);
+		res.locals.role = auth.roleByName(req.session.roleName);
 		next();
 	});
 
@@ -40,9 +43,15 @@ module.exports = function (opt) {
 		next();
 	});
 
-//	app.engine('dust', consolidate.dust); // extention to view engine mapping
-//	app.set('view engine', 'dust'); // default view engine
-//	app.set('views', process.cwd() + '/client/dust'); // view root
+	app.get('/', function (req, res) {
+		res.render('TODO: home');
+//		if (res.locals.role) {
+//			res.redirect('/thread');
+//		} else {
+//			res.locals.title = 'Login';
+//			res.render('index');
+//		}
+	});
 
 	app.use(express.errorHandler());
 
@@ -52,10 +61,8 @@ module.exports = function (opt) {
 	app.response.sendRc = function (rc) {
 		var res = this;
 		var req = this.req;
-
 		//var json = ~(req.headers.accept || '').indexOf('json');
 		var json = apiExp.test(req.path);
-
 		if (json) {
 			res.json({ rc: rc });
 		} else {
@@ -68,6 +75,27 @@ module.exports = function (opt) {
 				});
 			}
 		}
-	}
+	};
+
+	should.not.exist(app.request.authorized);
+	app.request.authorized = function (roleName, next) {
+		var req = this;
+		var res = this.res;
+		var role = res.locals.role;
+		if (!role) {
+			res.sendRc(rcs.NOT_AUTHENTICATED);
+		} else {
+			if (typeof roleName === 'string') {
+				if (role.name !== roleName) {
+					res.sendRc(rcs.NOT_AUTHORIZED);
+				} else {
+					next();
+				}
+			} else {
+				next = roleName;
+				next();
+			}
+		}
+	};
 
 };

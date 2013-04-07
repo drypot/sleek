@@ -4,18 +4,17 @@ var express = require('express');
 
 var config = require('../main/config')({ test: true });
 var auth = require('../main/auth')({ config: config });
-var url = 'http://localhost:' + config.port;
 
 var app = express();
 
 require('../main/express')({ config: config, auth: auth, app: app });
 require('../main/hello-api')({ app: app });
 
-app.get('/', function (req, res) {
-	res.send('home');
+app.get('/test', function (req, res) {
+	res.send('test home');
 });
 
-app.get('/no-action', function (req, res, next) {
+app.get('/test/no-action', function (req, res, next) {
 	next();
 });
 
@@ -25,20 +24,11 @@ app.get('/api/send-rc-33', function (req, res) {
 
 app.listen(config.port);
 
+var url = 'http://localhost:' + config.port;
+
 //
 
-describe('home', function () {
-	it('should return "home"', function (next) {
-		request.get(url + '/', function (err, res) {
-			res.should.status(200);
-			res.type.should.equal
-			res.text.should.equal('home');
-			next();
-		});
-	});
-});
-
-describe('hello', function () {
+describe('/hello', function () {
 	it('should return "hello"', function (next) {
 		request.get(url + '/api/hello', function (err, res) {
 			res.should.status(200);
@@ -49,7 +39,18 @@ describe('hello', function () {
 	});
 });
 
-describe('no-action', function () {
+describe('/test', function () {
+	it('should return "test home"', function (next) {
+		request.get(url + '/test', function (err, res) {
+			res.should.status(200);
+			res.type.should.equal
+			res.text.should.equal('test home');
+			next();
+		});
+	});
+});
+
+describe('/test/no-action', function () {
 	it('should return not found', function (next) {
 		request.get(url + '/no-action', function (err, res) {
 			res.should.status(404);

@@ -1,218 +1,299 @@
-var _ = require('underscore');
 var should = require('should');
-var l = require('../main/l');
+var request = require('superagent').agent();
+var express = require('express');
 
-require('../main/session-api');
-require('../main/test');
+var rcs = require('../main/rcs');
 
-before(function (next) {
-	l.init.run(next);
-});
+var config = require('../main/config')({ test: true });
+var auth = require('../main/auth')({ config: config });
 
-// exports.baseUrl = 'http://localhost:' + config.port;
+var app = express();
 
-describe('raw session', function () {
-	it('can save session value', function (next) {
-		l.test.request.put('/api/test/session-var', { value: 'book217' }, function (err, res) {
+require('../main/express')({ config: config, auth: auth, app: app });
+require('../main/session-api')({ config: config, auth: auth, app: app });
+
+app.listen(config.port);
+
+var url = 'http://localhost:' + config.port;
+
+var USER_PASS = '1';
+var ADMIN_PASS = '3';
+
+describe('session', function () {
+	it('can save value', function (next) {
+		request.put(url + '/api/test/session').send({ book: 'book217', price: 112 }).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.should.equal('ok');
-			next(err);
+			next();
 		});
 	});
-	it('can get session value', function (next) {
-		l.test.request.get('/api/test/session-var', function (err, res) {
+	it('can get value', function (next) {
+		request.get(url + '/api/test/session').send([ 'book', 'price' ]).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.should.equal('book217');
-			next(err);
+			res.body.should.have.property('book', 'book217');
+			res.body.should.have.property('price', 112);
+			next();
 		});
 	});
-});
-
-describe('session terminating', function () {
-	it("should success", function (next) {
-		l.test.request.del('/api/session', function (err, res) {
+	it('can terminate', function (next) {
+		request.del(url + '/api/session', function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(l.rc.SUCCESS);
-			next(err);
+			res.body.rc.should.equal(rcs.SUCCESS);
+			next();
+		});
+	});
+	it('should return nothing after terminated', function (next) {
+		request.get(url + '/api/test/session').send([ 'book', 'price' ]).end(function (err, res) {
+			res.status.should.equal(200);
+			res.body.should.not.have.property('book');
+			res.body.should.not.have.property('price');
+			next();
 		});
 	});
 });
 
 describe('session making', function () {
 	it('should success for user', function (next) {
-		l.test.request.post('/api/session', { password: '1' }, function (err, res) {
+		request.post(url + '/api/session').send({ password: USER_PASS }).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(l.rc.SUCCESS);
+			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.role.name.should.equal('user');
-			next(err);
+			next();
 		});
 	});
 	it('should success for admin', function (next) {
-		l.test.request.post('/api/session', { password: '3' }, function (err, res) {
+		request.post(url + '/api/session').send({ password: ADMIN_PASS }).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(l.rc.SUCCESS);
+			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.role.name.should.equal('admin');
-			next(err);
+			next();
 		});
 	});
 	it('should fail with wrong password', function (next) {
-		l.test.request.post('/api/session', { password: 'xxx' }, function (err, res) {
+		request.post(url + '/api/session').send({ password: 'xxx' }).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(l.rc.INVALID_PASSWORD);
-			next(err);
+			res.body.rc.should.equal(rcs.INVALID_PASSWORD);
+			next();
 		});
 	});
 });
 
-describe('session info retrieving', function () {
+describe('session info', function () {
 	it('given no session', function (next) {
-		l.test.request.del('/api/session', next);
+		request.del(url + '/api/session', function (err, res) {
+			res.status.should.equal(200);
+			res.body.rc.should.equal(rcs.SUCCESS);
+			next();
+		});
 	});
 	it('should return error', function (next) {
-		l.test.request.get('/api/session', function (err, res) {
+		request.get(url + '/api/session', function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(l.rc.NOT_AUTHENTICATED);
-			next(err);
+			res.body.rc.should.equal(rcs.NOT_AUTHENTICATED);
+			next();
 		});
 	});
 	it('given user session', function (next) {
-		l.test.request.post('/api/session', { password: '1' }, function (err, res) {
+		request.post(url + '/api/session').send({ password: USER_PASS }).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(l.rc.SUCCESS);
+			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.role.name.should.equal('user');
-			next(err);
+			next();
 		});
 	});
 	it('should success', function (next) {
-		l.test.request.get('/api/session', function (err, res) {
+		request.get(url + '/api/session', function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(l.rc.SUCCESS);
+			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.role.name.should.equal('user');
-			should.exist(res.body.role.readableCategory);
-			next(err);
+			should.exist(res.body.role.readableCategories);
+			next();
 		});
 	});
 });
 
-describe("authorized(res, next)", function () {
+describe('accessing /api/test/auth/any', function () {
 	it('given no session', function (next) {
-		l.test.request.del('/api/session', next);
-	})
-	it('should fail', function (next) {
-		l.test.request.get('/api/test/role/any', function (err, res) {
+		request.del(url + '/api/session', function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(l.rc.NOT_AUTHENTICATED);
-			next(err);
+			res.body.rc.should.equal(rcs.SUCCESS);
+			next();
+		});
+	});
+	it('should fail', function (next) {
+		request.get(url + '/api/test/auth/any', function (err, res) {
+			res.status.should.equal(200);
+			res.body.rc.should.equal(rcs.NOT_AUTHENTICATED);
+			next();
 		});
 	});
 	it('given user session', function (next) {
-		l.test.request.post('/api/session', { password: '1' }, function (err, res) {
+		request.post(url + '/api/session').send({ password: USER_PASS }).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(l.rc.SUCCESS);
+			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.role.name.should.equal('user');
-			next(err);
+			next();
 		});
 	});
 	it('should success', function (next) {
-		l.test.request.get('/api/test/role/any', function (err, res) {
+		request.get(url + '/api/test/auth/any', function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(l.rc.SUCCESS);
-			next(err);
+			res.body.rc.should.equal(rcs.SUCCESS);
+			next();
 		});
 	});
 	it('given no session', function (next) {
-		l.test.request.del('/api/session', next);
+		request.del(url + '/api/session', function (err, res) {
+			res.status.should.equal(200);
+			res.body.rc.should.equal(rcs.SUCCESS);
+			next();
+		});
 	});
 	it('should fail', function (next) {
-		l.test.request.get('/api/test/role/any', function (err, res) {
+		request.get(url + '/api/test/auth/any', function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(l.rc.NOT_AUTHENTICATED);
-			next(err);
+			res.body.rc.should.equal(rcs.NOT_AUTHENTICATED);
+			next();
 		});
 	});
 });
 
-describe("authorized(res, roleName, next)", function () {
+describe('accessing /api/test/auth/user', function () {
 	it('given no session', function (next) {
-		l.test.request.del('/api/session', next);
-	});
-	it('when accessing user, should fail', function (next) {
-		l.test.request.get('/api/test/role/user', function (err, res) {
+		request.del(url + '/api/session', function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(l.rc.NOT_AUTHENTICATED);
-			next(err);
+			res.body.rc.should.equal(rcs.SUCCESS);
+			next();
+		});
+	});
+	it('should fail', function (next) {
+		request.get(url + '/api/test/auth/user', function (err, res) {
+			res.status.should.equal(200);
+			res.body.rc.should.equal(rcs.NOT_AUTHENTICATED);
+			next();
 		});
 	});
 	it('given user session', function (next) {
-		l.test.request.post('/api/session', { password: '1' }, next);
-	});
-	it('when accessing user, should success', function (next) {
-		l.test.request.get('/api/test/role/user', function (err, res) {
+		request.post(url + '/api/session').send({ password: USER_PASS }).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(l.rc.SUCCESS);
-			next(err);
+			res.body.rc.should.equal(rcs.SUCCESS);
+			res.body.role.name.should.equal('user');
+			next();
+		});
+	});
+	it('should success', function (next) {
+		request.get(url + '/api/test/auth/user', function (err, res) {
+			res.status.should.equal(200);
+			res.body.rc.should.equal(rcs.SUCCESS);
+			next();
+		});
+	});
+});
+
+describe('accessing /api/test/auth/admin', function () {
+	it('given no session', function (next) {
+		request.del(url + '/api/session', function (err, res) {
+			res.status.should.equal(200);
+			res.body.rc.should.equal(rcs.SUCCESS);
+			next();
+		});
+	});
+	it('should fail', function (next) {
+		request.get(url + '/api/test/auth/admin', function (err, res) {
+			res.status.should.equal(200);
+			res.body.rc.should.equal(rcs.NOT_AUTHENTICATED);
+			next();
 		});
 	});
 	it('given user session', function (next) {
-		l.test.request.post('/api/session', { password: '1' }, next);
-	});
-	it('when accessing admin, should fail', function (next) {
-		l.test.request.get('/api/test/role/admin', function (err, res) {
+		request.post(url + '/api/session').send({ password: USER_PASS }).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(l.rc.NOT_AUTHORIZED);
-			next(err);
+			res.body.rc.should.equal(rcs.SUCCESS);
+			res.body.role.name.should.equal('user');
+			next();
+		});
+	});
+	it('should fail', function (next) {
+		request.get(url + '/api/test/auth/admin', function (err, res) {
+			res.status.should.equal(200);
+			res.body.rc.should.equal(rcs.NOT_AUTHORIZED);
+			next();
 		});
 	});
 	it('given admin session', function (next) {
-		l.test.request.post('/api/session', { password: '3' }, next);
-	});
-	it('when access admin, should success', function (next) {
-		l.test.request.get('/api/test/role/admin', function (err, res) {
+		request.post(url + '/api/session').send({ password: ADMIN_PASS }).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(l.rc.SUCCESS);
-			next(err);
+			res.body.rc.should.equal(rcs.SUCCESS);
+			res.body.role.name.should.equal('admin');
+			next();
+		});
+	});
+	it('should success', function (next) {
+		request.get(url + '/api/test/auth/admin', function (err, res) {
+			res.status.should.equal(200);
+			res.body.rc.should.equal(rcs.SUCCESS);
+			next();
 		});
 	});
 });
 
-describe("session category", function () {
-	var c;
+describe('role.readableCategories', function () {
+	var categories;
 	it('given user session', function (next) {
-		l.test.request.post('/api/session', { password: '1' }, function (err, res) {
-			l.test.request.get('/api/session', function (err, res) {
-				c = res.body.role.readableCategory;
-				next(err);
-			});
+		request.post(url + '/api/session').send({ password: USER_PASS }).end(function (err, res) {
+			res.status.should.equal(200);
+			res.body.rc.should.equal(rcs.SUCCESS);
+			res.body.role.name.should.equal('user');
+			next();
 		});
 	});
+	it('given readableCategories', function (next) {
+		request.get(url + '/api/session', function (err, res) {
+			categories = res.body.role.readableCategories;
+			next();
+		});
+	});
+	function find(id) {
+		for (var i = 0; i < categories.length; i++) {
+			var c = categories[i];
+			if (c.id == id) return c;
+		}
+		return null;
+	}
 	it('should have categroy 100', function () {
-		var cx = _.find(c, function (c) { return c.id == 100; });
+		var cx = find(100);
 		should.exist(cx);
 		cx.should.property('name');
 		cx.should.property('readable');
 		cx.should.property('writable');
 	});
 	it('should not have category 40', function () {
-		var cx = _.find(c, function (c) { return c.id == 40; });
+		var cx = find(40);
 		should.not.exist(cx);
 	});
 	it('given admin session', function (next) {
-		l.test.request.post('/api/session', { password: '3' }, function (err, res) {
-			l.test.request.get('/api/session', function (err, res) {
-				c = res.body.role.readableCategory;
-				next(err);
-			});
+		request.post(url + '/api/session').send({ password: ADMIN_PASS }).end(function (err, res) {
+			res.status.should.equal(200);
+			res.body.rc.should.equal(rcs.SUCCESS);
+			res.body.role.name.should.equal('admin');
+			next();
+		});
+	});
+	it('given readableCategories', function (next) {
+		request.get(url + '/api/session', function (err, res) {
+			categories = res.body.role.readableCategories;
+			next();
 		});
 	});
 	it('should have category 100', function () {
-		var cx = _.find(c, function (c) { return c.id == 100; });
+		var cx = find(100);
 		should.exist(cx);
 		cx.should.property('name');
 		cx.should.property('readable');
 		cx.should.property('writable');
 	});
 	it('should have category 40', function () {
-		var cx = _.find(c, function (c) { return c.id == 40; });
+		var cx = find(40);
 		should.exist(cx);
 	});
 });

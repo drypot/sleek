@@ -1,35 +1,33 @@
-var _ = require('underscore');
-var bcrypt = require('bcrypt');
-var l = require('./l');
+var rcs = require('./rcs');
 
-require('./rcs');
-require('./express');
-require('./session');
+module.exports = function (opt) {
 
-l.init(function () {
+	var config = opt.config;
+	var auth = opt.auth;
+	var app = opt.app;
 
-	l.e.get('/api/session', function (req, res) {
-		l.session.authorized(res, function () {
+	app.get('/api/session', function (req, res) {
+		req.authorized(function () {
 			res.json({
-				rc: l.rc.SUCCESS,
+				rc: rcs.SUCCESS,
 				role: {
 					name: res.locals.role.name,
-					readableCategory: res.locals.role.readableCategory
+					readableCategories: res.locals.role.readableCategories
 				},
-				uploadUrl: l.config.uploadUrl
+				uploadUrl: config.uploadUrl
 			});
 		});
 	});
 
-	l.e.post('/api/session', function (req, res) {
-		var role = l.role.roleByPassword(req.body.password || '');
+	app.post('/api/session', function (req, res) {
+		var role = auth.roleByPassword(req.body.password || '');
 		if (!role) {
-			res.json({ rc: l.rc.INVALID_PASSWORD });
+			res.json({ rc: rcs.INVALID_PASSWORD });
 		} else {
 			makeNewSession(req, res, role, function () {
 				clearOldCookies(req, res);
 				res.json({
-					rc: l.rc.SUCCESS,
+					rc: rcs.SUCCESS,
 					role: {
 						name: role.name
 					}
@@ -56,47 +54,45 @@ l.init(function () {
 		}
 	}
 
-	l.e.get('/', function (req, res) {
-		if (res.locals.role) {
-			res.redirect('/thread');
-		} else {
-			res.locals.title = 'Login';
-			res.render('index');
-		}
-	});
-
-	l.e.del('/api/session', function (req, res) {
+	app.del('/api/session', function (req, res) {
 		req.session.destroy();
-		res.json({ rc: l.rc.SUCCESS });
+		res.json({ rc: rcs.SUCCESS });
 	});
 
-	l.e.configure('development', function () {
-		l.e.put('/api/test/session-var', function (req, res) {
-			req.session.test_var = req.body.value;
+	app.configure('development', function () {
+		app.put('/api/test/session', function (req, res) {
+			for (var key in req.body) {
+				req.session[key] = req.body[key];
+			}
 			res.json('ok');
 		});
 
-		l.e.get('/api/test/session-var', function (req, res) {
-			res.json(req.session.test_var);
+		app.get('/api/test/session', function (req, res) {
+			var obj = {};
+			for (var i = 0; i < req.body.length; i++) {
+				var key = req.body[i];
+				obj[key] = req.session[key];
+			}
+			res.json(obj);
 		});
 
-		l.e.get('/api/test/role/any', function (req, res) {
-			l.session.authorized(res, function () {
-				res.json({ rc: l.rc.SUCCESS });
+		app.get('/api/test/auth/any', function (req, res) {
+			req.authorized(function () {
+				res.json({ rc: rcs.SUCCESS });
 			})
 		});
 
-		l.e.get('/api/test/role/user', function (req, res) {
-			l.session.authorized(res, 'user', function () {
-				res.json({ rc: l.rc.SUCCESS });
+		app.get('/api/test/auth/user', function (req, res) {
+			req.authorized('user', function () {
+				res.json({ rc: rcs.SUCCESS });
 			});
 		});
 
-		l.e.get('/api/test/role/admin', function (req, res) {
-			l.session.authorized(res, 'admin', function () {
-				res.json({ rc: l.rc.SUCCESS });
+		app.get('/api/test/auth/admin', function (req, res) {
+			req.authorized('admin', function () {
+				res.json({ rc: rcs.SUCCESS });
 			});
 		});
 	});
 
-});
+};
