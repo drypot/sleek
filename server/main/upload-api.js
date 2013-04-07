@@ -1,23 +1,16 @@
-var _ = require('underscore');
-var async = require('async');
-var fs = require('fs');
-var path = require('path');
-var l = require('./l');
 
-require('./config');
-require('./upload');
-require('./express');
-require('./session');
+module.exports = function (opt) {
 
-l.init(function () {
+	var app = opt.app;
+	var upload = opt.upload;
 
-	l.e.post('/api/upload', function (req, res) {
+	app.post('/api/upload', function (req, res) {
 		req.authorized(function () {
 			res.json({
 				rc: rcs.SUCCESS,
-				tmpFiles: l.upload.tmpFiles(req.files && req.files.file)
+				tmpFiles: upload.tmpFiles(req.files && req.files.file)
 			});
 		});
 	});
 
-});
+};
