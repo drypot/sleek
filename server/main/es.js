@@ -10,11 +10,9 @@ module.exports = function (opt, next) {
 
 	exports.dropIndex = function (next) {
 		request.del(url, function (err, res) {
-			if (err) {
-				next(err);
-			} else {
-				setSchema(next);
-			}
+			if (err) return next(err);
+			if (res.error) return next(res.error);
+			setSchema(next);
 		});
 	};
 
@@ -41,12 +39,14 @@ module.exports = function (opt, next) {
 				}
 			}
 		}).end(function (err, res) {
+			if (res.error) return next(res.error);
 			next(err, res);
 		});
 	};
 
 	exports.flush = function (next) {
 		request.post(url + '/_flush', function (err, res) {
+			if (res.error) return next(res.error);
 			next(err, res);
 		});
 	};
@@ -62,39 +62,36 @@ module.exports = function (opt, next) {
 			text: post.text,
 			visible: post.visible
 		}).end(function (err, res) {
+			if (res.error) return next(res.error);
 			next(err, res);
 		});
 	};
 
 	exports.getPost = function (postId, next) {
 		request.get(url + '/post/' + postId, function (err, res) {
-			if (err) {
-				next(err);
-			} else {
-				res.body._id = parseInt(res.body._id);
-				res.body._source.created = new Date(res.body._source.created);
-				next(err, res);
-			}
+			if (err) return next(err);
+			if (res.error) return next(res.error);
+			res.body._id = parseInt(res.body._id);
+			res.body._source.created = new Date(res.body._source.created);
+			next(err, res);
 		});
 	};
 
 	exports.searchPost = function (body, next) {
 		request.post(url + '/post/_search').send(body).end(function (err, res) {
-			if (err) {
-				next(err);
-			} else {
-				if (res.body.hits) {
-					var hits = res.body.hits.hits;
-					var len = hits.length;
-					var i;
-					for (i = 0; i < len; i++) {
-						var hit = hits[i];
-						hit._id = parseInt(hit._id);
-						hit._source.created = new Date(hit._source.created);
-					}
+			if (err) return next(err);
+			if (res.error) return next(res.error);
+			if (res.body.hits) {
+				var hits = res.body.hits.hits;
+				var len = hits.length;
+				var i;
+				for (i = 0; i < len; i++) {
+					var hit = hits[i];
+					hit._id = parseInt(hit._id);
+					hit._source.created = new Date(hit._source.created);
 				}
-				next(err, res);
 			}
+			next(err, res);
 		});
 	};
 
@@ -116,4 +113,3 @@ module.exports = function (opt, next) {
 	});
 
 };
-
