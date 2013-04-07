@@ -1,3 +1,4 @@
+var rcs = require('../main/rcs');
 
 module.exports = function (opt) {
 
@@ -8,8 +9,15 @@ module.exports = function (opt) {
 		req.authorized(function () {
 			res.json({
 				rc: rcs.SUCCESS,
-				tmpFiles: upload.tmpFiles(req.files && req.files.file)
+				files: upload.tmpFiles(req.files.file)
 			});
+		});
+	});
+
+	app.del('/api/upload', function (req, res) {
+		req.authorized(function () {
+			upload.deleteTmpFiles(req.body.files);
+			res.json({ rc: rcs.SUCCESS });
 		});
 	});
 

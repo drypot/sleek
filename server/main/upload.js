@@ -5,23 +5,25 @@ var fs2 = require('./fs');
 
 module.exports = function (opt) {
 
+	var exports = {};
+
 	var config = opt.config;
 
 	var publicDir = config.uploadDir + '/public';
 	var tmpDir = config.uploadDir + '/tmp';
 
-	console.log('upload directory: ' + config.uploadDir);
+	console.log('upload: ' + config.uploadDir);
 
 	fs2.mkdirs([config.uploadDir, 'public', 'post']);
 	fs2.mkdirs([config.uploadDir, 'tmp']);
 
 	fs.readdirSync(tmpDir).forEach(function (filename) {
-		fs.unlink(tmpDir + '/' + filename);
+		fs.unlinkSync(tmpDir + '/' + filename);
 	});
 
 	// Tmp File
 
-	exports.tmpExists = function (filename) {
+	exports.tmpFileExists = function (filename) {
 		return fs.existsSync(tmpDir + '/' + filename);
 	};
 
@@ -36,6 +38,19 @@ module.exports = function (opt) {
 		}
 		return tmpFiles;
 	};
+
+	exports.deleteTmpFiles = function (files) {
+		if (files) {
+			files.forEach(function (file) {
+				var filename = path.basename(file);
+				try {
+					fs.unlinkSync(tmpDir + '/' + filename);
+				} catch (err) {
+					if (err.code !== 'ENOENT') throw err;
+				}
+			});
+		}
+	}
 
 	// Post File
 
@@ -76,28 +91,6 @@ module.exports = function (opt) {
 		}
 	};
 
-	exports.deletePostUpload = function (post, delFiles, next) {
-		if (!delFiles || delFiles.length == 0) {
-			next();
-		} else {
-			deleteUploads(exports.postUploadDir(post._id), delFiles, function (err, deleted) {
-				if (err) {
-					next(err);
-				} else {
-					if (deleted && post.upload) {
-						post.upload = post.upload.filter(function (file) {
-							return deleted.indexOf(file) == -1;
-						});
-						if (post.upload.length == 0) delete post.upload;
-					}
-					next();
-				}
-			});
-		}
-	};
-
-	// Common
-
 	function saveUploadTmp(subs, tmp, next /* (err, saved) */) {
 		fs2.mkdirs(subs, function (err, tar) {
 			if (err) {
@@ -126,6 +119,26 @@ module.exports = function (opt) {
 		});
 	}
 
+	exports.deletePostUpload = function (post, delFiles, next) {
+		if (!delFiles || delFiles.length == 0) {
+			next();
+		} else {
+			deleteUploads(exports.postUploadDir(post._id), delFiles, function (err, deleted) {
+				if (err) {
+					next(err);
+				} else {
+					if (deleted && post.upload) {
+						post.upload = post.upload.filter(function (file) {
+							return deleted.indexOf(file) == -1;
+						});
+						if (post.upload.length == 0) delete post.upload;
+					}
+					next();
+				}
+			});
+		}
+	};
+
 	function deleteUploads(dir, delFiles, next /* (err, deleted) */) {
 		var deleted = [];
 		async.forEachSeries(
@@ -149,4 +162,5 @@ module.exports = function (opt) {
 		);
 	}
 
+	return exports;
 };

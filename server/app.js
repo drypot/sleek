@@ -17,11 +17,13 @@ for (var i = 2; i < process.argv.length; i++) {
 
 var config = require('./main/config')({ path: configPath });
 var auth = require('./main/auth')({ config: config });
+var upload = require('./main/upload')({ config: config });
 
 require('./main/mongo')({ config: config }, function (mongo) {
 	require('./main/es')({ config: config }, function (es) {
 		var app = require('express')();
 		require('./main/express')({ config: config, auth: auth, store: 'redis', app: app });
+		require('./main/upload-api')({ upload: upload, app: app });
 		require('./main/hello-api')({ app: app });
 		app.listen(config.port);
 		console.log("express: %d", config.port);

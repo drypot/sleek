@@ -22,10 +22,10 @@ module.exports = function (opt) {
 
 	if (opt.store === 'redis') {
 		app.use(express.session({ store: new redisStore() }));
-		console.log('session store: redis');
+		console.log('session: redis');
 	} else {
 		app.use(express.session());
-		console.log('session store: memory');
+		console.log('session: memory');
 	}
 
 	app.use(express.bodyParser({ uploadDir: config.uploadDir + '/tmp' }));

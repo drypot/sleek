@@ -18,4 +18,4 @@ date created
 boolean visible
 string writer
 string text
-string[] upload
+string[] files
