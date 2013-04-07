@@ -23,28 +23,28 @@ describe("getting thread list", function () {
 	];
 
 	it('given no session', function (next) {
-		l.test.request.del('/api/session', next);
+		request.del('/api/session', next);
 	});
 	it("should fail", function (next) {
-		l.test.request.post('/api/thread', function (err, res) {
+		request.post('/api/thread', function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(l.rc.NOT_AUTHENTICATED);
+			res.body.rc.should.equal(rcs.NOT_AUTHENTICATED);
 			next(err);
 		});
 	});
 	it('given user session', function (next) {
-		l.test.request.post('/api/session', { password: '1' }, next);
+		request.post('/api/session', { password: '1' }, next);
 	});
 	it('and threads', function (next) {
 		async.forEachSeries(samples, function (item, next) {
-			l.test.request.post('/api/thread', item, next);
+			request.post('/api/thread', item, next);
 		}, next);
 	});
 	var t;
 	it('when no op, should success', function (next) {
-		l.test.request.get('/api/thread', function (err, res) {
+		request.get('/api/thread', function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(l.rc.SUCCESS);
+			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.thread.should.length(7);
 
 			t = res.body.thread[0];
@@ -64,25 +64,25 @@ describe("getting thread list", function () {
 		});
 	});
 	it('when category 0, should success', function (next) {
-		l.test.request.get('/api/thread', { c: 0 }, function (err, res) {
+		request.get('/api/thread', { c: 0 }, function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(l.rc.SUCCESS);
+			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.thread.should.length(7);
 			next(err);
 		});
 	});
 	it('when category 300, should success', function (next) {
-		l.test.request.get('/api/thread', { c: 300 }, function (err, res) {
+		request.get('/api/thread', { c: 300 }, function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(l.rc.SUCCESS);
+			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.thread.should.length(2);
 			next(err);
 		});
 	});
 	it('when page 2, should success', function (next) {
-		l.test.request.get('/api/thread', { c: 0, p: 2, ps: 3 }, function (err, res) {
+		request.get('/api/thread', { c: 0, p: 2, ps: 3 }, function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(l.rc.SUCCESS);
+			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.thread.should.length(3);
 			res.body.thread[0].title.should.equal('title 4');
 			res.body.thread[1].title.should.equal('title 3');
@@ -91,9 +91,9 @@ describe("getting thread list", function () {
 		});
 	});
 	it('when page -1, should success', function (next) {
-		l.test.request.get('/api/thread', { c: 0, p: -1, ps: 3 }, function (err, res) {
+		request.get('/api/thread', { c: 0, p: -1, ps: 3 }, function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(l.rc.SUCCESS);
+			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.thread.should.length(3);
 			res.body.thread[0].title.should.equal('title 3');
 			res.body.thread[1].title.should.equal('title 2');

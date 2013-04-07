@@ -2,7 +2,7 @@ var _ = require('underscore');
 var l = require('./l');
 
 require('./rcs');
-require('./role');
+require('./auth');
 require('./mongo');
 require('./es');
 require('./express');
@@ -11,7 +11,7 @@ require('./session');
 l.init(function () {
 
 	l.e.get('/api/search', function (req, res) {
-		l.session.authorized(res, function () {
+		req.authorized(function () {
 			var query = l.string(req.query, 'q', '');
 			var offset = l.int(req.query, 'offset', 0);
 			var limit = l.int(req.query, 'limit', 16, 0, 64);
@@ -22,13 +22,13 @@ l.init(function () {
 				},
 				function (err, sres) {
 					if (err) {
-						res.json({ rc: l.rc.SEARCH_IO_ERR});
+						res.json({ rc: rcs.SEARCH_IO_ERR});
 					} else {
 						if (!sres.body.hits) {
-							res.json({ rc: l.rc.SUCCESS, result: [] });
+							res.json({ rc: rcs.SUCCESS, result: [] });
 						} else {
 							var r = {
-								rc: l.rc.SUCCESS,
+								rc: rcs.SUCCESS,
 								result: []
 							};
 							var categories = res.locals.role.category;

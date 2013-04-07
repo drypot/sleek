@@ -2,19 +2,18 @@ var _ = require('underscore');
 var l = require('./l');
 
 var rcs = require('./rcs');
-require('./role');
+require('./auth');
 require('./mongo');
 require('./es');
 require('./upload');
 require('./express');
-require('./session');
 
 module.exports = function () {
 
 	// get thread list
 
 	l.e.get('/api/thread', function (req, res, next) {
-		l.session.authorized(res, function () {
+		req.authorized(function () {
 			prepareThreadListParam(req, function (categoryId, page, pageSize) {
 				prepareReadableCategory(res, categoryId, function (category) {
 					l.mongo.findThreadByCategory(categoryId, page, pageSize, function (err, thread) {
@@ -22,7 +21,7 @@ module.exports = function () {
 							next(err);
 						} else {
 							var r = {
-								rc: l.rc.SUCCESS,
+								rc: rcs.SUCCESS,
 								thread: []
 							};
 							iterThreadList(page, thread, function (thread) {
@@ -85,7 +84,7 @@ module.exports = function () {
 	}
 
 	l.e.get('/thread', function (req, res, next) {
-		l.session.authorized(res, function () {
+		req.authorized(function () {
 			prepareThreadListParam(req, function (categoryId, page, pageSize) {
 				prepareReadableCategory(res, categoryId, function (category) {
 					l.mongo.findThreadByCategory(categoryId, page, pageSize, function (err, thread) {
@@ -167,12 +166,12 @@ module.exports = function () {
 	// get thread
 
 	l.e.get('/api/thread/:threadId([0-9]+)', function (req, res) {
-		l.session.authorized(res, function () {
+		req.authorized(function () {
 			var threadId = l.int(req.params, 'threadId', 0);
 			prepareThread(res, threadId, function (thread) {
 				prepareReadableCategory(res, thread.categoryId, function (category) {
 					var r = {
-						rc: l.rc.SUCCESS,
+						rc: rcs.SUCCESS,
 						thread: {
 							id: thread._id,
 							title: thread.title
@@ -230,7 +229,7 @@ module.exports = function () {
 	}
 
 	l.e.get('/thread/:threadId([0-9]+)', function (req, res, next) {
-		l.session.authorized(res, function () {
+		req.authorized(function () {
 			var threadId = l.int(req.params, 'threadId', 0);
 			prepareThread(res, threadId, function (thread) {
 				prepareReadableCategory(res, thread.categoryId, function (category) {
@@ -275,13 +274,13 @@ module.exports = function () {
 	// get post
 
 	l.e.get('/api/thread/:threadId([0-9]+)/:postId([0-9]+)', function (req, res, next) {
-		l.session.authorized(res, function () {
+		req.authorized(function () {
 			var threadId = l.int(req.params, 'threadId', 0);
 			var postId = l.int(req.params, 'postId', 0);
 			prepareThreadAndPost(res, threadId, postId, function (thread, post, head) {
 				prepareReadableCategory(res, thread.categoryId, function (category) {
 					var r = {
-						rc: l.rc.SUCCESS,
+						rc: rcs.SUCCESS,
 						thread: {
 							id: post.threadId,
 							title: thread.title
@@ -314,13 +313,13 @@ module.exports = function () {
 	// new thread
 
 	l.e.post('/api/thread', function (req, res, next) {
-		l.session.authorized(res, function () {
+		req.authorized(function () {
 			var form = getForm(req);
 			prepareWritableCategory(res, form.categoryId, function (category) {
 				checkForm(res, form, true, function () {
 					insertThread(res, form, function (thread) {
 						insertPost(req, res, form, thread, function (post) {
-							res.json({ rc: l.rc.SUCCESS, threadId: thread._id, postId: post._id });
+							res.json({ rc: rcs.SUCCESS, threadId: thread._id, postId: post._id });
 						});
 					});
 				});
@@ -329,7 +328,7 @@ module.exports = function () {
 	});
 
 	l.e.get('/thread/new', function (req, res, next) {
-		l.session.authorized(res, function () {
+		req.authorized(function () {
 			var categoryId = l.int(req.query, 'c', 0);
 			if (categoryId == 0) {
 				categoryId = res.locals.role.writableCategory[0].id;
@@ -350,7 +349,7 @@ module.exports = function () {
 	// new reply
 
 	l.e.post('/api/thread/:threadId([0-9]+)', function (req, res, next) {
-		l.session.authorized(res, function () {
+		req.authorized(function () {
 			var form = getForm(req);
 			var threadId = l.int(req.params, 'threadId', 0);
 			prepareThread(res, threadId, function (thread){
@@ -358,7 +357,7 @@ module.exports = function () {
 					checkForm(res, form, false, function () {
 						insertPost(req, res, form, thread, function (post) {
 							l.mongo.updateThreadLength(thread, form.now);
-							res.json({ rc: l.rc.SUCCESS, threadId: thread._id, postId: post._id });
+							res.json({ rc: rcs.SUCCESS, threadId: thread._id, postId: post._id });
 						});
 					});
 				});
@@ -369,7 +368,7 @@ module.exports = function () {
 	// update post
 
 	l.e.put('/api/thread/:threadId([0-9]+)/:postId([0-9]+)', function (req, res, next) {
-		l.session.authorized(res, function () {
+		req.authorized(function () {
 			var form = getForm(req);
 			var threadId = l.int(req.params, 'threadId', 0);
 			var postId = l.int(req.params, 'postId', 0);
@@ -380,7 +379,7 @@ module.exports = function () {
 							checkForm(res, form, head, function () {
 								updateThread(res, form, thread, head, function () {
 									updatePost(res, form, thread, post, category.editable, function () {
-										res.json({ rc: l.rc.SUCCESS });
+										res.json({ rc: rcs.SUCCESS });
 									});
 								});
 							});
@@ -451,7 +450,7 @@ module.exports = function () {
 		}
 
 		if (!_.isEmpty(error)) {
-			res.json({ rc: l.rc.INVALID_DATA, error: error });
+			res.json({ rc: rcs.INVALID_DATA, error: error });
 		} else {
 			next();
 		}

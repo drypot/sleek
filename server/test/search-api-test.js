@@ -26,22 +26,22 @@ describe("searching", function () {
 	];
 
 	it('given no session', function (next) {
-		l.test.request.del('/api/session', next);
+		request.del('/api/session', next);
 	});
 	it("when accessing api, should fail", function (next) {
-		l.test.request.get('/api/search', function (err, res) {
+		request.get('/api/search', function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(l.rc.NOT_AUTHENTICATED);
+			res.body.rc.should.equal(rcs.NOT_AUTHENTICATED);
 			next(err);
 		});
 	});
 	it('given admin session', function (next) {
-		l.test.request.post('/api/session', { password: '3' }, next);
+		request.post('/api/session', { password: '3' }, next);
 	});
 	it("when accessing api, should success", function (next) {
-		l.test.request.get('/api/search', { q: 'hello' }, function (err, res) {
+		request.get('/api/search', { q: 'hello' }, function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(l.rc.SUCCESS);
+			res.body.rc.should.equal(rcs.SUCCESS);
 			var r = res.body.result;
 			r.should.length(0);
 			next(err);
@@ -49,7 +49,7 @@ describe("searching", function () {
 	});
 	it('given threads', function (next) {
 		async.forEachSeries(doc, function (doc, next) {
-			l.test.request.post('/api/thread', doc, function (err, res) {
+			request.post('/api/thread', doc, function (err, res) {
 				doc.postId = res.body.postId;
 				doc.threadId = res.body.threadId;
 				next(err);
@@ -60,12 +60,12 @@ describe("searching", function () {
 		l.es.flush(next);
 	});
 	it('given user session', function (next) {
-		l.test.request.post('/api/session', { password: '1' }, next);
+		request.post('/api/session', { password: '1' }, next);
 	});
 	it("when search user name, should return results", function (next) {
-		l.test.request.get('/api/search', { q: 'snowman' }, function (err, res) {
+		request.get('/api/search', { q: 'snowman' }, function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(l.rc.SUCCESS);
+			res.body.rc.should.equal(rcs.SUCCESS);
 			var r = res.body.result;
 			r.should.length(3);
 			r[0].title.should.equal('title 3');
@@ -75,9 +75,9 @@ describe("searching", function () {
 		});
 	});
 	it("when search title, should return results", function (next) {
-		l.test.request.get('/api/search', { q: 'title 4' }, function (err, res) {
+		request.get('/api/search', { q: 'title 4' }, function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(l.rc.SUCCESS);
+			res.body.rc.should.equal(rcs.SUCCESS);
 			var r = res.body.result;
 			r.should.length(1);
 			r[0].title.should.equal('title 4');
@@ -85,9 +85,9 @@ describe("searching", function () {
 		});
 	});
 	it("when search text, should return results", function (next) {
-		l.test.request.get('/api/search', { q: 'apple orange' }, function (err, res) {
+		request.get('/api/search', { q: 'apple orange' }, function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(l.rc.SUCCESS);
+			res.body.rc.should.equal(rcs.SUCCESS);
 			var r = res.body.result;
 			r.should.length(2);
 			r[0].title.should.equal('title 2');
@@ -96,9 +96,9 @@ describe("searching", function () {
 		});
 	});
 	it("when search text 2, should return results", function (next) {
-		l.test.request.get('/api/search', { q: 'apple banana' }, function (err, res) {
+		request.get('/api/search', { q: 'apple banana' }, function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(l.rc.SUCCESS);
+			res.body.rc.should.equal(rcs.SUCCESS);
 			var r = res.body.result;
 			r.should.length(1);
 			r[0].title.should.equal('title 1');
@@ -106,9 +106,9 @@ describe("searching", function () {
 		});
 	});
 	it("when search hangul, should return results", function (next) {
-		l.test.request.get('/api/search', { q: '둥글' }, function (err, res) {
+		request.get('/api/search', { q: '둥글' }, function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(l.rc.SUCCESS);
+			res.body.rc.should.equal(rcs.SUCCESS);
 			var r = res.body.result;
 			r.should.length(3);
 			r[0].title.should.equal('title 5');
@@ -118,21 +118,21 @@ describe("searching", function () {
 		});
 	});
 	it("when search admin thread, should return no results", function (next) {
-		l.test.request.get('/api/search', { q: 'admin' }, function (err, res) {
+		request.get('/api/search', { q: 'admin' }, function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(l.rc.SUCCESS);
+			res.body.rc.should.equal(rcs.SUCCESS);
 			var r = res.body.result;
 			r.should.length(0);
 			next(err);
 		});
 	});
 	it('given admin session', function (next) {
-		l.test.request.post('/api/session', { password: '3' }, next);
+		request.post('/api/session', { password: '3' }, next);
 	});
 	it("when search admin thread, should return results", function (next) {
-		l.test.request.get('/api/search', { q: 'admin' }, function (err, res) {
+		request.get('/api/search', { q: 'admin' }, function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(l.rc.SUCCESS);
+			res.body.rc.should.equal(rcs.SUCCESS);
 			var r = res.body.result;
 			r.should.length(2);
 			next(err);

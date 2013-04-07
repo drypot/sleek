@@ -12,9 +12,9 @@ require('./session');
 l.init(function () {
 
 	l.e.post('/api/upload', function (req, res) {
-		l.session.authorized(res, function () {
+		req.authorized(function () {
 			res.json({
-				rc: l.rc.SUCCESS,
+				rc: rcs.SUCCESS,
 				tmpFiles: l.upload.tmpFiles(req.files && req.files.file)
 			});
 		});

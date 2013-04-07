@@ -13,12 +13,12 @@ before(function (next) {
 
 describe('upload api', function () {
 	it('given user session', function (next) {
-		l.test.request.post('/api/session', { password: '1' }, next);
+		request.post('/api/session', { password: '1' }, next);
 	});
 	it('when upload one file, keeps it in tmp dir, and return upload', function (next) {
-		l.test.request.post('/api/upload', {}, ['file1.txt'], function (err, res) {
+		request.post('/api/upload', {}, ['file1.txt'], function (err, res) {
 				res.status.should.equal(200);
-				res.body.rc.should.equal(l.rc.SUCCESS);
+				res.body.rc.should.equal(rcs.SUCCESS);
 //				console.log(res.body);
 				var tmpFiles = res.body.tmpFiles;
 				console.log(tmpFiles);
@@ -29,9 +29,9 @@ describe('upload api', function () {
 		);
 	});
 	it('when upload two files, keeps them in tmp dir, and return upload', function (next) {
-		l.test.request.post('/api/upload', {}, ['file1.txt', 'file2.txt'], function (err, res) {
+		request.post('/api/upload', {}, ['file1.txt', 'file2.txt'], function (err, res) {
 				res.status.should.equal(200);
-				res.body.rc.should.equal(l.rc.SUCCESS);
+				res.body.rc.should.equal(rcs.SUCCESS);
 //				console.log(res.body);
 				var tmpFiles = res.body.tmpFiles;
 				should.exist(tmpFiles['file1.txt']);
@@ -43,10 +43,10 @@ describe('upload api', function () {
 		);
 	});
 	it('when upload none, return empty upload', function (next) {
-		l.test.request.post('/api/upload', { dummy: 'dummy' }, [],
+		request.post('/api/upload', { dummy: 'dummy' }, [],
 			function (err, res) {
 				res.status.should.equal(200);
-				res.body.rc.should.equal(l.rc.SUCCESS);
+				res.body.rc.should.equal(rcs.SUCCESS);
 //				console.log(res.body);
 				var tmpFiles = res.body.tmpFiles;
 				_.keys(tmpFiles).should.be.empty;
