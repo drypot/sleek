@@ -3,12 +3,12 @@ var request = require('superagent').agent();
 var express = require('express');
 
 var config = require('../main/config')({ test: true });
-var role = require('../main/role')({ config: config });
+var auth = require('../main/auth')({ config: config });
 var url = 'http://localhost:' + config.port;
 
 var app = express();
 
-require('../main/express')({ config: config, role: role, app: app });
+require('../main/express')({ config: config, auth: auth, app: app });
 require('../main/hello-api')({ app: app });
 
 app.get('/', function (req, res) {

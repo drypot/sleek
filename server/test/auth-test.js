@@ -1,33 +1,33 @@
 var should = require('should');
 
 var config = require('../main/config')({ test: true });
-var role = require('../main/role')({ config: config });
+var auth = require('../main/auth')({ config: config });
 
 describe('roleByName()', function () {
 	it('can find role by name', function () {
-		role.roleByName('user').name.should.equal('user');
-		role.roleByName('cheater').name.should.equal('cheater');
-		role.roleByName('admin').name.should.equal('admin');
-		should.not.exist(role.roleByName('xxx'));
+		auth.roleByName('user').name.should.equal('user');
+		auth.roleByName('cheater').name.should.equal('cheater');
+		auth.roleByName('admin').name.should.equal('admin');
+		should.not.exist(auth.roleByName('xxx'));
 	});
 });
 
 describe('roleByPassword()', function () {
-	it('can find role by password', function () {
-		role.roleByPassword('1').name.should.equal('user');
-		role.roleByPassword('2').name.should.equal('cheater');
-		role.roleByPassword('3').name.should.equal('admin');
-		should.not.exist(role.roleByPassword('x'));
+	it('can find auth by password', function () {
+		auth.roleByPassword('1').name.should.equal('user');
+		auth.roleByPassword('2').name.should.equal('cheater');
+		auth.roleByPassword('3').name.should.equal('admin');
+		should.not.exist(auth.roleByPassword('x'));
 	})
 });
 
 describe('user role', function () {
-	var roleX;
+	var role;
 	before(function () {
-		roleX = role.roleByName('user');
+		role = auth.roleByName('user');
 	});
 	it('should have all category', function () {
-		var c = roleX.categories[0];
+		var c = role.categories[0];
 		c.should.ok;
 		c.name.should.equal('all');
 		c.readable.should.ok;
@@ -35,7 +35,7 @@ describe('user role', function () {
 		c.editable.should.not.ok;
 	});
 	it('should have freetalk', function () {
-		var c = roleX.categories[100];
+		var c = role.categories[100];
 		c.should.ok;
 		c.name.should.equal('freetalk');
 		c.readable.should.ok;
@@ -43,18 +43,18 @@ describe('user role', function () {
 		c.editable.should.not.ok;
 	});
 	it('should not have cheat', function () {
-		var c = roleX.categories[60];
+		var c = role.categories[60];
 		should(!c);
 	});
 });
 
 describe('admin role', function () {
-	var roleX;
+	var role;
 	before(function () {
-		roleX = role.roleByName('admin');
+		role = auth.roleByName('admin');
 	});
 	it('should have all category', function () {
-		var c = roleX.categories[0];
+		var c = role.categories[0];
 		c.should.ok;
 		c.name.should.equal('all');
 		c.readable.should.ok;
@@ -62,7 +62,7 @@ describe('admin role', function () {
 		c.editable.should.not.ok;
 	});
 	it('should have freetalk', function () {
-		var c = roleX.categories[100];
+		var c = role.categories[100];
 		c.should.ok;
 		c.name.should.equal('freetalk');
 		c.readable.should.ok;
@@ -70,7 +70,7 @@ describe('admin role', function () {
 		c.editable.should.ok;
 	});
 	it('should have cheat', function () {
-		var c = roleX.categories[60];
+		var c = role.categories[60];
 		c.should.ok;
 		c.name.should.equal('cheat');
 		c.readable.should.ok;
@@ -78,4 +78,3 @@ describe('admin role', function () {
 		c.editable.should.ok;
 	});
 });
-

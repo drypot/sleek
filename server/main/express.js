@@ -7,7 +7,7 @@ var rcs = require('./rcs');
 module.exports = function (opt) {
 
 	var config = opt.config;
-	var role = opt.role;
+	var auth = opt.auth;
 	var app = opt.app;
 
 	app.disable('x-powered-by');
@@ -26,7 +26,7 @@ module.exports = function (opt) {
 
 	app.use(express.bodyParser({ uploadDir: config.uploadDir + '/tmp' }));
 
-	var roleByName = role.roleByName;
+	var roleByName = auth.roleByName;
 	app.use(function (req, res, next) {
 		res.locals.role = roleByName(req.session.roleName);
 		next();

@@ -18,8 +18,8 @@ require('./main/es');
 		if (arg.indexOf('--') === 0) {
 			//
 		} else {
-			l.config.path = arg;
-			l.config.expressDisabled = true;
+			config.path = arg;
+			config.expressDisabled = true;
 		}
 	}
 })();
