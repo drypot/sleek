@@ -24,15 +24,15 @@ l.msg = {
 
 l.rcMsg = [];
 
-l.rcMsg[l.rc.NOT_AUTHENTICATED] = '먼저 로그인 해주십시오.';
-l.rcMsg[l.rc.NOT_AUTHORIZED] = '로그인 후 사용하실 수 있습니다.';
-l.rcMsg[l.rc.INVALID_PASSWORD] = '비밀번호를 다시 확인해 주십시오.';
+l.rcMsg[rcs.NOT_AUTHENTICATED] = '먼저 로그인 해주십시오.';
+l.rcMsg[rcs.NOT_AUTHORIZED] = '로그인 후 사용하실 수 있습니다.';
+l.rcMsg[rcs.INVALID_PASSWORD] = '비밀번호를 다시 확인해 주십시오.';
 
-l.rcMsg[l.rc.INVALID_DATA] = '비정상적인 값이 입력되었습니다.';
-l.rcMsg[l.rc.INVALID_CATEGORY] = '정상적인 카테고리가 아닙니다.';
-l.rcMsg[l.rc.INVALID_THREAD] = '정상적인 글줄이 아닙니다.';
-l.rcMsg[l.rc.INVALID_POST] = '정상적인 글이 아닙니다.';
+l.rcMsg[rcs.INVALID_DATA] = '비정상적인 값이 입력되었습니다.';
+l.rcMsg[rcs.INVALID_CATEGORY] = '정상적인 카테고리가 아닙니다.';
+l.rcMsg[rcs.INVALID_THREAD] = '정상적인 글줄이 아닙니다.';
+l.rcMsg[rcs.INVALID_POST] = '정상적인 글이 아닙니다.';
 
-l.rcMsg[l.rc.DB_IO_ERR] = '데이터베이스와의 연결에 문제가 발생하였습니다.';
-l.rcMsg[l.rc.FILE_IO_ERR] = '파일 처리에 문제가 발생하였습니다.';
-l.rcMsg[l.rc.SEARCH_IO_ERR] = '검색 서버와의 연결에 문제가 발생하였습니다.';
+l.rcMsg[rcs.DB_IO_ERR] = '데이터베이스와의 연결에 문제가 발생하였습니다.';
+l.rcMsg[rcs.FILE_IO_ERR] = '파일 처리에 문제가 발생하였습니다.';
+l.rcMsg[rcs.SEARCH_IO_ERR] = '검색 서버와의 연결에 문제가 발생하였습니다.';

@@ -25,7 +25,7 @@ l.init(function () {
 				if (err) {
 					next(err, false);
 				} else {
-					next(null, res.body.rc === l.rc.SUCCESS)
+					next(null, res.body.rc === rcs.SUCCESS)
 				}
 			});
 		}
@@ -38,7 +38,7 @@ l.init(function () {
 		request.post('/api/session').send({ password: $password.val() }).endEx(function (err, res) {
 			if (err) {
 				l.systemError(err);
-			} else if (res.body.rc !== l.rc.SUCCESS) {
+			} else if (res.body.rc !== rcs.SUCCESS) {
 				l.form.addAlert($password, l.rcMsg[res.body.rc]);
 			} else {
 				if ($remember.prop('checked')) {
