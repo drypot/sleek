@@ -2,11 +2,11 @@ module.exports = function () {
 
 	app.get('/thread', function (req, res, next) {
 		req.authorized(function () {
-			prepareThreadListParam(req, function (categoryId, page, pageSize) {
-				prepareReadableCategory(res, categoryId, function (category) {
-					mongo.findThreadByCategory(categoryId, page, pageSize, function (err, thread) {
+			threadListParam(req, function (categoryId, page, pageSize) {
+				readableCategory(res, categoryId, function (category) {
+					mongo.findThreadsByCategory(categoryId, page, pageSize, function (err, threads) {
 						if (err) return next(err);
-						var categories = res.locals.role.category;
+						var categories = res.locals.role.categories;
 						var r = {
 							title: category.name,
 							category: {
@@ -17,7 +17,7 @@ module.exports = function () {
 							prevUrl: null,
 							nextUrl: null
 						};
-						iterThreadList(page, thread, function (thread) {
+						iterThreadList(page, threads, function (thread) {
 							if (category.id === 0 && !categories[thread.categoryId]) {
 								//
 							} else {
@@ -43,7 +43,7 @@ module.exports = function () {
 //								(thread.getUdate().getMillis() > authService.getLastVisit().getMillis() ? " tn" : "") +
 //								(thread.getId() == postContext.getParam().getThreadId() ? " tc" : "");
 
-						prevNext(page, pageSize, thread, function (prev, next) {
+						prevNext(page, pageSize, threads, function (prev, next) {
 							var u;
 							if (prev) {
 								u = new l.UrlMaker('/thread');
@@ -81,7 +81,7 @@ module.exports = function () {
 		req.authorized(function () {
 			var threadId = l.int(req.params, 'threadId', 0);
 			prepareThread(res, threadId, function (thread) {
-				prepareReadableCategory(res, thread.categoryId, function (category) {
+				readableCategory(res, thread.categoryId, function (category) {
 					var r = {
 						title: thread.title,
 						thread: {
@@ -93,7 +93,7 @@ module.exports = function () {
 						},
 						post: []
 					};
-					mongo.findPostByThread(threadId, function (err, post) {
+					mongo.findPostsByThread(threadId, function (err, post) {
 						if (err) {
 							next(err);
 						} else {
@@ -126,7 +126,7 @@ module.exports = function () {
 			if (categoryId == 0) {
 				categoryId = res.locals.role.writableCategory[0].id;
 			}
-			prepareWritableCategory(res, categoryId, function (category) {
+			categoriesForNew(res, categoryId, function (category) {
 				var r = {
 					title: 'New',
 					category: {

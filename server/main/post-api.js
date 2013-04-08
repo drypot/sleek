@@ -1,29 +1,28 @@
-var _ = require('underscore');
 var l = require('./l');
-
 var rcs = require('./rcs');
-require('./auth');
-require('./mongo');
-require('./es');
-require('./upload');
-require('./express');
 
-module.exports = function () {
+module.exports = function (opt) {
 
-	// get thread list
+	var mongo = opt.mongo;
+	var es = opt.es;
+	var upload = opt.upload;
+	var app = opt.app;
 
 	app.get('/api/thread', function (req, res, next) {
 		req.authorized(function () {
-			prepareThreadListParam(req, function (categoryId, page, pageSize) {
-				prepareReadableCategory(res, categoryId, function (category) {
-					mongo.findThreadByCategory(categoryId, page, pageSize, function (err, thread) {
+			threadListParam(req, function (categoryId, page, pageSize) {
+				readableCategory(res, categoryId, function (category) {
+					mongo.findThreadsByCategory(categoryId, page, pageSize, function (err, threads) {
 						if (err) return next(err);
 						var r = {
 							rc: rcs.SUCCESS,
-							thread: []
+							threads: []
 						};
-						iterThreadList(page, thread, function (thread) {
-							if (category.id === 0 && !res.locals.role.category[thread.categoryId]) {
+						var categories = res.locals.role.categories;
+						var len = threads.length;
+						for (var i = 0; i < len; i++) {
+							var thread = threads[i];
+							if (category.id === 0 && !categories[thread.categoryId]) {
 								//
 							} else {
 								r.thread.push({
@@ -38,7 +37,7 @@ module.exports = function () {
 									title: thread.title
 								});
 							}
-						});
+						}
 						res.json(r);
 					});
 				});
@@ -46,18 +45,18 @@ module.exports = function () {
 		});
 	});
 
-	function prepareThreadListParam(req, next) {
+	function threadListParam(req, next) {
 		var categoryId = l.int(req.query, 'c', 0);
 		var page = l.int(req.query, 'p', 1);
 		var pageSize = l.int(req.query, 'ps', 32, 1, 128);
-		if (page === 0) {
+		if (page < 1) {
 			page = 1;
 		}
 		next(categoryId, page, pageSize);
 	}
 
-	function prepareReadableCategory(res, categoryId, next) {
-		var category = res.locals.role.category[categoryId];
+	function readableCategory(res, categoryId, next) {
+		var category = res.locals.role.categories[categoryId];
 		if (!category) {
 			res.sendRc(rcs.INVALID_CATEGORY);
 		} else {
@@ -69,17 +68,6 @@ module.exports = function () {
 		}
 	}
 
-	function iterThreadList(page, thread, func) {
-		var len = thread.length;
-		for (var i = 0; i < len; i++) {
-			if (page > 0) {
-				func(thread[i]);
-			} else {
-				func(thread[len - i - 1]);
-			}
-		}
-	}
-
 
 	// get thread
 
@@ -87,7 +75,7 @@ module.exports = function () {
 		req.authorized(function () {
 			var threadId = l.int(req.params, 'threadId', 0);
 			prepareThread(res, threadId, function (thread) {
-				prepareReadableCategory(res, thread.categoryId, function (category) {
+				readableCategory(res, thread.categoryId, function (category) {
 					var r = {
 						rc: rcs.SUCCESS,
 						thread: {
@@ -99,7 +87,7 @@ module.exports = function () {
 						},
 						post: []
 					};
-					mongo.findPostByThread(threadId, function (err, post) {
+					mongo.findPostsByThread(threadId, function (err, post) {
 						if (err) return next(err);
 						iterPostList(category, post, function (post) {
 							r.post.push({
@@ -151,8 +139,8 @@ module.exports = function () {
 		req.authorized(function () {
 			var threadId = l.int(req.params, 'threadId', 0);
 			var postId = l.int(req.params, 'postId', 0);
-			prepareThreadAndPost(res, threadId, postId, function (thread, post, head) {
-				prepareReadableCategory(res, thread.categoryId, function (category) {
+			threadAndPost(res, threadId, postId, function (thread, post, head) {
+				readableCategory(res, thread.categoryId, function (category) {
 					var r = {
 						rc: rcs.SUCCESS,
 						thread: {
@@ -189,7 +177,7 @@ module.exports = function () {
 	app.post('/api/thread', function (req, res, next) {
 		req.authorized(function () {
 			var form = getForm(req);
-			prepareWritableCategory(res, form.categoryId, function (category) {
+			categoriesForNew(res, form.categoryId, function (category) {
 				checkForm(res, form, true, function () {
 					insertThread(res, form, function (thread) {
 						insertPost(req, res, form, thread, function (post) {
@@ -210,7 +198,7 @@ module.exports = function () {
 			var form = getForm(req);
 			var threadId = l.int(req.params, 'threadId', 0);
 			prepareThread(res, threadId, function (thread){
-				prepareWritableCategory(res, thread.categoryId, function (category) {
+				categoriesForNew(res, thread.categoryId, function (category) {
 					checkForm(res, form, false, function () {
 						insertPost(req, res, form, thread, function (post) {
 							mongo.updateThreadLength(thread, form.now);
@@ -229,10 +217,10 @@ module.exports = function () {
 			var form = getForm(req);
 			var threadId = l.int(req.params, 'threadId', 0);
 			var postId = l.int(req.params, 'postId', 0);
-			prepareThreadAndPost(res, threadId, postId, function (thread, post, head) {
-				prepareWritableCategory(res, thread.categoryId, function (category) {
+			threadAndPost(res, threadId, postId, function (thread, post, head) {
+				categoriesForNew(res, thread.categoryId, function (category) {
 					checkPostOwnership(req, res, category, postId, function () {
-						prepareWritableCategory(res, head ? form.categoryId : undefined, function (newCategory) {
+						categoriesForNew(res, head ? form.categoryId : undefined, function (newCategory) {
 							checkForm(res, form, head, function () {
 								updateThread(res, form, thread, head, function () {
 									updatePost(res, form, thread, post, category.editable, function () {
@@ -263,11 +251,11 @@ module.exports = function () {
 		return r;
 	}
 
-	function prepareWritableCategory(res, categoryId, next) {
+	function categoriesForNew(res, categoryId, next) {
 		if (_.isUndefined(categoryId)) {
 			next(null); // for form.categoryId
 		} else {
-			var category = res.locals.role.category[categoryId];
+			var category = res.locals.role.categories[categoryId];
 			if (!category) {
 				res.sendRc(rcs.INVALID_CATEGORY);
 			} else {
@@ -331,7 +319,7 @@ module.exports = function () {
 		});
 	}
 
-	function prepareThreadAndPost(res, threadId, postId, next) {
+	function threadAndPost(res, threadId, postId, next) {
 		prepareThread(res, threadId, function (thread) {
 			mongo.findPostById(postId, function (err, post) {
 				if (err || !post) {

@@ -31,7 +31,7 @@ l.init(function () {
 								rc: rcs.SUCCESS,
 								result: []
 							};
-							var categories = res.locals.role.category;
+							var categories = res.locals.role.categories;
 							_.each(sres.body.hits.hits, function (hit) {
 								var s = hit._source;
 								var c = categories[s.categoryId];
