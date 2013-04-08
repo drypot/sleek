@@ -12,8 +12,8 @@ module.exports = function (opt) {
 			name: _role.name,
 			hash: _role.hash,
 			categories: {},
-			readableCategories : [],
-			writableCategories : []
+			categoriesForMenu : [],
+			categoriesForNew : []
 		};
 		config.categories.forEach(function (_category) {
 			var category = {
@@ -26,10 +26,10 @@ module.exports = function (opt) {
 			};
 			if (category.readable) {
 				role.categories[category.id] = category;
-				role.readableCategories.push(category);
+				role.categoriesForMenu.push(category);
 			}
 			if (category.writable) {
-				role.writableCategories.push(category);
+				role.categoriesForNew.push(category);
 			}
 		});
 		roles[role.name] = role;

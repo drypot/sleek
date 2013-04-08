@@ -12,7 +12,7 @@ module.exports = function (opt) {
 				rc: rcs.SUCCESS,
 				role: {
 					name: res.locals.role.name,
-					readableCategories: res.locals.role.readableCategories
+					categoriesForMenu: res.locals.role.categoriesForMenu
 				},
 				uploadUrl: config.uploadUrl
 			});

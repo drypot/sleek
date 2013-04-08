@@ -106,7 +106,7 @@ describe('session info', function () {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.role.name.should.equal('user');
-			should.exist(res.body.role.readableCategories);
+			should.exist(res.body.role.categoriesForMenu);
 			next();
 		});
 	});
@@ -237,7 +237,7 @@ describe('accessing /api/test/auth/admin', function () {
 	});
 });
 
-describe('role.readableCategories', function () {
+describe('role.categoriesForMenu', function () {
 	var categories;
 	it('given user session', function (next) {
 		request.post(url + '/api/session').send({ password: USER_PASS }).end(function (err, res) {
@@ -247,9 +247,9 @@ describe('role.readableCategories', function () {
 			next();
 		});
 	});
-	it('given readableCategories', function (next) {
+	it('given categoriesForMenu', function (next) {
 		request.get(url + '/api/session', function (err, res) {
-			categories = res.body.role.readableCategories;
+			categories = res.body.role.categoriesForMenu;
 			next();
 		});
 	});
@@ -279,9 +279,9 @@ describe('role.readableCategories', function () {
 			next();
 		});
 	});
-	it('given readableCategories', function (next) {
+	it('given categoriesForMenu', function (next) {
 		request.get(url + '/api/session', function (err, res) {
-			categories = res.body.role.readableCategories;
+			categories = res.body.role.categoriesForMenu;
 			next();
 		});
 	});
