@@ -12,37 +12,34 @@ module.exports = function () {
 
 	// get thread list
 
-	l.e.get('/api/thread', function (req, res, next) {
+	app.get('/api/thread', function (req, res, next) {
 		req.authorized(function () {
 			prepareThreadListParam(req, function (categoryId, page, pageSize) {
 				prepareReadableCategory(res, categoryId, function (category) {
-					l.mongo.findThreadByCategory(categoryId, page, pageSize, function (err, thread) {
-						if (err) {
-							next(err);
-						} else {
-							var r = {
-								rc: rcs.SUCCESS,
-								thread: []
-							};
-							iterThreadList(page, thread, function (thread) {
-								if (category.id === 0 && !res.locals.role.category[thread.categoryId]) {
-									//
-								} else {
-									r.thread.push({
-										id: thread._id,
-										category: {
-											id: thread.categoryId
-										},
-										hit: thread.hit,
-										length: thread.length,
-										updated: thread.updated.getTime(),
-										writer: thread.writer,
-										title: thread.title
-									});
-								}
-							});
-							res.json(r);
-						}
+					mongo.findThreadByCategory(categoryId, page, pageSize, function (err, thread) {
+						if (err) return next(err);
+						var r = {
+							rc: rcs.SUCCESS,
+							thread: []
+						};
+						iterThreadList(page, thread, function (thread) {
+							if (category.id === 0 && !res.locals.role.category[thread.categoryId]) {
+								//
+							} else {
+								r.thread.push({
+									id: thread._id,
+									category: {
+										id: thread.categoryId
+									},
+									hit: thread.hit,
+									length: thread.length,
+									updated: thread.updated.getTime(),
+									writer: thread.writer,
+									title: thread.title
+								});
+							}
+						});
+						res.json(r);
 					});
 				});
 			});
@@ -83,89 +80,10 @@ module.exports = function () {
 		}
 	}
 
-	l.e.get('/thread', function (req, res, next) {
-		req.authorized(function () {
-			prepareThreadListParam(req, function (categoryId, page, pageSize) {
-				prepareReadableCategory(res, categoryId, function (category) {
-					l.mongo.findThreadByCategory(categoryId, page, pageSize, function (err, thread) {
-						if (err) {
-							next(err);
-						} else {
-							var categories = res.locals.role.category;
-							var r = {
-								title: category.name,
-								category: {
-									id: category.id,
-									name: category.name
-								},
-								thread: [],
-								prevUrl: null,
-								nextUrl: null
-							};
-							iterThreadList(page, thread, function (thread) {
-								if (category.id === 0 && !categories[thread.categoryId]) {
-									//
-								} else {
-									r.thread.push({
-										id: thread._id,
-										category: {
-											id: thread.categoryId,
-											name: categories[thread.categoryId].name
-										},
-										hit: thread.hit,
-										//length: thread.length,
-										//updated: thread.updated.getTime(),
-										writer: thread.writer,
-										title: thread.title,
-
-										reply: thread.length - 1,
-										updatedStr: l.formatDateTime(thread.updated)
-									});
-								}
-							});
-							// TODO: 최근글 하일라이트
-//							CharSequence titleCss = "thread" +
-//								(thread.getUdate().getMillis() > authService.getLastVisit().getMillis() ? " tn" : "") +
-//								(thread.getId() == postContext.getParam().getThreadId() ? " tc" : "");
-
-							prevNext(page, pageSize, thread, function (prev, next) {
-								var u;
-								if (prev) {
-									u = new l.UrlMaker('/thread');
-									u.addIfNot('c', categoryId, 0);
-									u.addIfNot('p', prev, 1);
-									r.prevUrl = u.toString();
-								}
-								if (next) {
-									u = new l.UrlMaker('/thread');
-									u.addIfNot('c', categoryId, 0);
-									u.addIfNot('p', next, 1);
-									r.nextUrl = u.toString();
-								}
-							})
-							res.render('thread', r);
-						}
-					});
-				});
-			});
-		});
-	});
-
-	function prevNext(page, pageSize, array, func) {
-		var prev, next;
-		if (page > 0) {
-			prev = page === 1 ? null : page - 1;
-			next = array.length !== pageSize ? null : page + 1;
-		} else {
-			prev = array.length !== pageSize ? null : page - 1;
-			next = page === -1 ? null : page + 1;
-		}
-		func(prev, next);
-	}
 
 	// get thread
 
-	l.e.get('/api/thread/:threadId([0-9]+)', function (req, res) {
+	app.get('/api/thread/:threadId([0-9]+)', function (req, res) {
 		req.authorized(function () {
 			var threadId = l.int(req.params, 'threadId', 0);
 			prepareThread(res, threadId, function (thread) {
@@ -181,21 +99,18 @@ module.exports = function () {
 						},
 						post: []
 					};
-					l.mongo.findPostByThread(threadId, function (err, post) {
-						if (err) {
-							next(err);
-						} else {
-							iterPostList(category, post, function (post) {
-								r.post.push({
-									id: post._id,
-									writer: post.writer,
-									created: post.created,
-									text: post.text,
-									upload: uploadUrl(post)
-								});
+					mongo.findPostByThread(threadId, function (err, post) {
+						if (err) return next(err);
+						iterPostList(category, post, function (post) {
+							r.post.push({
+								id: post._id,
+								writer: post.writer,
+								created: post.created,
+								text: post.text,
+								upload: uploadUrl(post)
 							});
-							res.json(r);
-						}
+						});
+						res.json(r);
 					});
 				});
 			});
@@ -228,52 +143,11 @@ module.exports = function () {
 		}
 	}
 
-	l.e.get('/thread/:threadId([0-9]+)', function (req, res, next) {
-		req.authorized(function () {
-			var threadId = l.int(req.params, 'threadId', 0);
-			prepareThread(res, threadId, function (thread) {
-				prepareReadableCategory(res, thread.categoryId, function (category) {
-					var r = {
-						title: thread.title,
-						thread: {
-							id: thread._id
-						},
-						category: {
-							id: category.id,
-							name: category.name
-						},
-						post: []
-					};
-					l.mongo.findPostByThread(threadId, function (err, post) {
-						if (err) {
-							next(err);
-						} else {
-							iterPostList(category, post, function (post) {
-								r.post.push({
-									id: post._id,
-									writer: post.writer,
-									//created: post.created,
-									text: post.text,
-									upload: uploadUrl(post),
 
-									createdStr: l.formatDateTime(new Date(post.created)),
-									editable: category.editable || _.include(req.session.post, post.id),
-								});
-
-
-							});
-							res.render('thread-num', r);
-						}
-					});
-				});
-			});
-
-		});
-	});
 
 	// get post
 
-	l.e.get('/api/thread/:threadId([0-9]+)/:postId([0-9]+)', function (req, res, next) {
+	app.get('/api/thread/:threadId([0-9]+)/:postId([0-9]+)', function (req, res, next) {
 		req.authorized(function () {
 			var threadId = l.int(req.params, 'threadId', 0);
 			var postId = l.int(req.params, 'postId', 0);
@@ -312,7 +186,7 @@ module.exports = function () {
 
 	// new thread
 
-	l.e.post('/api/thread', function (req, res, next) {
+	app.post('/api/thread', function (req, res, next) {
 		req.authorized(function () {
 			var form = getForm(req);
 			prepareWritableCategory(res, form.categoryId, function (category) {
@@ -327,28 +201,11 @@ module.exports = function () {
 		});
 	});
 
-	l.e.get('/thread/new', function (req, res, next) {
-		req.authorized(function () {
-			var categoryId = l.int(req.query, 'c', 0);
-			if (categoryId == 0) {
-				categoryId = res.locals.role.writableCategory[0].id;
-			}
-			prepareWritableCategory(res, categoryId, function (category) {
-				var r = {
-					title: 'New',
-					category: {
-						id: category.id,
-						name: category.name
-					}
-				};
-				res.render('thread-new', r);
-			});
-		});
-	});
+
 
 	// new reply
 
-	l.e.post('/api/thread/:threadId([0-9]+)', function (req, res, next) {
+	app.post('/api/thread/:threadId([0-9]+)', function (req, res, next) {
 		req.authorized(function () {
 			var form = getForm(req);
 			var threadId = l.int(req.params, 'threadId', 0);
@@ -356,7 +213,7 @@ module.exports = function () {
 				prepareWritableCategory(res, thread.categoryId, function (category) {
 					checkForm(res, form, false, function () {
 						insertPost(req, res, form, thread, function (post) {
-							l.mongo.updateThreadLength(thread, form.now);
+							mongo.updateThreadLength(thread, form.now);
 							res.json({ rc: rcs.SUCCESS, threadId: thread._id, postId: post._id });
 						});
 					});
@@ -367,7 +224,7 @@ module.exports = function () {
 
 	// update post
 
-	l.e.put('/api/thread/:threadId([0-9]+)/:postId([0-9]+)', function (req, res, next) {
+	app.put('/api/thread/:threadId([0-9]+)/:postId([0-9]+)', function (req, res, next) {
 		req.authorized(function () {
 			var form = getForm(req);
 			var threadId = l.int(req.params, 'threadId', 0);
@@ -465,7 +322,7 @@ module.exports = function () {
 	}
 
 	function prepareThread(res, threadId, next) {
-		l.mongo.findThreadById(threadId, function (err, thread) {
+		mongo.findThreadById(threadId, function (err, thread) {
 			if (err || !thread) {
 				res.sendRc(rcs.INVALID_THREAD);
 			} else {
@@ -476,7 +333,7 @@ module.exports = function () {
 
 	function prepareThreadAndPost(res, threadId, postId, next) {
 		prepareThread(res, threadId, function (thread) {
-			l.mongo.findPostById(postId, function (err, post) {
+			mongo.findPostById(postId, function (err, post) {
 				if (err || !post) {
 					res.sendRc(rcs.INVALID_POST);
 				} else {
@@ -488,12 +345,12 @@ module.exports = function () {
 
 	function insertThread(res, form, next) {
 		var thread = {
-			_id : l.mongo.getNewThreadId(),
+			_id : mongo.getNewThreadId(),
 			categoryId: form.categoryId,
 			hit: 0, length: 1, created: form.now, updated: form.now,
 			writer : form.writer , title: form.title
 		};
-		l.mongo.insertThread(thread, function (err) {
+		mongo.insertThread(thread, function (err) {
 			if (err) {
 				res.sendRc(rcs.DB_IO_ERR);
 			} else {
@@ -504,7 +361,7 @@ module.exports = function () {
 
 	function insertPost(req, res, form, thread, next) {
 		var post = {
-			_id: l.mongo.getNewPostId(),
+			_id: mongo.getNewPostId(),
 			threadId: thread._id,
 			created: form.now, visible: true,
 			writer : form.writer , text: form.text
@@ -514,7 +371,7 @@ module.exports = function () {
 			if (err) {
 				res.sendRc(rcs.FILE_IO_ERR);
 			} else {
-				l.mongo.insertPost(post, function (err) {
+				mongo.insertPost(post, function (err) {
 					if (err) {
 						res.sendRc(rcs.DB_IO_ERR);
 					} else {
@@ -538,7 +395,7 @@ module.exports = function () {
 			thread.categoryId = form.categoryId;
 			thread.title = form.title;
 			thread.writer  = form.writer ;
-			l.mongo.updateThread(thread, function (err) {
+			mongo.updateThread(thread, function (err) {
 				if (err) {
 					res.sendRc(rcs.DB_IO_ERR);
 				} else {
@@ -566,7 +423,7 @@ module.exports = function () {
 					if (err) {
 						res.sendRc(rcs.FILE_IO_ERR);
 					} else {
-						l.mongo.updatePost(post);
+						mongo.updatePost(post);
 						l.es.updatePost(thread, post, function (err, res) {
 							if (err) {
 								res.sendRc(rcs.SEARCH_IO_ERR);
