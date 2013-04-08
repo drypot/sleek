@@ -105,21 +105,21 @@ describe('filled post collection', function () {
 		});
 	});
 	it('can find posts by thread id', function (next) {
-		mongo.findPostByThread(1000, function (err, post) {
+		mongo.findPostsByThread(1000, function (err, post) {
 			should.not.exist(err);
 			post.should.length(3);
 			next();
 		})
 	});
 	it('can find posts by thread id, 2', function (next) {
-		mongo.findPostByThread(1010, function (err, post) {
+		mongo.findPostsByThread(1010, function (err, post) {
 			should.not.exist(err);
 			post.should.length(2);
 			next();
 		})
 	});
 	it('can find posts as sorted', function (next) {
-		mongo.findPostByThread(1000, function (err, post) {
+		mongo.findPostsByThread(1000, function (err, post) {
 			should.not.exist(err);
 			post[0].created.should.below(post[1].created);
 			post[1].created.should.below(post[2].created);
@@ -247,9 +247,9 @@ describe('filled thread collection', function () {
 			next();
 		});
 	});
-	describe('findThreadByCategory', function () {
+	describe('findThreadsByCategory', function () {
 		it('should success when categoryId is 0', function (next) {
-			mongo.findThreadByCategory(0, 1, 99, function (err, thread) {
+			mongo.findThreadsByCategory(0, 1, 99, function (err, thread) {
 				should.not.exist(err);
 				thread.should.length(10);
 				thread[0].title.should.equal('title10');
@@ -260,14 +260,14 @@ describe('filled thread collection', function () {
 			})
 		});
 		it('should success when categoryId is 101', function (next) {
-			mongo.findThreadByCategory(101, 1, 99, function (err, thread) {
+			mongo.findThreadsByCategory(101, 1, 99, function (err, thread) {
 				should.not.exist(err);
 				thread.should.length(4);
 				next();
 			});
 		});
 		it('should success when page is 2', function (next) {
-			mongo.findThreadByCategory(0, 2, 3, function (err, thread) {
+			mongo.findThreadsByCategory(0, 2, 3, function (err, thread) {
 				should.not.exist(err);
 				thread.should.length(3);
 				thread[0].title.should.equal('title7');
@@ -277,7 +277,7 @@ describe('filled thread collection', function () {
 			})
 		});
 		it('should success when page is -1', function (next) {
-			mongo.findThreadByCategory(0, -1, 3, function (err, thread) {
+			mongo.findThreadsByCategory(0, -1, 3, function (err, thread) {
 				should.not.exist(err);
 				thread.should.length(3);
 				thread[0].title.should.equal('title1');

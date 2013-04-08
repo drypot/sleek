@@ -69,7 +69,7 @@ module.exports = function (opt, next) {
 				return threadCol.findOne({ _id: id }, next);
 			};
 
-			exports.findThreadByCategory = function (categoryId, page, pageSize, next) {
+			exports.findThreadsByCategory = function (categoryId, page, pageSize, next) {
 				var findOp = {};
 				var dir = page > 0 ? 1 : -1;
 				var skip = (Math.abs(page) - 1) * pageSize;
@@ -114,7 +114,7 @@ module.exports = function (opt, next) {
 				return postCol.findOne({ _id: id }, next);
 			};
 
-			exports.findPostByThread = function (threadId, next) {
+			exports.findPostsByThread = function (threadId, next) {
 				postCol.find({ threadId: threadId }).sort({ created: 1 }).toArray(next);
 			};
 		}
