@@ -11,55 +11,34 @@ var l = exports;
 		return Object.prototype.toString.call(obj) === '[object Object]';
 	};
 
-	l.value = function (obj, prop, def) {
-		if (!obj) {
-			return def;
-		} else if (!(prop in obj)) {
-			return def;
-		} else {
-			return obj[prop];
-		}
-	};
-
-	l.int = function (obj, prop, def, min, max) {
-		var i;
-		if (!obj) {
-			return def;
-		} else if (!(prop in obj)) {
-			return def;
-		} else {
-			i = parseInt(obj[prop]);
-			if (isNaN(i)) {
-				return def;
-			} else if (min === undefined) {
-				return i;
-			} else {
-				return i > max ? max : i < min ? min : i;
-			}
-		}
-	};
-
-	l.string = function (obj, prop, def) {
-		if (!obj) {
-			return def;
-		} else if (!(prop in obj)) {
-			return def;
-		} else {
-			return String(obj[prop]).trim();
-		}
-	};
-
-	l.bool = function (obj, prop, def) {
-		var v;
-		if (!obj) {
-			return def;
-		} else if (!(prop in obj)) {
-			return def;
-		} else {
-			v = obj[prop];
-			return v === true || v === 'true';
-		}
-	};
+//	l.value = function (obj, prop, def) {
+//		return obj && obj[prop] || def;
+//	};
+//
+//	l.int = function (obj, prop, def, min, max) {
+//		var i = parseInt(obj && obj[prop]) || def;
+//		if (min === undefined) {
+//			return i;
+//		} else {
+//			return i > max ? max : i < min ? min : i;
+//		}
+//	};
+//
+//	l.string = function (obj, prop, def) {
+//		return obj && obj[prop] && String(obj[prop]).trim() || def;
+//	};
+//
+//	l.bool = function (obj, prop, def) {
+//		var v;
+//		if (!obj) {
+//			return def;
+//		} else if (!(prop in obj)) {
+//			return def;
+//		} else {
+//			v = obj[prop];
+//			return v === true || v === 'true';
+//		}
+//	};
 
 	l.merge = function (tar, src, props) {
 		props.forEach(function (p) {

@@ -1,76 +1,72 @@
-var _ = require('underscore');
 var should = require('should');
 var l = require('../main/l');
 
-describe('property', function () {
+//describe('value', function () {
+//	it('should success', function () {
+//		l.value({x: 'def'}, 'x', 'abc').should.equal('def');
+//		l.value({y: 'def'}, 'x', 'abc').should.equal('abc');
+//		l.value(null, 'x', 'abc').should.equal('abc');
+//	});
+//});
+//
+//describe('int', function () {
+//	it('should success', function () {
+//		l.int({x: '10'}, 'x', 30).should.equal(10);
+//		l.int({x: 10}, 'x', 30).should.equal(10);
+//		l.int({x: 'def'}, 'x', 30).should.equal(30);
+//		l.int({y: '10'}, 'x', 30).should.equal(30);
+//		l.int(null, 'x', 30).should.equal(30);
+//	});
+//
+//	it('when min, max given, should success', function () {
+//		l.int({x: '10'}, 'x', 30, 0, 50).should.equal(10);
+//		l.int({x: 10}, 'x', 30, 0, 50).should.equal(10);
+//		l.int({x: 'def'}, 'x', 30, 0, 50).should.equal(30);
+//		l.int({y: '10'}, 'x', 30, 0, 50).should.equal(30);
+//		l.int(null, 'x', 30, 0, 50).should.equal(30);
+//		l.int({x: 60}, 'x', 30, 0, 50).should.equal(50);
+//		l.int({x: -60}, 'x', 30, 0, 50).should.equal(0);
+//	});
+//});
+//
+//describe('string', function () {
+//	it('should success', function () {
+//		l.string({x: 'def'}, 'x', 'abc').should.equal('def');
+//		l.string({x: 10}, 'x', 'abc').should.equal('10');
+//		l.string({x: ' def '}, 'x', 'abc').should.equal('def');
+//		l.string({y: 'def'}, 'x', 'abc').should.equal('abc');
+//		l.string(null, 'x', 'abc').should.equal('abc');
+//	});
+//});
+//
+//describe('bool', function () {
+//	it('should success', function () {
+//		l.bool({x: 'true'}, 'x', true).should.equal(true);
+//		l.bool({x: true}, 'x', true).should.equal(true);
+//		l.bool({x: 'false'}, 'x', true).should.equal(false);
+//		l.bool({x: false}, 'x', true).should.equal(false);
+//		l.bool({y: true}, 'x', true).should.equal(true);
+//		l.bool({y: true}, 'x', false).should.equal(false);
+//		l.bool({y: false}, 'x', true).should.equal(true);
+//		l.bool(null, 'x', true).should.equal(true);
+//		l.bool(null, 'x', false).should.equal(false);
+//	});
+//});
 
-	describe('def', function () {
-		it('should success', function () {
-			l.value({x: 'def'}, 'x', 'abc').should.equal('def');
-			l.value({y: 'def'}, 'x', 'abc').should.equal('abc');
-			l.value(null, 'x', 'abc').should.equal('abc');
-		});
-	});
-
-	describe('defInt', function () {
-		it('should success', function () {
-			l.int({x: '10'}, 'x', 30).should.equal(10);
-			l.int({x: 10}, 'x', 30).should.equal(10);
-			l.int({x: 'def'}, 'x', 30).should.equal(30);
-			l.int({y: '10'}, 'x', 30).should.equal(30);
-			l.int(null, 'x', 30).should.equal(30);
-		});
-
-		it('when min, max given, should success', function () {
-			l.int({x: '10'}, 'x', 30, 0, 50).should.equal(10);
-			l.int({x: 10}, 'x', 30, 0, 50).should.equal(10);
-			l.int({x: 'def'}, 'x', 30, 0, 50).should.equal(30);
-			l.int({y: '10'}, 'x', 30, 0, 50).should.equal(30);
-			l.int(null, 'x', 30, 0, 50).should.equal(30);
-			l.int({x: 60}, 'x', 30, 0, 50).should.equal(50);
-			l.int({x: -60}, 'x', 30, 0, 50).should.equal(0);
-		});
-	});
-
-	describe('defString', function () {
-		it('should success', function () {
-			l.string({x: 'def'}, 'x', 'abc').should.equal('def');
-			l.string({x: 10}, 'x', 'abc').should.equal('10');
-			l.string({x: ' def '}, 'x', 'abc').should.equal('def');
-			l.string({y: 'def'}, 'x', 'abc').should.equal('abc');
-			l.string(null, 'x', 'abc').should.equal('abc');
-		});
-	});
-
-	describe('defBool', function () {
-		it('should success', function () {
-			l.bool({x: 'true'}, 'x', true).should.equal(true);
-			l.bool({x: true}, 'x', true).should.equal(true);
-			l.bool({x: 'false'}, 'x', true).should.equal(false);
-			l.bool({x: false}, 'x', true).should.equal(false);
-			l.bool({y: true}, 'x', true).should.equal(true);
-			l.bool({y: true}, 'x', false).should.equal(false);
-			l.bool({y: false}, 'x', true).should.equal(true);
-			l.bool(null, 'x', true).should.equal(true);
-			l.bool(null, 'x', false).should.equal(false);
-		});
-	});
-
-	describe('mergeProperty', function () {
-		var src = {
-			f1 : 1,
-			f2 : 2,
-			f3 : undefined,
-			f4 : 4
-		}
-		it('should success', function () {
-			var tar = l.merge({}, src, ['f1', 'f2', 'f3']);
-			tar.should.ok;
-			tar.should.have.keys(['f1', 'f2', 'f3']);
-			tar.f2.should.equal(2);
-			should.equal(undefined, tar.f3);
-		})
-	});
+describe('mergeProperty', function () {
+	var src = {
+		f1 : 1,
+		f2 : 2,
+		f3 : undefined,
+		f4 : 4
+	}
+	it('should success', function () {
+		var tar = l.merge({}, src, ['f1', 'f2', 'f3']);
+		tar.should.ok;
+		tar.should.have.keys(['f1', 'f2', 'f3']);
+		tar.f2.should.equal(2);
+		should.equal(undefined, tar.f3);
+	})
 });
 
 describe('UrlMaker', function () {

@@ -1,4 +1,3 @@
-var l = require('./l');
 var rcs = require('./rcs');
 
 module.exports = function (opt) {
@@ -46,8 +45,9 @@ module.exports = function (opt) {
 	});
 
 	function threadListParam(req, next) {
-		var categoryId = l.int(req.query, 'c', 0);
-		var page = l.int(req.query, 'p', 1);
+		var query = req.query;
+		var categoryId = parseInt(query.c) || 0;
+		var page = parseInt(query.p) || 0;
 		var pageSize = l.int(req.query, 'ps', 32, 1, 128);
 		if (page < 1) {
 			page = 1;
@@ -67,9 +67,6 @@ module.exports = function (opt) {
 			}
 		}
 	}
-
-
-	// get thread
 
 	app.get('/api/thread/:threadId([0-9]+)', function (req, res) {
 		req.authorized(function () {

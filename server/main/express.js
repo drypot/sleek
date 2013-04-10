@@ -55,6 +55,27 @@ module.exports = function (opt) {
 
 	app.use(express.errorHandler());
 
+	should.not.exist(app.request.authorized);
+	app.request.authorized = function (roleName, next) {
+		var req = this;
+		var res = this.res;
+		var role = res.locals.role;
+		if (!role) {
+			res.sendRc(rcs.NOT_AUTHENTICATED);
+		} else {
+			if (typeof roleName === 'string') {
+				if (role.name !== roleName) {
+					res.sendRc(rcs.NOT_AUTHORIZED);
+				} else {
+					next();
+				}
+			} else {
+				next = roleName;
+				next();
+			}
+		}
+	};
+
 	var apiExp = /^\/api\//;
 
 	should.not.exist(app.response.sendRc);
@@ -73,27 +94,6 @@ module.exports = function (opt) {
 				res.render('error', {
 					msg: rcs.msgs[rc]
 				});
-			}
-		}
-	};
-
-	should.not.exist(app.request.authorized);
-	app.request.authorized = function (roleName, next) {
-		var req = this;
-		var res = this.res;
-		var role = res.locals.role;
-		if (!role) {
-			res.sendRc(rcs.NOT_AUTHENTICATED);
-		} else {
-			if (typeof roleName === 'string') {
-				if (role.name !== roleName) {
-					res.sendRc(rcs.NOT_AUTHORIZED);
-				} else {
-					next();
-				}
-			} else {
-				next = roleName;
-				next();
 			}
 		}
 	};
