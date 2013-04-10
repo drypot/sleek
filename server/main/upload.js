@@ -54,112 +54,70 @@ module.exports = function (opt) {
 
 	// Post File
 
-	exports.postUploadDir = function (postId) {
+	exports.postFileDir = function (postId) {
 		return publicDir + '/post/' + Math.floor(postId / 10000) + '/' + postId
 	};
 
-	exports.postUploadUrl = function (postId, upload) {
+	exports.postFileUrl = function (postId, upload) {
 		return config.uploadUrl + '/post/' + Math.floor(postId / 10000) + '/' + postId + '/' + encodeURIComponent(upload);
 	}
 
-	exports.postUploadExists = function (postId, basename) {
-		return fs.existsSync(exports.postUploadDir(postId) + '/' + basename);
+	exports.postFileExists = function (postId, basename) {
+		return fs.existsSync(exports.postFileDir(postId) + '/' + basename);
 	};
 
-	exports.savePostUploadTmp = function (post, tmpFiles, next) {
+	exports.savePostFiles = function (postId, tmpFiles, next) {
 		if (!tmpFiles || tmpFiles.length == 0) {
-			next();
-		} else {
-			saveUploadTmp([publicDir, 'post', Math.floor(post._id / 10000), post._id], tmpFiles, function (err, saved) {
-				if (err) {
-					next(err);
-				} else {
-					if (saved) {
-						if (post.upload) {
-							saved.forEach(function (saved) {
-								if (post.upload.indexOf(saved) == -1) {
-									post.upload.push(saved);
-								}
-							});
-						} else {
-							post.upload = saved;
-						}
-					}
-					next();
-				}
-			});
+			return next();
 		}
+		saveTmpFiles([publicDir, 'post', Math.floor(postId / 10000), postId], tmpFiles, next);
 	};
 
-	function saveUploadTmp(subs, tmp, next /* (err, saved) */) {
-		fs2.mkdirs(subs, function (err, tar) {
-			if (err) {
-				next(err);
-			} else {
-				var saved = [];
-				async.forEachSeries(
-					Object.keys(tmp),
-					function (name, next) {
-						var safeName = fs2.safeFilename(path.basename(name));
-						var tmpName = path.basename(tmp[name]);
-						fs.rename(tmpDir + '/' + tmpName, tar + '/' + safeName, function (err) {
-							if (err && err.code !== 'ENOENT') {
-								next(err);
-							} else {
-								saved.push(safeName);
-								next();
-							}
-						});
-					},
-					function (err) {
-						next(err, saved);
-					}
-				);
+	function saveTmpFiles(subs, tmpFiles, next) {
+		try {
+			var tarDir = fs2.mkdirs(subs);
+			var saved = [];
+			for (var orgName in tmpFiles) {
+				var safeName = fs2.safeFilename(path.basename(orgName));
+				var tmpName = path.basename(tmpFiles[orgName]);
+				try {
+					fs.renameSync(tmpDir + '/' + tmpName, tarDir + '/' + safeName);
+				} catch (err) {
+					if (err.code !== 'ENOENT') throw err;
+				}
+				saved.push(safeName);
 			}
-		});
+			next(null, saved);
+		} catch (err) {
+			next(err);
+		}
 	}
 
-	exports.deletePostUpload = function (post, delFiles, next) {
+	exports.deletePostFiles = function (postId, delFiles, next) {
 		if (!delFiles || delFiles.length == 0) {
-			next();
-		} else {
-			deleteUploads(exports.postUploadDir(post._id), delFiles, function (err, deleted) {
-				if (err) {
-					next(err);
-				} else {
-					if (deleted && post.upload) {
-						post.upload = post.upload.filter(function (file) {
-							return deleted.indexOf(file) == -1;
-						});
-						if (post.upload.length == 0) delete post.upload;
-					}
-					next();
-				}
-			});
+			return next();
 		}
+		deleteFiles(exports.postFileDir(postId), delFiles, next);
 	};
 
-	function deleteUploads(dir, delFiles, next /* (err, deleted) */) {
-		var deleted = [];
-		async.forEachSeries(
-			delFiles,
-			function (delFiles, next) {
-				var name = path.basename(delFiles)
+	function deleteFiles(dir, delFiles, next) {
+		try {
+			var deleted = [];
+			delFiles.forEach(function (file) {
+				var name = path.basename(file)
 				var p = dir + '/' + name;
 				//console.log('deleting: ' + path);
+				try {
+					fs.unlinkSync(p);
+				} catch (err) {
+					if (err.code !== 'ENOENT') throw err;
+				}
 				deleted.push(name);
-				fs.unlink(p, function (err) {
-					if (err && err.code !== 'ENOENT') {
-						next(err);
-					} else {
-						next();
-					}
-				});
-			},
-			function (err) {
-				next(err, deleted);
-			}
-		);
+			});
+			next(err, deleted);
+		} catch (err) {
+			next(err);
+		}
 	}
 
 	return exports;

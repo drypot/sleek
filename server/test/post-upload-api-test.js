@@ -49,8 +49,8 @@ describe('uploading post file', function () {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(rcs.SUCCESS);
 				p12 = res.body.postId;
-				l.upload.postUploadExists(p12, 'file1.txt').should.be.true;
-				l.upload.postUploadExists(p12, 'file2.txt').should.be.true;
+				l.upload.postFileExists(p12, 'file1.txt').should.be.true;
+				l.upload.postFileExists(p12, 'file2.txt').should.be.true;
 				next(err);
 			}
 		);
@@ -60,9 +60,9 @@ describe('uploading post file', function () {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.post.upload[0].name.should.equal('file1.txt');
-			res.body.post.upload[0].url.should.equal(l.upload.postUploadUrl(p12, 'file1.txt'));
+			res.body.post.upload[0].url.should.equal(l.upload.postFileUrl(p12, 'file1.txt'));
 			res.body.post.upload[1].name.should.equal('file2.txt');
-			res.body.post.upload[1].url.should.equal(l.upload.postUploadUrl(p12, 'file2.txt'));
+			res.body.post.upload[1].url.should.equal(l.upload.postFileUrl(p12, 'file2.txt'));
 			next(err);
 		});
 	});
@@ -72,8 +72,8 @@ describe('uploading post file', function () {
 			function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(rcs.SUCCESS);
-				l.upload.postUploadExists(p12, 'file1.txt').should.be.false;
-				l.upload.postUploadExists(p12, 'file2.txt').should.be.true;
+				l.upload.postFileExists(p12, 'file1.txt').should.be.false;
+				l.upload.postFileExists(p12, 'file2.txt').should.be.true;
 				next(err);
 			}
 		);
@@ -94,8 +94,8 @@ describe('uploading post file', function () {
 			function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(rcs.SUCCESS);
-				l.upload.postUploadExists(p12, 'file1.txt').should.be.true;
-				l.upload.postUploadExists(p12, 'file2.txt').should.be.true;
+				l.upload.postFileExists(p12, 'file1.txt').should.be.true;
+				l.upload.postFileExists(p12, 'file2.txt').should.be.true;
 				next(err);
 			}
 		);
@@ -106,8 +106,8 @@ describe('uploading post file', function () {
 			function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(rcs.SUCCESS);
-				l.upload.postUploadExists(p12, 'file1.txt').should.be.false;
-				l.upload.postUploadExists(p12, 'file2.txt').should.be.false;
+				l.upload.postFileExists(p12, 'file1.txt').should.be.false;
+				l.upload.postFileExists(p12, 'file2.txt').should.be.false;
 				next(err);
 			}
 		);
@@ -140,7 +140,7 @@ describe('uploading post file', function () {
 			function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(rcs.SUCCESS);
-				l.upload.postUploadExists(p12, 'newName.txt').should.be.true;
+				l.upload.postFileExists(p12, 'newName.txt').should.be.true;
 				next(err);
 			}
 		);
@@ -163,7 +163,7 @@ describe('uploading post file', function () {
 			function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(rcs.SUCCESS);
-				l.upload.postUploadExists(p12, 'mygod#1 그리고 한글.txt').should.be.true;
+				l.upload.postFileExists(p12, 'mygod#1 그리고 한글.txt').should.be.true;
 				next(err);
 			}
 		);
@@ -186,7 +186,7 @@ describe('uploading post file', function () {
 			function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(rcs.SUCCESS);
-				should(l.upload.postUploadExists(p12, 'mygod#2 _____.txt'));
+				should(l.upload.postFileExists(p12, 'mygod#2 _____.txt'));
 				next(err);
 			}
 		);
