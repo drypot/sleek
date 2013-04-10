@@ -19,7 +19,7 @@ app.get('/test/no-action', function (req, res, next) {
 });
 
 app.get('/api/send-rc-33', function (req, res) {
-	res.sendRc(33);
+	res.json({ rc: 33 });
 });
 
 app.listen(config.port);

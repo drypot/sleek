@@ -60,42 +60,35 @@ module.exports = function (opt) {
 		var req = this;
 		var res = this.res;
 		var role = res.locals.role;
-		if (!role) {
-			res.sendRc(rcs.NOT_AUTHENTICATED);
-		} else {
-			if (typeof roleName === 'string') {
-				if (role.name !== roleName) {
-					res.sendRc(rcs.NOT_AUTHORIZED);
-				} else {
-					next();
-				}
-			} else {
-				next = roleName;
-				next();
-			}
+		if (typeof roleName === 'function') {
+			next = roleName;
+			roleName = null;
 		}
+		if (!role) {
+			return next({ rc: rcs.NOT_AUTHENTICATED });
+		}
+		if (roleName && roleName !== role.name) {
+			return next({ rc: rcs.NOT_AUTHORIZED });
+		}
+		next();
 	};
 
-	var apiExp = /^\/api\//;
-
-	should.not.exist(app.response.sendRc);
-	app.response.sendRc = function (rc) {
-		var res = this;
-		var req = this.req;
-		//var json = ~(req.headers.accept || '').indexOf('json');
-		var json = apiExp.test(req.path);
-		if (json) {
-			res.json({ rc: rc });
-		} else {
-			if (rc === rcs.NOT_AUTHENTICATED) {
-				res.redirect('/');
-			} else {
-				should.fail('TODO');
-				res.render('error', {
-					msg: rcs.msgs[rc]
-				});
-			}
+	should.not.exist(app.request.authorizedHtml);
+	app.request.authorizedHtml = function (roleName, next) {
+		var req = this;
+		var res = this.res;
+		var role = res.locals.role;
+		if (typeof roleName === 'function') {
+			next = roleName;
+			roleName = null;
 		}
+		if (!role) {
+			return res.redirect('/');
+		}
+		if (roleName && roleName !== role.name) {
+			return res.render('error', { msg: rcs.msgs[rcs.NOT_AUTHORIZED] });
+		}
+		next();
 	};
 
 };

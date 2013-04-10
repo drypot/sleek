@@ -7,8 +7,8 @@ module.exports = function (opt) {
 	var app = opt.app;
 
 	app.get('/api/session', function (req, res) {
-		req.authorized(function () {
-			res.json({
+		req.authorized(function (r) {
+			res.json(r || {
 				rc: rcs.SUCCESS,
 				role: {
 					name: res.locals.role.name,
@@ -77,20 +77,20 @@ module.exports = function (opt) {
 		});
 
 		app.get('/api/test/auth/any', function (req, res) {
-			req.authorized(function () {
-				res.json({ rc: rcs.SUCCESS });
+			req.authorized(function (r) {
+				res.json(r || { rc: rcs.SUCCESS });
 			})
 		});
 
 		app.get('/api/test/auth/user', function (req, res) {
-			req.authorized('user', function () {
-				res.json({ rc: rcs.SUCCESS });
+			req.authorized('user', function (r) {
+				res.json(r || { rc: rcs.SUCCESS });
 			});
 		});
 
 		app.get('/api/test/auth/admin', function (req, res) {
-			req.authorized('admin', function () {
-				res.json({ rc: rcs.SUCCESS });
+			req.authorized('admin', function (r) {
+				res.json(r || { rc: rcs.SUCCESS });
 			});
 		});
 	});
