@@ -8,16 +8,37 @@ var config = require('../main/config')({ test: true });
 var auth = require('../main/auth')({ config: config });
 
 var app = express();
-
 require('../main/express')({ config: config, auth: auth, app: app });
 require('../main/session-api')({ config: config, auth: auth, app: app });
-
 app.listen(config.port);
 
 var url = 'http://localhost:' + config.port;
 
-var USER_PASS = '1';
-var ADMIN_PASS = '3';
+function logout(next) {
+	request.del(url + '/api/session', function (err, res) {
+		res.status.should.equal(200);
+		res.body.rc.should.equal(rcs.SUCCESS);
+		next();
+	});
+}
+
+function loginUser(next) {
+	request.post(url + '/api/session').send({ password: '1' }).end(function (err, res) {
+		res.status.should.equal(200);
+		res.body.rc.should.equal(rcs.SUCCESS);
+		res.body.role.name.should.equal('user');
+		next();
+	});
+}
+
+function loginAdmin(next) {
+	request.post(url + '/api/session').send({ password: '3' }).end(function (err, res) {
+		res.status.should.equal(200);
+		res.body.rc.should.equal(rcs.SUCCESS);
+		res.body.role.name.should.equal('admin');
+		next();
+	});
+}
 
 describe('session', function () {
 	it('can save value', function (next) {
@@ -36,11 +57,7 @@ describe('session', function () {
 		});
 	});
 	it('can terminate', function (next) {
-		request.del(url + '/api/session', function (err, res) {
-			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
-			next();
-		});
+		logout(next);
 	});
 	it('should return nothing after terminated', function (next) {
 		request.get(url + '/api/test/session').send([ 'book', 'price' ]).end(function (err, res) {
@@ -54,20 +71,10 @@ describe('session', function () {
 
 describe('session making', function () {
 	it('should success for user', function (next) {
-		request.post(url + '/api/session').send({ password: USER_PASS }).end(function (err, res) {
-			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
-			res.body.role.name.should.equal('user');
-			next();
-		});
+		loginUser(next);
 	});
 	it('should success for admin', function (next) {
-		request.post(url + '/api/session').send({ password: ADMIN_PASS }).end(function (err, res) {
-			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
-			res.body.role.name.should.equal('admin');
-			next();
-		});
+		loginAdmin(next);
 	});
 	it('should fail with wrong password', function (next) {
 		request.post(url + '/api/session').send({ password: 'xxx' }).end(function (err, res) {
@@ -80,11 +87,7 @@ describe('session making', function () {
 
 describe('session info', function () {
 	it('given no session', function (next) {
-		request.del(url + '/api/session', function (err, res) {
-			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
-			next();
-		});
+		logout(next);
 	});
 	it('should return error', function (next) {
 		request.get(url + '/api/session', function (err, res) {
@@ -94,12 +97,7 @@ describe('session info', function () {
 		});
 	});
 	it('given user session', function (next) {
-		request.post(url + '/api/session').send({ password: USER_PASS }).end(function (err, res) {
-			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
-			res.body.role.name.should.equal('user');
-			next();
-		});
+		loginUser(next);
 	});
 	it('should success', function (next) {
 		request.get(url + '/api/session', function (err, res) {
@@ -114,11 +112,7 @@ describe('session info', function () {
 
 describe('accessing /api/test/auth/any', function () {
 	it('given no session', function (next) {
-		request.del(url + '/api/session', function (err, res) {
-			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
-			next();
-		});
+		logout(next);
 	});
 	it('should fail', function (next) {
 		request.get(url + '/api/test/auth/any', function (err, res) {
@@ -128,12 +122,7 @@ describe('accessing /api/test/auth/any', function () {
 		});
 	});
 	it('given user session', function (next) {
-		request.post(url + '/api/session').send({ password: USER_PASS }).end(function (err, res) {
-			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
-			res.body.role.name.should.equal('user');
-			next();
-		});
+		loginUser(next);
 	});
 	it('should success', function (next) {
 		request.get(url + '/api/test/auth/any', function (err, res) {
@@ -143,11 +132,7 @@ describe('accessing /api/test/auth/any', function () {
 		});
 	});
 	it('given no session', function (next) {
-		request.del(url + '/api/session', function (err, res) {
-			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
-			next();
-		});
+		logout(next);
 	});
 	it('should fail', function (next) {
 		request.get(url + '/api/test/auth/any', function (err, res) {
@@ -160,11 +145,7 @@ describe('accessing /api/test/auth/any', function () {
 
 describe('accessing /api/test/auth/user', function () {
 	it('given no session', function (next) {
-		request.del(url + '/api/session', function (err, res) {
-			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
-			next();
-		});
+		logout(next);
 	});
 	it('should fail', function (next) {
 		request.get(url + '/api/test/auth/user', function (err, res) {
@@ -174,12 +155,7 @@ describe('accessing /api/test/auth/user', function () {
 		});
 	});
 	it('given user session', function (next) {
-		request.post(url + '/api/session').send({ password: USER_PASS }).end(function (err, res) {
-			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
-			res.body.role.name.should.equal('user');
-			next();
-		});
+		loginUser(next);
 	});
 	it('should success', function (next) {
 		request.get(url + '/api/test/auth/user', function (err, res) {
@@ -192,11 +168,7 @@ describe('accessing /api/test/auth/user', function () {
 
 describe('accessing /api/test/auth/admin', function () {
 	it('given no session', function (next) {
-		request.del(url + '/api/session', function (err, res) {
-			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
-			next();
-		});
+		logout(next);
 	});
 	it('should fail', function (next) {
 		request.get(url + '/api/test/auth/admin', function (err, res) {
@@ -206,12 +178,7 @@ describe('accessing /api/test/auth/admin', function () {
 		});
 	});
 	it('given user session', function (next) {
-		request.post(url + '/api/session').send({ password: USER_PASS }).end(function (err, res) {
-			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
-			res.body.role.name.should.equal('user');
-			next();
-		});
+		loginUser(next);
 	});
 	it('should fail', function (next) {
 		request.get(url + '/api/test/auth/admin', function (err, res) {
@@ -221,12 +188,7 @@ describe('accessing /api/test/auth/admin', function () {
 		});
 	});
 	it('given admin session', function (next) {
-		request.post(url + '/api/session').send({ password: ADMIN_PASS }).end(function (err, res) {
-			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
-			res.body.role.name.should.equal('admin');
-			next();
-		});
+		loginAdmin(next);
 	});
 	it('should success', function (next) {
 		request.get(url + '/api/test/auth/admin', function (err, res) {
@@ -240,12 +202,7 @@ describe('accessing /api/test/auth/admin', function () {
 describe('role.categoriesForMenu', function () {
 	var categories;
 	it('given user session', function (next) {
-		request.post(url + '/api/session').send({ password: USER_PASS }).end(function (err, res) {
-			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
-			res.body.role.name.should.equal('user');
-			next();
-		});
+		loginUser(next);
 	});
 	it('given categoriesForMenu', function (next) {
 		request.get(url + '/api/session', function (err, res) {
@@ -272,12 +229,7 @@ describe('role.categoriesForMenu', function () {
 		should.not.exist(cx);
 	});
 	it('given admin session', function (next) {
-		request.post(url + '/api/session').send({ password: ADMIN_PASS }).end(function (err, res) {
-			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
-			res.body.role.name.should.equal('admin');
-			next();
-		});
+		loginAdmin(next);
 	});
 	it('given categoriesForMenu', function (next) {
 		request.get(url + '/api/session', function (err, res) {
