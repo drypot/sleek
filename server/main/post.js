@@ -32,7 +32,7 @@ module.exports = function (opt) {
 				insertThread(threadId, form, next, function (thread) {
 					var postId = mongo.getNewPostId();
 					savePostFiles(postId, form, next, function () {
-						insertPost(postId, form, thread, function () {
+						insertPost(postId, form, thread, next, function () {
 							next({ rc: rcs.SUCCESS, threadId: threadId, postId: postId });
 						});
 					});
@@ -56,7 +56,7 @@ module.exports = function (opt) {
 		var error = new FieldError();
 
 		if (head) {
-			if (!form.title) {
+			if (!form.title.length) {
 				error.push('title', rcs.msgs.FILL_TITLE );
 			}
 			if (form.title.length > 128) {
@@ -86,6 +86,10 @@ module.exports = function (opt) {
 			errors = this.fields[field] = [];
 		}
 		errors.push(msg);
+	}
+
+	FieldError.prototype.hasError = function () {
+		return fields.length > 0; //TODO: check emtpy
 	}
 
 	function insertThread(threadId, form, next, next2) {

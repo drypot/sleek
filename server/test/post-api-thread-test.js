@@ -63,10 +63,10 @@ describe('post /api/thread', function () {
 			next();
 		});
 	});
-	it.skip('given user session', function (next) {
+	it('given user session', function (next) {
 		loginUser(next);
 	});
-	it.skip("should fail when categoryId invalid", function (next) {
+	it("should fail when categoryId invalid", function (next) {
 		var form = { categoryId: 10100, writer : 'snowman', title: 'title', text: 'text' };
 		request.post(url + '/api/thread').send(form).end(function (err, res) {
 			res.status.should.equal(200);
@@ -74,10 +74,11 @@ describe('post /api/thread', function () {
 			next();
 		});
 	});
-	it.skip("should fail when title empty", function (next) {
+	it("should fail when title empty", function (next) {
 		var form = { categoryId: 101, writer : 'snowman', title: ' ', text: 'text' };
 		request.post(url + '/api/thread').send(form).end(function (err, res) {
 			res.status.should.equal(200);
+			console.log(res.body);
 			res.body.rc.should.equal(rcs.INVALID_DATA);
 			res.body.fields.title.indexOf(rcs.msgs.FILL_TITLE).should.not.equal(-1);
 			next();
