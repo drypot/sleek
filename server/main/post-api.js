@@ -167,10 +167,11 @@ module.exports = function (opt) {
 
 	// new thread
 
-	app.post('/api/thread', function (req, res, next) {
-		req.authorized(function () {
+	app.post('/api/thread', function (req, res) {
+		req.authorized(function (r, role) {
+			if (r) return res.json(r);
 			var form = post.formFromRequest(req);
-			post.createThread(res.locals.role, form, function(r) {
+			post.createThread(role, form, function(r) {
 				if (r.rc == rcs.SUCCESS) {
 					req.session.post.push(r.postId);
 				}

@@ -57,38 +57,38 @@ module.exports = function (opt) {
 
 	should.not.exist(app.request.authorized);
 	app.request.authorized = function (roleName, next) {
-		var req = this;
-		var res = this.res;
-		var role = res.locals.role;
 		if (typeof roleName === 'function') {
 			next = roleName;
 			roleName = null;
 		}
+		var req = this;
+		var res = this.res;
+		var role = res.locals.role;
 		if (!role) {
 			return next({ rc: rcs.NOT_AUTHENTICATED });
 		}
 		if (roleName && roleName !== role.name) {
 			return next({ rc: rcs.NOT_AUTHORIZED });
 		}
-		next();
+		next(null, role);
 	};
 
 	should.not.exist(app.request.authorizedHtml);
 	app.request.authorizedHtml = function (roleName, next) {
-		var req = this;
-		var res = this.res;
-		var role = res.locals.role;
 		if (typeof roleName === 'function') {
 			next = roleName;
 			roleName = null;
 		}
+		var req = this;
+		var res = this.res;
+		var role = res.locals.role;
 		if (!role) {
 			return res.redirect('/');
 		}
 		if (roleName && roleName !== role.name) {
 			return res.render('error', { msg: rcs.msgs[rcs.NOT_AUTHORIZED] });
 		}
-		next();
+		next(role);
 	};
 
 };
