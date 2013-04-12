@@ -14,11 +14,11 @@ before(function (next) {
 
 describe('uploading post file', function () {
 	it('given user session', function (next) {
-		request.post('/api/session', { password: '1' }, next);
+		request.post(url + '/api/sessions', { password: '1' }, next);
 	});
 	var t1, p11, p12;
 	it('and head', function (next) {
-		request.post('/api/thread',
+		request.post(url + '/api/threads',
 			{ categoryId: 101, writer : 'snowman', title: 'title 1', text: 'head text 1' },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -31,7 +31,7 @@ describe('uploading post file', function () {
 	});
 	var tmpFiles;
 	it('and file1.txt, file2.txt upload', function (next) {
-		request.post('/api/upload', {}, ['file1.txt', 'file2.txt'],
+		request.post(url + '/api/upload', {}, ['file1.txt', 'file2.txt'],
 			function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(rcs.SUCCESS);
@@ -43,7 +43,7 @@ describe('uploading post file', function () {
 		);
 	});
 	it('when creating post with upload, upload files must be saved', function (next) {
-		request.post('/api/thread/' + t1,
+		request.post(url + '/api/threads/' + t1,
 			{ writer : 'snowman', text: 'reply text 1', tmpFiles: tmpFiles },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -56,7 +56,7 @@ describe('uploading post file', function () {
 		);
 	});
 	it('and get post response should have file field', function (next) {
-		request.get('/api/thread/' + t1 + '/' + p12, function (err, res) {
+		request.get('/api/threads/' + t1 + '/' + p12, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.post.upload[0].name.should.equal('file1.txt');
@@ -67,7 +67,7 @@ describe('uploading post file', function () {
 		});
 	});
 	it('when delFiles file1.txt, file1.txt should be gone', function (next) {
-		request.put('/api/thread/' + t1 + '/' + p12,
+		request.put('/api/threads/' + t1 + '/' + p12,
 			{ writer: 'snowman', text: 'reply text', delFiles: ['file1.txt'] },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -79,7 +79,7 @@ describe('uploading post file', function () {
 		);
 	});
 	it('given file1.txt re-upload', function (next) {
-		request.post('/api/upload', {}, ['file1.txt'],
+		request.post(url + '/api/upload', {}, ['file1.txt'],
 			function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(rcs.SUCCESS);
@@ -89,7 +89,7 @@ describe('uploading post file', function () {
 		);
 	});
 	it('when updating post with file1.txt, post should have file1.txt again', function (next) {
-		request.put('/api/thread/' + t1 + '/' + p12,
+		request.put('/api/threads/' + t1 + '/' + p12,
 			{ writer: 'snowman', text: 'reply text', tmpFiles: tmpFiles },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -101,7 +101,7 @@ describe('uploading post file', function () {
 		);
 	});
 	it('when deleting file1.txt and file2.txt, they should be gone', function (next) {
-		request.put('/api/thread/' + t1 + '/' + p12,
+		request.put('/api/threads/' + t1 + '/' + p12,
 			{ writer: 'snowman', text: 'reply text', delFiles: ['file1.txt', 'file2.txt'] },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -113,7 +113,7 @@ describe('uploading post file', function () {
 		);
 	});
 	it('when updating post with non existing upload, should success', function (next) {
-		request.put('/api/thread/' + t1 + '/' + p12,
+		request.put('/api/threads/' + t1 + '/' + p12,
 			{ writer: 'snowman', text: 'reply text', tmpFiles: [{ name: 'abc.txt', tmpName: 'xxxxxxxx' }] },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -123,7 +123,7 @@ describe('uploading post file', function () {
 		);
 	});
 	it('given file3.txt upload', function (next) {
-		request.post('/api/upload', {}, ['file3.txt'],
+		request.post(url + '/api/upload', {}, ['file3.txt'],
 			function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(rcs.SUCCESS);
@@ -135,7 +135,7 @@ describe('uploading post file', function () {
 	it('when updating with invalid file name, should success', function (next) {
 		tmpFiles['./../.../newName.txt'] = tmpFiles['file3.txt'];
 		delete tmpFiles['file3.txt'];
-		request.put('/api/thread/' + t1 + '/' + p12,
+		request.put('/api/threads/' + t1 + '/' + p12,
 			{ writer: 'snowman', text: 'reply text', tmpFiles: tmpFiles },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -146,7 +146,7 @@ describe('uploading post file', function () {
 		);
 	});
 	it('given file4.txt upload', function (next) {
-		request.post('/api/upload', {}, ['file4.txt'],
+		request.post(url + '/api/upload', {}, ['file4.txt'],
 			function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(rcs.SUCCESS);
@@ -158,7 +158,7 @@ describe('uploading post file', function () {
 	it('when updating with invalid file name 2, should success', function (next) {
 		tmpFiles['./../.../mygod#1 그리고 한글.txt'] = tmpFiles['file4.txt'];
 		delete tmpFiles['file4.txt'];
-		request.put('/api/thread/' + t1 + '/' + p12,
+		request.put('/api/threads/' + t1 + '/' + p12,
 			{ writer: 'snowman', text: 'reply text', tmpFiles: tmpFiles },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -169,7 +169,7 @@ describe('uploading post file', function () {
 		);
 	});
 	it('given file4.txt upload', function (next) {
-		request.post('/api/upload', {}, ['file4.txt'],
+		request.post(url + '/api/upload', {}, ['file4.txt'],
 			function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(rcs.SUCCESS);
@@ -181,7 +181,7 @@ describe('uploading post file', function () {
 	it('when updating with invalid file name 3, should success', function (next) {
 		tmpFiles['./../.../mygod#2 :?<>|.txt'] = tmpFiles['file4.txt'];
 		delete tmpFiles['file4.txt'];
-		request.put('/api/thread/' + t1 + '/' + p12,
+		request.put('/api/threads/' + t1 + '/' + p12,
 			{ writer: 'snowman', text: 'reply text', tmpFiles: tmpFiles },
 			function (err, res) {
 				res.status.should.equal(200);

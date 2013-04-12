@@ -1,8 +1,8 @@
 var async = require('async');
 var mongo = require("mongodb");
 
-var init = require('./init');
-var config = require('./config');
+var init = require('../main/init');
+var config = require('../main/config');
 
 var opt = {};
 

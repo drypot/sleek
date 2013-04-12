@@ -1,7 +1,7 @@
-var init = require('./init');
-var upload = require('./upload');
-var express = require('./express');
-var rcs = require('./rcs');
+var init = require('../main/init');
+var upload = require('../main/upload');
+var express = require('../main/express');
+var rcs = require('../main/rcs');
 
 init.add(function () {
 

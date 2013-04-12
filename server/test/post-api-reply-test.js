@@ -13,21 +13,21 @@ before(function (next) {
 
 describe('creating reply', function () {
 	it('given no session', function (next) {
-		request.del('/api/session', next);
+		request.del('/api/sessions', next);
 	});
 	it("should fail", function (next) {
-		request.post('/api/thread/0', function (err, res) {
+		request.post(url + '/api/threads/0', function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.NOT_AUTHENTICATED);
 			next(err);
 		});
 	});
 	it('given user session', function (next) {
-		request.post('/api/session', { password: '1' }, next);
+		request.post(url + '/api/sessions', { password: '1' }, next);
 	});
 	var tid;
 	it('and head tid', function (next) {
-		request.post('/api/thread',
+		request.post(url + '/api/threads',
 			{ categoryId: 101, writer : 'snowman', title: 'title 1', text: 'head text 1' },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -38,7 +38,7 @@ describe('creating reply', function () {
 		);
 	});
 	it('should success', function (next) {
-		request.post('/api/thread/' + tid,
+		request.post(url + '/api/threads/' + tid,
 			{ writer : 'snowman', text: 'reply text 1' },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -49,7 +49,7 @@ describe('creating reply', function () {
 		);
 	});
 	it("when threadId is 99999, should fail", function (next) {
-		request.post('/api/thread/99999',
+		request.post(url + '/api/threads/99999',
 			{ writer : 'snowman', text: 'text' },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -59,7 +59,7 @@ describe('creating reply', function () {
 		);
 	});
 	it("when threadId is xxx, should fail", function (next) {
-		request.post('/api/thread/xxx',
+		request.post(url + '/api/threads/xxx',
 			{ writer : 'snowman', text: 'text' },
 			function (err, res) {
 				res.status.should.equal(404);
@@ -68,7 +68,7 @@ describe('creating reply', function () {
 		);
 	});
 	it("when writer empty, should fail", function (next) {
-		request.post('/api/thread/' + tid,
+		request.post(url + '/api/threads/' + tid,
 			{ writer : ' ', text: 'text' },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -79,11 +79,11 @@ describe('creating reply', function () {
 		);
 	});
 	it('given admin session', function (next) {
-		request.post('/api/session', { password: '3' }, next);
+		request.post(url + '/api/sessions', { password: '3' }, next);
 	});
 	var tid2;
 	it('and head in recycle bin', function (next) {
-		request.post('/api/thread',
+		request.post(url + '/api/threads',
 			{ categoryId: 40, writer : 'snowman', title: 'title in recycle bin', text: 'head text in recycle bin' },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -94,10 +94,10 @@ describe('creating reply', function () {
 		);
 	});
 	it('given user session', function (next) {
-		request.post('/api/session', { password: '1' }, next);
+		request.post(url + '/api/sessions', { password: '1' }, next);
 	});
 	it('when creating reply on recycle bin thread, should fail', function (next) {
-		request.post('/api/thread/' + tid2,
+		request.post(url + '/api/threads/' + tid2,
 			{ writer : 'snowman', text: 'text' },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -107,10 +107,10 @@ describe('creating reply', function () {
 		);
 	});
 	it('given admin session', function (next) {
-		request.post('/api/session', { password: '3' }, next);
+		request.post(url + '/api/sessions', { password: '3' }, next);
 	});
 	it('when creating reply on recycle bin thread, should success', function (next) {
-		request.post('/api/thread/' + tid2,
+		request.post(url + '/api/threads/' + tid2,
 			{ writer : 'snowman', text: 'reply text in recycle bin' },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -123,11 +123,11 @@ describe('creating reply', function () {
 
 describe('reading post', function () {
 	it('given user session', function (next) {
-		request.post('/api/session', { password: '1' }, next);
+		request.post(url + '/api/sessions', { password: '1' }, next);
 	});
 	var t1, p11, p12;
 	it('and head t1, p11', function (next) {
-		request.post('/api/thread',
+		request.post(url + '/api/threads',
 			{ categoryId: 101, writer : 'snowman', title: 'title 1', text: 'head text 1' },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -139,7 +139,7 @@ describe('reading post', function () {
 		);
 	});
 	it('and reply p12', function (next) {
-		request.post('/api/thread/' + t1,
+		request.post(url + '/api/threads/' + t1,
 			{ writer : 'snowman', text: 'reply text 1' },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -150,11 +150,11 @@ describe('reading post', function () {
 		);
 	});
 	it('given admin session', function (next) {
-		request.post('/api/session', { password: '3' }, next);
+		request.post(url + '/api/sessions', { password: '3' }, next);
 	});
 	var t2, p21, p22;
 	it('and head t2, p21 in recycle bin', function (next) {
-		request.post('/api/thread',
+		request.post(url + '/api/threads',
 			{ categoryId: 40, writer : 'snowman', title: 'title 2', text: 'head text 2' },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -166,7 +166,7 @@ describe('reading post', function () {
 		);
 	});
 	it('and reply p22 in recycle bin', function (next) {
-		request.post('/api/thread/' + t2,
+		request.post(url + '/api/threads/' + t2,
 			{ writer : 'snowman', text: 'reply text 2' },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -177,20 +177,20 @@ describe('reading post', function () {
 		);
 	});
 	it('given no session', function (next) {
-		request.del('/api/session', next);
+		request.del('/api/sessions', next);
 	});
 	it("should fail", function (next) {
-		request.get('/api/thread/' + t1 + '/' + p11, function (err, res) {
+		request.get('/api/threads/' + t1 + '/' + p11, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.NOT_AUTHENTICATED);
 			next(err);
 		});
 	});
 	it('given user session', function (next) {
-		request.post('/api/session', { password: '1' }, next);
+		request.post(url + '/api/sessions', { password: '1' }, next);
 	});
 	it('for head, should success', function (next) {
-		request.get('/api/thread/' + t1 + '/' + p11, function (err, res) {
+		request.get('/api/threads/' + t1 + '/' + p11, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.post.head.should.true;
@@ -203,7 +203,7 @@ describe('reading post', function () {
 		});
 	});
 	it('for reply, should success', function (next) {
-		request.get('/api/thread/' + t1 + '/' + p12, function (err, res) {
+		request.get('/api/threads/' + t1 + '/' + p12, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.post.head.should.not.ok;
@@ -213,31 +213,31 @@ describe('reading post', function () {
 		});
 	});
 	it('for head head in recycle bin, should fail', function (next) {
-		request.get('/api/thread/' + t2 + '/' + p21, function (err, res) {
+		request.get('/api/threads/' + t2 + '/' + p21, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.INVALID_CATEGORY);
 			next(err);
 		});
 	});
 	it('for reply in recycle bin, should fail', function (next) {
-		request.get('/api/thread/' + t2 + '/' + p22, function (err, res) {
+		request.get('/api/threads/' + t2 + '/' + p22, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.INVALID_CATEGORY);
 			next(err);
 		});
 	});
 	it('given admin session', function (next) {
-		request.post('/api/session', { password: '3' }, next);
+		request.post(url + '/api/sessions', { password: '3' }, next);
 	});
 	it('for head head in recycle bin, should success', function (next) {
-		request.get('/api/thread/' + t2 + '/' + p22, function (err, res) {
+		request.get('/api/threads/' + t2 + '/' + p22, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			next(err);
 		});
 	});
 	it('for reply in recycle bin, should success', function (next) {
-		request.get('/api/thread/' + t2 + '/' + p22, function (err, res) {
+		request.get('/api/threads/' + t2 + '/' + p22, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			next(err);
@@ -247,11 +247,11 @@ describe('reading post', function () {
 
 describe('editable field', function () {
 	it('given user session', function (next) {
-		request.post('/api/session', { password: '1' }, next);
+		request.post(url + '/api/sessions', { password: '1' }, next);
 	});
 	var t1, p11, p12;
 	it('and head t1, p11', function (next) {
-		request.post('/api/thread',
+		request.post(url + '/api/threads',
 			{ categoryId: 101, writer : 'snowman', title: 'title 1', text: 'head text 1' },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -263,7 +263,7 @@ describe('editable field', function () {
 		);
 	});
 	it('and reply p12', function (next) {
-		request.post('/api/thread/' + t1,
+		request.post(url + '/api/threads/' + t1,
 			{ writer : 'snowman', text: 'reply text 1' },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -274,7 +274,7 @@ describe('editable field', function () {
 		);
 	});
 	it('for p11, should be true', function (next) {
-		request.get('/api/thread/' + t1 + '/' + p11, function (err, res) {
+		request.get('/api/threads/' + t1 + '/' + p11, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.post.editable.should.be.true;
@@ -282,7 +282,7 @@ describe('editable field', function () {
 		});
 	});
 	it('for p12, should be true', function (next) {
-		request.get('/api/thread/' + t1 + '/' + p12, function (err, res) {
+		request.get('/api/threads/' + t1 + '/' + p12, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.post.editable.should.be.true;
@@ -290,10 +290,10 @@ describe('editable field', function () {
 		});
 	});
 	it('given new user session', function (next) {
-		request.post('/api/session', { password: '1' }, next);
+		request.post(url + '/api/sessions', { password: '1' }, next);
 	});
 	it('for p11, should be false', function (next) {
-		request.get('/api/thread/' + t1 + '/' + p11, function (err, res) {
+		request.get('/api/threads/' + t1 + '/' + p11, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.post.editable.should.be.false;
@@ -301,7 +301,7 @@ describe('editable field', function () {
 		});
 	});
 	it('for p12, should be false', function (next) {
-		request.get('/api/thread/' + t1 + '/' + p12, function (err, res) {
+		request.get('/api/threads/' + t1 + '/' + p12, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.post.editable.should.be.false;
@@ -309,10 +309,10 @@ describe('editable field', function () {
 		});
 	});
 	it('given admin session', function (next) {
-		request.post('/api/session', { password: '3' }, next);
+		request.post(url + '/api/sessions', { password: '3' }, next);
 	});
 	it('for p11, should be true', function (next) {
-		request.get('/api/thread/' + t1 + '/' + p11, function (err, res) {
+		request.get('/api/threads/' + t1 + '/' + p11, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.post.editable.should.be.true;
@@ -320,7 +320,7 @@ describe('editable field', function () {
 		});
 	});
 	it('for p12, should be true', function (next) {
-		request.get('/api/thread/' + t1 + '/' + p12, function (err, res) {
+		request.get('/api/threads/' + t1 + '/' + p12, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.post.editable.should.be.true;

@@ -2,10 +2,10 @@ var should = require('should');
 var express = require('express');
 var redisStore = require('connect-redis')(express);
 
-var init = require('./init');
-var config = require('./config');
-var auth = require('./auth');
-var rcs = require('./rcs');
+var init = require('../main/init');
+var config = require('../main/config');
+var auth = require('../main/auth');
+var rcs = require('../main/rcs');
 
 var opt = {};
 

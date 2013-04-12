@@ -1,7 +1,7 @@
 var bcrypt = require('bcrypt');
 
-var init = require('./init');
-var config = require('./config');
+var init = require('../main/init');
+var config = require('../main/config');
 
 init.add(function () {
 

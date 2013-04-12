@@ -13,21 +13,21 @@ before(function (next) {
 
 describe("getting thread", function () {
 	it('given no session', function (next) {
-		request.del('/api/session', next);
+		request.del('/api/sessions', next);
 	});
 	it("should fail", function (next) {
-		request.get('/api/thread/0', function (err, res) {
+		request.get('/api/threads/0', function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.NOT_AUTHENTICATED);
 			next(err);
 		});
 	});
 	it('given user session', function (next) {
-		request.post('/api/session', { password: '1' }, next);
+		request.post(url + '/api/sessions', { password: '1' }, next);
 	});
 	var tid;
 	it('and head', function (next) {
-		request.post('/api/thread',
+		request.post(url + '/api/threads',
 			{ categoryId: 101, writer : 'snowman', title: 'title', text: 'head text' },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -38,7 +38,7 @@ describe("getting thread", function () {
 		);
 	});
 	it('and reply', function (next) {
-		request.post('/api/thread/' + tid,
+		request.post(url + '/api/threads/' + tid,
 			{ writer : 'snowman2', text: 'reply text 1' },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -48,7 +48,7 @@ describe("getting thread", function () {
 		);
 	});
 	it('should return 2 posts', function (next) {
-		request.get('/api/thread/' + tid, function (err, res) {
+		request.get('/api/threads/' + tid, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.thread.id.should.equal(tid);
@@ -64,7 +64,7 @@ describe("getting thread", function () {
 	});
 	var pid;
 	it('given added reply', function (next) {
-		request.post('/api/thread/' + tid,
+		request.post(url + '/api/threads/' + tid,
 			{ writer : 'admin', text: 'reply text 2' },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -75,7 +75,7 @@ describe("getting thread", function () {
 		);
 	});
 	it('should return 3 posts', function (next) {
-		request.get('/api/thread/' + tid, function (err, res) {
+		request.get('/api/threads/' + tid, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.post.should.length(3);
@@ -83,10 +83,10 @@ describe("getting thread", function () {
 		});
 	});
 	it('given admin session', function (next) {
-		request.post('/api/session', { password: '3' }, next);
+		request.post(url + '/api/sessions', { password: '3' }, next);
 	});
 	it('and updated visible', function (next) {
-		request.put('/api/thread/' + tid + '/' + pid,
+		request.put('/api/threads/' + tid + '/' + pid,
 			{ writer: 'admin2', text: 'reply text 2u', visible: false },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -96,7 +96,7 @@ describe("getting thread", function () {
 		);
 	});
 	it('should return 3 posts', function (next) {
-		request.get('/api/thread/' + tid, function (err, res) {
+		request.get('/api/threads/' + tid, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.post.should.length(3);
@@ -104,10 +104,10 @@ describe("getting thread", function () {
 		});
 	});
 	it('given user session', function (next) {
-		request.post('/api/session', { password: '1' }, next);
+		request.post(url + '/api/sessions', { password: '1' }, next);
 	});
 	it('should return 2 posts', function (next) {
-		request.get('/api/thread/' + tid, function (err, res) {
+		request.get('/api/threads/' + tid, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.post.should.length(2);

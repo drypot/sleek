@@ -1,88 +1,69 @@
-var rcs = require('./rcs');
+var rcs = require('../main/rcs');
 
 module.exports = function (opt) {
 
 	var post = opt.post;
 	var app = opt.app;
 
-	app.post('/api/thread', function (req, res) {
+	app.post('/api/threads', function (req, res) {
 		req.authorized(function (r, role) {
 			if (r) return res.json(r);
-			var form = post.formFromRequest(req);
-			post.createThread(role, form, function (r) {
-				if (r.rc == rcs.SUCCESS) {
-					req.session.post.push(r.postId);
-				}
-				res.json(r);
+			post.form(req, function (r, form) {
+				if (r) return res.json(r);
+				post.createThread(role, form, function (r, threadId, postId) {
+					if (r) return res.json(r);
+					req.session.post.push(postId);
+					res.json({ rc: rcs.SUCCESS, threadId: threadId, postId: postId });
+				});
 			});
 		});
 	});
 
-	app.get('/api/thread', function (req, res) {
-		req.authorized(function (r) {
-			if (r.rc == rcs.SUCCESS) {
-				req.session.post.push(r.postId);
-			}
-			res.json(r);
-		}, function (role, end) {
-			var form = post.formFromRequest(req);
-			post.createThread(role, form, end);
-		});
-		req.authorized(function () {
-			threadListParam(req, function (categoryId, page, pageSize) {
-				readableCategory(res, categoryId, function (category) {
-					mongo.findThreadsByCategory(categoryId, page, pageSize, function (err, threads) {
-						if (err) return next(err);
-						var r = {
-							rc: rcs.SUCCESS,
-							threads: []
-						};
-						var categories = res.locals.role.categories;
-						var len = threads.length;
-						for (var i = 0; i < len; i++) {
-							var thread = threads[i];
-							if (category.id === 0 && !categories[thread.categoryId]) {
-								//
-							} else {
-								r.thread.push({
-									id: thread._id,
-									category: {
-										id: thread.categoryId
-									},
-									hit: thread.hit,
-									length: thread.length,
-									updated: thread.updated.getTime(),
-									writer: thread.writer,
-									title: thread.title
-								});
-							}
+	app.get('/api/threads', function (req, res) {
+		req.authorized(function (r, role) {
+			if (r) return res.json(r);
+			post.threadsParams(req, function (r, categoryId, page, pageSize) {
+				if (r) return res.json(r);
+				post.threads(role, categoryId, page, pageSize, function (r, category, threads) {
+					if (r) return res.json(r);
+					var r = {
+						rc: rcs.SUCCESS,
+						threads: []
+					};
+					var categories = role.categories;
+					var len = threads.length;
+					for (var i = 0; i < len; i++) {
+						var thread = threads[i];
+						if (category.id === 0 && !categories[thread.categoryId]) {
+							//
+						} else {
+							r.threads.push({
+								id: thread._id,
+								category: {
+									id: thread.categoryId
+								},
+								hit: thread.hit,
+								length: thread.length,
+								updated: thread.updated.getTime(),
+								writer: thread.writer,
+								title: thread.title
+							});
 						}
-						res.json(r);
-					});
+					}
+					res.json(r);
 				});
 			});
 		});
 	});
 
 
-	function readableCategory(res, categoryId, next) {
-		var category = res.locals.role.categories[categoryId];
-		if (!category) {
-			res.sendRc(rcs.INVALID_CATEGORY);
-		} else {
-			if (!category.readable) {
-				res.sendRc(rcs.NOT_AUTHORIZED);
-			} else {
-				next(category);
-			}
-		}
-	}
 
-	app.get('/api/thread/:threadId([0-9]+)', function (req, res) {
+
+	app.get('/api/threads/:threadId([0-9]+)', function (req, res) {
 		req.authorized(function () {
 			var threadId = parseInt(req.params.threadId) || 0;
 			prepareThread(res, threadId, function (thread) {
-				readableCategory(res, thread.categoryId, function (category) {
+				categoryForRead(res, thread.categoryId, function (category) {
 					var r = {
 						rc: rcs.SUCCESS,
 						thread: {
@@ -142,12 +123,12 @@ module.exports = function (opt) {
 
 	// get post
 
-	app.get('/api/thread/:threadId([0-9]+)/:postId([0-9]+)', function (req, res, next) {
+	app.get('/api/threads/:threadId([0-9]+)/:postId([0-9]+)', function (req, res, next) {
 		req.authorized(function () {
 			var threadId = l.int(req.params, 'threadId', 0);
 			var postId = l.int(req.params, 'postId', 0);
 			threadAndPost(res, threadId, postId, function (thread, post, head) {
-				readableCategory(res, thread.categoryId, function (category) {
+				categoryForRead(res, thread.categoryId, function (category) {
 					var r = {
 						rc: rcs.SUCCESS,
 						thread: {
@@ -182,7 +163,7 @@ module.exports = function (opt) {
 
 	// new reply
 
-	app.post('/api/thread/:threadId([0-9]+)', function (req, res, next) {
+	app.post('/api/threads/:threadId([0-9]+)', function (req, res, next) {
 		req.authorized(function () {
 			var form = getForm(req);
 			var threadId = l.int(req.params, 'threadId', 0);
@@ -201,7 +182,7 @@ module.exports = function (opt) {
 
 	// update post
 
-	app.put('/api/thread/:threadId([0-9]+)/:postId([0-9]+)', function (req, res, next) {
+	app.put('/api/threads/:threadId([0-9]+)/:postId([0-9]+)', function (req, res, next) {
 		req.authorized(function () {
 			var form = getForm(req);
 			var threadId = l.int(req.params, 'threadId', 0);

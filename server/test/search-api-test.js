@@ -26,7 +26,7 @@ describe("searching", function () {
 	];
 
 	it('given no session', function (next) {
-		request.del('/api/session', next);
+		request.del('/api/sessions', next);
 	});
 	it("when accessing api, should fail", function (next) {
 		request.get('/api/search', function (err, res) {
@@ -36,7 +36,7 @@ describe("searching", function () {
 		});
 	});
 	it('given admin session', function (next) {
-		request.post('/api/session', { password: '3' }, next);
+		request.post(url + '/api/sessions', { password: '3' }, next);
 	});
 	it("when accessing api, should success", function (next) {
 		request.get('/api/search', { q: 'hello' }, function (err, res) {
@@ -49,7 +49,7 @@ describe("searching", function () {
 	});
 	it('given threads', function (next) {
 		async.forEachSeries(doc, function (doc, next) {
-			request.post('/api/thread', doc, function (err, res) {
+			request.post(url + '/api/threads', doc, function (err, res) {
 				doc.postId = res.body.postId;
 				doc.threadId = res.body.threadId;
 				next(err);
@@ -60,7 +60,7 @@ describe("searching", function () {
 		l.es.flush(next);
 	});
 	it('given user session', function (next) {
-		request.post('/api/session', { password: '1' }, next);
+		request.post(url + '/api/sessions', { password: '1' }, next);
 	});
 	it("when search user name, should return results", function (next) {
 		request.get('/api/search', { q: 'snowman' }, function (err, res) {
@@ -127,7 +127,7 @@ describe("searching", function () {
 		});
 	});
 	it('given admin session', function (next) {
-		request.post('/api/session', { password: '3' }, next);
+		request.post(url + '/api/sessions', { password: '3' }, next);
 	});
 	it("when search admin thread, should return results", function (next) {
 		request.get('/api/search', { q: 'admin' }, function (err, res) {

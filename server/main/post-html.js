@@ -2,8 +2,8 @@ module.exports = function () {
 
 	app.get('/thread', function (req, res, next) {
 		req.authorized(function () {
-			threadListParam(req, function (categoryId, page, pageSize) {
-				readableCategory(res, categoryId, function (category) {
+			threadsParams(req, function (categoryId, page, pageSize) {
+				categoryForRead(res, categoryId, function (category) {
 					mongo.findThreadsByCategory(categoryId, page, pageSize, function (err, threads) {
 						if (err) return next(err);
 						var categories = res.locals.role.categories;
@@ -81,7 +81,7 @@ module.exports = function () {
 		req.authorized(function () {
 			var threadId = l.int(req.params, 'threadId', 0);
 			prepareThread(res, threadId, function (thread) {
-				readableCategory(res, thread.categoryId, function (category) {
+				categoryForRead(res, thread.categoryId, function (category) {
 					var r = {
 						title: thread.title,
 						thread: {

@@ -1,8 +1,8 @@
-var init = require('./init');
-var config = require('./config');
-var auth = require('./auth');
-var express = require('./express');
-var rcs = require('./rcs');
+var init = require('../main/init');
+var config = require('../main/config');
+var auth = require('../main/auth');
+var express = require('../main/express');
+var rcs = require('../main/rcs');
 
 init.add(function () {
 

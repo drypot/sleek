@@ -5,13 +5,20 @@ var express = require('express');
 var rcs = require('../main/rcs');
 
 var config = require('../main/config')({ test: true });
+var auth = require('../main/auth')({ config: config });
+var upload = require('../main/upload')({ config: config });
+
+var mongo;
+var es;
+var post;
 
 before(function (next) {
-	require('../main/mongo')({ config: config, dropDatabase: true }, function (mongo) {
-		require('../main/es')({ config: config, dropIndex: true }, function (es) {
-			var auth = require('../main/auth')({ config: config });
-			var upload = require('../main/upload')({ config: config });
-			var post = require('../main/post')({ mongo: mongo, es: es, upload: upload});
+	require('../main/mongo')({ config: config, dropDatabase: true }, function (_mongo) {
+		mongo = _mongo;
+		require('../main/es')({ config: config, dropIndex: true }, function (_es) {
+			es = _es;
+
+			post = require('../main/post')({ mongo: mongo, es: es, upload: upload});
 
 			var app = express();
 			require('../main/express')({ config: config, auth: auth, app: app });
@@ -27,7 +34,7 @@ before(function (next) {
 var url = 'http://localhost:' + config.port;
 
 function logout(next) {
-	request.del(url + '/api/session', function (err, res) {
+	request.del(url + '/api/sessions', function (err, res) {
 		res.status.should.equal(200);
 		res.body.rc.should.equal(rcs.SUCCESS);
 		next();
@@ -35,7 +42,7 @@ function logout(next) {
 }
 
 function loginUser(next) {
-	request.post(url + '/api/session').send({ password: '1' }).end(function (err, res) {
+	request.post(url + '/api/sessions').send({ password: '1' }).end(function (err, res) {
 		res.status.should.equal(200);
 		res.body.rc.should.equal(rcs.SUCCESS);
 		res.body.role.name.should.equal('user');
@@ -44,7 +51,7 @@ function loginUser(next) {
 }
 
 function loginAdmin(next) {
-	request.post(url + '/api/session').send({ password: '3' }).end(function (err, res) {
+	request.post(url + '/api/sessions').send({ password: '3' }).end(function (err, res) {
 		res.status.should.equal(200);
 		res.body.rc.should.equal(rcs.SUCCESS);
 		res.body.role.name.should.equal('admin');
@@ -52,12 +59,12 @@ function loginAdmin(next) {
 	});
 }
 
-describe('post /api/thread', function () {
+describe('post /api/threads', function () {
 	it('given no session', function (next) {
 		logout(next);
 	});
 	it("should fail", function (next) {
-		request.post(url + '/api/thread', function (err, res) {
+		request.post(url + '/api/threads', function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.NOT_AUTHENTICATED);
 			next();
@@ -68,7 +75,7 @@ describe('post /api/thread', function () {
 	});
 	it("should fail when categoryId invalid", function (next) {
 		var form = { categoryId: 10100, writer : 'snowman', title: 'title', text: 'text' };
-		request.post(url + '/api/thread').send(form).end(function (err, res) {
+		request.post(url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.INVALID_CATEGORY);
 			next();
@@ -76,7 +83,7 @@ describe('post /api/thread', function () {
 	});
 	it("should fail when title empty", function (next) {
 		var form = { categoryId: 101, writer : 'snowman', title: ' ', text: 'text' };
-		request.post(url + '/api/thread').send(form).end(function (err, res) {
+		request.post(url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.INVALID_DATA);
 			res.body.fields.title.indexOf(rcs.msgs.FILL_TITLE).should.not.equal(-1);
@@ -86,7 +93,7 @@ describe('post /api/thread', function () {
 	it("should fail when title big", function (next) {
 		var bigTitle = 'big title title title title title title title title title title title title title title title title title title title title title title title title title title title title';
 		var form = { categoryId: 101, writer : 'snowman', text: 'text', title: bigTitle };
-		request.post(url + '/api/thread').send(form).end(function (err, res) {
+		request.post(url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.INVALID_DATA);
 			res.body.fields.title.indexOf(rcs.msgs.SHORTEN_TITLE).should.not.equal(-1);
@@ -95,7 +102,7 @@ describe('post /api/thread', function () {
 	});
 	it("should fail when writer empty", function (next) {
 		var form = { categoryId: 101, writer : ' ', title: 'title', text: 'text' };
-		request.post(url + '/api/thread').send(form).end(function (err, res) {
+		request.post(url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.INVALID_DATA);
 			res.body.fields.writer.indexOf(rcs.msgs.FILL_WRITER).should.not.equal(-1);
@@ -104,7 +111,7 @@ describe('post /api/thread', function () {
 	});
 	it("should fail when writer big", function (next) {
 		var form = { categoryId: 101, writer : '123456789012345678901234567890123', title: 'title', text: 'text' };
-		request.post(url + '/api/thread').send(form).end(function (err, res) {
+		request.post(url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.INVALID_DATA);
 			res.body.fields.writer.indexOf(rcs.msgs.SHORTEN_WRITER).should.not.equal(-1);
@@ -113,7 +120,7 @@ describe('post /api/thread', function () {
 	});
 	it('should fail when category is recycle bin', function (next) {
 		var form = { categoryId: 40, writer : 'snowman', title: 'title', text: 'text' };
-		request.post(url + '/api/thread').send(form).end(function (err, res) {
+		request.post(url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.INVALID_CATEGORY);
 			next();
@@ -121,7 +128,7 @@ describe('post /api/thread', function () {
 	});
 	it('should success', function (next) {
 		var form = { categoryId: 101, writer : 'snowman', title: 'title 1', text: 'head text 1' };
-		request.post(url + '/api/thread').send(form).end(function (err, res) {
+		request.post(url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.should.have.property('threadId');
@@ -134,7 +141,7 @@ describe('post /api/thread', function () {
 	});
 	it('should success when category is recycle bin', function (next) {
 		var form = { categoryId: 40, writer : 'snowman', title: 'title in recycle bin', text: 'head text in recycle bin' };
-		request.post(url + '/api/thread').send(form).end(function (err, res) {
+		request.post(url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			next();
@@ -142,7 +149,7 @@ describe('post /api/thread', function () {
 	});
 });
 
-describe.skip("get /api/thread", function () {
+describe("get /api/threads", function () {
 	var samples = [
 		{ categoryId: 100, writer : 'snowman', title: 'title 1', text: 'text 1' },
 		{ categoryId: 100, writer : 'snowman', title: 'title 2', text: 'text 2' },
@@ -154,29 +161,42 @@ describe.skip("get /api/thread", function () {
 	];
 
 	before(function (next) {
-
+		mongo.db.dropDatabase(next);
+	});
+	before(function (next) {
+		mongo.ensureThreads(next);
+	});
+	before(function (next) {
+		mongo.ensurePosts(next);
+	});
+	before(function (next) {
+		mongo.posts.count(function (err, count) {
+			should.not.exist(err);
+			count.should.equal(0);
+			next();
+		});
+	});
+	it('given sample threads', function (next) {
+		async.forEachSeries(samples, function (item, next) {
+			request.post(url + '/api/threads', item, next);
+		}, next);
 	});
 	it('given no session', function (next) {
 		logout(next);
 	});
 	it("should fail", function (next) {
-		request.post('/api/thread', function (err, res) {
+		request.post(url + '/api/threads', function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.NOT_AUTHENTICATED);
-			next(err);
+			next();
 		});
 	});
-	it.skip('given user session', function (next) {
-		request.post('/api/session', { password: '1' }, next);
-	});
-	it.skip('and threads', function (next) {
-		async.forEachSeries(samples, function (item, next) {
-			request.post('/api/thread', item, next);
-		}, next);
+	it('given user session', function (next) {
+		loginUser(next);
 	});
 	var t;
 	it.skip('when no op, should success', function (next) {
-		request.get('/api/thread', function (err, res) {
+		request.get('/api/threads', function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.thread.should.length(7);
@@ -198,7 +218,7 @@ describe.skip("get /api/thread", function () {
 		});
 	});
 	it.skip('when category 0, should success', function (next) {
-		request.get('/api/thread', { c: 0 }, function (err, res) {
+		request.get('/api/threads', { c: 0 }, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.thread.should.length(7);
@@ -206,7 +226,7 @@ describe.skip("get /api/thread", function () {
 		});
 	});
 	it.skip('when category 300, should success', function (next) {
-		request.get('/api/thread', { c: 300 }, function (err, res) {
+		request.get('/api/threads', { c: 300 }, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.thread.should.length(2);
@@ -214,7 +234,7 @@ describe.skip("get /api/thread", function () {
 		});
 	});
 	it.skip('when page 2, should success', function (next) {
-		request.get('/api/thread', { c: 0, p: 2, ps: 3 }, function (err, res) {
+		request.get('/api/threads', { c: 0, p: 2, ps: 3 }, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.thread.should.length(3);
@@ -225,7 +245,7 @@ describe.skip("get /api/thread", function () {
 		});
 	});
 	it.skip('when page -1, should success', function (next) {
-		request.get('/api/thread', { c: 0, p: -1, ps: 3 }, function (err, res) {
+		request.get('/api/threads', { c: 0, p: -1, ps: 3 }, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.thread.should.length(3);

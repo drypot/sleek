@@ -1,5 +1,5 @@
 
-var rcs = require('./rcs');
+var rcs = require('../main/rcs');
 
 module.exports = function (opt) {
 
@@ -9,7 +9,7 @@ module.exports = function (opt) {
 	var es = opt.es;
 	var upload = opt.upload;
 
-	exports.formFromRequest = function (req) {
+	exports.form = function (req, next) {
 		var body = req.body;
 		var form = {};
 		form.now = new Date();
@@ -22,16 +22,16 @@ module.exports = function (opt) {
 		form.visible = !!body.visible;
 		form.delFiles = body.delFiles;
 		form.tmpFiles = body.tmpFiles;
-		return form;
+		next(null, form);
 	};
 
-	exports.threadListParam = function (req, end) {
+	exports.threadsParams = function (req, next) {
 		var query = req.query;
 		var categoryId = parseInt(query.c) || 0;
 		var page = parseInt(query.p) || 0;
 		var pageSize = parseInt(query.ps) || 1;
 		pageSize = pageSize > 128 ? 128 : pageSize < 1 ? 1 : pageSize;
-		end(categoryId, page, pageSize);
+		next(null, categoryId, page, pageSize);
 	}
 
 
@@ -43,7 +43,7 @@ module.exports = function (opt) {
 					var postId = mongo.getNewPostId();
 					savePostFiles(postId, form, end, function () {
 						insertPost(postId, form, thread, end, function () {
-							end({ rc: rcs.SUCCESS, threadId: threadId, postId: postId });
+							end(null, threadId, postId);
 						});
 					});
 				});
@@ -51,12 +51,34 @@ module.exports = function (opt) {
 		});
 	}
 
+	exports.threads = function (role, categoryId, page, pageSize, end) {
+		categoryForRead(role, categoryId, end, function (category) {
+			mongo.findThreadsByCategory(categoryId, page, pageSize, function (err, threads) {
+				if (err) {
+					return end({ rc:  rcs.DB_IO_ERR });
+				}
+				end(null, category, threads);
+			});
+		});
+	};
+
 	function categoryForNew(role, categoryId, end, next) {
 		var category = role.categories[categoryId];
 		if (!category) {
 			return end({ rc: rcs.INVALID_CATEGORY });
 		}
 		if (!category.writable) {
+			return end({ rc: rcs.NOT_AUTHORIZED });
+		}
+		next(category);
+	}
+
+	function categoryForRead(role, categoryId, end, next) {
+		var category = role.categories[categoryId];
+		if (!category) {
+			return end({ rc: rcs.INVALID_CATEGORY });
+		}
+		if (!category.readable) {
 			return end({ rc: rcs.NOT_AUTHORIZED });
 		}
 		next(category);

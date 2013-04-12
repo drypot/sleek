@@ -13,21 +13,21 @@ before(function (next) {
 
 describe('updating head post', function () {
 	it('given no session', function (next) {
-		request.del('/api/session', next);
+		request.del('/api/sessions', next);
 	});
 	it("should fail", function (next) {
-		request.put('/api/thread/0/0', function (err, res) {
+		request.put('/api/threads/0/0', function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.NOT_AUTHENTICATED);
 			next(err);
 		});
 	});
 	it('given user session', function (next) {
-		request.post('/api/session', { password: '1' }, next);
+		request.post(url + '/api/sessions', { password: '1' }, next);
 	});
 	var tid1, pid11, pid12;
 	it('and head', function (next) {
-		request.post('/api/thread',
+		request.post(url + '/api/threads',
 			{ categoryId: 101, writer : 'snowman', title: 'title 1', text: 'head text 1' },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -39,7 +39,7 @@ describe('updating head post', function () {
 		);
 	});
 	it('without category change, should success, except visible field', function (next) {
-		request.put('/api/thread/' + tid1 + '/' + pid11,
+		request.put('/api/threads/' + tid1 + '/' + pid11,
 			{ categoryId: 101, writer: 'snowman u1', title: 'title u1', text: 'head text u1', visible: false },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -49,7 +49,7 @@ describe('updating head post', function () {
 		);
 	});
 	it('and can confirm changed', function (next) {
-		request.get('/api/thread/' + tid1 + '/' + pid11, function (err, res) {
+		request.get('/api/threads/' + tid1 + '/' + pid11, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.post.head.should.true;
@@ -62,7 +62,7 @@ describe('updating head post', function () {
 		});
 	});
 	it('with category chagne, should success', function (next) {
-		request.put('/api/thread/' + tid1 + '/' + pid11,
+		request.put('/api/threads/' + tid1 + '/' + pid11,
 			{ categoryId: 102, writer: 'snowman u1', title: 'title u1', text: 'head text u1', visible: true },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -72,7 +72,7 @@ describe('updating head post', function () {
 		);
 	});
 	it('and can confirm changed', function (next) {
-		request.get('/api/thread/' + tid1 + '/' + pid11, function (err, res) {
+		request.get('/api/threads/' + tid1 + '/' + pid11, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.category.id.should.equal(102);
@@ -80,7 +80,7 @@ describe('updating head post', function () {
 		});
 	});
 	it('when thread is in recycle bin, should fail', function (next) {
-		request.put('/api/thread/' + tid1 + '/' + pid11,
+		request.put('/api/threads/' + tid1 + '/' + pid11,
 			{ categoryId: 40, writer: 'snowman u1', title: 'title u1', text: 'head text u1', visible: true },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -90,7 +90,7 @@ describe('updating head post', function () {
 		);
 	});
 	it('when title empty, should fail', function (next) {
-		request.put('/api/thread/' + tid1 + '/' + pid11,
+		request.put('/api/threads/' + tid1 + '/' + pid11,
 			{ categoryId: 101, writer: 'snowman u1', title: ' ', text: 'text', visible: true },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -101,7 +101,7 @@ describe('updating head post', function () {
 		);
 	});
 	it('when writer empty, should fail', function (next) {
-		request.put('/api/thread/' + tid1 + '/' + pid11,
+		request.put('/api/threads/' + tid1 + '/' + pid11,
 			{ categoryId: 101, writer: ' ', title: 'title', text: 'text', visible: true },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -112,10 +112,10 @@ describe('updating head post', function () {
 		);
 	});
 	it('given admin session', function (next) {
-		request.post('/api/session', { password: '3' }, next);
+		request.post(url + '/api/sessions', { password: '3' }, next);
 	});
 	it('when thread is in recyle bin, should success', function (next) {
-		request.put('/api/thread/' + tid1 + '/' + pid11,
+		request.put('/api/threads/' + tid1 + '/' + pid11,
 			{ categoryId: 40, writer: 'snowman u1', title: 'title u1', text: 'head text u1', visible: true },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -128,21 +128,21 @@ describe('updating head post', function () {
 
 describe('updating reply post', function () {
 	it('given no session', function (next) {
-		request.del('/api/session', next);
+		request.del('/api/sessions', next);
 	});
 	it("should fail", function (next) {
-		request.put('/api/thread/0/0', function (err, res) {
+		request.put('/api/threads/0/0', function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.NOT_AUTHENTICATED);
 			next(err);
 		});
 	});
 	it('given user session', function (next) {
-		request.post('/api/session', { password: '1' }, next);
+		request.post(url + '/api/sessions', { password: '1' }, next);
 	});
 	var tid1, pid11, pid12;
 	it('and head', function (next) {
-		request.post('/api/thread',
+		request.post(url + '/api/threads',
 			{ categoryId: 101, writer : 'snowman', title: 'title 1', text: 'head text 1' },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -154,7 +154,7 @@ describe('updating reply post', function () {
 		);
 	});
 	it('and replay', function (next) {
-		request.post('/api/thread/' + tid1,
+		request.post(url + '/api/threads/' + tid1,
 			{ writer : 'snowman', text: 'reply text 1' },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -165,7 +165,7 @@ describe('updating reply post', function () {
 		);
 	});
 	it('should success, except visible field', function (next) {
-		request.put('/api/thread/' + tid1 + '/' + pid12,
+		request.put('/api/threads/' + tid1 + '/' + pid12,
 			{ writer: 'snowman u1', text: 'reply text u1', visible: false },
 			function (err, res) {
 				res.status.should.equal(200);
@@ -175,7 +175,7 @@ describe('updating reply post', function () {
 		);
 	});
 	it('and can confirm changed', function (next) {
-		request.get('/api/thread/' + tid1 + '/' + pid12, function (err, res) {
+		request.get('/api/threads/' + tid1 + '/' + pid12, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.post.head.should.false;
@@ -186,7 +186,7 @@ describe('updating reply post', function () {
 		});
 	});
 	it('when writer empty, should fail', function (next) {
-		request.put('/api/thread/' + tid1 + '/' + pid12,
+		request.put('/api/threads/' + tid1 + '/' + pid12,
 			{ writer: ' ', text: 'text', visible: true },
 			function (err, res) {
 				res.status.should.equal(200);
