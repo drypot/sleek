@@ -1,21 +1,19 @@
 var fs = require('fs');
 var path = require('path');
 
+var init = require('./init');
+var config = require('./config');
 var fs2 = require('./fs');
 
-module.exports = function (opt) {
+init.add(function () {
 
-	var exports = {};
+	var publicDir = config.data.uploadDir + '/public';
+	var tmpDir = config.data.uploadDir + '/tmp';
 
-	var config = opt.config;
+	console.log('upload: ' + config.data.uploadDir);
 
-	var publicDir = config.uploadDir + '/public';
-	var tmpDir = config.uploadDir + '/tmp';
-
-	console.log('upload: ' + config.uploadDir);
-
-	fs2.mkdirs([config.uploadDir, 'public', 'post']);
-	fs2.mkdirs([config.uploadDir, 'tmp']);
+	fs2.mkdirs([config.data.uploadDir, 'public', 'post']);
+	fs2.mkdirs([config.data.uploadDir, 'tmp']);
 
 	fs.readdirSync(tmpDir).forEach(function (filename) {
 		fs.unlinkSync(tmpDir + '/' + filename);
@@ -59,7 +57,7 @@ module.exports = function (opt) {
 	};
 
 	exports.postFileUrl = function (postId, upload) {
-		return config.uploadUrl + '/post/' + Math.floor(postId / 10000) + '/' + postId + '/' + encodeURIComponent(upload);
+		return config.data.uploadUrl + '/post/' + Math.floor(postId / 10000) + '/' + postId + '/' + encodeURIComponent(upload);
 	}
 
 	exports.postFileExists = function (postId, basename) {
@@ -120,5 +118,4 @@ module.exports = function (opt) {
 		}
 	}
 
-	return exports;
-};
+});

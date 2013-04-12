@@ -1,6 +1,6 @@
 var fs = require('fs');
 
-var l = require('./l');
+var init = require('./init');
 
 var opt = {};
 
@@ -20,10 +20,10 @@ exports.reset = function () {
 }
 
 exports.init = function () {
-	exports.config = load(opt.path);
+	exports.data = load(opt.path);
 }
 
-l.init(exports.init);
+init.add(exports.init);
 
 
 function load (path) {

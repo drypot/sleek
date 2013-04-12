@@ -1,28 +1,28 @@
 var should = require('should');
 var request = require('superagent').agent();
-var express = require('express');
 
+var init = require('../main/init');
+var config = require('../main/config').options({ test: true });
+var upload = require('../main/upload');
+var express = require('../main/express');
 var rcs = require('../main/rcs');
 
-var config = require('../main/config')({ test: true });
-var auth = require('../main/auth')({ config: config });
-var upload = require('../main/upload')({ config: config });
+require('../main/session-api');
+require('../main/upload-api');
 
-var app = express();
+before(function (next) {
+	init.run(next);
+});
 
-require('../main/express')({ config: config, auth: auth, app: app });
-require('../main/session-api')({ config: config, auth: auth, app: app });
-require('../main/upload-api')({ upload: upload, app: app });
+before(function () {
+	express.listen();
+	url = 'http://localhost:' + config.data.port;
+});
 
-app.listen(config.port);
-
-var url = 'http://localhost:' + config.port;
-
-var USER_PASS = '1';
-var ADMIN_PASS = '3';
+var url;
 
 it('given user session', function (next) {
-	request.post(url + '/api/session').send({ password: USER_PASS }).end(function (err, res) {
+	request.post(url + '/api/sessions').send({ password: '1' }).end(function (err, res) {
 		should.not.exist(err);
 		res.status.should.equal(200);
 		res.body.rc.should.equal(rcs.SUCCESS);

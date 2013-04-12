@@ -1,9 +1,11 @@
-var rcs = require('../main/rcs');
+var init = require('./init');
+var upload = require('./upload');
+var express = require('./express');
+var rcs = require('./rcs');
 
-module.exports = function (opt) {
+init.add(function () {
 
-	var app = opt.app;
-	var upload = opt.upload;
+	var app = express.app;
 
 	app.post('/api/upload', function (req, res) {
 		req.authorized(function () {
@@ -21,4 +23,5 @@ module.exports = function (opt) {
 		});
 	});
 
-};
+	console.log('upload-api:');
+});

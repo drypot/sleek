@@ -1,13 +1,23 @@
 var async = require('async');
 var mongo = require("mongodb");
 
-module.exports = function (opt, next) {
+var init = require('./init');
+var config = require('./config');
 
-	var exports = {};
+var opt = {};
 
-	var config = opt.config;
+exports.options = function (_opt) {
+	for(var p in _opt) {
+		opt[p] = _opt[p];
+	}
+
+	return exports;
+};
+
+init.add(function (next) {
+
 	var server = exports.server = new mongo.Server("127.0.0.1", 27017, { auto_reconnect: true });
-	var db = exports.db = new mongo.Db(config.mongoDbName, server, { safe: false });
+	var db = exports.db = new mongo.Db(config.data.mongoDbName, server, { safe: false });
 
 	async.series([
 		function (next) {
@@ -28,7 +38,7 @@ module.exports = function (opt, next) {
 			var threads;
 			var threadIdSeed;
 
-			exports.rebuildThreads = function (next) {
+			exports.ensureThreads = function (next) {
 				threads = exports.threads = db.collection("postThread");
 				async.series([
 					function (next) {
@@ -47,7 +57,7 @@ module.exports = function (opt, next) {
 				], next);
 			}
 
-			exports.rebuildThreads(function (err) {
+			exports.ensureThreads(function (err) {
 				console.log('thread id seed: ' + threadIdSeed);
 				next(err);
 			});
@@ -91,7 +101,7 @@ module.exports = function (opt, next) {
 			var posts;
 			var postIdSeed;
 
-			exports.rebuildPosts = function (next) {
+			exports.ensurePosts = function (next) {
 				posts = exports.posts = exports.db.collection("post");
 				async.series([
 					function (next) {
@@ -107,7 +117,7 @@ module.exports = function (opt, next) {
 				], next);
 			}
 
-			exports.rebuildPosts(function (err) {
+			exports.ensurePosts(function (err) {
 				console.log('post id seed: ' + postIdSeed);
 				next(err);
 			});
@@ -132,9 +142,6 @@ module.exports = function (opt, next) {
 				posts.find({ threadId: threadId }).sort({ created: 1 }).toArray(next);
 			};
 		}
-	], function (err) {
-		if (err) throw err;
-		next(exports);
-	});
+	], next);
 
-};
+});

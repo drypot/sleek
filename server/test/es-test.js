@@ -1,19 +1,13 @@
 var should = require('should');
 var async = require('async');
-var request = require('superagent').agent(); // global vars setter
 
-var config = require('../main/config')({ test: true });
-var mongo;
-var es;
+var init = require('../main/init');
+var config = require('../main/config').options({ test: true });
+var mongo = require('../main/mongo').options({ dropDatabase: true });
+var es = require('../main/es').options({ dropIndex: true });
 
 before(function (next) {
-	require('../main/mongo')({ config: config, dropDatabase: true }, function (_mongo) {
-		require('../main/es')({ config: config, dropIndex: true }, function (_es) {
-			mongo = _mongo;
-			es = _es;
-			next();
-		});
-	});
+	init.run(next);
 });
 
 describe('es', function () {

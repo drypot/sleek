@@ -1,5 +1,6 @@
 var should = require('should');
 var fs = require('fs');
+
 var fs2 = require('../main/fs');
 
 var base = 'tmp';

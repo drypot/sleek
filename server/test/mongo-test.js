@@ -1,13 +1,11 @@
 var should = require('should');
 
-var config = require('../main/config')({ test: true });
-var mongo;
+var init = require('../main/init');
+var config = require('../main/config').options({ test: true });
+var mongo = require('../main/mongo').options({ dropDatabase: true });
 
 before(function (next) {
-	require('../main/mongo')({ config: config, dropDatabase: true }, function (_mongo) {
-		mongo = _mongo;
-		next();
-	});
+	init.run(next);
 });
 
 describe('mongo module', function () {
@@ -95,7 +93,7 @@ describe('filled post collection', function () {
 	});
 	it('can update', function (next) {
 		ppost.writer  = "fireman";
-		ppost.hxit = 17;
+		ppost.hit = 17;
 		mongo.updatePost(ppost, function (err) {
 			mongo.findPostById(ppost._id, function (err, post) {
 				should.not.exist(err);

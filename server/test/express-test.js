@@ -1,32 +1,39 @@
 var should = require('should');
 var request = require('superagent').agent();
-var express = require('express');
 
-var config = require('../main/config')({ test: true });
-var auth = require('../main/auth')({ config: config });
+var init = require('../main/init');
+var config = require('../main/config').options({ test: true });
+var express = require('../main/express');
 
-var app = express();
+require('../main/hello-api');
 
-require('../main/express')({ config: config, auth: auth, app: app });
-require('../main/hello-api')({ app: app });
-
-app.get('/test', function (req, res) {
-	res.send('test home');
+before(function (next) {
+	init.run(next);
 });
 
-app.get('/test/no-action', function (req, res, next) {
+before(function(next) {
+	var app = express.app;
+
+	app.get('/test', function (req, res) {
+		res.send('test home');
+	});
+
+	app.get('/test/no-action', function (req, res, next) {
+		next();
+	});
+
+	app.get('/api/send-rc-33', function (req, res) {
+		res.json({ rc: 33 });
+	});
+
+	express.listen();
+
+	url = 'http://localhost:' + config.data.port;
+
 	next();
 });
 
-app.get('/api/send-rc-33', function (req, res) {
-	res.json({ rc: 33 });
-});
-
-app.listen(config.port);
-
-var url = 'http://localhost:' + config.port;
-
-//
+var url;
 
 describe('/hello', function () {
 	it('should return "hello"', function (next) {

@@ -21,7 +21,7 @@ describe('config with test: true', function () {
 	it('should success', function () {
 		config.options({ test: true });
 		config.init();
-		config.config.siteTitle.should.equal("sleek test");
+		config.data.siteTitle.should.equal("sleek test");
 	});
 });
 
@@ -32,6 +32,6 @@ describe('config with valid path', function () {
 	it('should success', function () {
 		config.options({ path: 'config/config-test.json' });
 		config.init();
-		config.config.siteTitle.should.equal("sleek test");
+		config.data.siteTitle.should.equal("sleek test");
 	});
 });

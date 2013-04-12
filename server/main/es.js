@@ -1,22 +1,24 @@
 var async = require('async');
 var request = require('superagent').agent();
 
-module.exports = function (opt, next) {
+var init = require('./init');
+var config = require('./config');
 
-	var exports = {};
+var opt = {};
 
-	var config = opt.config;
-	var url = config.esUrl + '/' + config.esIndexName;
+exports.options = function (_opt) {
+	for(var p in _opt) {
+		opt[p] = _opt[p];
+	}
 
-	exports.dropIndex = function (next) {
-		request.del(url, function (err, res) {
-			if (err) return next(err);
-			if (res.error) return next(res.error);
-			setSchema(next);
-		});
-	};
+	return exports;
+};
 
-	var setSchema = function (next) {
+init.add(function (next) {
+
+	var url = config.data.esUrl + '/' + config.data.esIndexName;
+
+	function setSchema(next) {
 		request.post(url).send({
 			settings: {
 				index: {
@@ -39,8 +41,16 @@ module.exports = function (opt, next) {
 				}
 			}
 		}).end(function (err, res) {
+				if (res.error) return next(res.error);
+				next(err, res);
+			});
+	};
+
+	exports.dropIndex = function (next) {
+		request.del(url, function (err, res) {
+			if (err) return next(err);
 			if (res.error) return next(res.error);
-			next(err, res);
+			setSchema(next);
 		});
 	};
 
@@ -107,9 +117,7 @@ module.exports = function (opt, next) {
 			console.log('elasticsearch: ' + url);
 			next();
 		}
-	], function (err) {
-		if (err) throw err;
-		next(exports);
-	});
+	], next);
 
-};
+});
+

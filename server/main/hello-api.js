@@ -1,10 +1,12 @@
+var init = require('../main/init');
+var express = require('../main/express');
 
-module.exports = function (opt) {
+init.add(function () {
 
-	var app = opt.app;
+	console.log('hello-api:');
 
-	app.get('/api/hello', function (req, res) {
+	express.app.get('/api/hello', function (req, res) {
 		res.json('hello');
 	});
 
-};
+});

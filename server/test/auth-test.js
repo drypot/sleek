@@ -1,7 +1,12 @@
 var should = require('should');
 
-var config = require('../main/config')({ test: true });
-var auth = require('../main/auth')({ config: config });
+var init = require('../main/init');
+var config = require('../main/config').options({ test: true });
+var auth = require('../main/auth');
+
+before(function (next) {
+	init.run(next);
+});
 
 describe('roleByName()', function () {
 	it('can find role by name', function () {

@@ -1,13 +1,13 @@
 var bcrypt = require('bcrypt');
 
-module.exports = function (opt) {
+var init = require('./init');
+var config = require('./config');
 
-	var exports = {};
+init.add(function () {
 
-	var config = opt.config;
 	var roles = {};
 
-	config.roles.forEach(function (_role) {
+	config.data.roles.forEach(function (_role) {
 		var role = {
 			name: _role.name,
 			hash: _role.hash,
@@ -15,7 +15,7 @@ module.exports = function (opt) {
 			categoriesForMenu : [],
 			categoriesForNew : []
 		};
-		config.categories.forEach(function (_category) {
+		config.data.categories.forEach(function (_category) {
 			var category = {
 				id: _category.id,
 				name: _category.name,
@@ -34,6 +34,7 @@ module.exports = function (opt) {
 		});
 		roles[role.name] = role;
 	});
+	console.log('auth:');
 
 	exports.roleByName = function (roleName) {
 		return roles[roleName];
@@ -49,5 +50,4 @@ module.exports = function (opt) {
 		return null;
 	};
 
-	return exports;
-};
+});

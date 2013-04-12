@@ -2,13 +2,25 @@ var should = require('should');
 var express = require('express');
 var redisStore = require('connect-redis')(express);
 
+var init = require('./init');
+var config = require('./config');
+var auth = require('./auth');
 var rcs = require('./rcs');
 
-module.exports = function (opt) {
+var opt = {};
 
-	var config = opt.config;
-	var auth = opt.auth;
-	var app = opt.app;
+exports.options = function (_opt) {
+	for(var p in _opt) {
+		opt[p] = _opt[p];
+	}
+
+	return exports;
+};
+
+init.add(function () {
+
+	var app = exports.app = express();
+	var log = 'express:';
 
 	app.disable('x-powered-by');
 
@@ -16,19 +28,19 @@ module.exports = function (opt) {
 //	app.set('view engine', 'dust'); // default view engine
 //	app.set('views', process.cwd() + '/client/dust'); // view root
 
-	app.locals.siteTitle = config.siteTitle;
+	app.locals.siteTitle = config.data.siteTitle;
 
-	app.use(express.cookieParser(config.cookieSecret));
+	app.use(express.cookieParser(config.data.cookieSecret));
 
 	if (opt.store === 'redis') {
 		app.use(express.session({ store: new redisStore() }));
-		console.log('session: redis');
+		log += ' redis';
 	} else {
 		app.use(express.session());
-		console.log('session: memory');
+		log += ' memory';
 	}
 
-	app.use(express.bodyParser({ uploadDir: config.uploadDir + '/tmp' }));
+	app.use(express.bodyParser({ uploadDir: config.data.uploadDir + '/tmp' }));
 
 	app.use(function (req, res, next) {
 		res.locals.role = auth.roleByName(req.session.roleName);
@@ -91,4 +103,10 @@ module.exports = function (opt) {
 		next(role);
 	};
 
-};
+	exports.listen = function () {
+		app.listen(config.data.port);
+		log += ' ' + config.data.port;
+		console.log(log);
+	};
+
+});

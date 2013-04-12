@@ -1,12 +1,14 @@
+var init = require('./init');
+var config = require('./config');
+var auth = require('./auth');
+var express = require('./express');
 var rcs = require('./rcs');
 
-module.exports = function (opt) {
+init.add(function () {
 
-	var config = opt.config;
-	var auth = opt.auth;
-	var app = opt.app;
+	var app = express.app;
 
-	app.get('/api/session', function (req, res) {
+	app.get('/api/sessions', function (req, res) {
 		req.authorized(function (r) {
 			res.json(r || {
 				rc: rcs.SUCCESS,
@@ -14,12 +16,12 @@ module.exports = function (opt) {
 					name: res.locals.role.name,
 					categoriesForMenu: res.locals.role.categoriesForMenu
 				},
-				uploadUrl: config.uploadUrl
+				uploadUrl: config.data.uploadUrl
 			});
 		});
 	});
 
-	app.post('/api/session', function (req, res) {
+	app.post('/api/sessions', function (req, res) {
 		var role = auth.roleByPassword(req.body.password || '');
 		if (!role) {
 			res.json({ rc: rcs.INVALID_PASSWORD });
@@ -54,7 +56,7 @@ module.exports = function (opt) {
 		}
 	}
 
-	app.del('/api/session', function (req, res) {
+	app.del('/api/sessions', function (req, res) {
 		req.session.destroy();
 		res.json({ rc: rcs.SUCCESS });
 	});
@@ -95,4 +97,5 @@ module.exports = function (opt) {
 		});
 	});
 
-};
+	console.log('session-api:');
+});

@@ -135,7 +135,7 @@ l.init(function() {
 		}
 		l.form.clearAlert(l.$content);
 		showSending();
-		request.post('/api/thread').send(post).endEx(function (err, res) {
+		request.post(url + '/api/threads').send(post).endEx(function (err, res) {
 			showSend();
 			if (err) {
 				l.systemError(err);

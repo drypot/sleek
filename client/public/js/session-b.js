@@ -21,7 +21,7 @@ l.init(function () {
 			next(null, false);
 		} else {
 			console.log('trying saved password,');
-			request.post('/api/session').send({ password: pw }).endEx(function (err, res) {
+			request.post(url + '/api/sessions').send({ password: pw }).endEx(function (err, res) {
 				if (err) {
 					next(err, false);
 				} else {
@@ -35,7 +35,7 @@ l.init(function () {
 		var $password = l.$content.find('[name=password]');
 		var $remember = l.$content.find('[name=remember]');
 		l.form.clearAlert(l.$content);
-		request.post('/api/session').send({ password: $password.val() }).endEx(function (err, res) {
+		request.post(url + '/api/sessions').send({ password: $password.val() }).endEx(function (err, res) {
 			if (err) {
 				l.systemError(err);
 			} else if (res.body.rc !== rcs.SUCCESS) {
@@ -57,7 +57,7 @@ l.init(function () {
 l.init(function () {
 
 	l.session.logout = function () {
-		request.del('/api/session').end(function (res) {
+		request.del('/api/sessions').end(function (res) {
 			localStorage.removeItem('password');
 			console.log('logged out');
 			location = '/';
