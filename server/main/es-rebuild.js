@@ -7,7 +7,7 @@ module.exports = function (opt, next) {
 	var es = opt.es;
 
 	exports.rebuild = function (next) {
-		var threadCursor = mongo.threadCol.find();
+		var threadCursor = mongo.threads.find();
 		var postCursor;
 		var count = 0;
 
@@ -21,7 +21,7 @@ module.exports = function (opt, next) {
 					if (!thread) {
 						next();
 					} else {
-						postCursor = mongo.postCol.find({ threadId: thread._id });
+						postCursor = mongo.posts.find({ threadId: thread._id });
 						walkPost(thread, function (err) {
 							if (err) {
 								next(err);

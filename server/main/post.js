@@ -23,17 +23,27 @@ module.exports = function (opt) {
 		form.delFiles = body.delFiles;
 		form.tmpFiles = body.tmpFiles;
 		return form;
+	};
+
+	exports.threadListParam = function (req, end) {
+		var query = req.query;
+		var categoryId = parseInt(query.c) || 0;
+		var page = parseInt(query.p) || 0;
+		var pageSize = parseInt(query.ps) || 1;
+		pageSize = pageSize > 128 ? 128 : pageSize < 1 ? 1 : pageSize;
+		end(categoryId, page, pageSize);
 	}
 
-	exports.createThread = function (role, form, next) {
-		categoryForNew(role, form.categoryId, next, function (category) {
-			checkForm(form, true, next, function () {
+
+	exports.createThread = function (role, form, end) {
+		categoryForNew(role, form.categoryId, end, function (category) {
+			checkForm(form, true, end, function () {
 				var threadId = mongo.getNewThreadId();
-				insertThread(threadId, form, next, function (thread) {
+				insertThread(threadId, form, end, function (thread) {
 					var postId = mongo.getNewPostId();
-					savePostFiles(postId, form, next, function () {
-						insertPost(postId, form, thread, next, function () {
-							next({ rc: rcs.SUCCESS, threadId: threadId, postId: postId });
+					savePostFiles(postId, form, end, function () {
+						insertPost(postId, form, thread, end, function () {
+							end({ rc: rcs.SUCCESS, threadId: threadId, postId: postId });
 						});
 					});
 				});
@@ -41,18 +51,18 @@ module.exports = function (opt) {
 		});
 	}
 
-	function categoryForNew(role, categoryId, next, next2) {
+	function categoryForNew(role, categoryId, end, next) {
 		var category = role.categories[categoryId];
 		if (!category) {
-			return next({ rc: rcs.INVALID_CATEGORY });
+			return end({ rc: rcs.INVALID_CATEGORY });
 		}
 		if (!category.writable) {
-			return next({ rc: rcs.NOT_AUTHORIZED });
+			return end({ rc: rcs.NOT_AUTHORIZED });
 		}
-		next2(category);
+		next(category);
 	}
 
-	function checkForm(form, head, next, next2) {
+	function checkForm(form, head, end, next) {
 		var error = new FieldError();
 
 		if (head) {
@@ -69,11 +79,11 @@ module.exports = function (opt) {
 		if (form.writer.length > 32) {
 			error.push('writer', rcs.msgs.SHORTEN_WRITER);
 		}
-		if (error.fields.length) {
-			return next({ rc: rcs.INVALID_DATA, fields: error.fields });
+		if (error.hasError()) {
+			return end({ rc: rcs.INVALID_DATA, fields: error.fields });
 		}
 
-		next2();
+		next();
 	}
 
 	var FieldError = function () {
@@ -89,10 +99,15 @@ module.exports = function (opt) {
 	}
 
 	FieldError.prototype.hasError = function () {
-		return fields.length > 0; //TODO: check emtpy
+		var has = false;
+		for (var key in this.fields) {
+			has = true;
+			break;
+		}
+		return has;
 	}
 
-	function insertThread(threadId, form, next, next2) {
+	function insertThread(threadId, form, end, next) {
 		var thread = {
 			_id : threadId,
 			categoryId: form.categoryId,
@@ -103,14 +118,14 @@ module.exports = function (opt) {
 			if (err) {
 				return { rc:  rcs.DB_IO_ERR };
 			}
-			next2(thread);
+			next(thread);
 		});
 	}
 
-	function savePostFiles(postId, form, next, next2) {
+	function savePostFiles(postId, form, end, next) {
 		upload.savePostFiles(postId, form.tmpFiles, function (err, saved) {
 			if (err) {
-				return next({ rc: rcs.FILE_IO_ERR });
+				return end({ rc: rcs.FILE_IO_ERR });
 			}
 			if (saved) {
 				if (form.files) {
@@ -123,11 +138,11 @@ module.exports = function (opt) {
 					form.files = saved;
 				}
 			}
-			next2();
+			next();
 		});
 	}
 
-	function insertPost(postId, form, thread, next, next2) {
+	function insertPost(postId, form, thread, end, next) {
 		var post = {
 			_id: postId,
 			threadId: thread._id,
@@ -136,13 +151,13 @@ module.exports = function (opt) {
 		};
 		mongo.insertPost(post, function (err) {
 			if (err) {
-				return next({ rc: rcs.DB_IO_ERR });
+				return end({ rc: rcs.DB_IO_ERR });
 			}
 			es.updatePost(thread, post, function (err, res) {
 				if (err) {
-					return next({ rc: rcs.SEARCH_IO_ERR });
+					return end({ rc: rcs.SEARCH_IO_ERR });
 				}
-				next2();
+				next();
 			});
 		});
 	}

@@ -78,13 +78,12 @@ describe('post /api/thread', function () {
 		var form = { categoryId: 101, writer : 'snowman', title: ' ', text: 'text' };
 		request.post(url + '/api/thread').send(form).end(function (err, res) {
 			res.status.should.equal(200);
-			console.log(res.body);
 			res.body.rc.should.equal(rcs.INVALID_DATA);
 			res.body.fields.title.indexOf(rcs.msgs.FILL_TITLE).should.not.equal(-1);
 			next();
 		});
 	});
-	it.skip("should fail when title big", function (next) {
+	it("should fail when title big", function (next) {
 		var bigTitle = 'big title title title title title title title title title title title title title title title title title title title title title title title title title title title title';
 		var form = { categoryId: 101, writer : 'snowman', text: 'text', title: bigTitle };
 		request.post(url + '/api/thread').send(form).end(function (err, res) {
@@ -94,7 +93,7 @@ describe('post /api/thread', function () {
 			next();
 		});
 	});
-	it.skip("should fail when writer empty", function (next) {
+	it("should fail when writer empty", function (next) {
 		var form = { categoryId: 101, writer : ' ', title: 'title', text: 'text' };
 		request.post(url + '/api/thread').send(form).end(function (err, res) {
 			res.status.should.equal(200);
@@ -103,7 +102,7 @@ describe('post /api/thread', function () {
 			next();
 		});
 	});
-	it.skip("should fail when writer big", function (next) {
+	it("should fail when writer big", function (next) {
 		var form = { categoryId: 101, writer : '123456789012345678901234567890123', title: 'title', text: 'text' };
 		request.post(url + '/api/thread').send(form).end(function (err, res) {
 			res.status.should.equal(200);
@@ -112,7 +111,7 @@ describe('post /api/thread', function () {
 			next();
 		});
 	});
-	it.skip('should fail when category is recycle bin', function (next) {
+	it('should fail when category is recycle bin', function (next) {
 		var form = { categoryId: 40, writer : 'snowman', title: 'title', text: 'text' };
 		request.post(url + '/api/thread').send(form).end(function (err, res) {
 			res.status.should.equal(200);
@@ -120,7 +119,7 @@ describe('post /api/thread', function () {
 			next();
 		});
 	});
-	it.skip('should success', function (next) {
+	it('should success', function (next) {
 		var form = { categoryId: 101, writer : 'snowman', title: 'title 1', text: 'head text 1' };
 		request.post(url + '/api/thread').send(form).end(function (err, res) {
 			res.status.should.equal(200);
@@ -130,10 +129,10 @@ describe('post /api/thread', function () {
 			next();
 		});
 	});
-	it.skip('given admin session', function (next) {
+	it('given admin session', function (next) {
 		loginAdmin(next);
 	});
-	it.skip('should success when category is recycle bin', function (next) {
+	it('should success when category is recycle bin', function (next) {
 		var form = { categoryId: 40, writer : 'snowman', title: 'title in recycle bin', text: 'head text in recycle bin' };
 		request.post(url + '/api/thread').send(form).end(function (err, res) {
 			res.status.should.equal(200);
@@ -143,3 +142,97 @@ describe('post /api/thread', function () {
 	});
 });
 
+describe.skip("get /api/thread", function () {
+	var samples = [
+		{ categoryId: 100, writer : 'snowman', title: 'title 1', text: 'text 1' },
+		{ categoryId: 100, writer : 'snowman', title: 'title 2', text: 'text 2' },
+		{ categoryId: 100, writer : 'snowman', title: 'title 3', text: 'text 3' },
+		{ categoryId: 100, writer : 'snowman', title: 'title 4', text: 'text 4' },
+		{ categoryId: 300, writer : 'snowman', title: 'title 5', text: 'text 5' },
+		{ categoryId: 300, writer : 'snowman', title: 'title 6', text: 'text 6' },
+		{ categoryId: 400, writer : 'snowman', title: 'title 7', text: 'text 7' }
+	];
+
+	before(function (next) {
+
+	});
+	it('given no session', function (next) {
+		logout(next);
+	});
+	it("should fail", function (next) {
+		request.post('/api/thread', function (err, res) {
+			res.status.should.equal(200);
+			res.body.rc.should.equal(rcs.NOT_AUTHENTICATED);
+			next(err);
+		});
+	});
+	it.skip('given user session', function (next) {
+		request.post('/api/session', { password: '1' }, next);
+	});
+	it.skip('and threads', function (next) {
+		async.forEachSeries(samples, function (item, next) {
+			request.post('/api/thread', item, next);
+		}, next);
+	});
+	var t;
+	it.skip('when no op, should success', function (next) {
+		request.get('/api/thread', function (err, res) {
+			res.status.should.equal(200);
+			res.body.rc.should.equal(rcs.SUCCESS);
+			res.body.thread.should.length(7);
+
+			t = res.body.thread[0];
+			t.id.should.ok;
+			t.category.id.should.equal(400);
+			t.writ.skiper.should.equal('snowman');
+			t.tit.skiple.should.equal('tit.skiple 7');
+			t.hit.skip.should.equal(0);
+			t.length.should.equal(1);
+
+			t = res.body.thread[6];
+			t.id.should.ok;
+			t.category.id.should.equal(100);
+			t.writ.skiper.should.equal('snowman');
+			t.tit.skiple.should.equal('tit.skiple 1');
+			next(err);
+		});
+	});
+	it.skip('when category 0, should success', function (next) {
+		request.get('/api/thread', { c: 0 }, function (err, res) {
+			res.status.should.equal(200);
+			res.body.rc.should.equal(rcs.SUCCESS);
+			res.body.thread.should.length(7);
+			next(err);
+		});
+	});
+	it.skip('when category 300, should success', function (next) {
+		request.get('/api/thread', { c: 300 }, function (err, res) {
+			res.status.should.equal(200);
+			res.body.rc.should.equal(rcs.SUCCESS);
+			res.body.thread.should.length(2);
+			next(err);
+		});
+	});
+	it.skip('when page 2, should success', function (next) {
+		request.get('/api/thread', { c: 0, p: 2, ps: 3 }, function (err, res) {
+			res.status.should.equal(200);
+			res.body.rc.should.equal(rcs.SUCCESS);
+			res.body.thread.should.length(3);
+			res.body.thread[0].tit.skiple.should.equal('tit.skiple 4');
+			res.body.thread[1].tit.skiple.should.equal('tit.skiple 3');
+			res.body.thread[2].tit.skiple.should.equal('tit.skiple 2');
+			next(err);
+		});
+	});
+	it.skip('when page -1, should success', function (next) {
+		request.get('/api/thread', { c: 0, p: -1, ps: 3 }, function (err, res) {
+			res.status.should.equal(200);
+			res.body.rc.should.equal(rcs.SUCCESS);
+			res.body.thread.should.length(3);
+			res.body.thread[0].tit.skiple.should.equal('tit.skiple 3');
+			res.body.thread[1].tit.skiple.should.equal('tit.skiple 2');
+			res.body.thread[2].tit.skiple.should.equal('tit.skiple 1');
+			next(err);
+		});
+	});
+});

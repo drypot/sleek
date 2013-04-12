@@ -5,7 +5,29 @@ module.exports = function (opt) {
 	var post = opt.post;
 	var app = opt.app;
 
-	app.get('/api/thread', function (req, res, next) {
+	app.post('/api/thread', function (req, res) {
+		req.authorized(function (r, role) {
+			if (r) return res.json(r);
+			var form = post.formFromRequest(req);
+			post.createThread(role, form, function (r) {
+				if (r.rc == rcs.SUCCESS) {
+					req.session.post.push(r.postId);
+				}
+				res.json(r);
+			});
+		});
+	});
+
+	app.get('/api/thread', function (req, res) {
+		req.authorized(function (r) {
+			if (r.rc == rcs.SUCCESS) {
+				req.session.post.push(r.postId);
+			}
+			res.json(r);
+		}, function (role, end) {
+			var form = post.formFromRequest(req);
+			post.createThread(role, form, end);
+		});
 		req.authorized(function () {
 			threadListParam(req, function (categoryId, page, pageSize) {
 				readableCategory(res, categoryId, function (category) {
@@ -42,14 +64,6 @@ module.exports = function (opt) {
 		});
 	});
 
-	function threadListParam(req, next) {
-		var query = req.query;
-		var categoryId = parseInt(query.c) || 0;
-		var page = parseInt(query.p) || 0;
-		var pageSize = parseInt(query.ps) || 1;
-		pageSize = pageSize > 128 ? 128 : pageSize < 1 ? 1 : pageSize;
-		next(categoryId, page, pageSize);
-	}
 
 	function readableCategory(res, categoryId, next) {
 		var category = res.locals.role.categories[categoryId];
@@ -164,21 +178,6 @@ module.exports = function (opt) {
 		return category.editable || _.include(req.session.post, post._id)
 	}
 
-
-	// new thread
-
-	app.post('/api/thread', function (req, res) {
-		req.authorized(function (r, role) {
-			if (r) return res.json(r);
-			var form = post.formFromRequest(req);
-			post.createThread(role, form, function(r) {
-				if (r.rc == rcs.SUCCESS) {
-					req.session.post.push(r.postId);
-				}
-				res.json(r);
-			});
-		});
-	});
 
 
 	// new reply
