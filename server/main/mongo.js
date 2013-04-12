@@ -25,48 +25,55 @@ module.exports = function (opt, next) {
 			next();
 		},
 		function (next) {
-			var threadCol = exports.threadCol = db.collection("postThread");
+			var threads;
 			var threadIdSeed;
 
-			async.series([
-				function (next) {
-					threadCol.ensureIndex({ categoryId: 1, updated: -1 }, next);
-				},
-				function (next) {
-					threadCol.ensureIndex({ updated: -1 }, next);
-				},
-				function (next) {
-					threadCol.find({}, { _id: 1 }).sort({ _id: -1 }).limit(1).nextObject(function (err, obj) {
-						if (err) return next(err);
-						threadIdSeed = obj ? obj._id : 0;
-						console.log('thread id seed: ' + threadIdSeed);
-						next(err);
-					});
-				}
-			], next);
+			exports.rebuildThreads = function (next) {
+				threads = exports.threads = db.collection("postThread");
+				async.series([
+					function (next) {
+						threads.ensureIndex({ categoryId: 1, updated: -1 }, next);
+					},
+					function (next) {
+						threads.ensureIndex({ updated: -1 }, next);
+					},
+					function (next) {
+						threads.find({}, { _id: 1 }).sort({ _id: -1 }).limit(1).nextObject(function (err, obj) {
+							if (err) return next(err);
+							threadIdSeed = obj ? obj._id : 0;
+							next(err);
+						});
+					}
+				], next);
+			}
+
+			exports.rebuildThreads(function (err) {
+				console.log('thread id seed: ' + threadIdSeed);
+				next(err);
+			});
 
 			exports.getNewThreadId = function () {
 				return ++threadIdSeed;
 			};
 
 			exports.insertThread = function (thread, next) {
-				threadCol.insert(thread, next);
+				threads.insert(thread, next);
 			};
 
 			exports.updateThread = function (thread, next) {
-				threadCol.save(thread, next);
+				threads.save(thread, next);
 			};
 
 			exports.updateThreadHit = function (thread, next) {
-				threadCol.update({ _id: thread._id }, { $inc: { hit: 1 }}, next);
+				threads.update({ _id: thread._id }, { $inc: { hit: 1 }}, next);
 			};
 
 			exports.updateThreadLength = function (thread, now, next) {
-				threadCol.update({ _id: thread._id }, { $inc: { length: 1 }, $set: { updated: now }}, next);
+				threads.update({ _id: thread._id }, { $inc: { length: 1 }, $set: { updated: now }}, next);
 			};
 
 			exports.findThreadById = function (id, next) {
-				return threadCol.findOne({ _id: id }, next);
+				return threads.findOne({ _id: id }, next);
 			};
 
 			exports.findThreadsByCategory = function (categoryId, page, pageSize, next) {
@@ -77,45 +84,52 @@ module.exports = function (opt, next) {
 				if (categoryId) {
 					findOp.categoryId = categoryId;
 				}
-				threadCol.find(findOp).sort({ updated: -1 * dir }).skip(skip).limit(pageSize).toArray(next);
+				threads.find(findOp).sort({ updated: -1 * dir }).skip(skip).limit(pageSize).toArray(next);
 			};
 		},
 		function (next) {
-			var postCol = exports.postCol = exports.db.collection("post");
+			var posts;
 			var postIdSeed;
 
-			async.series([
-				function (next) {
-					postCol.ensureIndex({ threadId: 1, created: 1 }, next);
-				},
-				function (next) {
-					postCol.find({}, { _id: 1 }).sort({ _id: -1 }).limit(1).nextObject(function (err, obj) {
-						if (err) return next(err);
-						postIdSeed = obj ? obj._id : 0;
-						console.log('post id seed: ' + postIdSeed);
-						next();
-					});
-				}
-			], next);
+			exports.rebuildPosts = function (next) {
+				posts = exports.posts = exports.db.collection("post");
+				async.series([
+					function (next) {
+						posts.ensureIndex({ threadId: 1, created: 1 }, next);
+					},
+					function (next) {
+						posts.find({}, { _id: 1 }).sort({ _id: -1 }).limit(1).nextObject(function (err, obj) {
+							if (err) return next(err);
+							postIdSeed = obj ? obj._id : 0;
+							next();
+						});
+					}
+				], next);
+			}
+
+			exports.rebuildPosts(function (err) {
+				console.log('post id seed: ' + postIdSeed);
+				next(err);
+			});
 
 			exports.getNewPostId = function () {
 				return ++postIdSeed;
 			};
 
 			exports.insertPost = function (post, next) {
-				postCol.insert(post, next);
+				posts.insert(post, next);
 			};
 
 			exports.updatePost = function (post, next) {
-				postCol.save(post, next);
+				posts.save(post, next);
 			};
 
 			exports.findPostById = function (id, next) {
-				return postCol.findOne({ _id: id }, next);
+				return posts.findOne({ _id: id }, next);
 			};
 
 			exports.findPostsByThread = function (threadId, next) {
-				postCol.find({ threadId: threadId }).sort({ created: 1 }).toArray(next);
+				posts.find({ threadId: threadId }).sort({ created: 1 }).toArray(next);
 			};
 		}
 	], function (err) {

@@ -24,17 +24,17 @@ describe('db', function () {
 
 describe('empty post collection', function () {
 	it('should exist', function () {
-		should(mongo.postCol);
+		should(mongo.posts);
 	});
 	it('should be empty', function (next) {
-		mongo.postCol.count(function (err, count) {
+		mongo.posts.count(function (err, count) {
 			should.not.exist(err);
 			count.should.equal(0);
 			next();
 		})
 	});
 	it('should have two indexes', function (next) {
-		mongo.postCol.indexes(function (err, index) {
+		mongo.posts.indexes(function (err, index) {
 			should.not.exist(err);
 			index.should.be.instanceof(Array);
 			index.should.be.length(2);
@@ -79,7 +79,7 @@ describe('filled post collection', function () {
 		});
 	});
 	it('can count records', function (next) {
-		mongo.postCol.count(function (err, count) {
+		mongo.posts.count(function (err, count) {
 			should.not.exist(err);
 			count.should.equal(5);
 			next();
@@ -130,17 +130,17 @@ describe('filled post collection', function () {
 
 describe('empty thread collection', function () {
 	it('should exist', function () {
-		should.exist(mongo.threadCol);
+		should.exist(mongo.threads);
 	});
 	it('should be empty', function (next) {
-		mongo.threadCol.count(function (err, count) {
+		mongo.threads.count(function (err, count) {
 			should.not.exist(err);
 			count.should.equal(0);
 			next();
 		})
 	});
 	it('should have one index', function (next) {
-		mongo.threadCol.indexes(function (err, indexList) {
+		mongo.threads.indexes(function (err, indexList) {
 			should.not.exist(err);
 			indexList.should.be.instanceof(Array);
 			indexList.should.be.length(3);
@@ -205,7 +205,7 @@ describe('filled thread collection', function () {
 		});
 	});
 	it('can count records', function (next) {
-		mongo.threadCol.count(function (err, count) {
+		mongo.threads.count(function (err, count) {
 			should.not.exist(err);
 			count.should.equal(10);
 			next();
