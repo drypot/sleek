@@ -1,23 +1,37 @@
 var should = require('should');
 
+var config = require('../main/config');
+
 describe('config with invalid path', function () {
+	before(function () {
+		config.reset();
+	});
 	it('should throw', function () {
 		(function () {
-			var config = require('../main/config')({ path: 'config/config-none.json' });
+			config.options({ path: 'config/config-none.json' });
+			config.init();
 		}).should.throw();
 	});
 });
 
 describe('config with test: true', function () {
+	before(function () {
+		config.reset();
+	});
 	it('should success', function () {
-		var config = require('../main/config')({ test: true });
-		config.siteTitle.should.equal("sleek test");
+		config.options({ test: true });
+		config.init();
+		config.config.siteTitle.should.equal("sleek test");
 	});
 });
 
 describe('config with valid path', function () {
+	before(function () {
+		config.reset();
+	});
 	it('should success', function () {
-		var config = require('../main/config')({ path: 'config/config-test.json' });
-		config.siteTitle.should.equal("sleek test");
+		config.options({ path: 'config/config-test.json' });
+		config.init();
+		config.config.siteTitle.should.equal("sleek test");
 	});
 });

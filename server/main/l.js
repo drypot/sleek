@@ -1,21 +1,57 @@
 var should = require('should');
 var async = require('async');
 
-var l = exports;
+exports = module.exports = function () {
+	//
+};
+
+(function () {
+
+	var funcs;
+
+	exports.init = function (func) {
+		if (func.length == 0) {
+			funcs.push(function (next) {
+				func();
+				next();
+			})
+		} else {
+			funcs.push(func);
+		}
+	};
+
+	exports.init.reset = function () {
+		funcs = [];
+	}
+
+	exports.init.run = function (next) {
+		async.series(funcs, function (err) {
+			if (err) {
+				throw err;
+			}
+			if (next) {
+				next();
+			}
+		});
+	};
+
+	exports.init.reset();
+
+})();
 
 (function () {
 
 	// object
 
-	l.isObject = function (obj) {
+	exports.isObject = function (obj) {
 		return Object.prototype.toString.call(obj) === '[object Object]';
 	};
 
-//	l.value = function (obj, prop, def) {
+//	exports.value = function (obj, prop, def) {
 //		return obj && obj[prop] || def;
 //	};
 //
-//	l.int = function (obj, prop, def, min, max) {
+//	exports.int = function (obj, prop, def, min, max) {
 //		var i = parseInt(obj && obj[prop]) || def;
 //		if (min === undefined) {
 //			return i;
@@ -24,11 +60,11 @@ var l = exports;
 //		}
 //	};
 //
-//	l.string = function (obj, prop, def) {
+//	exports.string = function (obj, prop, def) {
 //		return obj && obj[prop] && String(obj[prop]).trim() || def;
 //	};
 //
-//	l.bool = function (obj, prop, def) {
+//	exports.bool = function (obj, prop, def) {
 //		var v;
 //		if (!obj) {
 //			return def;
@@ -40,7 +76,7 @@ var l = exports;
 //		}
 //	};
 
-	l.merge = function (tar, src, props) {
+	exports.merge = function (tar, src, props) {
 		props.forEach(function (p) {
 			if (src.hasOwnProperty(p)) {
 				tar[p] = src[p];
@@ -49,7 +85,7 @@ var l = exports;
 		return tar;
 	}
 
-	l.method = function (con, methodName, fn) {
+	exports.method = function (con, methodName, fn) {
 		Object.defineProperty(
 			con, methodName, { value : fn, writable: true, enumerable: false, configurable: true}
 		);
@@ -64,7 +100,7 @@ var l = exports;
 		return s.substr(s.length - 2, 2);
 	}
 
-	l.formatDateTime = function (d) {
+	exports.formatDateTime = function (d) {
 		return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
 	};
 
@@ -74,12 +110,12 @@ var l = exports;
 
 	// UrlMaker
 
-	l.UrlMaker = function (baseUrl) {
+	exports.UrlMaker = function (baseUrl) {
 		this.url = '' + baseUrl;
 		this.qmAdded = false;
 	};
 
-	var urlMaker = l.UrlMaker.prototype;
+	var urlMaker = exports.UrlMaker.prototype;
 
 	urlMaker.add = function (name, value) {
 		if (!this.qmAdded) {

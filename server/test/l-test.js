@@ -1,6 +1,46 @@
 var should = require('should');
 var l = require('../main/l');
 
+describe('normal init function', function () {
+	it('should success', function (next) {
+		var a = [];
+		l.init.reset();
+		l.init(function () {
+			a.push(3);
+		});
+		l.init(function () {
+			a.push(7);
+		});
+		l.init.run(function () {
+			a.should.length(2);
+			a[0].should.equal(3);
+			a[1].should.equal(7);
+			next();
+		});
+	});
+});
+
+describe('async init function', function () {
+	it('should success', function (next) {
+		var a = [];
+		l.init.reset();
+		l.init(function (next) {
+			a.push(33);
+			next();
+		});
+		l.init(function (next) {
+			a.push(77);
+			next();
+		});
+		l.init.run(function () {
+			a.should.length(2);
+			a[0].should.equal(33);
+			a[1].should.equal(77);
+			next();
+		});
+	});
+});
+
 //describe('value', function () {
 //	it('should success', function () {
 //		l.value({x: 'def'}, 'x', 'abc').should.equal('def');
