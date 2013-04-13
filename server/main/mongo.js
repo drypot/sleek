@@ -73,15 +73,15 @@ init.add(function (next) {
 				threads.save(thread, next);
 			};
 
-			exports.updateThreadHit = function (thread, next) {
-				threads.update({ _id: thread._id }, { $inc: { hit: 1 }}, next);
+			exports.updateThreadHit = function (threadId, next) {
+				threads.update({ _id: threadId }, { $inc: { hit: 1 }}, next);
 			};
 
-			exports.updateThreadLength = function (thread, now, next) {
-				threads.update({ _id: thread._id }, { $inc: { length: 1 }, $set: { updated: now }}, next);
+			exports.updateThreadLength = function (threadId, now, next) {
+				threads.update({ _id: threadId }, { $inc: { length: 1 }, $set: { updated: now }}, next);
 			};
 
-			exports.findThreadById = function (id, next) {
+			exports.findThread = function (id, next) {
 				return threads.findOne({ _id: id }, next);
 			};
 
