@@ -44,8 +44,9 @@ init.add(function () {
 		var query = req.query;
 		var params = {};
 		params.categoryId = parseInt(query.c) || 0;
-		params.page = parseInt(query.p) || 0;
-		var pageSize = parseInt(query.ps) || 1;
+		var page = parseInt(query.p) || 1;
+		params.page = page < 1 ? 1 : page;
+		var pageSize = parseInt(query.ps) || 32;
 		params.pageSize = pageSize > 128 ? 128 : pageSize < 1 ? 1 : pageSize;
 		return params;
 	}
