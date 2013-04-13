@@ -9,12 +9,12 @@ init.add(function () {
 	var app = express.app;
 
 	app.get('/api/sessions', function (req, res) {
-		req.authorized(function (r) {
+		req.authorized(function (r, role) {
 			res.json(r || {
 				rc: rcs.SUCCESS,
 				role: {
-					name: res.locals.role.name,
-					categoriesForMenu: res.locals.role.categoriesForMenu
+					name: role.name,
+					categoriesForMenu: role.categoriesForMenu
 				},
 				uploadUrl: config.data.uploadUrl
 			});
@@ -24,37 +24,28 @@ init.add(function () {
 	app.post('/api/sessions', function (req, res) {
 		var role = auth.roleByPassword(req.body.password || '');
 		if (!role) {
-			res.json({ rc: rcs.INVALID_PASSWORD });
-		} else {
-			makeNewSession(req, res, role, function () {
-				clearOldCookies(req, res);
-				res.json({
-					rc: rcs.SUCCESS,
-					role: {
-						name: role.name
-					}
-				});
-			});
+			return res.json({ rc: rcs.INVALID_PASSWORD });
 		}
-	});
-
-	function makeNewSession(req, res, role, next) {
-		var _this = this;
 		req.session.regenerate(function (err) {
+			if (err) {
+				return res.json({ rc: rcs.SESSION_IO_ERR });
+			}
+			if (req.cookies && req.cookies.lv3) {
+				res.clearCookie('lv3');
+				res.clearCookie('lv');
+				res.clearCookie('ph');
+				res.clearCookie('uname');
+			}
 			req.session.roleName = role.name;
 			req.session.post = [];
-			next();
+			res.json({
+				rc: rcs.SUCCESS,
+				role: {
+					name: role.name
+				}
+			});
 		});
-	}
-
-	function clearOldCookies(req, res) {
-		if (req.cookies && req.cookies.lv3) {
-			res.clearCookie('lv3');
-			res.clearCookie('lv');
-			res.clearCookie('ph');
-			res.clearCookie('uname');
-		}
-	}
+	});
 
 	app.del('/api/sessions', function (req, res) {
 		req.session.destroy();

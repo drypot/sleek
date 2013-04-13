@@ -13,7 +13,8 @@ var rcs = module.exports = exports = {
 
 	DB_IO_ERR: 301,
 	FILE_IO_ERR: 302,
-	SEARCH_IO_ERR: 303
+	SEARCH_IO_ERR: 303,
+	SESSION_IO_ERR: 304
 };
 
 var msgs = exports.msgs = {
