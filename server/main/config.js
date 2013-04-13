@@ -5,6 +5,10 @@ var init = require('../main/init');
 var opt = {};
 
 exports.options = function (_opt) {
+	if (_opt.reset) {
+		opt = {};
+		delete exports.data;
+	}
 	if (_opt.test) {
 		_opt.path = 'config/config-test.json';
 	}
@@ -14,25 +18,19 @@ exports.options = function (_opt) {
 	return exports;
 };
 
-exports.reset = function () {
-	opt = {};
-	delete exports.config;
-}
+init.add(function (next) {
 
-exports.init = function () {
-	exports.data = load(opt.path);
-}
-
-init.add(exports.init);
-
-
-function load (path) {
-	if (!path) {
-		throw new Error('specify configuration path.')
-		//process.exit();
+	if (!opt.path) {
+		return next(new Error('specify configuration path.'));
 	}
-	console.log('config: ' + path);
 
-	var text = fs.readFileSync(path, 'utf8');
-	return JSON.parse(text);
-}
+	console.log('config: ' + opt.path);
+
+	try {
+		exports.data =  JSON.parse(fs.readFileSync(opt.path, 'utf8'));
+		next();
+	} catch (err) {
+		next(err);
+	}
+
+});

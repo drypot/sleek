@@ -1,37 +1,37 @@
 var should = require('should');
 
+var init = require('../main/init');
 var config = require('../main/config');
 
 describe('config with invalid path', function () {
-	before(function () {
-		config.reset();
-	});
-	it('should throw', function () {
-		(function () {
-			config.options({ path: 'config/config-none.json' });
-			config.init();
-		}).should.throw();
+	it('should fail', function (next) {
+		config.options({ reset: true, path: 'config/config-none.json' });
+		init.run(function (err) {
+			should.exists(err);
+			err.code.should.equal('ENOENT');
+			next();
+		});
 	});
 });
 
 describe('config with test: true', function () {
-	before(function () {
-		config.reset();
-	});
-	it('should success', function () {
-		config.options({ test: true });
-		config.init();
-		config.data.siteTitle.should.equal("sleek test");
+	it('should success', function (next) {
+		config.options({ reset: true, test: true });
+		init.run(function (err) {
+			should.not.exists(err);
+			config.data.siteTitle.should.equal("sleek test");
+			next();
+		});
 	});
 });
 
 describe('config with valid path', function () {
-	before(function () {
-		config.reset();
-	});
-	it('should success', function () {
-		config.options({ path: 'config/config-test.json' });
-		config.init();
-		config.data.siteTitle.should.equal("sleek test");
+	it('should success', function (next) {
+		config.options({ reset: true, path: 'config/config-test.json' });
+		init.run(function (err) {
+			should.not.exists(err);
+			config.data.siteTitle.should.equal("sleek test");
+			next();
+		});
 	});
 });
