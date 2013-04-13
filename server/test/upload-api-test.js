@@ -6,6 +6,7 @@ var config = require('../main/config').options({ test: true });
 var upload = require('../main/upload');
 var express = require('../main/express');
 var rcs = require('../main/rcs');
+var test = require('../main/test').options({ request: request });
 
 require('../main/session-api');
 require('../main/upload-api');
@@ -16,30 +17,20 @@ before(function (next) {
 
 before(function () {
 	express.listen();
-	url = 'http://localhost:' + config.data.port;
 });
 
-var url;
-
 it('given user session', function (next) {
-	request.post(url + '/api/sessions').send({ password: '1' }).end(function (err, res) {
-		should.not.exist(err);
-		res.status.should.equal(200);
-		res.body.rc.should.equal(rcs.SUCCESS);
-		res.body.role.name.should.equal('user');
-		next();
-	});
+	test.loginUser(next);
 });
 
 describe('uploading none', function () {
 	it('should success', function (next) {
 		request
-			.post(url + '/api/upload')
+			.post(test.url + '/api/upload')
 			.end(function (err, res) {
 				should.not.exist(err);
 				res.status.should.equal(200);
 				res.body.rc.should.equal(rcs.SUCCESS);
-//				console.log(res.body);
 				var files = res.body.files;
 				Object.keys(files).should.be.empty;
 				next();
@@ -50,7 +41,7 @@ describe('uploading none', function () {
 describe('uploading one file', function () {
 	it('should success', function (next) {
 		request
-			.post(url + '/api/upload')
+			.post(test.url + '/api/upload')
 			.attach('file', 'server/test/fixture/dummy.txt')
 			.end(function (err, res) {
 				should.not.exist(err);
@@ -68,7 +59,7 @@ describe('uploading one file', function () {
 describe('uploading two files', function () {
 	it('should success', function (next) {
 		request
-			.post(url + '/api/upload')
+			.post(test.url + '/api/upload')
 			.attach('file', 'server/test/fixture/dummy.txt')
 			.attach('file', 'server/test/fixture/dummy2.txt')
 			.end(function (err, res) {
@@ -90,7 +81,7 @@ describe('deleting file', function () {
 	var files;
 	it('given two uploaded files', function (next) {
 		request
-			.post(url + '/api/upload')
+			.post(test.url + '/api/upload')
 			.attach('file', 'server/test/fixture/dummy.txt')
 			.attach('file', 'server/test/fixture/dummy2.txt')
 			.attach('file', 'server/test/fixture/dummy3.txt')
@@ -106,7 +97,7 @@ describe('deleting file', function () {
 		var delFiles = [];
 		delFiles.push(files['dummy.txt']);
 		upload.tmpFileExists(files['dummy.txt']).should.be.true;
-		request.del(url + '/api/upload').send({ files: delFiles }).end(function (err, res) {
+		request.del(test.url + '/api/upload').send({ files: delFiles }).end(function (err, res) {
 			should.not.exist(err);
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
@@ -120,7 +111,7 @@ describe('deleting file', function () {
 		delFiles.push(files['dummy3.txt']);
 		upload.tmpFileExists(files['dummy2.txt']).should.be.true;
 		upload.tmpFileExists(files['dummy3.txt']).should.be.true;
-		request.del(url + '/api/upload').send({ files: delFiles }).end(function (err, res) {
+		request.del(test.url + '/api/upload').send({ files: delFiles }).end(function (err, res) {
 			should.not.exist(err);
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
@@ -134,7 +125,7 @@ describe('deleting file', function () {
 		var filename = 'xxxxx-nonexist';
 		delFiles.push(filename);
 		upload.tmpFileExists(filename).should.be.false;
-		request.del(url + '/api/upload').send({ files: delFiles }).end(function (err, res) {
+		request.del(test.url + '/api/upload').send({ files: delFiles }).end(function (err, res) {
 			should.not.exist(err);
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
