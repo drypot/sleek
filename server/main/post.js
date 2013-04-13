@@ -48,9 +48,8 @@ init.add(function () {
 					var postId = mongo.getNewPostId();
 					savePostFiles(postId, form, end, function () {
 						insertPost(postId, form, thread, end, function () {
-							mongo.updateThreadLength(threadId, form.now, function (err) {
-								end(null, postId);
-							});
+							mongo.updateThreadLength(threadId, form.now);
+							end(null, postId);
 						});
 					});
 				});
