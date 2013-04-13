@@ -89,67 +89,46 @@ init.add(function () {
 		});
 	});
 
-
-
 	app.get('/api/threads/:threadId([0-9]+)', function (req, res) {
-		req.authorized(function () {
+		req.authorized(function (err, role) {
+			if (err) {
+				return res.json(err);
+			}
 			var threadId = parseInt(req.params.threadId) || 0;
-			prepareThread(res, threadId, function (thread) {
-				categoryForRead(res, thread.categoryId, function (category) {
-					var r = {
-						rc: rcs.SUCCESS,
-						thread: {
-							id: thread._id,
-							title: thread.title
-						},
-						category: {
-							id: category.id
-						},
-						post: []
-					};
-					mongo.findPostsByThread(threadId, function (err, post) {
-						if (err) return next(err);
-						iterPostList(category, post, function (post) {
-							r.post.push({
-								id: post._id,
-								writer: post.writer,
-								created: post.created,
-								text: post.text,
-								upload: uploadUrl(post)
-							});
-						});
-						res.json(r);
+			post.threadWithPosts(role, threadId, function (err, thread, category, posts) {
+				if (err) {
+					return res.json(err);
+				}
+				var r = {
+					rc: rcs.SUCCESS,
+					thread: {
+						id: thread._id,
+						title: thread.title
+					},
+					category: {
+						id: category.id
+					},
+					posts: []
+				};
+				var admin = category.editable;
+				posts.forEach(function (post) {
+					if (!post.visible && !admin) {
+						return;
+					}
+					r.posts.push({
+						id: post._id,
+						writer: post.writer,
+						created: post.created,
+						text: post.text,
+						upload: uploadUrl(post)
 					});
 				});
+				res.json(r);
+
 			});
 		});
 	});
 
-	function iterPostList(category, post, func) {
-		var admin = category.editable;
-		_.each(post, function (post) {
-			if (!post.visible && !admin) {
-				//
-			} else {
-				func(post);
-			}
-		});
-	}
-
-	function uploadUrl(post) {
-		if (!post.upload) {
-			return undefined;
-		} else {
-			var url = [];
-			_.each(post.upload, function (upload) {
-				url.push({
-					name: upload,
-					url: l.upload.postFileUrl(post._id, upload)
-				});
-			});
-			return url;
-		}
-	}
 
 
 

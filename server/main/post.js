@@ -79,6 +79,50 @@ init.add(function () {
 		});
 	};
 
+	exports.threadWithPosts = function (role, threadId, end) {
+		findThread(threadId, end, function (thread) {
+			categoryForRead(role, thread.categoryId, end, function (category) {
+				mongo.findPostsByThread(threadId, function (err, posts) {
+					if (err) {
+						return end(err);
+					}
+					var admin = category.editable;
+					posts.forEach(function (post) {
+						if (!post.visible && !admin) {
+							return;
+						}
+						r.posts.push({
+							id: post._id,
+							writer: post.writer,
+							created: post.created,
+							text: post.text,
+							upload: uploadUrl(post)
+						});
+					});
+
+					end(null, thread, category, posts);
+				});
+			});
+		});
+	};
+
+
+	function uploadUrl(post) {
+		if (!post.upload) {
+			return undefined;
+		} else {
+			var url = [];
+			_.each(post.upload, function (upload) {
+				url.push({
+					name: upload,
+					url: l.upload.postFileUrl(post._id, upload)
+				});
+			});
+			return url;
+		}
+	}
+
+
 	function checkForm(form, head, end, next) {
 		var error = new FieldError();
 

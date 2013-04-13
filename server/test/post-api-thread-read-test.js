@@ -1,14 +1,24 @@
-var _ = require('underscore');
 var should = require('should');
+var request = require('superagent').agent();
 var async = require('async');
-var l = require('../main/l');
+
+var init = require('../main/init');
+var config = require('../main/config').options({ test: true });
+var mongo = require('../main/mongo').options({ dropDatabase: true });
+var es = require('../main/es').options({ dropIndex: true });
+var express = require('../main/express');
+var rcs = require('../main/rcs');
+var test = require('../main/test').options({ request: request });
 
 require('../main/session-api');
 require('../main/post-api');
-require('../main/test');
 
 before(function (next) {
-	l.init.run(next);
+	init.run(next);
+});
+
+before(function () {
+	express.listen();
 });
 
 describe("getting thread", function () {
