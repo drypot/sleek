@@ -210,7 +210,7 @@ describe('filled thread collection', function () {
 		});
 	});
 	it('can find by id', function (next) {
-		mongo.findThreadById(pthread._id, function (err, thread) {
+		mongo.findThread(pthread._id, function (err, thread) {
 			should.not.exist(err);
 			thread._id.should.equal(pthread._id);
 			thread.title.should.equal(pthread.title);
@@ -221,7 +221,7 @@ describe('filled thread collection', function () {
 		pthread.writer  = "fireman";
 		pthread.hit = 17;
 		mongo.updateThread(pthread);
-		mongo.findThreadById(pthread._id, function (err, thread) {
+		mongo.findThread(pthread._id, function (err, thread) {
 			should.not.exist(err);
 			thread.should.eql(pthread);
 			next();
@@ -229,7 +229,7 @@ describe('filled thread collection', function () {
 	});
 	it('can increase hit', function (next) {
 		mongo.updateThreadHit(pthread);
-		mongo.findThreadById(pthread._id, function (err, thread) {
+		mongo.findThread(pthread._id, function (err, thread) {
 			should.not.exist(err);
 			thread.hit.should.equal(pthread.hit + 1);
 			next();
@@ -238,7 +238,7 @@ describe('filled thread collection', function () {
 	it('can update lenth & updated', function (next) {
 		var now = new Date();
 		mongo.updateThreadLength(pthread, now);
-		mongo.findThreadById(pthread._id, function (err, thread) {
+		mongo.findThread(pthread._id, function (err, thread) {
 			should.not.exist(err);
 			thread.length.should.equal(pthread.length + 1);
 			thread.updated.getTime().should.equal(now.getTime());
