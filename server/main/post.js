@@ -8,7 +8,7 @@ init.add(function () {
 
 	console.log('post:');
 
-	exports.form = function (req, next) {
+	exports.form = function (req) {
 		var body = req.body;
 		var form = {};
 		form.now = new Date();
@@ -21,7 +21,7 @@ init.add(function () {
 		form.visible = !!body.visible;
 		form.delFiles = body.delFiles;
 		form.tmpFiles = body.tmpFiles;
-		next(null, form);
+		return form;
 	};
 
 	exports.createThread = function (role, form, end) {
@@ -40,18 +40,19 @@ init.add(function () {
 		});
 	}
 
-	exports.threadsParams = function (req, next) {
+	exports.threadsParams = function (req) {
 		var query = req.query;
-		var categoryId = parseInt(query.c) || 0;
-		var page = parseInt(query.p) || 0;
+		var params = {};
+		params.categoryId = parseInt(query.c) || 0;
+		params.page = parseInt(query.p) || 0;
 		var pageSize = parseInt(query.ps) || 1;
-		pageSize = pageSize > 128 ? 128 : pageSize < 1 ? 1 : pageSize;
-		next(null, categoryId, page, pageSize);
+		params.pageSize = pageSize > 128 ? 128 : pageSize < 1 ? 1 : pageSize;
+		return params;
 	}
 
-	exports.threads = function (role, categoryId, page, pageSize, end) {
-		categoryForRead(role, categoryId, end, function (category) {
-			mongo.findThreadsByCategory(categoryId, page, pageSize, function (err, threads) {
+	exports.threads = function (role, params, end) {
+		categoryForRead(role, params.categoryId, end, function (category) {
+			mongo.findThreadsByCategory(params.categoryId, params.page, params.pageSize, function (err, threads) {
 				if (err) {
 					return end(err);
 				}

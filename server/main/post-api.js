@@ -11,13 +11,19 @@ init.add(function () {
 
 	app.post('/api/threads', function (req, res) {
 		req.authorized(function (err, role) {
-			if (err) return res.json(err);
-			post.form(req, function (err, form) {
-				if (err) return res.json(err);
-				post.createThread(role, form, function (err, threadId, postId) {
-					if (err) return res.json(err);
-					req.session.post.push(postId);
-					res.json({ rc: rcs.SUCCESS, threadId: threadId, postId: postId });
+			if (err) {
+				return res.json(err);
+			}
+			var form = post.form(req);
+			post.createThread(role, form, function (err, threadId, postId) {
+				if (err) {
+					return res.json(err);
+				}
+				req.session.post.push(postId);
+				res.json({
+					rc: rcs.SUCCESS,
+					threadId: threadId,
+					postId: postId
 				});
 			});
 		});
@@ -25,40 +31,39 @@ init.add(function () {
 
 	app.get('/api/threads', function (req, res) {
 		req.authorized(function (err, role) {
-			if (err) return res.json(err);
-			post.threadsParams(req, function (err, categoryId, page, pageSize) {
-				if (err) return res.json(err);
-				post.threads(role, categoryId, page, pageSize, function (err, category, threads) {
-					if (err) {
-						console.log(err.stack);
-						return res.json(err);
+			if (err) {
+				return res.json(err);
+			}
+			var params = post.threadsParams(req);
+			post.threads(role, params, function (err, category, threads) {
+				if (err) {
+					return res.json(err);
+				}
+				var r = {
+					rc: rcs.SUCCESS,
+					threads: []
+				};
+				var categories = role.categories;
+				var len = threads.length;
+				for (var i = 0; i < len; i++) {
+					var thread = threads[i];
+					if (category.id === 0 && !categories[thread.categoryId]) {
+						//
+					} else {
+						r.threads.push({
+							id: thread._id,
+							category: {
+								id: thread.categoryId
+							},
+							hit: thread.hit,
+							length: thread.length,
+							updated: thread.updated.getTime(),
+							writer: thread.writer,
+							title: thread.title
+						});
 					}
-					var r = {
-						rc: rcs.SUCCESS,
-						threads: []
-					};
-					var categories = role.categories;
-					var len = threads.length;
-					for (var i = 0; i < len; i++) {
-						var thread = threads[i];
-						if (category.id === 0 && !categories[thread.categoryId]) {
-							//
-						} else {
-							r.threads.push({
-								id: thread._id,
-								category: {
-									id: thread.categoryId
-								},
-								hit: thread.hit,
-								length: thread.length,
-								updated: thread.updated.getTime(),
-								writer: thread.writer,
-								title: thread.title
-							});
-						}
-					}
-					res.json(r);
-				});
+				}
+				res.json(r);
 			});
 		});
 	});
