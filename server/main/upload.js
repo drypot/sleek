@@ -5,19 +5,23 @@ var init = require('../main/init');
 var config = require('../main/config');
 var fs2 = require('../main/fs');
 
-init.add(function () {
+init.add(function (next) {
 
 	var publicDir = config.data.uploadDir + '/public';
 	var tmpDir = config.data.uploadDir + '/tmp';
 
 	console.log('upload: ' + config.data.uploadDir);
 
-	fs2.mkdirs([config.data.uploadDir, 'public', 'post']);
-	fs2.mkdirs([config.data.uploadDir, 'tmp']);
+	try {
+		fs2.mkdirs([config.data.uploadDir, 'public', 'post']);
+		fs2.mkdirs([config.data.uploadDir, 'tmp']);
 
-	fs.readdirSync(tmpDir).forEach(function (filename) {
-		fs.unlinkSync(tmpDir + '/' + filename);
-	});
+		fs.readdirSync(tmpDir).forEach(function (filename) {
+			fs.unlinkSync(tmpDir + '/' + filename);
+		});
+	} catch (err) {
+		return next(err);
+	}
 
 	// Tmp File
 
@@ -117,5 +121,7 @@ init.add(function () {
 			next(err);
 		}
 	}
+
+	next();
 
 });
