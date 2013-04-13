@@ -10,7 +10,6 @@ exports.options = function (_opt) {
 	for(var p in _opt) {
 		opt[p] = _opt[p];
 	}
-
 	return exports;
 };
 
