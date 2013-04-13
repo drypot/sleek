@@ -22,7 +22,7 @@ l.init(function () {
 				},
 				function (err, sres) {
 					if (err) {
-						res.json({ rc: rcs.SEARCH_IO_ERR});
+						res.json(err);
 					} else {
 						if (!sres.body.hits) {
 							res.json({ rc: rcs.SUCCESS, result: [] });

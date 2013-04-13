@@ -9,8 +9,8 @@ init.add(function () {
 	var app = express.app;
 
 	app.get('/api/sessions', function (req, res) {
-		req.authorized(function (r, role) {
-			res.json(r || {
+		req.authorized(function (err, role) {
+			res.json(err || {
 				rc: rcs.SUCCESS,
 				role: {
 					name: role.name,
@@ -28,7 +28,7 @@ init.add(function () {
 		}
 		req.session.regenerate(function (err) {
 			if (err) {
-				return res.json({ rc: rcs.SESSION_IO_ERR });
+				return res.json(err);
 			}
 			if (req.cookies && req.cookies.lv3) {
 				res.clearCookie('lv3');
@@ -70,20 +70,20 @@ init.add(function () {
 		});
 
 		app.get('/api/test/auth/any', function (req, res) {
-			req.authorized(function (r) {
-				res.json(r || { rc: rcs.SUCCESS });
+			req.authorized(function (err) {
+				res.json(err || { rc: rcs.SUCCESS });
 			})
 		});
 
 		app.get('/api/test/auth/user', function (req, res) {
-			req.authorized('user', function (r) {
-				res.json(r || { rc: rcs.SUCCESS });
+			req.authorized('user', function (err) {
+				res.json(err || { rc: rcs.SUCCESS });
 			});
 		});
 
 		app.get('/api/test/auth/admin', function (req, res) {
-			req.authorized('admin', function (r) {
-				res.json(r || { rc: rcs.SUCCESS });
+			req.authorized('admin', function (err) {
+				res.json(err || { rc: rcs.SUCCESS });
 			});
 		});
 	});

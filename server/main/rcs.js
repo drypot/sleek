@@ -1,6 +1,6 @@
 
 var rcs = module.exports = exports = {
-	SUCCESS: 0,
+	SUCCESS: 1,
 
 	NOT_AUTHENTICATED: 101,
 	NOT_AUTHORIZED: 102,
@@ -9,12 +9,7 @@ var rcs = module.exports = exports = {
 	INVALID_DATA: 201,
 	INVALID_CATEGORY: 202,
 	INVALID_THREAD: 203,
-	INVALID_POST: 204,
-
-	DB_IO_ERR: 301,
-	FILE_IO_ERR: 302,
-	SEARCH_IO_ERR: 303,
-	SESSION_IO_ERR: 304
+	INVALID_POST: 204
 };
 
 var msgs = exports.msgs = {
@@ -32,7 +27,3 @@ msgs[rcs.INVALID_DATA] = '비정상적인 값이 입력되었습니다.';
 msgs[rcs.INVALID_CATEGORY] = '정상적인 카테고리가 아닙니다.';
 msgs[rcs.INVALID_THREAD] = '정상적인 글줄이 아닙니다.';
 msgs[rcs.INVALID_POST] = '정상적인 글이 아닙니다.';
-
-msgs[rcs.DB_IO_ERR] = '데이터베이스와의 연결에 문제가 발생하였습니다.';
-msgs[rcs.FILE_IO_ERR] = '파일 처리에 문제가 발생하였습니다.';
-msgs[rcs.SEARCH_IO_ERR] = '검색 서버와의 연결에 문제가 발생하였습니다.';

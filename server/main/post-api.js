@@ -1,17 +1,21 @@
+var init = require('../main/init');
+var post = require('../main/post');
+var express = require('../main/express');
 var rcs = require('../main/rcs');
 
-module.exports = function (opt) {
+init.add(function () {
 
-	var post = opt.post;
-	var app = opt.app;
+	var app = express.app;
+
+	console.log('post-api:');
 
 	app.post('/api/threads', function (req, res) {
-		req.authorized(function (r, role) {
-			if (r) return res.json(r);
-			post.form(req, function (r, form) {
-				if (r) return res.json(r);
-				post.createThread(role, form, function (r, threadId, postId) {
-					if (r) return res.json(r);
+		req.authorized(function (err, role) {
+			if (err) return res.json(err);
+			post.form(req, function (err, form) {
+				if (err) return res.json(err);
+				post.createThread(role, form, function (err, threadId, postId) {
+					if (err) return res.json(err);
 					req.session.post.push(postId);
 					res.json({ rc: rcs.SUCCESS, threadId: threadId, postId: postId });
 				});
@@ -20,12 +24,15 @@ module.exports = function (opt) {
 	});
 
 	app.get('/api/threads', function (req, res) {
-		req.authorized(function (r, role) {
-			if (r) return res.json(r);
-			post.threadsParams(req, function (r, categoryId, page, pageSize) {
-				if (r) return res.json(r);
-				post.threads(role, categoryId, page, pageSize, function (r, category, threads) {
-					if (r) return res.json(r);
+		req.authorized(function (err, role) {
+			if (err) return res.json(err);
+			post.threadsParams(req, function (err, categoryId, page, pageSize) {
+				if (err) return res.json(err);
+				post.threads(role, categoryId, page, pageSize, function (err, category, threads) {
+					if (err) {
+						console.log(err.stack);
+						return res.json(err);
+					}
 					var r = {
 						rc: rcs.SUCCESS,
 						threads: []
@@ -297,5 +304,5 @@ module.exports = function (opt) {
 		});
 	}
 
-};
+});
 

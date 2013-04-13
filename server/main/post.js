@@ -1,13 +1,12 @@
-
+var init = require('../main/init');
+var mongo = require('../main/mongo');
+var es = require('../main/es');
+var upload = require('../main/upload');
 var rcs = require('../main/rcs');
 
-module.exports = function (opt) {
+init.add(function () {
 
-	var exports = {};
-
-	var mongo = opt.mongo;
-	var es = opt.es;
-	var upload = opt.upload;
+	console.log('post:');
 
 	exports.form = function (req, next) {
 		var body = req.body;
@@ -25,16 +24,6 @@ module.exports = function (opt) {
 		next(null, form);
 	};
 
-	exports.threadsParams = function (req, next) {
-		var query = req.query;
-		var categoryId = parseInt(query.c) || 0;
-		var page = parseInt(query.p) || 0;
-		var pageSize = parseInt(query.ps) || 1;
-		pageSize = pageSize > 128 ? 128 : pageSize < 1 ? 1 : pageSize;
-		next(null, categoryId, page, pageSize);
-	}
-
-
 	exports.createThread = function (role, form, end) {
 		categoryForNew(role, form.categoryId, end, function (category) {
 			checkForm(form, true, end, function () {
@@ -51,11 +40,20 @@ module.exports = function (opt) {
 		});
 	}
 
+	exports.threadsParams = function (req, next) {
+		var query = req.query;
+		var categoryId = parseInt(query.c) || 0;
+		var page = parseInt(query.p) || 0;
+		var pageSize = parseInt(query.ps) || 1;
+		pageSize = pageSize > 128 ? 128 : pageSize < 1 ? 1 : pageSize;
+		next(null, categoryId, page, pageSize);
+	}
+
 	exports.threads = function (role, categoryId, page, pageSize, end) {
 		categoryForRead(role, categoryId, end, function (category) {
 			mongo.findThreadsByCategory(categoryId, page, pageSize, function (err, threads) {
 				if (err) {
-					return end({ rc:  rcs.DB_IO_ERR });
+					return end(err);
 				}
 				end(null, category, threads);
 			});
@@ -138,7 +136,7 @@ module.exports = function (opt) {
 		};
 		mongo.insertThread(thread, function (err) {
 			if (err) {
-				return { rc:  rcs.DB_IO_ERR };
+				return end(err);
 			}
 			next(thread);
 		});
@@ -147,7 +145,7 @@ module.exports = function (opt) {
 	function savePostFiles(postId, form, end, next) {
 		upload.savePostFiles(postId, form.tmpFiles, function (err, saved) {
 			if (err) {
-				return end({ rc: rcs.FILE_IO_ERR });
+				return end(err);
 			}
 			if (saved) {
 				if (form.files) {
@@ -173,17 +171,15 @@ module.exports = function (opt) {
 		};
 		mongo.insertPost(post, function (err) {
 			if (err) {
-				return end({ rc: rcs.DB_IO_ERR });
+				return end(err);
 			}
 			es.updatePost(thread, post, function (err, res) {
 				if (err) {
-					return end({ rc: rcs.SEARCH_IO_ERR });
+					return end(err);
 				}
 				next();
 			});
 		});
 	}
 
-	return exports;
-
-}
+});

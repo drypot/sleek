@@ -8,9 +8,9 @@ init.add(function () {
 	var app = express.app;
 
 	app.post('/api/upload', function (req, res) {
-		req.authorized(function (r) {
-			if (r) {
-				return res.json(r);
+		req.authorized(function (err) {
+			if (err) {
+				return res.json(err);
 			}
 			res.json({
 				rc: rcs.SUCCESS,
@@ -20,9 +20,9 @@ init.add(function () {
 	});
 
 	app.del('/api/upload', function (req, res) {
-		req.authorized(function (r) {
-			if (r) {
-				return res.json(r);
+		req.authorized(function (err) {
+			if (err) {
+				return res.json(err);
 			}
 			upload.deleteTmpFiles(req.body.files);
 			res.json({ rc: rcs.SUCCESS });

@@ -58,7 +58,7 @@ describe('es-rebuild', function () {
 		l.es.flush(next);
 	});
 	it("when search p1, should return result", function (next) {
-		request.get('/api/search', { q: '첫번째' }, function (err, res) {
+		request.get(test.url + '/api/search', { q: '첫번째' }, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			var r = res.body.result;
@@ -68,7 +68,7 @@ describe('es-rebuild', function () {
 		});
 	});
 	it("when search p2, should return result", function (next) {
-		request.get('/api/search', { q: '둥글게 네모나게' }, function (err, res) {
+		request.get(test.url + '/api/search', { q: '둥글게 네모나게' }, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			var r = res.body.result;
@@ -77,7 +77,7 @@ describe('es-rebuild', function () {
 		});
 	});
 	it("when search p3, should return result", function (next) {
-		request.get('/api/search', { q: '박철수' }, function (err, res) {
+		request.get(test.url + '/api/search', { q: '박철수' }, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			var r = res.body.result;
@@ -89,7 +89,7 @@ describe('es-rebuild', function () {
 		l.es.dropIndex(next);
 	});
 	it("when search p1, should return no result", function (next) {
-		request.get('/api/search', { q: '첫번째' }, function (err, res) {
+		request.get(test.url + '/api/search', { q: '첫번째' }, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			var r = res.body.result;
@@ -98,7 +98,7 @@ describe('es-rebuild', function () {
 		});
 	});
 	it("when search p2, should return no result", function (next) {
-		request.get('/api/search', { q: '둥글게 네모나게' }, function (err, res) {
+		request.get(test.url + '/api/search', { q: '둥글게 네모나게' }, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			var r = res.body.result;
@@ -107,7 +107,7 @@ describe('es-rebuild', function () {
 		});
 	});
 	it("when search p3, should return no result", function (next) {
-		request.get('/api/search', { q: '박철수' }, function (err, res) {
+		request.get(test.url + '/api/search', { q: '박철수' }, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			var r = res.body.result;
@@ -123,7 +123,7 @@ describe('es-rebuild', function () {
 	});
 	it("when search p1, should return result", function (next) {
 		setTimeout(function () {
-			request.get('/api/search', { q: '첫번째' }, function (err, res) {
+			request.get(test.url + '/api/search', { q: '첫번째' }, function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(rcs.SUCCESS);
 				var r = res.body.result;
