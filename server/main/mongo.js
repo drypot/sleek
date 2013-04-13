@@ -16,7 +16,7 @@ exports.options = function (_opt) {
 init.add(function (next) {
 
 	var server = exports.server = new mongo.Server("127.0.0.1", 27017, { auto_reconnect: true });
-	var db = exports.db = new mongo.Db(config.data.mongoDbName, server, { safe: false });
+	var db = exports.db = new mongo.Db(config.data.mongoDbName, server, { w: (opt.w ? opt.w : -1) });
 
 	async.series([
 		function (next) {
