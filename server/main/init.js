@@ -19,14 +19,7 @@ exports.reset = function () {
 
 exports.run = function (next) {
 	console.log('init:');
-	async.series(funcs, function (err) {
-		if (err) {
-			throw err;
-		}
-		if (next) {
-			next();
-		}
-	});
+	async.series(funcs, next);
 };
 
 exports.reset();
