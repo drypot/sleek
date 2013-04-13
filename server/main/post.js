@@ -40,6 +40,24 @@ init.add(function () {
 		});
 	}
 
+	exports.createReply = function (role, form, end) {
+		var threadId = form.threadId;
+		findThread(threadId, end, function (thread) {
+			categoryForNew(role, thread.categoryId, end, function (category) {
+				checkForm(form, false, end, function () {
+					var postId = mongo.getNewPostId();
+					savePostFiles(postId, form, end, function () {
+						insertPost(postId, form, thread, end, function () {
+							mongo.updateThreadLength(threadId, form.now, function (err) {
+								end(null, postId);
+							});
+						});
+					});
+				});
+			});
+		});
+	};
+
 	exports.threadsParams = function (req) {
 		var query = req.query;
 		var params = {};
@@ -61,28 +79,6 @@ init.add(function () {
 			});
 		});
 	};
-
-	function categoryForNew(role, categoryId, end, next) {
-		var category = role.categories[categoryId];
-		if (!category) {
-			return end({ rc: rcs.INVALID_CATEGORY });
-		}
-		if (!category.writable) {
-			return end({ rc: rcs.NOT_AUTHORIZED });
-		}
-		next(category);
-	}
-
-	function categoryForRead(role, categoryId, end, next) {
-		var category = role.categories[categoryId];
-		if (!category) {
-			return end({ rc: rcs.INVALID_CATEGORY });
-		}
-		if (!category.readable) {
-			return end({ rc: rcs.NOT_AUTHORIZED });
-		}
-		next(category);
-	}
 
 	function checkForm(form, head, end, next) {
 		var error = new FieldError();
@@ -127,6 +123,40 @@ init.add(function () {
 			break;
 		}
 		return has;
+	}
+
+	function categoryForNew(role, categoryId, end, next) {
+		var category = role.categories[categoryId];
+		if (!category) {
+			return end({ rc: rcs.INVALID_CATEGORY });
+		}
+		if (!category.writable) {
+			return end({ rc: rcs.NOT_AUTHORIZED });
+		}
+		next(category);
+	}
+
+	function categoryForRead(role, categoryId, end, next) {
+		var category = role.categories[categoryId];
+		if (!category) {
+			return end({ rc: rcs.INVALID_CATEGORY });
+		}
+		if (!category.readable) {
+			return end({ rc: rcs.NOT_AUTHORIZED });
+		}
+		next(category);
+	}
+
+	function findThread(threadId, end, next) {
+		mongo.findThread(threadId, function (err, thread) {
+			if (err) {
+				return end(err);
+			}
+			if (!thread) {
+				return end({ rc: rcs.INVALID_THREAD });
+			}
+			next(thread);
+		});
 	}
 
 	function insertThread(threadId, form, end, next) {

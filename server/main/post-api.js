@@ -29,6 +29,27 @@ init.add(function () {
 		});
 	});
 
+	app.post('/api/threads/:threadId([0-9]+)', function (req, res) {
+		req.authorized(function (err, role) {
+			if (err) {
+				return res.json(err);
+			}
+			var form = post.form(req);
+			var threadId = form.threadId = parseInt(req.params.threadId) || 0;
+			post.createReply(role, form, function (err, postId) {
+				if (err) {
+					return res.json(err);
+				}
+				req.session.post.push(postId);
+				res.json({
+					rc: rcs.SUCCESS,
+					threadId: threadId,
+					postId: postId
+				});
+			});
+		});
+	});
+
 	app.get('/api/threads', function (req, res) {
 		req.authorized(function (err, role) {
 			if (err) {
@@ -67,7 +88,6 @@ init.add(function () {
 			});
 		});
 	});
-
 
 
 
@@ -173,24 +193,7 @@ init.add(function () {
 
 
 
-	// new reply
 
-	app.post('/api/threads/:threadId([0-9]+)', function (req, res, next) {
-		req.authorized(function () {
-			var form = getForm(req);
-			var threadId = l.int(req.params, 'threadId', 0);
-			prepareThread(res, threadId, function (thread){
-				categoriesForNew(res, thread.categoryId, function (category) {
-					checkForm(res, form, false, function () {
-						insertPost(req, res, form, thread, function (post) {
-							mongo.updateThreadLength(thread, form.now);
-							res.json({ rc: rcs.SUCCESS, threadId: thread._id, postId: post._id });
-						});
-					});
-				});
-			});
-		});
-	});
 
 	// update post
 
@@ -224,16 +227,6 @@ init.add(function () {
 		} else {
 			next();
 		}
-	}
-
-	function prepareThread(res, threadId, next) {
-		mongo.findThreadById(threadId, function (err, thread) {
-			if (err || !thread) {
-				res.sendRc(rcs.INVALID_THREAD);
-			} else {
-				next(thread);
-			}
-		});
 	}
 
 	function threadAndPost(res, threadId, postId, next) {
