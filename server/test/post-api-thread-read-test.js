@@ -16,7 +16,7 @@ describe("getting thread", function () {
 		request.del('/api/sessions', next);
 	});
 	it("should fail", function (next) {
-		request.get('/api/threads/0', function (err, res) {
+		request.get(test.url + '/api/threads/0', function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.NOT_AUTHENTICATED);
 			next(err);
@@ -48,7 +48,7 @@ describe("getting thread", function () {
 		);
 	});
 	it('should return 2 posts', function (next) {
-		request.get('/api/threads/' + tid, function (err, res) {
+		request.get(test.url + '/api/threads/' + tid, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.thread.id.should.equal(tid);
@@ -75,7 +75,7 @@ describe("getting thread", function () {
 		);
 	});
 	it('should return 3 posts', function (next) {
-		request.get('/api/threads/' + tid, function (err, res) {
+		request.get(test.url + '/api/threads/' + tid, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.post.should.length(3);
@@ -96,7 +96,7 @@ describe("getting thread", function () {
 		);
 	});
 	it('should return 3 posts', function (next) {
-		request.get('/api/threads/' + tid, function (err, res) {
+		request.get(test.url + '/api/threads/' + tid, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.post.should.length(3);
@@ -107,7 +107,7 @@ describe("getting thread", function () {
 		request.post(url + '/api/sessions', { password: '1' }, next);
 	});
 	it('should return 2 posts', function (next) {
-		request.get('/api/threads/' + tid, function (err, res) {
+		request.get(test.url + '/api/threads/' + tid, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.post.should.length(2);

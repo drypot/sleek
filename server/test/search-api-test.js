@@ -29,7 +29,7 @@ describe("searching", function () {
 		request.del('/api/sessions', next);
 	});
 	it("when accessing api, should fail", function (next) {
-		request.get('/api/search', function (err, res) {
+		request.get(test.url + '/api/search', function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.NOT_AUTHENTICATED);
 			next(err);
@@ -39,7 +39,7 @@ describe("searching", function () {
 		request.post(url + '/api/sessions', { password: '3' }, next);
 	});
 	it("when accessing api, should success", function (next) {
-		request.get('/api/search', { q: 'hello' }, function (err, res) {
+		request.get(test.url + '/api/search', { q: 'hello' }, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			var r = res.body.result;
@@ -63,7 +63,7 @@ describe("searching", function () {
 		request.post(url + '/api/sessions', { password: '1' }, next);
 	});
 	it("when search user name, should return results", function (next) {
-		request.get('/api/search', { q: 'snowman' }, function (err, res) {
+		request.get(test.url + '/api/search', { q: 'snowman' }, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			var r = res.body.result;
@@ -75,7 +75,7 @@ describe("searching", function () {
 		});
 	});
 	it("when search title, should return results", function (next) {
-		request.get('/api/search', { q: 'title 4' }, function (err, res) {
+		request.get(test.url + '/api/search', { q: 'title 4' }, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			var r = res.body.result;
@@ -85,7 +85,7 @@ describe("searching", function () {
 		});
 	});
 	it("when search text, should return results", function (next) {
-		request.get('/api/search', { q: 'apple orange' }, function (err, res) {
+		request.get(test.url + '/api/search', { q: 'apple orange' }, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			var r = res.body.result;
@@ -96,7 +96,7 @@ describe("searching", function () {
 		});
 	});
 	it("when search text 2, should return results", function (next) {
-		request.get('/api/search', { q: 'apple banana' }, function (err, res) {
+		request.get(test.url + '/api/search', { q: 'apple banana' }, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			var r = res.body.result;
@@ -106,7 +106,7 @@ describe("searching", function () {
 		});
 	});
 	it("when search hangul, should return results", function (next) {
-		request.get('/api/search', { q: '둥글' }, function (err, res) {
+		request.get(test.url + '/api/search', { q: '둥글' }, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			var r = res.body.result;
@@ -118,7 +118,7 @@ describe("searching", function () {
 		});
 	});
 	it("when search admin thread, should return no results", function (next) {
-		request.get('/api/search', { q: 'admin' }, function (err, res) {
+		request.get(test.url + '/api/search', { q: 'admin' }, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			var r = res.body.result;
@@ -130,7 +130,7 @@ describe("searching", function () {
 		request.post(url + '/api/sessions', { password: '3' }, next);
 	});
 	it("when search admin thread, should return results", function (next) {
-		request.get('/api/search', { q: 'admin' }, function (err, res) {
+		request.get(test.url + '/api/search', { q: 'admin' }, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			var r = res.body.result;

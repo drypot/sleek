@@ -49,7 +49,7 @@ describe('updating head post', function () {
 		);
 	});
 	it('and can confirm changed', function (next) {
-		request.get('/api/threads/' + tid1 + '/' + pid11, function (err, res) {
+		request.get(test.url + '/api/threads/' + tid1 + '/' + pid11, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.post.head.should.true;
@@ -72,7 +72,7 @@ describe('updating head post', function () {
 		);
 	});
 	it('and can confirm changed', function (next) {
-		request.get('/api/threads/' + tid1 + '/' + pid11, function (err, res) {
+		request.get(test.url + '/api/threads/' + tid1 + '/' + pid11, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.category.id.should.equal(102);
@@ -175,7 +175,7 @@ describe('updating reply post', function () {
 		);
 	});
 	it('and can confirm changed', function (next) {
-		request.get('/api/threads/' + tid1 + '/' + pid12, function (err, res) {
+		request.get(test.url + '/api/threads/' + tid1 + '/' + pid12, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.post.head.should.false;

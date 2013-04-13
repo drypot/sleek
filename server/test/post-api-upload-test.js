@@ -56,7 +56,7 @@ describe('uploading post file', function () {
 		);
 	});
 	it('and get post response should have file field', function (next) {
-		request.get('/api/threads/' + t1 + '/' + p12, function (err, res) {
+		request.get(test.url + '/api/threads/' + t1 + '/' + p12, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.post.upload[0].name.should.equal('file1.txt');
