@@ -32,22 +32,6 @@ describe("get /api/threads", function () {
 		{ categoryId: 400, writer : 'snowman', title: 'title 7', text: 'text 7' }
 	];
 
-	before(function (next) {
-		mongo.db.dropDatabase(next);
-	});
-	before(function (next) {
-		mongo.ensureThreads(next);
-	});
-	before(function (next) {
-		mongo.ensurePosts(next);
-	});
-	before(function (next) {
-		mongo.posts.count(function (err, count) {
-			should.not.exist(err);
-			count.should.equal(0);
-			next();
-		});
-	});
 	it('given no session', function (next) {
 		test.logout(next);
 	});
