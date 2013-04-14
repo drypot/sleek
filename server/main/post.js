@@ -23,7 +23,7 @@ init.add(function () {
 	};
 
 	exports.createThread = function (role, form, next) {
-		categoryForNew(role, form.categoryId, function (err, category) {
+		categoryForUpdate(role, form.categoryId, function (err, category) {
 			if (err) return next(err);
 			checkForm(form, true, function (err) {
 				if (err) return next(err);
@@ -47,7 +47,7 @@ init.add(function () {
 		var threadId = form.threadId;
 		findThread(threadId, function (err, thread) {
 			if (err) return next(err);
-			categoryForNew(role, thread.categoryId, function (err, category) {
+			categoryForUpdate(role, thread.categoryId, function (err, category) {
 				if (err) return next(err);
 				checkForm(form, false, function (err) {
 					if (err) return next(err);
@@ -59,6 +59,45 @@ init.add(function () {
 							mongo.updateThreadLength(threadId, form.now, function (err) {
 								if (err) return next(err);
 								next(null, postId);
+							});
+						});
+					});
+				});
+			});
+		});
+	};
+
+	exports.update = function (role, form, editablePosts, next) {
+		findThread(form.threadId, function (err, thread) {
+			if (err) return next(err);
+			mongo.findPost(form.postId, function (err, post) {
+				if (err) return next(err);
+				categoryForUpdate(role, thread.categoryId, function (err, category) {
+					if (err) return next(err);
+					if (!editable(category, post._id, editablePosts)) {
+						next({ rc: rcs.NOT_AUTHORIZED });
+					}
+					(function (next) {
+						if (head) {
+							categoryForUpdate(role, form.categoryId, next);
+						} else {
+							next();
+						}
+					})(function (err) {
+						if (err) return next(err);
+						checkForm(form, head, function (err) {
+							if (err) return next(err);
+							(function (next) {
+								if (head) {
+									updateThread(form, thread, next);
+								} else {
+									next();
+								}
+							})(function (err) {
+								if (err) return next(err);
+								updatePost(form, thread, post, category.editable, function (err) {
+									next(err);
+								});
 							});
 						});
 					});
@@ -133,20 +172,6 @@ init.add(function () {
 		});
 	};
 
-	function fileUrls(post) {
-		if (!post.files) {
-			return undefined;
-		}
-		var urls = [];
-		post.files.forEach(function (file) {
-			urls.push({
-				name: file,
-				url: upload.postFileUrl(post._id, file)
-			});
-		});
-		return urls;
-	}
-
 	exports.threadAndPost = function (role, threadId, postId, editablePosts, next) {
 		findThread(threadId, function (err, thread) {
 			if (err) return next(err);
@@ -157,8 +182,6 @@ init.add(function () {
 				}
 				categoryForRead(role, thread.categoryId, function (err, category) {
 					if (err) return next(err);
-					var head = thread.created.getTime() === post.created.getTime();
-					var editable = !!(category.editable || (editablePosts && (editablePosts.indexOf(post._id) !== -1)));
 					var postX = {
 						id: post._id,
 						writer: post.writer,
@@ -166,8 +189,8 @@ init.add(function () {
 						text: post.text,
 						visible: post.visible,
 						files: fileUrls(post),
-						head: head,
-						editable: editable
+						head: head(thread, post),
+						editable: editable(category, post._id, editablePosts)
 					}
 					next(err, thread, postX);
 				});
@@ -220,7 +243,7 @@ init.add(function () {
 		return has;
 	}
 
-	function categoryForNew(role, categoryId, next) {
+	function categoryForUpdate(role, categoryId, next) {
 		var category = role.categories[categoryId];
 		if (!category) {
 			return next({ rc: rcs.INVALID_CATEGORY });
@@ -301,6 +324,77 @@ init.add(function () {
 				next();
 			});
 		});
+	}
+
+	function updateThread(form, thread, next) {
+		thread.categoryId = form.categoryId;
+		thread.title = form.title;
+		thread.writer = form.writer;
+		mongo.updateThread(thread, next);
+	}
+
+	function updatePost(form, thread, post, admin, next) {
+		post.writer = form.writer;
+		post.text = form.text;
+		if (admin) {
+			post.visible = form.visible;
+		}
+//		TODO:
+//		upload.deletePostFiles(post, form.delFiles, function (err, deleted) {
+//			if (err) return next(err);
+//			if (deleted && files) {
+//				files = files.filter(function (file) {
+//					return deleted.indexOf(file) == -1;
+//				});
+//				if (files.length == 0) delete files;
+//			}
+//			next();
+//
+//			if (err) {
+//				res.sendRc(rcs.FILE_IO_ERR);
+//			} else {
+//				if (deleted) {
+//					post.upload = _.without(post.upload, deleted);
+//					if (post.upload.length == 0) delete post.upload;
+//				}
+//				l.upload.savePostFiles(post, form.tmpFiles, function (err, saved) {
+//					if (err) {
+//						res.sendRc(rcs.FILE_IO_ERR);
+//					} else {
+//						mongo.updatePost(post);
+//						l.es.updatePost(thread, post, function (err, res) {
+//							if (err) {
+//								res.sendRc(rcs.SEARCH_IO_ERR);
+//							} else {
+//								next();
+//							}
+//						});
+//					}
+//				});
+//			}
+//		});
+	}
+
+	function fileUrls(post) {
+		if (!post.files) {
+			return undefined;
+		}
+		var urls = [];
+		post.files.forEach(function (file) {
+			urls.push({
+				name: file,
+				url: upload.postFileUrl(post._id, file)
+			});
+		});
+		return urls;
+	}
+
+	function head(thead, post) {
+		return thread.created.getTime() === post.created.getTime();
+	}
+
+	function editable(category, postId, editablePosts) {
+		return !!(category.editable || (editablePosts && (editablePosts.indexOf(postId) !== -1)));
 	}
 
 });
