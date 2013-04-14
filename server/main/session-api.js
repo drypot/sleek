@@ -27,9 +27,7 @@ init.add(function () {
 			return res.json({ rc: rcs.INVALID_PASSWORD });
 		}
 		req.session.regenerate(function (err) {
-			if (err) {
-				return res.json(err);
-			}
+			if (err) return res.json(err);
 			if (req.cookies && req.cookies.lv3) {
 				res.clearCookie('lv3');
 				res.clearCookie('lv');

@@ -45,16 +45,16 @@ describe("get /api/threads", function () {
 		test.loginUser(next);
 	});
 	it('given sample threads', function (next) {
-		async.forEachSeries(
-			samples,
-			function (item, next) {
-				request.post(test.url + '/api/threads').send(item).end(function (err, res) {
-					res.status.should.equal(200);
-					next();
-				});
-			},
-			next
-		);
+		var i = 0;
+		var len = samples.length;
+		(function insert() {
+			if (i == len) return next();
+			var item = samples[i++];
+			request.post(test.url + '/api/threads').send(item).end(function (err, res) {
+				res.status.should.equal(200);
+				process.nextTick(insert);
+			});
+		})();
 	});
 	it('should success when no op', function (next) {
 		request.get(test.url + '/api/threads', function (err, res) {
