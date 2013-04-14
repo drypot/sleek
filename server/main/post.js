@@ -75,7 +75,7 @@ init.add(function () {
 				categoryForUpdate(role, thread.categoryId, function (err, category) {
 					if (err) return next(err);
 					if (!editable(category, post._id, editablePosts)) {
-						next({ rc: rcs.NOT_AUTHORIZED });
+						return next({ rc: rcs.NOT_AUTHORIZED });
 					}
 					(function (next) {
 						if (head) {
