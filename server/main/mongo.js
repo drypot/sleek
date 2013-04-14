@@ -85,18 +85,18 @@ function initThread(next) {
 	};
 
 	exports.findThread = function (id, next) {
-		return threads.findOne({ _id: id }, next);
+		threads.findOne({ _id: id }, next);
 	};
 
 	exports.findThreadsByCategory = function (categoryId, page, pageSize, next) {
 		var findOp = {};
-		var dir = page > 0 ? 1 : -1;
+		var dir = -1;
 		var skip = (Math.abs(page) - 1) * pageSize;
 
 		if (categoryId) {
 			findOp.categoryId = categoryId;
 		}
-		threads.find(findOp).sort({ updated: -1 * dir }).skip(skip).limit(pageSize).toArray(next);
+		threads.find(findOp).sort({ updated: dir }).skip(skip).limit(pageSize).each(next);
 	};
 }
 
@@ -134,8 +134,8 @@ function initPost(next) {
 		posts.save(post, next);
 	};
 
-	exports.findPostById = function (id, next) {
-		return posts.findOne({ _id: id }, next);
+	exports.findPost = function (id, next) {
+		posts.findOne({ _id: id }, next);
 	};
 
 	exports.findPostsByThread = function (threadId, next) {
