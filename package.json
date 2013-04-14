@@ -7,7 +7,6 @@
     "test": "test"
   },
   "dependencies": {
-    "async": "~0.2.6",
     "bcrypt": "~0.7.5",
     "connect-redis": "~1.4.5",
     "express": "~3.1.1",

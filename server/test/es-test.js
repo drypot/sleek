@@ -1,5 +1,4 @@
 var should = require('should');
-var async = require('async');
 
 var init = require('../main/init');
 var config = require('../main/config').options({ test: true });
@@ -11,11 +10,11 @@ before(function (next) {
 });
 
 describe('es', function () {
-	var doc;
+	var docs;
 
 	before(function (next) {
 		var tid;
-		doc = [
+		docs = [
 			{
 				thread: {
 					_id: tid = mongo.getNewThreadId(), categoryId: 101, created: new Date(2000, 1, 1),
@@ -67,20 +66,26 @@ describe('es', function () {
 				}
 			}
 		];
-		async.forEachSeries(doc, function (doc, next) {
+
+		var i = 0;
+		var len = docs.length;
+
+		(function insert() {
+			if (i == len) return next();
+			var doc = docs[i++];
 			es.updatePost(doc.thread, doc.post, function (err, res) {
 				should.not.exist(err);
 				should(res.statusCode == 201 || res.statusCode == 200);
 				res.body.ok.should.true;
-				next();
+				process.nextTick(insert);
 			});
-		}, next);
+		})();
 	});
 	before(function (next) {
 		es.flush(next);
 	});
 	it('can get post head', function (next) {
-		var doc0 = doc[0];
+		var doc0 = docs[0];
 		es.getPost(doc0.post._id, function (err, res) {
 			should.not.exist(err);
 			res.status.should.equal(200);
@@ -97,7 +102,7 @@ describe('es', function () {
 		});
 	});
 	it('can get post reply', function (next) {
-		var doc1 = doc[1];
+		var doc1 = docs[1];
 		es.getPost(doc1.post._id, function (err, res) {
 			should.not.exist(err);
 			res.status.should.equal(200);
@@ -122,7 +127,7 @@ describe('es', function () {
 			should.not.exist(err);
 			res.status.should.equal(200);
 			res.body.hits.total.should.equal(1);
-			res.body.hits.hits[0]._id.should.equal(doc[0].post._id);
+			res.body.hits.hits[0]._id.should.equal(docs[0].post._id);
 			next();
 		});
 	});
@@ -135,8 +140,8 @@ describe('es', function () {
 			should.not.exist(err);
 			res.status.should.equal(200);
 			res.body.hits.total.should.equal(2);
-			res.body.hits.hits[0]._id.should.equal(doc[0].post._id);
-			res.body.hits.hits[1]._id.should.equal(doc[1].post._id);
+			res.body.hits.hits[0]._id.should.equal(docs[0].post._id);
+			res.body.hits.hits[1]._id.should.equal(docs[1].post._id);
 			next();
 		});
 	});
@@ -149,8 +154,8 @@ describe('es', function () {
 			should.not.exist(err);
 			res.status.should.equal(200);
 			res.body.hits.total.should.equal(2);
-			res.body.hits.hits[0]._id.should.equal(doc[0].post._id);
-			res.body.hits.hits[1]._id.should.equal(doc[1].post._id);
+			res.body.hits.hits[0]._id.should.equal(docs[0].post._id);
+			res.body.hits.hits[1]._id.should.equal(docs[1].post._id);
 			next(err);
 		});
 	});
@@ -163,7 +168,7 @@ describe('es', function () {
 			should.not.exist(err);
 			res.status.should.equal(200);
 			res.body.hits.total.should.equal(1);
-			res.body.hits.hits[0]._id.should.equal(doc[1].post._id);
+			res.body.hits.hits[0]._id.should.equal(docs[1].post._id);
 			next();
 		});
 	});
@@ -176,7 +181,7 @@ describe('es', function () {
 			should.not.exist(err);
 			res.status.should.equal(200);
 			res.body.hits.total.should.equal(1);
-			res.body.hits.hits[0]._id.should.equal(doc[1].post._id);
+			res.body.hits.hits[0]._id.should.equal(docs[1].post._id);
 			next();
 		});
 	});
@@ -189,9 +194,9 @@ describe('es', function () {
 			should.not.exist(err);
 			res.status.should.equal(200);
 			res.body.hits.hits.should.length(3);
-			res.body.hits.hits[0]._id.should.equal(doc[4].post._id);
-			res.body.hits.hits[1]._id.should.equal(doc[3].post._id);
-			res.body.hits.hits[2]._id.should.equal(doc[2].post._id);
+			res.body.hits.hits[0]._id.should.equal(docs[4].post._id);
+			res.body.hits.hits[1]._id.should.equal(docs[3].post._id);
+			res.body.hits.hits[2]._id.should.equal(docs[2].post._id);
 			next();
 		});
 	});
@@ -205,8 +210,8 @@ describe('es', function () {
 			should.not.exist(err);
 			res.status.should.equal(200);
 			res.body.hits.hits.should.length(2);
-			res.body.hits.hits[0]._id.should.equal(doc[3].post._id);
-			res.body.hits.hits[1]._id.should.equal(doc[2].post._id);
+			res.body.hits.hits[0]._id.should.equal(docs[3].post._id);
+			res.body.hits.hits[1]._id.should.equal(docs[2].post._id);
 			next(err);
 		});
 	});
@@ -219,8 +224,8 @@ describe('es', function () {
 			should.not.exist(err);
 			res.status.should.equal(200);
 			res.body.hits.total.should.equal(2);
-			res.body.hits.hits[0]._id.should.equal(doc[2].post._id);
-			res.body.hits.hits[1]._id.should.equal(doc[3].post._id);
+			res.body.hits.hits[0]._id.should.equal(docs[2].post._id);
+			res.body.hits.hits[1]._id.should.equal(docs[3].post._id);
 			next();
 		});
 	});
@@ -233,8 +238,8 @@ describe('es', function () {
 			should.not.exist(err);
 			res.status.should.equal(200);
 			res.body.hits.total.should.equal(2);
-			res.body.hits.hits[0]._id.should.equal(doc[2].post._id);
-			res.body.hits.hits[1]._id.should.equal(doc[4].post._id);
+			res.body.hits.hits[0]._id.should.equal(docs[2].post._id);
+			res.body.hits.hits[1]._id.should.equal(docs[4].post._id);
 			next();
 		});
 	});
@@ -247,7 +252,7 @@ describe('es', function () {
 			should.not.exist(err);
 			res.status.should.equal(200);
 			res.body.hits.total.should.equal(1);
-			res.body.hits.hits[0]._id.should.equal(doc[4].post._id);
+			res.body.hits.hits[0]._id.should.equal(docs[4].post._id);
 			next();
 		});
 	});

@@ -1,10 +1,9 @@
 var should = require('should');
 var request = require('superagent').agent();
-var async = require('async');
 
 var init = require('../main/init');
 var config = require('../main/config').options({ test: true });
-var mongo = require('../main/mongo').options({ dropDatabase: true, w: 1 });
+var mongo = require('../main/mongo').options({ dropDatabase: true });
 var es = require('../main/es').options({ dropIndex: true });
 var express = require('../main/express');
 var rcs = require('../main/rcs');

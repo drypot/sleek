@@ -1,5 +1,3 @@
-var async = require('async');
-
 var funcs;
 
 exports.add = function (func) {
@@ -19,7 +17,18 @@ exports.reset = function () {
 
 exports.run = function (next) {
 	console.log('init:');
-	async.series(funcs, next);
+
+	var i = 0;
+	var len = funcs.length;
+
+	(function run() {
+		if (i == len) return next();
+		var func = funcs[i++];
+		func(function (err) {
+			if (err) return next(err);
+			process.nextTick(run);
+		});
+	})();
 };
 
 exports.reset();

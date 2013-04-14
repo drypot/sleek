@@ -1,5 +1,4 @@
 var fs = require('fs');
-var async = require('async');
 
 exports.mkdirs = function (subs) {
 	var dir = null;

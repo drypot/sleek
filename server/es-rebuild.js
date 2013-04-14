@@ -1,4 +1,3 @@
-var async = require('async');
 var l = require('./main/l');
 
 require('./main/es');

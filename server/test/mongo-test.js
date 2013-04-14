@@ -2,7 +2,7 @@ var should = require('should');
 
 var init = require('../main/init');
 var config = require('../main/config').options({ test: true });
-var mongo = require('../main/mongo').options({ dropDatabase: true, w: 1});
+var mongo = require('../main/mongo').options({ dropDatabase: true });
 
 before(function (next) {
 	init.run(next);
@@ -77,19 +77,14 @@ describe('filled post collection', function () {
 		var len = rows.length;
 
 		(function insert() {
-			if (i === len) {
-				return next();
-			}
-			var row = rows[i];
+			if (i == len) return next();
+			var row = rows[i++];
 			row._id = mongo.getNewPostId();
 			if (row.text === 'cool post 21') {
 				ppost = row;
 			}
 			mongo.insertPost(row, function (err) {
-				if (err) {
-					return next(err);
-				}
-				i++;
+				should.not.exist(err);
 				process.nextTick(insert);
 			});
 		})();
@@ -120,27 +115,42 @@ describe('filled post collection', function () {
 			});
 		});
 	});
-	it.skip('can find posts by thread id', function (next) {
+	it('can find posts by thread id', function (next) {
+		var count = 0;
 		mongo.findPostsByThread(1000, function (err, post) {
 			should.not.exist(err);
-			post.should.length(3);
+			if (post) {
+				count++;
+				return;
+			}
+			count.should.equal(3);
 			next();
-		})
+		});
 	});
-	it.skip('can find posts by thread id, 2', function (next) {
+	it('can find posts by thread id, 2', function (next) {
+		var count = 0;
 		mongo.findPostsByThread(1010, function (err, post) {
 			should.not.exist(err);
-			post.should.length(2);
+			if (post) {
+				count++;
+				return;
+			}
+			count.should.equal(2);
 			next();
-		})
+		});
 	});
-	it.skip('can find posts as sorted', function (next) {
+	it('can find posts as sorted', function (next) {
+		var posts = [];
 		mongo.findPostsByThread(1000, function (err, post) {
 			should.not.exist(err);
-			post[0].created.should.below(post[1].created);
-			post[1].created.should.below(post[2].created);
+			if (post) {
+				posts.push(post);
+				return;
+			}
+			posts[0].created.should.below(posts[1].created);
+			posts[1].created.should.below(posts[2].created);
 			next();
-		})
+		});
 	});
 });
 
@@ -221,19 +231,14 @@ describe('filled thread collection', function () {
 		var len = rows.length;
 
 		(function insert() {
-			if (i === len) {
-				return next();
-			}
-			var row = rows[i];
+			if (i == len) return next();
+			var row = rows[i++];
 			row._id = mongo.getNewThreadId();
 			if (row.title === 'title10') {
 				pthread = row;
 			}
 			mongo.insertThread(row, function (err) {
-				if (err) {
-					return next(err);
-				}
-				i++;
+				should.not.exist(err);
 				process.nextTick(insert);
 			});
 		})();

@@ -1,6 +1,5 @@
 var should = require('should');
 var request = require('superagent').agent();
-var async = require('async');
 
 var init = require('../main/init');
 var config = require('../main/config').options({ test: true });

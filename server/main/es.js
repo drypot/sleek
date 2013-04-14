@@ -1,4 +1,3 @@
-var async = require('async');
 var request = require('superagent').agent();
 
 var init = require('../main/init');
@@ -16,6 +15,8 @@ exports.options = function (_opt) {
 init.add(function (next) {
 
 	var url = config.data.esUrl + '/' + config.data.esIndexName;
+
+	console.log('elasticsearch: ' + url);
 
 	function setSchema(next) {
 		request.post(url).send({
@@ -104,19 +105,7 @@ init.add(function (next) {
 		});
 	};
 
-	async.series([
-		function (next) {
-			if (opt.dropIndex) {
-				exports.dropIndex(next);
-			} else {
-				setSchema(next);
-			}
-		},
-		function (next) {
-			console.log('elasticsearch: ' + url);
-			next();
-		}
-	], next);
+	(opt.dropIndex ? exports.dropIndex : setSchema)(next);
 
 });
 
