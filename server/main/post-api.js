@@ -11,14 +11,10 @@ init.add(function () {
 
 	app.post('/api/threads', function (req, res) {
 		req.authorized(function (err, role) {
-			if (err) {
-				return res.json(err);
-			}
+			if (err) return res.json(err);
 			var form = post.form(req);
 			post.createThread(role, form, function (err, threadId, postId) {
-				if (err) {
-					return res.json(err);
-				}
+				if (err) return res.json(err);
 				req.session.post.push(postId);
 				res.json({
 					rc: rcs.SUCCESS,
@@ -31,15 +27,11 @@ init.add(function () {
 
 	app.post('/api/threads/:threadId([0-9]+)', function (req, res) {
 		req.authorized(function (err, role) {
-			if (err) {
-				return res.json(err);
-			}
+			if (err) return res.json(err);
 			var form = post.form(req);
 			var threadId = form.threadId = parseInt(req.params.threadId) || 0;
 			post.createReply(role, form, function (err, postId) {
-				if (err) {
-					return res.json(err);
-				}
+				if (err) return res.json(err);
 				req.session.post.push(postId);
 				res.json({
 					rc: rcs.SUCCESS,
@@ -52,14 +44,10 @@ init.add(function () {
 
 	app.get('/api/threads', function (req, res) {
 		req.authorized(function (err, role) {
-			if (err) {
-				return res.json(err);
-			}
+			if (err) return res.json(err);
 			var params = post.threadsParams(req);
 			post.threads(role, params, function (err, category, threads) {
-				if (err) {
-					return res.json(err);
-				}
+				if (err) return res.json(err);
 				var r = {
 					rc: rcs.SUCCESS,
 					threads: []
@@ -91,14 +79,10 @@ init.add(function () {
 
 	app.get('/api/threads/:threadId([0-9]+)', function (req, res) {
 		req.authorized(function (err, role) {
-			if (err) {
-				return res.json(err);
-			}
+			if (err) return res.json(err);
 			var threadId = parseInt(req.params.threadId) || 0;
 			post.threadWithPosts(role, threadId, function (err, thread, category, posts) {
-				if (err) {
-					return res.json(err);
-				}
+				if (err) return res.json(err);
 				var r = {
 					rc: rcs.SUCCESS,
 					thread: {
@@ -108,28 +92,12 @@ init.add(function () {
 					category: {
 						id: category.id
 					},
-					posts: []
+					posts: posts
 				};
-				var admin = category.editable;
-				posts.forEach(function (post) {
-					if (!post.visible && !admin) {
-						return;
-					}
-					r.posts.push({
-						id: post._id,
-						writer: post.writer,
-						created: post.created,
-						text: post.text,
-						upload: uploadUrl(post)
-					});
-				});
 				res.json(r);
-
 			});
 		});
 	});
-
-
 
 
 	// get post

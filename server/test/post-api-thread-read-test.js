@@ -20,107 +20,98 @@ before(function () {
 	express.listen();
 });
 
-describe("getting thread", function () {
+describe("get /api/threads/0", function () {
 	it('given no session', function (next) {
-		request.del('/api/sessions', next);
+		test.logout(next);
 	});
 	it("should fail", function (next) {
 		request.get(test.url + '/api/threads/0', function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.NOT_AUTHENTICATED);
-			next(err);
+			next();
 		});
 	});
 	it('given user session', function (next) {
-		request.post(url + '/api/sessions', { password: '1' }, next);
+		test.loginUser(next);
 	});
 	var tid;
-	it('and head', function (next) {
-		request.post(url + '/api/threads',
-			{ categoryId: 101, writer : 'snowman', title: 'title', text: 'head text' },
-			function (err, res) {
-				res.status.should.equal(200);
-				res.body.rc.should.equal(rcs.SUCCESS);
-				tid = res.body.threadId;
-				next(err);
-			}
-		);
+	it('given thread', function (next) {
+		var form = { categoryId: 101, writer: 'snowman', title: 'title', text: 'post1' };
+		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
+			res.status.should.equal(200);
+			res.body.rc.should.equal(rcs.SUCCESS);
+			tid = res.body.threadId;
+			next();
+		});
 	});
-	it('and reply', function (next) {
-		request.post(url + '/api/threads/' + tid,
-			{ writer : 'snowman2', text: 'reply text 1' },
-			function (err, res) {
-				res.status.should.equal(200);
-				res.body.rc.should.equal(rcs.SUCCESS);
-				next(err);
-			}
-		);
+	it('given reply', function (next) {
+		var form = { writer: 'snowman2', text: 'post2' };
+		request.post(test.url + '/api/threads/' + tid).send(form).end(function (err, res) {
+			res.status.should.equal(200);
+			res.body.rc.should.equal(rcs.SUCCESS);
+			next();
+		});
 	});
 	it('should return 2 posts', function (next) {
 		request.get(test.url + '/api/threads/' + tid, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.thread.id.should.equal(tid);
-			res.body.category.id.should.equal(101);
 			res.body.thread.title.should.equal('title');
-			res.body.post.should.length(2);
-			res.body.post[0].writer.should.equal('snowman');
-			res.body.post[0].text.should.equal('head text');
-			res.body.post[1].writer.should.equal('snowman2');
-			res.body.post[1].text.should.equal('reply text 1');
-			next(err);
+			res.body.category.id.should.equal(101);
+			res.body.posts.should.length(2);
+			res.body.posts[0].writer.should.equal('snowman');
+			res.body.posts[0].text.should.equal('post1');
+			res.body.posts[1].writer.should.equal('snowman2');
+			res.body.posts[1].text.should.equal('post2');
+			next();
 		});
 	});
-	var pid;
-	it('given added reply', function (next) {
-		request.post(url + '/api/threads/' + tid,
-			{ writer : 'admin', text: 'reply text 2' },
-			function (err, res) {
-				res.status.should.equal(200);
-				res.body.rc.should.equal(rcs.SUCCESS);
-				pid = res.body.postId;
-				next(err);
-			}
-		);
+	it('given another reply', function (next) {
+		var form = { writer: 'snowman2', text: 'post3' };
+		request.post(test.url + '/api/threads/' + tid).send(form).end(function (err, res) {
+			res.status.should.equal(200);
+			res.body.rc.should.equal(rcs.SUCCESS);
+			next();
+		});
 	});
 	it('should return 3 posts', function (next) {
 		request.get(test.url + '/api/threads/' + tid, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
-			res.body.post.should.length(3);
-			next(err);
+			res.body.posts.should.length(3);
+			next();
 		});
 	});
 	it('given admin session', function (next) {
-		request.post(url + '/api/sessions', { password: '3' }, next);
+		test.loginAdmin(next);
 	});
-	it('and updated visible', function (next) {
-		request.put('/api/threads/' + tid + '/' + pid,
-			{ writer: 'admin2', text: 'reply text 2u', visible: false },
-			function (err, res) {
-				res.status.should.equal(200);
-				res.body.rc.should.equal(rcs.SUCCESS);
-				next(err);
-			}
-		);
+	it('given another invisible reply', function (next) {
+		var form = { writer: 'admin', text: 'post4' };
+		request.post(test.url + '/api/threads/' + tid).send(form).end(function (err, res) {
+			res.status.should.equal(200);
+			res.body.rc.should.equal(rcs.SUCCESS);
+			next();
+		});
 	});
-	it('should return 3 posts', function (next) {
+	it('should return 4 posts', function (next) {
 		request.get(test.url + '/api/threads/' + tid, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
-			res.body.post.should.length(3);
-			next(err);
+			res.body.posts.should.length(4);
+			next();
 		});
 	});
 	it('given user session', function (next) {
-		request.post(url + '/api/sessions', { password: '1' }, next);
+		test.loginUser(next);
 	});
-	it('should return 2 posts', function (next) {
+	it('should return 3 posts', function (next) {
+		console.log('start');
 		request.get(test.url + '/api/threads/' + tid, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
-			res.body.post.should.length(2);
-			next(err);
+			res.body.posts.should.length(3);
+			next();
 		});
 	});
 });
