@@ -22,13 +22,13 @@ before(function () {
 
 describe("get /api/threads", function () {
 	var samples = [
-		{ categoryId: 100, writer : 'snowman', title: 'title 1', text: 'text 1' },
-		{ categoryId: 100, writer : 'snowman', title: 'title 2', text: 'text 2' },
-		{ categoryId: 100, writer : 'snowman', title: 'title 3', text: 'text 3' },
-		{ categoryId: 100, writer : 'snowman', title: 'title 4', text: 'text 4' },
-		{ categoryId: 300, writer : 'snowman', title: 'title 5', text: 'text 5' },
-		{ categoryId: 300, writer : 'snowman', title: 'title 6', text: 'text 6' },
-		{ categoryId: 400, writer : 'snowman', title: 'title 7', text: 'text 7' }
+		{ categoryId: 100, writer: 'snowman', title: 'title 1', text: 'text 1' },
+		{ categoryId: 100, writer: 'snowman', title: 'title 2', text: 'text 2' },
+		{ categoryId: 100, writer: 'snowman', title: 'title 3', text: 'text 3' },
+		{ categoryId: 100, writer: 'snowman', title: 'title 4', text: 'text 4' },
+		{ categoryId: 300, writer: 'snowman', title: 'title 5', text: 'text 5' },
+		{ categoryId: 300, writer: 'snowman', title: 'title 6', text: 'text 6' },
+		{ categoryId: 400, writer: 'snowman', title: 'title 7', text: 'text 7' }
 	];
 
 	it('given no session', function (next) {

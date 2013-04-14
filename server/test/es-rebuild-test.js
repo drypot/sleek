@@ -19,7 +19,7 @@ describe('es-rebuild', function () {
 	var t1,p1;
 	it('and head t1, p1', function (next) {
 		request.post(url + '/api/threads',
-			{ categoryId: 101, writer : 'snowman', title: '첫번째 글줄', text: 'apple pine banana' },
+			{ categoryId: 101, writer: 'snowman', title: '첫번째 글줄', text: 'apple pine banana' },
 			function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(rcs.SUCCESS);
@@ -32,7 +32,7 @@ describe('es-rebuild', function () {
 	var p2;
 	it('and reply p2', function (next) {
 		request.post(url + '/api/threads/' + t1,
-			{ writer : '김순이', text: '둥글게 네모나게 붉게 파랗게' },
+			{ writer: '김순이', text: '둥글게 네모나게 붉게 파랗게' },
 			function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(rcs.SUCCESS);
@@ -44,7 +44,7 @@ describe('es-rebuild', function () {
 	var t2,p3;
 	it('and another head t2, p3', function (next) {
 		request.post(url + '/api/threads',
-			{ categoryId: 101, writer : '박철수', title: '두번째 글줄', text: '붉은 벽돌길을 걷다보면' },
+			{ categoryId: 101, writer: '박철수', title: '두번째 글줄', text: '붉은 벽돌길을 걷다보면' },
 			function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(rcs.SUCCESS);

@@ -19,7 +19,7 @@ describe('uploading post file', function () {
 	var t1, p11, p12;
 	it('and head', function (next) {
 		request.post(url + '/api/threads',
-			{ categoryId: 101, writer : 'snowman', title: 'title 1', text: 'head text 1' },
+			{ categoryId: 101, writer: 'snowman', title: 'title 1', text: 'head text 1' },
 			function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(rcs.SUCCESS);
@@ -44,7 +44,7 @@ describe('uploading post file', function () {
 	});
 	it('when creating post with upload, upload files must be saved', function (next) {
 		request.post(url + '/api/threads/' + t1,
-			{ writer : 'snowman', text: 'reply text 1', tmpFiles: tmpFiles },
+			{ writer: 'snowman', text: 'reply text 1', tmpFiles: tmpFiles },
 			function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(rcs.SUCCESS);

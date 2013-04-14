@@ -12,8 +12,6 @@ init.add(function () {
 		var body = req.body;
 		var form = {};
 		form.now = new Date();
-//		r.threadId = parseInt(body.threadId) || 0;
-//		r.postId = parseInt(body.postId) || 0;
 		form.categoryId = parseInt(body.categoryId) || 0;
 		form.writer  = String(body.writer || '').trim();
 		form.title = String(body.title || '').trim();
@@ -83,9 +81,27 @@ init.add(function () {
 	exports.threads = function (role, params, next) {
 		categoryForRead(role, params.categoryId, function (err, category) {
 			if (err) return next(err);
-			mongo.findThreadsByCategory(params.categoryId, params.page, params.pageSize, function (err, threads) {
+			var categories = role.categories;
+			var threads = [];
+			mongo.findThreadsByCategory(params.categoryId, params.page, params.pageSize, function (err, thread) {
 				if (err) return next(err);
-				next(null, category, threads);
+				if (thread) {
+					if (category.id !== 0 || categories[thread.categoryId]) {
+						threads.push({
+							id: thread._id,
+							category: {
+								id: thread.categoryId
+							},
+							hit: thread.hit,
+							length: thread.length,
+							updated: thread.updated.getTime(),
+							writer: thread.writer,
+							title: thread.title
+						});
+					}
+					return;
+				}
+				next(null, threads);
 			});
 		});
 	};
@@ -118,7 +134,7 @@ init.add(function () {
 	};
 
 	function fileUrls(post) {
-		if (!post.upload) {
+		if (!post.files) {
 			return undefined;
 		}
 		var urls = [];
@@ -131,6 +147,33 @@ init.add(function () {
 		return urls;
 	}
 
+	exports.threadAndPost = function (role, threadId, postId, editablePosts, next) {
+		findThread(threadId, function (err, thread) {
+			if (err) return next(err);
+			mongo.findPost(postId, function (err, post) {
+				if (err) return next(err);
+				if (!post) {
+					next({ rc: rcs.INVALID_POST });
+				}
+				categoryForRead(role, thread.categoryId, function (err, category) {
+					if (err) return next(err);
+					var head = thread.created.getTime() === post.created.getTime();
+					var editable = !!(category.editable || (editablePosts && (editablePosts.indexOf(post._id) !== -1)));
+					var postX = {
+						id: post._id,
+						writer: post.writer,
+						created: post.created,
+						text: post.text,
+						visible: post.visible,
+						files: fileUrls(post),
+						head: head,
+						editable: editable
+					}
+					next(err, thread, postX);
+				});
+			});
+		});
+	};
 
 	function checkForm(form, head, next) {
 		var error = new FieldError();
@@ -216,7 +259,7 @@ init.add(function () {
 			_id : threadId,
 			categoryId: form.categoryId,
 			hit: 0, length: 1, created: form.now, updated: form.now,
-			writer : form.writer , title: form.title
+			writer: form.writer , title: form.title
 		};
 		mongo.insertThread(thread, function (err) {
 			if (err) return next(err);
@@ -248,7 +291,7 @@ init.add(function () {
 			threadId: thread._id,
 			created: form.now,
 			visible: category.editable ? form.visible : true,
-			writer : form.writer,
+			writer: form.writer,
 			text: form.text
 		};
 		mongo.insertPost(post, function (err) {

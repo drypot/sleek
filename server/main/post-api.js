@@ -15,7 +15,7 @@ init.add(function () {
 			var form = post.form(req);
 			post.createThread(role, form, function (err, threadId, postId) {
 				if (err) return res.json(err);
-				req.session.post.push(postId);
+				req.session.posts.push(postId);
 				res.json({
 					rc: rcs.SUCCESS,
 					threadId: threadId,
@@ -32,7 +32,7 @@ init.add(function () {
 			var threadId = form.threadId = parseInt(req.params.threadId) || 0;
 			post.createReply(role, form, function (err, postId) {
 				if (err) return res.json(err);
-				req.session.post.push(postId);
+				req.session.posts.push(postId);
 				res.json({
 					rc: rcs.SUCCESS,
 					threadId: threadId,
@@ -46,33 +46,12 @@ init.add(function () {
 		req.authorized(function (err, role) {
 			if (err) return res.json(err);
 			var params = post.threadsParams(req);
-			post.threads(role, params, function (err, category, threads) {
+			post.threads(role, params, function (err, threads) {
 				if (err) return res.json(err);
-				var r = {
+				res.json({
 					rc: rcs.SUCCESS,
-					threads: []
-				};
-				var categories = role.categories;
-				var len = threads.length;
-				for (var i = 0; i < len; i++) {
-					var thread = threads[i];
-					if (category.id === 0 && !categories[thread.categoryId]) {
-						//
-					} else {
-						r.threads.push({
-							id: thread._id,
-							category: {
-								id: thread.categoryId
-							},
-							hit: thread.hit,
-							length: thread.length,
-							updated: thread.updated.getTime(),
-							writer: thread.writer,
-							title: thread.title
-						});
-					}
-				}
-				res.json(r);
+					threads: threads
+				});
 			});
 		});
 	});
@@ -83,7 +62,7 @@ init.add(function () {
 			var threadId = parseInt(req.params.threadId) || 0;
 			post.threadWithPosts(role, threadId, function (err, thread, category, posts) {
 				if (err) return res.json(err);
-				var r = {
+				res.json({
 					rc: rcs.SUCCESS,
 					thread: {
 						id: thread._id,
@@ -93,52 +72,32 @@ init.add(function () {
 						id: category.id
 					},
 					posts: posts
-				};
-				res.json(r);
-			});
-		});
-	});
-
-
-	// get post
-
-	app.get('/api/threads/:threadId([0-9]+)/:postId([0-9]+)', function (req, res, next) {
-		req.authorized(function () {
-			var threadId = l.int(req.params, 'threadId', 0);
-			var postId = l.int(req.params, 'postId', 0);
-			threadAndPost(res, threadId, postId, function (thread, post, head) {
-				categoryForRead(res, thread.categoryId, function (category) {
-					var r = {
-						rc: rcs.SUCCESS,
-						thread: {
-							id: post.threadId,
-							title: thread.title
-						},
-						category: {
-							id: thread.categoryId
-						},
-						post: {
-							id: post._id,
-							writer: post.writer,
-							created: post.created,
-							text: post.text,
-							visible: post.visible,
-							upload: uploadUrl(post),
-							head: head,
-							editable: editable(post, category, req)
-						}
-					};
-					res.json(r);
 				});
 			});
 		});
 	});
 
-	function editable(post, category, req) {
-		return category.editable || _.include(req.session.post, post._id)
-	}
-
-
+	app.get('/api/threads/:threadId([0-9]+)/:postId([0-9]+)', function (req, res, next) {
+		req.authorized(function (err, role) {
+			if (err) return res.json(err);
+			var threadId = parseInt(req.params.threadId) || 0;
+			var postId = parseInt(req.params.postId) || 0;
+			post.threadAndPost(role, threadId, postId, req.session.posts, function (err, thread, post) {
+				if (err) return res.json(err);
+				res.json({
+					rc: rcs.SUCCESS,
+					thread: {
+						id: thread._id,
+						title: thread.title
+					},
+					category: {
+						id: thread.categoryId
+					},
+					post: post
+				});
+			});
+		});
+	});
 
 
 
@@ -169,23 +128,11 @@ init.add(function () {
 
 
 	function checkPostOwnership(req, res, category, postId, next) {
-		if (!category.editable && !_.include(req.session.post, postId)) {
+		if (!category.editable && !_.include(req.session.posts, postId)) {
 			res.sendRc(rcs.NOT_AUTHORIZED);
 		} else {
 			next();
 		}
-	}
-
-	function threadAndPost(res, threadId, postId, next) {
-		prepareThread(res, threadId, function (thread) {
-			mongo.findPostById(postId, function (err, post) {
-				if (err || !post) {
-					res.sendRc(rcs.INVALID_POST);
-				} else {
-					next(thread, post, thread.created.getTime() === post.created.getTime());
-				}
-			});
-		});
 	}
 
 	function updateThread(res, form, thread, head, next) {

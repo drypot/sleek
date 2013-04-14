@@ -28,7 +28,7 @@ describe('updating head post', function () {
 	var tid1, pid11, pid12;
 	it('and head', function (next) {
 		request.post(url + '/api/threads',
-			{ categoryId: 101, writer : 'snowman', title: 'title 1', text: 'head text 1' },
+			{ categoryId: 101, writer: 'snowman', title: 'title 1', text: 'head text 1' },
 			function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(rcs.SUCCESS);
@@ -143,7 +143,7 @@ describe('updating reply post', function () {
 	var tid1, pid11, pid12;
 	it('and head', function (next) {
 		request.post(url + '/api/threads',
-			{ categoryId: 101, writer : 'snowman', title: 'title 1', text: 'head text 1' },
+			{ categoryId: 101, writer: 'snowman', title: 'title 1', text: 'head text 1' },
 			function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(rcs.SUCCESS);
@@ -155,7 +155,7 @@ describe('updating reply post', function () {
 	});
 	it('and replay', function (next) {
 		request.post(url + '/api/threads/' + tid1,
-			{ writer : 'snowman', text: 'reply text 1' },
+			{ writer: 'snowman', text: 'reply text 1' },
 			function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(rcs.SUCCESS);

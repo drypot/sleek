@@ -35,7 +35,7 @@ describe('post /api/threads', function () {
 		test.loginUser(next);
 	});
 	it("should fail when categoryId invalid", function (next) {
-		var form = { categoryId: 10100, writer : 'snowman', title: 'title', text: 'text' };
+		var form = { categoryId: 10100, writer: 'snowman', title: 'title', text: 'text' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.INVALID_CATEGORY);
@@ -43,7 +43,7 @@ describe('post /api/threads', function () {
 		});
 	});
 	it("should fail when title empty", function (next) {
-		var form = { categoryId: 101, writer : 'snowman', title: ' ', text: 'text' };
+		var form = { categoryId: 101, writer: 'snowman', title: ' ', text: 'text' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.INVALID_DATA);
@@ -53,7 +53,7 @@ describe('post /api/threads', function () {
 	});
 	it("should fail when title big", function (next) {
 		var bigTitle = 'big title title title title title title title title title title title title title title title title title title title title title title title title title title title title';
-		var form = { categoryId: 101, writer : 'snowman', text: 'text', title: bigTitle };
+		var form = { categoryId: 101, writer: 'snowman', text: 'text', title: bigTitle };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.INVALID_DATA);
@@ -62,7 +62,7 @@ describe('post /api/threads', function () {
 		});
 	});
 	it("should fail when writer empty", function (next) {
-		var form = { categoryId: 101, writer : ' ', title: 'title', text: 'text' };
+		var form = { categoryId: 101, writer: ' ', title: 'title', text: 'text' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.INVALID_DATA);
@@ -71,7 +71,7 @@ describe('post /api/threads', function () {
 		});
 	});
 	it("should fail when writer big", function (next) {
-		var form = { categoryId: 101, writer : '123456789012345678901234567890123', title: 'title', text: 'text' };
+		var form = { categoryId: 101, writer: '123456789012345678901234567890123', title: 'title', text: 'text' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.INVALID_DATA);
@@ -80,7 +80,7 @@ describe('post /api/threads', function () {
 		});
 	});
 	it('should fail when category is recycle bin', function (next) {
-		var form = { categoryId: 40, writer : 'snowman', title: 'title', text: 'text' };
+		var form = { categoryId: 40, writer: 'snowman', title: 'title', text: 'text' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.INVALID_CATEGORY);
@@ -88,7 +88,7 @@ describe('post /api/threads', function () {
 		});
 	});
 	it('should success', function (next) {
-		var form = { categoryId: 101, writer : 'snowman', title: 'title 1', text: 'head text 1' };
+		var form = { categoryId: 101, writer: 'snowman', title: 'title 1', text: 'head text 1' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
@@ -101,7 +101,7 @@ describe('post /api/threads', function () {
 		test.loginAdmin(next);
 	});
 	it('should success when category is recycle bin', function (next) {
-		var form = { categoryId: 40, writer : 'snowman', title: 'title in recycle bin', text: 'head text in recycle bin' };
+		var form = { categoryId: 40, writer: 'snowman', title: 'title in recycle bin', text: 'head text in recycle bin' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);

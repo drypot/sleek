@@ -14,14 +14,14 @@ before(function (next) {
 describe("searching", function () {
 
 	var doc = [
-		{ categoryId: 100, writer : 'snowman', title: 'title 1', text: 'apple orange banana' },
-		{ categoryId: 100, writer : 'snowman', title: 'title 2', text: 'apple orange pine' },
-		{ categoryId: 100, writer : 'snowman', title: 'title 3', text: '둥글게 네모나게' },
-		{ categoryId: 100, writer : 'santa',   title: 'title 4', text: '둥글게 세모나게' },
-		{ categoryId: 300, writer : 'santa',   title: 'title 5', text: '둥글게 동그랗게' },
-		{ categoryId: 300, writer : 'rudolph', title: 'title 6', text: 'text 6' },
-		{ categoryId:  40, writer : 'admin',   title: 'title 7', text: 'text 7' },
-		{ categoryId:  40, writer : 'admin',   title: 'title 8', text: 'text 7' }
+		{ categoryId: 100, writer: 'snowman', title: 'title 1', text: 'apple orange banana' },
+		{ categoryId: 100, writer: 'snowman', title: 'title 2', text: 'apple orange pine' },
+		{ categoryId: 100, writer: 'snowman', title: 'title 3', text: '둥글게 네모나게' },
+		{ categoryId: 100, writer: 'santa',   title: 'title 4', text: '둥글게 세모나게' },
+		{ categoryId: 300, writer: 'santa',   title: 'title 5', text: '둥글게 동그랗게' },
+		{ categoryId: 300, writer: 'rudolph', title: 'title 6', text: 'text 6' },
+		{ categoryId:  40, writer: 'admin',   title: 'title 7', text: 'text 7' },
+		{ categoryId:  40, writer: 'admin',   title: 'title 8', text: 'text 7' }
 	];
 
 	it('given no session', function (next) {

@@ -106,7 +106,7 @@ module.exports = function () {
 									upload: uploadUrl(post),
 
 									createdStr: l.formatDateTime(new Date(post.created)),
-									editable: category.editable || _.include(req.session.post, post.id),
+									editable: category.editable || _.include(req.session.posts, post.id),
 								});
 
 

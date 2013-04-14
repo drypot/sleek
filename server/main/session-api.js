@@ -35,7 +35,7 @@ init.add(function () {
 				res.clearCookie('uname');
 			}
 			req.session.roleName = role.name;
-			req.session.post = [];
+			req.session.posts = [];
 			res.json({
 				rc: rcs.SUCCESS,
 				role: {
