@@ -105,7 +105,13 @@ init.add(function (next) {
 		});
 	};
 
-	(opt.dropIndex ? exports.dropIndex : setSchema)(next);
+	(function (next) {
+		if (opt.dropIndex) {
+			exports.dropIndex(next);
+		} else {
+			setSchema(next)
+		}
+	})(next);
 
 });
 

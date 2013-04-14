@@ -23,7 +23,13 @@ init.add(function (next) {
 		if (err) return next(err);
 		db = exports.db = client.db(config.data.mongoDbName);
 		console.log('mongo: ' + db.databaseName);
-		(opt.dropDatabase ? db.dropDatabase.bind(db) : function (fn){ fn(); })(function (err) {
+		(function (next) {
+			if (opt.dropDatabase) {
+				db.dropDatabase(next);
+			} else {
+				next();
+			}
+		})(function (err) {
 			if (err) return next(err);
 			initThread(function (err) {
 				if (err) return next(err);
