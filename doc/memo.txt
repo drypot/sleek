@@ -1,4 +1,7 @@
-db.postThread.update(
+db.postThread.renameCollection('threads');
+db.post.renameCollection('posts');
+
+db.threads.update(
 	{},
 	{
 		$rename: {
@@ -10,7 +13,7 @@ db.postThread.update(
 	false, true
 );
 
-db.post.update(
+db.posts.update(
 	{},
 	{
 		$rename: {
@@ -21,6 +24,7 @@ db.post.update(
 	},
 	false, true
 );
+
 
 upload-file 디렉토리를 upload 로 변경
 

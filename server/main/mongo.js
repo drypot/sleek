@@ -45,7 +45,7 @@ function initThread(next) {
 	var threadIdSeed;
 
 	exports.ensureThreads = function (next) {
-		threads = exports.threads = exports.db.collection("postThread");
+		threads = exports.threads = exports.db.collection("threads");
 		threads.ensureIndex({ categoryId: 1, updated: -1 }, function (err) {
 			if (err) return next(err);
 			threads.ensureIndex({ updated: -1 }, function (err) {
@@ -105,7 +105,7 @@ function initPost(next) {
 	var postIdSeed;
 
 	exports.ensurePosts = function (next) {
-		posts = exports.posts = exports.db.collection("post");
+		posts = exports.posts = exports.db.collection("posts");
 
 		posts.ensureIndex({ threadId: 1, created: 1 }, function (err) {
 			if (err) return next(err);
