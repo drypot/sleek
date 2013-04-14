@@ -138,7 +138,7 @@ init.add(function (next) {
 			};
 
 			exports.findPostsByThread = function (threadId, next) {
-				posts.find({ threadId: threadId }).sort({ created: 1 }).toArray(next);
+				posts.find({ threadId: threadId }).sort({ created: 1 }).each(next);
 			};
 		}
 	], next);
