@@ -7,6 +7,7 @@ var mongo = require('../main/mongo').options({ dropDatabase: true });
 var es = require('../main/es').options({ dropIndex: true });
 var express = require('../main/express');
 var rcs = require('../main/rcs');
+var msgs = require('../main/msgs');
 var test = require('../main/test').options({ request: request });
 
 require('../main/session-api');
@@ -47,7 +48,7 @@ describe('post /api/threads', function () {
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.INVALID_DATA);
-			res.body.fields.title.indexOf(rcs.msgs.FILL_TITLE).should.not.equal(-1);
+			res.body.fields.title.indexOf(msgs.FILL_TITLE).should.not.equal(-1);
 			next();
 		});
 	});
@@ -57,7 +58,7 @@ describe('post /api/threads', function () {
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.INVALID_DATA);
-			res.body.fields.title.indexOf(rcs.msgs.SHORTEN_TITLE).should.not.equal(-1);
+			res.body.fields.title.indexOf(msgs.SHORTEN_TITLE).should.not.equal(-1);
 			next();
 		});
 	});
@@ -66,7 +67,7 @@ describe('post /api/threads', function () {
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.INVALID_DATA);
-			res.body.fields.writer.indexOf(rcs.msgs.FILL_WRITER).should.not.equal(-1);
+			res.body.fields.writer.indexOf(msgs.FILL_WRITER).should.not.equal(-1);
 			next();
 		});
 	});
@@ -75,7 +76,7 @@ describe('post /api/threads', function () {
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.INVALID_DATA);
-			res.body.fields.writer.indexOf(rcs.msgs.SHORTEN_WRITER).should.not.equal(-1);
+			res.body.fields.writer.indexOf(msgs.SHORTEN_WRITER).should.not.equal(-1);
 			next();
 		});
 	});

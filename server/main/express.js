@@ -6,6 +6,7 @@ var init = require('../main/init');
 var config = require('../main/config');
 var auth = require('../main/auth');
 var rcs = require('../main/rcs');
+var msgs = require('../main/msgs');
 
 var opt = {};
 
@@ -97,7 +98,7 @@ init.add(function () {
 			return res.redirect('/');
 		}
 		if (roleName && roleName !== role.name) {
-			return res.render('error', { msg: rcs.msgs[rcs.NOT_AUTHORIZED] });
+			return res.render('error', { msg: msgs[rcs.NOT_AUTHORIZED] });
 		}
 		next(role);
 	};

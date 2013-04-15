@@ -14,7 +14,7 @@ before(function (next) {
 
 describe('es-rebuild', function () {
 	it('given user session', function (next) {
-		request.post(url + '/api/sessions', { password: '1' }, next);
+		test.loginUser(next);
 	});
 	var t1,p1;
 	it('and head t1, p1', function (next) {

@@ -25,7 +25,7 @@ describe("searching", function () {
 	];
 
 	it('given no session', function (next) {
-		request.del('/api/sessions', next);
+		test.logout(next);
 	});
 	it("when accessing api, should fail", function (next) {
 		request.get(test.url + '/api/search', function (err, res) {
@@ -59,7 +59,7 @@ describe("searching", function () {
 		l.es.flush(next);
 	});
 	it('given user session', function (next) {
-		request.post(url + '/api/sessions', { password: '1' }, next);
+		test.loginUser(next);
 	});
 	it("when search user name, should return results", function (next) {
 		request.get(test.url + '/api/search', { q: 'snowman' }, function (err, res) {

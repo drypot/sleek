@@ -3,6 +3,7 @@ var mongo = require('../main/mongo');
 var es = require('../main/es');
 var upload = require('../main/upload');
 var rcs = require('../main/rcs');
+var msgs = require('../main/msgs');
 
 init.add(function () {
 
@@ -28,10 +29,10 @@ init.add(function () {
 			checkForm(form, true, function (err) {
 				if (err) return next(err);
 				var threadId = mongo.getNewThreadId();
-				insertThread(threadId, form, function (err, thread) {
+				var postId = mongo.getNewPostId();
+				saveTmpFiles(form, postId, function (err) {
 					if (err) return next(err);
-					var postId = mongo.getNewPostId();
-					saveTmpFiles(form, postId, function (err) {
+					insertThread(form, threadId, function (err, thread) {
 						if (err) return next(err);
 						insertPost(thread, category, form, postId, function (err) {
 							if (err) return next(err);
@@ -44,8 +45,7 @@ init.add(function () {
 	}
 
 	exports.createReply = function (role, form, next) {
-		var threadId = form.threadId;
-		findThread(threadId, function (err, thread) {
+		findThread(form.threadId, function (err, thread) {
 			if (err) return next(err);
 			categoryForUpdate(role, thread.categoryId, function (err, category) {
 				if (err) return next(err);
@@ -56,7 +56,7 @@ init.add(function () {
 						if (err) return next(err);
 						insertPost(thread, category, form, postId, function (err) {
 							if (err) return next(err);
-							mongo.updateThreadLength(threadId, form.now, function (err) {
+							mongo.updateThreadLength(thread._id, form.now, function (err) {
 								if (err) return next(err);
 								next(null, postId);
 							});
@@ -67,24 +67,18 @@ init.add(function () {
 		});
 	};
 
-	exports.update = function (role, form, editablePosts, next) {
+	exports.update = function (role, form, editables, next) {
 		findThread(form.threadId, function (err, thread) {
 			if (err) return next(err);
-			mongo.findPost(form.postId, function (err, post) {
+			findPost(thread, form.postId, function (err, post) {
 				if (err) return next(err);
-				var head = head(thread, post);
 				categoryForUpdate(role, thread.categoryId, function (err, category) {
 					if (err) return next(err);
-					if (!editable(category, post._id, editablePosts)) {
+					if (!editable(category, post._id, editables)) {
 						return next({ rc: rcs.NOT_AUTHORIZED });
 					}
-					(function (next) {
-						if (head) {
-							categoryForUpdate(role, form.categoryId, next);
-						} else {
-							next();
-						}
-					})(function (err) {
+					var head = head(thread, post);
+					checkNewCategory(role, form.categoryId, head, function (err) {
 						if (err) return next(err);
 						checkForm(form, head, function (err) {
 							if (err) return next(err);
@@ -92,9 +86,7 @@ init.add(function () {
 								if (err) return next(err);
 								saveTmpFiles(form, post._id, function (err) {
 									if (err) return next(err);
-									updatePost(thread, post, category, form, function (err) {
-										next(err);
-									});
+									updatePost(thread, post, category, form, next);
 								});
 							});
 						});
@@ -173,11 +165,8 @@ init.add(function () {
 	exports.threadAndPost = function (role, threadId, postId, editablePosts, next) {
 		findThread(threadId, function (err, thread) {
 			if (err) return next(err);
-			mongo.findPost(postId, function (err, post) {
+			findPost(thread, postId, function (err, post) {
 				if (err) return next(err);
-				if (!post) {
-					next({ rc: rcs.INVALID_POST });
-				}
 				categoryForRead(role, thread.categoryId, function (err, category) {
 					if (err) return next(err);
 					var postX = {
@@ -201,17 +190,17 @@ init.add(function () {
 
 		if (head) {
 			if (!form.title.length) {
-				error.push('title', rcs.msgs.FILL_TITLE );
+				error.push('title', msgs.FILL_TITLE );
 			}
 			if (form.title.length > 128) {
-				error.push('title', rcs.msgs.SHORTEN_TITLE);
+				error.push('title', msgs.SHORTEN_TITLE);
 			}
 		}
 		if (!form.writer) {
-			error.push('writer', rcs.msgs.FILL_WRITER);
+			error.push('writer', msgs.FILL_WRITER);
 		}
 		if (form.writer.length > 32) {
-			error.push('writer', rcs.msgs.SHORTEN_WRITER);
+			error.push('writer', msgs.SHORTEN_WRITER);
 		}
 		if (error.hasError()) {
 			return next({ rc: rcs.INVALID_DATA, fields: error.fields });
@@ -263,6 +252,14 @@ init.add(function () {
 		next(null, category);
 	}
 
+	function checkNewCategory(role, categoryId, head, next) {
+		if (head) {
+			categoryForUpdate(role, categoryId, next);
+		} else {
+			next();
+		}
+	}
+
 	function findThread(threadId, next) {
 		mongo.findThread(threadId, function (err, thread) {
 			if (err) {
@@ -275,47 +272,32 @@ init.add(function () {
 		});
 	}
 
-	function insertThread(threadId, form, next) {
+	function findPost(thread, postId, next) {
+		mongo.findPost(postId, function (err, post) {
+			if (err) {
+				return next(err);
+			}
+			if (!post || post.threadId !== thread._id) {
+				return next({ rc: rcs.INVALID_POST });
+			}
+			next(null, post);
+		});
+	}
+
+	function insertThread(form, threadId, next) {
 		var thread = {
 			_id : threadId,
 			categoryId: form.categoryId,
-			hit: 0, length: 1, created: form.now, updated: form.now,
-			writer: form.writer , title: form.title
+			hit: 0,
+			length: 1,
+			created: form.now,
+			updated: form.now,
+			writer: form.writer,
+			title: form.title
 		};
 		mongo.insertThread(thread, function (err) {
 			if (err) return next(err);
 			next(null, thread);
-		});
-	}
-
-	function saveTmpFiles(form, postId, next) {
-		upload.saveTmpFilesToPost(form.tmpFiles, postId, function (err, saved) {
-			if (err) return next(err);
-			if (saved) {
-				if (form.files) {
-					saved.forEach(function (saved) {
-						if (form.files.indexOf(saved) == -1) {
-							form.files.push(saved);
-						}
-					});
-				} else {
-					form.files = saved;
-				}
-			}
-			next();
-		});
-	}
-
-	function deletePostFiles(post, form, next) {
-		upload.deletePostFiles(post._id, form.delFiles, function (err, deleted) {
-			if (err) return next(err);
-			if (deleted && post.files) {
-				post.files = post.files.filter(function (file) {
-					return deleted.indexOf(file) == -1;
-				});
-				if (post.files.length == 0) delete post.files;
-			}
-			next();
 		});
 	}
 
@@ -360,6 +342,37 @@ init.add(function () {
 		}
 	}
 
+	function saveTmpFiles(form, postId, next) {
+		upload.saveTmpFilesToPost(form.tmpFiles, postId, function (err, saved) {
+			if (err) return next(err);
+			if (saved) {
+				if (form.files) {
+					saved.forEach(function (saved) {
+						if (form.files.indexOf(saved) == -1) {
+							form.files.push(saved);
+						}
+					});
+				} else {
+					form.files = saved;
+				}
+			}
+			next();
+		});
+	}
+
+	function deletePostFiles(post, form, next) {
+		upload.deletePostFiles(post._id, form.delFiles, function (err, deleted) {
+			if (err) return next(err);
+			if (deleted && post.files) {
+				post.files = post.files.filter(function (file) {
+					return deleted.indexOf(file) == -1;
+				});
+				if (post.files.length == 0) delete post.files;
+			}
+			next();
+		});
+	}
+
 	function fileUrls(post) {
 		if (!post.files) {
 			return undefined;
@@ -378,8 +391,8 @@ init.add(function () {
 		return thread.created.getTime() === post.created.getTime();
 	}
 
-	function editable(category, postId, editablePosts) {
-		return !!(category.editable || (editablePosts && (editablePosts.indexOf(postId) !== -1)));
+	function editable(category, postId, editables) {
+		return !!(category.editable || (editables && (editables.indexOf(postId) !== -1)));
 	}
 
 });
