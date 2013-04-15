@@ -19,7 +19,7 @@ init.add(function (next) {
 	console.log('elasticsearch: ' + url);
 
 	function setSchema(next) {
-		request.post(url).send({
+		var schema = {
 			settings: {
 				index: {
 					number_of_shards : 1,
@@ -40,10 +40,12 @@ init.add(function (next) {
 					}
 				}
 			}
-		}).end(function (err, res) {
-				if (res.error) return next(res.error);
-				next(err, res);
-			});
+		};
+		request.post(url).send(schema).end(function (err, res) {
+			if (err) return next(err);
+			if (res.error) return next(res.error);
+			next(null, res);
+		});
 	};
 
 	exports.dropIndex = function (next) {
@@ -105,13 +107,15 @@ init.add(function (next) {
 		});
 	};
 
-	(function (next) {
+	checkDrop(next);
+
+	function checkDrop(next) {
 		if (opt.dropIndex) {
 			exports.dropIndex(next);
 		} else {
 			setSchema(next)
 		}
-	})(next);
+	}
 
 });
 
