@@ -80,6 +80,27 @@ describe('get /api/threads/0/0', function () {
 	it('given user session', function (next) {
 		test.loginUser(next);
 	});
+	it('should fail with invalid threadId', function (next) {
+		request.get(test.url + '/api/threads/' + 99999 + '/' + p11, function (err, res) {
+			res.status.should.equal(200);
+			res.body.rc.should.equal(rcs.INVALID_THREAD);
+			next();
+		});
+	});
+	it('should fail with mismatching threadId', function (next) {
+		request.get(test.url + '/api/threads/' + t2 + '/' + p11, function (err, res) {
+			res.status.should.equal(200);
+			res.body.rc.should.equal(rcs.INVALID_POST);
+			next();
+		});
+	});
+	it('should fail with invalid postId', function (next) {
+		request.get(test.url + '/api/threads/' + t1 + '/' + 99999, function (err, res) {
+			res.status.should.equal(200);
+			res.body.rc.should.equal(rcs.INVALID_POST);
+			next();
+		});
+	});
 	it('should success for p11', function (next) {
 		request.get(test.url + '/api/threads/' + t1 + '/' + p11, function (err, res) {
 			res.status.should.equal(200);
@@ -102,6 +123,9 @@ describe('get /api/threads/0/0', function () {
 			res.body.post.head.should.false;
 			next();
 		});
+	});
+	it('given user session', function (next) {
+		test.loginUser(next);
 	});
 	it('should fail for p21 in recycle bin', function (next) {
 		request.get(test.url + '/api/threads/' + t2 + '/' + p21, function (err, res) {
