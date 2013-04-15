@@ -7,35 +7,6 @@
 		return Object.prototype.toString.call(obj) === '[object Object]';
 	};
 
-//	exports.value = function (obj, prop, def) {
-//		return obj && obj[prop] || def;
-//	};
-//
-//	exports.int = function (obj, prop, def, min, max) {
-//		var i = parseInt(obj && obj[prop]) || def;
-//		if (min === undefined) {
-//			return i;
-//		} else {
-//			return i > max ? max : i < min ? min : i;
-//		}
-//	};
-//
-//	exports.string = function (obj, prop, def) {
-//		return obj && obj[prop] && String(obj[prop]).trim() || def;
-//	};
-//
-//	exports.bool = function (obj, prop, def) {
-//		var v;
-//		if (!obj) {
-//			return def;
-//		} else if (!(prop in obj)) {
-//			return def;
-//		} else {
-//			v = obj[prop];
-//			return v === true || v === 'true';
-//		}
-//	};
-
 	exports.merge = function (tar, src, props) {
 		props.forEach(function (p) {
 			if (src.hasOwnProperty(p)) {

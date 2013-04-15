@@ -8,6 +8,8 @@ init.add(function () {
 
 	var app = express.app;
 
+	console.log('session-api:');
+
 	app.get('/api/sessions', function (req, res) {
 		req.authorized(function (err, role) {
 			res.json(err || {
@@ -86,5 +88,4 @@ init.add(function () {
 		});
 	});
 
-	console.log('session-api:');
 });

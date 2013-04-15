@@ -7,6 +7,8 @@ init.add(function () {
 
 	var app = express.app;
 
+	console.log('upload-api:');
+
 	app.post('/api/upload', function (req, res) {
 		req.authorized(function (err) {
 			if (err) {
@@ -28,7 +30,5 @@ init.add(function () {
 			res.json({ rc: rcs.SUCCESS });
 		});
 	});
-
-	console.log('upload-api:');
 
 });

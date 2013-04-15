@@ -27,7 +27,7 @@ init.add(function () {
 		req.authorized(function (err, role) {
 			if (err) return res.json(err);
 			var threadId = parseInt(req.params.threadId) || 0;
-			post.threadWithPosts(role, threadId, function (err, thread, category, posts) {
+			post.threadAndPosts(role, threadId, function (err, thread, category, posts) {
 				if (err) return res.json(err);
 				res.json({
 					rc: rcs.SUCCESS,
