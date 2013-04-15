@@ -74,10 +74,10 @@ init.add(function () {
 				if (err) return next(err);
 				categoryForUpdate(role, thread.categoryId, function (err, category) {
 					if (err) return next(err);
-					if (!editable(category, post._id, editables)) {
+					if (!isEditable(category, post._id, editables)) {
 						return next({ rc: rcs.NOT_AUTHORIZED });
 					}
-					var head = head(thread, post);
+					var head = isHead(thread, post);
 					checkNewCategory(role, form.categoryId, head, function (err) {
 						if (err) return next(err);
 						checkForm(form, head, function (err) {
@@ -176,8 +176,8 @@ init.add(function () {
 						text: post.text,
 						visible: post.visible,
 						files: fileUrls(post),
-						head: head(thread, post),
-						editable: editable(category, post._id, editablePosts)
+						head: isHead(thread, post),
+						editable: isEditable(category, post._id, editablePosts)
 					}
 					next(err, thread, postX);
 				});
@@ -331,7 +331,7 @@ init.add(function () {
 		});
 
 		function updateThread(next) {
-			if (head(thread, post)) {
+			if (isHead(thread, post)) {
 				thread.categoryId = form.categoryId;
 				thread.title = form.title;
 				thread.writer = form.writer;
@@ -387,11 +387,11 @@ init.add(function () {
 		return urls;
 	}
 
-	function head(thread, post) {
+	function isHead(thread, post) {
 		return thread.created.getTime() === post.created.getTime();
 	}
 
-	function editable(category, postId, editables) {
+	function isEditable(category, postId, editables) {
 		return !!(category.editable || (editables && (editables.indexOf(postId) !== -1)));
 	}
 

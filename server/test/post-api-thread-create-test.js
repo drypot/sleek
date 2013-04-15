@@ -48,7 +48,7 @@ describe('post /api/threads', function () {
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.INVALID_DATA);
-			res.body.fields.title.indexOf(msgs.FILL_TITLE).should.not.equal(-1);
+			res.body.fields.title.should.include(msgs.FILL_TITLE);
 			next();
 		});
 	});
@@ -58,7 +58,7 @@ describe('post /api/threads', function () {
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.INVALID_DATA);
-			res.body.fields.title.indexOf(msgs.SHORTEN_TITLE).should.not.equal(-1);
+			res.body.fields.title.should.include(msgs.SHORTEN_TITLE);
 			next();
 		});
 	});
@@ -67,7 +67,7 @@ describe('post /api/threads', function () {
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.INVALID_DATA);
-			res.body.fields.writer.indexOf(msgs.FILL_WRITER).should.not.equal(-1);
+			res.body.fields.writer.should.include(msgs.FILL_WRITER);
 			next();
 		});
 	});
@@ -76,7 +76,7 @@ describe('post /api/threads', function () {
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.INVALID_DATA);
-			res.body.fields.writer.indexOf(msgs.SHORTEN_WRITER).should.not.equal(-1);
+			res.body.fields.writer.should.include(msgs.SHORTEN_WRITER);
 			next();
 		});
 	});
