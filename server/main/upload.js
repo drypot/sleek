@@ -41,9 +41,10 @@ init.add(function (next) {
 			var tmpFiles = {};
 			if (files) {
 				(Array.isArray(files) ? files : [files]).forEach(function (file) {
-					if (file.size) {
+					// 정상 업로드 size 가 0 으로 보고되는 경우 발견
+					//if (file.size) {
 						tmpFiles[file.name] = path.basename(file.path);
-					}
+					//}
 				});
 			}
 			return tmpFiles;
@@ -76,11 +77,11 @@ init.add(function (next) {
 			return fs.existsSync(exports.postFileDir(postId) + '/' + basename);
 		};
 
-		exports.saveTmpFilesToPost = function (tmpFiles, postId, next) {
-			if (!tmpFiles || tmpFiles.length == 0) {
+		exports.savePostFiles = function (files, postId, next) {
+			if (!files || files.length == 0) {
 				return next();
 			}
-			saveTmpFiles(tmpFiles, [publicDir, 'post', Math.floor(postId / 10000), postId], next);
+			saveTmpFiles(files, [publicDir, 'post', Math.floor(postId / 10000), postId], next);
 		};
 
 		function saveTmpFiles(files, subs, next) {
@@ -116,7 +117,7 @@ init.add(function (next) {
 				files.forEach(function (file) {
 					var name = path.basename(file)
 					var p = dir + '/' + name;
-					//console.log('deleting: ' + path);
+//					console.log('deleting: ' + p);
 					try {
 						fs.unlinkSync(p);
 					} catch (err) {
@@ -124,7 +125,7 @@ init.add(function (next) {
 					}
 					deleted.push(name);
 				});
-				next(err, deleted);
+				next(null, deleted);
 			} catch (err) {
 				next(err);
 			}

@@ -1,194 +1,251 @@
-var _ = require('underscore');
 var should = require('should');
-var path = require('path');
-var l = require('../main/l');
+var request = require('superagent').agent();
+
+var init = require('../main/init');
+var config = require('../main/config').options({ test: true });
+var mongo = require('../main/mongo').options({ dropDatabase: true });
+var es = require('../main/es').options({ dropIndex: true });
+var upload = require('../main/upload');
+var express = require('../main/express');
+var rcs = require('../main/rcs');
+var msgs = require('../main/msgs');
+var test = require('../main/test').options({ request: request });
 
 require('../main/session-api');
-require('../main/upload-api');
 require('../main/post-api');
-require('../main/test');
+require('../main/upload-api');
 
 before(function (next) {
-	l.init.run(next);
+	init.run(next);
 });
 
-describe('uploading post file', function () {
-	it('given user session', function (next) {
-		test.loginUser(next);
-	});
-	var t1, p11, p12;
-	it('and head', function (next) {
-		request.post(url + '/api/threads',
-			{ categoryId: 101, writer: 'snowman', title: 'title 1', text: 'post11' },
-			function (err, res) {
-				res.status.should.equal(200);
-				res.body.rc.should.equal(rcs.SUCCESS);
-				t1 = res.body.threadId;
-				p11 = res.body.postId;
-				next(err);
-			}
-		);
-	});
-	var tmpFiles;
-	it('and file1.txt, file2.txt upload', function (next) {
-		request.post(url + '/api/upload', {}, ['file1.txt', 'file2.txt'],
-			function (err, res) {
-				res.status.should.equal(200);
-				res.body.rc.should.equal(rcs.SUCCESS);
-				tmpFiles = res.body.tmpFiles;
-				should.exist(tmpFiles['file1.txt']);
-				should.exist(tmpFiles['file2.txt']);
-				next(err);
-			}
-		);
-	});
-	it('when creating post with upload, upload files must be saved', function (next) {
-		request.post(url + '/api/threads/' + t1,
-			{ writer: 'snowman', text: 'reply text 1', tmpFiles: tmpFiles },
-			function (err, res) {
-				res.status.should.equal(200);
-				res.body.rc.should.equal(rcs.SUCCESS);
-				p12 = res.body.postId;
-				l.upload.postFileExists(p12, 'file1.txt').should.be.true;
-				l.upload.postFileExists(p12, 'file2.txt').should.be.true;
-				next(err);
-			}
-		);
-	});
-	it('and get post response should have file field', function (next) {
-		request.get(test.url + '/api/threads/' + t1 + '/' + p12, function (err, res) {
-			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
-			res.body.post.upload[0].name.should.equal('file1.txt');
-			res.body.post.upload[0].url.should.equal(l.upload.postFileUrl(p12, 'file1.txt'));
-			res.body.post.upload[1].name.should.equal('file2.txt');
-			res.body.post.upload[1].url.should.equal(l.upload.postFileUrl(p12, 'file2.txt'));
-			next(err);
-		});
-	});
-	it('when delFiles file1.txt, file1.txt should be gone', function (next) {
-		request.put(test.url + '/api/threads/' + t1 + '/' + p12,
-			{ writer: 'snowman', text: 'reply text', delFiles: ['file1.txt'] },
-			function (err, res) {
-				res.status.should.equal(200);
-				res.body.rc.should.equal(rcs.SUCCESS);
-				l.upload.postFileExists(p12, 'file1.txt').should.be.false;
-				l.upload.postFileExists(p12, 'file2.txt').should.be.true;
-				next(err);
-			}
-		);
-	});
-	it('given file1.txt re-upload', function (next) {
-		request.post(url + '/api/upload', {}, ['file1.txt'],
-			function (err, res) {
-				res.status.should.equal(200);
-				res.body.rc.should.equal(rcs.SUCCESS);
-				tmpFiles = res.body.tmpFiles;
-				next(err);
-			}
-		);
-	});
-	it('when updating post with file1.txt, post should have file1.txt again', function (next) {
-		request.put(test.url + '/api/threads/' + t1 + '/' + p12,
-			{ writer: 'snowman', text: 'reply text', tmpFiles: tmpFiles },
-			function (err, res) {
-				res.status.should.equal(200);
-				res.body.rc.should.equal(rcs.SUCCESS);
-				l.upload.postFileExists(p12, 'file1.txt').should.be.true;
-				l.upload.postFileExists(p12, 'file2.txt').should.be.true;
-				next(err);
-			}
-		);
-	});
-	it('when deleting file1.txt and file2.txt, they should be gone', function (next) {
-		request.put(test.url + '/api/threads/' + t1 + '/' + p12,
-			{ writer: 'snowman', text: 'reply text', delFiles: ['file1.txt', 'file2.txt'] },
-			function (err, res) {
-				res.status.should.equal(200);
-				res.body.rc.should.equal(rcs.SUCCESS);
-				l.upload.postFileExists(p12, 'file1.txt').should.be.false;
-				l.upload.postFileExists(p12, 'file2.txt').should.be.false;
-				next(err);
-			}
-		);
-	});
-	it('when updating post with non existing upload, should success', function (next) {
-		request.put(test.url + '/api/threads/' + t1 + '/' + p12,
-			{ writer: 'snowman', text: 'reply text', tmpFiles: [{ name: 'abc.txt', tmpName: 'xxxxxxxx' }] },
-			function (err, res) {
-				res.status.should.equal(200);
-				res.body.rc.should.equal(rcs.SUCCESS);
-				next(err);
-			}
-		);
-	});
-	it('given file3.txt upload', function (next) {
-		request.post(url + '/api/upload', {}, ['file3.txt'],
-			function (err, res) {
-				res.status.should.equal(200);
-				res.body.rc.should.equal(rcs.SUCCESS);
-				tmpFiles = res.body.tmpFiles;
-				next(err);
-			}
-		);
-	});
-	it('when updating with invalid file name, should success', function (next) {
-		tmpFiles['./../.../newName.txt'] = tmpFiles['file3.txt'];
-		delete tmpFiles['file3.txt'];
-		request.put(test.url + '/api/threads/' + t1 + '/' + p12,
-			{ writer: 'snowman', text: 'reply text', tmpFiles: tmpFiles },
-			function (err, res) {
-				res.status.should.equal(200);
-				res.body.rc.should.equal(rcs.SUCCESS);
-				l.upload.postFileExists(p12, 'newName.txt').should.be.true;
-				next(err);
-			}
-		);
-	});
-	it('given file4.txt upload', function (next) {
-		request.post(url + '/api/upload', {}, ['file4.txt'],
-			function (err, res) {
-				res.status.should.equal(200);
-				res.body.rc.should.equal(rcs.SUCCESS);
-				tmpFiles = res.body.tmpFiles;
-				next(err);
-			}
-		);
-	});
-	it('when updating with invalid file name 2, should success', function (next) {
-		tmpFiles['./../.../mygod#1 그리고 한글.txt'] = tmpFiles['file4.txt'];
-		delete tmpFiles['file4.txt'];
-		request.put(test.url + '/api/threads/' + t1 + '/' + p12,
-			{ writer: 'snowman', text: 'reply text', tmpFiles: tmpFiles },
-			function (err, res) {
-				res.status.should.equal(200);
-				res.body.rc.should.equal(rcs.SUCCESS);
-				l.upload.postFileExists(p12, 'mygod#1 그리고 한글.txt').should.be.true;
-				next(err);
-			}
-		);
-	});
-	it('given file4.txt upload', function (next) {
-		request.post(url + '/api/upload', {}, ['file4.txt'],
-			function (err, res) {
-				res.status.should.equal(200);
-				res.body.rc.should.equal(rcs.SUCCESS);
-				tmpFiles = res.body.tmpFiles;
-				next(err);
-			}
-		);
-	});
-	it('when updating with invalid file name 3, should success', function (next) {
-		tmpFiles['./../.../mygod#2 :?<>|.txt'] = tmpFiles['file4.txt'];
-		delete tmpFiles['file4.txt'];
-		request.put(test.url + '/api/threads/' + t1 + '/' + p12,
-			{ writer: 'snowman', text: 'reply text', tmpFiles: tmpFiles },
-			function (err, res) {
-				res.status.should.equal(200);
-				res.body.rc.should.equal(rcs.SUCCESS);
-				should(l.upload.postFileExists(p12, 'mygod#2 _____.txt'));
-				next(err);
-			}
-		);
+before(function () {
+	express.listen();
+});
+
+var t1, p1, files;
+
+it('given user session', function (next) {
+	test.loginUser(next);
+});
+
+it('given t1', function (next) {
+	var form = { categoryId: 101, writer: 'snowman', title: 'title', text: 'text' };
+	request.post(test.url + '/api/threads').send(form).end(function (err, res) {
+		res.status.should.equal(200);
+		res.body.rc.should.equal(rcs.SUCCESS);
+		t1 = res.body.threadId;
+		next();
 	});
 });
+
+describe('saving dummy.txt, dummy2.txt', function () {
+	it('given dummy.txt, dummy2.txt', function (next) {
+		request
+			.post(test.url + '/api/upload')
+			.attach('file', 'server/test/fixture/dummy.txt')
+			.attach('file', 'server/test/fixture/dummy2.txt')
+			.end(function (err, res) {
+				res.status.should.equal(200);
+				res.body.rc.should.equal(rcs.SUCCESS);
+				files = res.body.files;
+				files.should.have.property('dummy.txt');
+				files.should.have.property('dummy2.txt');
+				next();
+			}
+		);
+	});
+	it('should success', function (next) {
+		var form = { writer: 'snowman', text: 'text', files: files };
+		request.post(test.url + '/api/threads/' + t1).send(form).end(function (err, res) {
+			res.status.should.equal(200);
+			res.body.rc.should.equal(rcs.SUCCESS);
+			p1 = res.body.postId;
+			upload.postFileExists(p1, 'dummy.txt').should.be.true;
+			upload.postFileExists(p1, 'dummy2.txt').should.be.true;
+			request.get(test.url + '/api/threads/' + t1 + '/' + p1, function (err, res) {
+				res.status.should.equal(200);
+				res.body.rc.should.equal(rcs.SUCCESS);
+				res.body.post.files.should.length(2);
+				res.body.post.files[0].name.should.equal('dummy.txt');
+				res.body.post.files[0].should.have.property('url')
+				res.body.post.files[1].name.should.equal('dummy2.txt');
+				res.body.post.files[1].should.have.property('url')
+				next();
+			});
+		});
+	});
+	describe('deleting dummy.txt', function () {
+		it('should success', function (next) {
+			var form = { writer: 'snowman', text: 'text', delFiles: [ 'dummy.txt' ] };
+			request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
+				res.status.should.equal(200);
+				res.body.rc.should.equal(rcs.SUCCESS);
+				upload.postFileExists(p1, 'dummy.txt').should.be.false;
+				upload.postFileExists(p1, 'dummy2.txt').should.be.true;
+				request.get(test.url + '/api/threads/' + t1 + '/' + p1, function (err, res) {
+					res.status.should.equal(200);
+					res.body.rc.should.equal(rcs.SUCCESS);
+					res.body.post.files.should.length(1);
+					res.body.post.files[0].name.should.equal('dummy2.txt');
+					res.body.post.files[0].should.have.property('url')
+					next();
+				});
+			});
+		});
+	});
+	describe('saving dummy3.txt again', function () {
+		it('given dummy3.txt', function (next) {
+			request
+				.post(test.url + '/api/upload')
+				.attach('file', 'server/test/fixture/dummy3.txt')
+				.end(function (err, res) {
+					res.status.should.equal(200);
+					res.body.rc.should.equal(rcs.SUCCESS);
+					files = res.body.files;
+					next();
+				}
+			);
+		});
+		it('should success', function (next) {
+			var form = { writer: 'snowman', text: 'text', files: files };
+			request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
+				res.status.should.equal(200);
+				res.body.rc.should.equal(rcs.SUCCESS);
+				upload.postFileExists(p1, 'dummy2.txt').should.be.true;
+				upload.postFileExists(p1, 'dummy3.txt').should.be.true;
+				request.get(test.url + '/api/threads/' + t1 + '/' + p1, function (err, res) {
+					res.status.should.equal(200);
+					res.body.rc.should.equal(rcs.SUCCESS);
+					res.body.post.files.should.length(2);
+					next();
+				});
+			});
+		});
+	});
+	describe('deleting dummy2.txt, dummy3.txt', function () {
+		it('should success', function (next) {
+			var form = { writer: 'snowman', text: 'text', delFiles: [ 'dummy2.txt', 'dummy3.txt' ] };
+			request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
+				res.status.should.equal(200);
+				res.body.rc.should.equal(rcs.SUCCESS);
+				upload.postFileExists(p1, 'dummy2.txt').should.be.false;
+				upload.postFileExists(p1, 'dummy3.txt').should.be.false;
+				request.get(test.url + '/api/threads/' + t1 + '/' + p1, function (err, res) {
+					res.status.should.equal(200);
+					res.body.rc.should.equal(rcs.SUCCESS);
+					should.not.exists(res.body.post.files);
+					next();
+				});
+			});
+		});
+	});
+});
+
+describe('saving non-existing file', function () {
+	it('should success', function (next) {
+		var form = { writer: 'snowman', text: 'text', files: { 'abc.txt': 'xxxxxxxx' } };
+		request.post(test.url + '/api/threads/' + t1).send(form).end(function (err, res) {
+			res.status.should.equal(200);
+			res.body.rc.should.equal(rcs.SUCCESS);
+			next();
+		});
+	});
+});
+
+describe('saving file with invalid name', function () {
+	it('given dummy.txt upload', function (next) {
+		request
+			.post(test.url + '/api/upload')
+			.attach('file', 'server/test/fixture/dummy.txt')
+			.end(function (err, res) {
+				res.status.should.equal(200);
+				res.body.rc.should.equal(rcs.SUCCESS);
+				files = res.body.files;
+				next();
+			}
+		);
+	});
+	it('should success', function (next) {
+		var form = { writer: 'snowman', text: 'text', files: { './../.../newName.txt': files['dummy.txt'] } };
+		request.post(test.url + '/api/threads/' + t1).send(form).end(function (err, res) {
+			res.status.should.equal(200);
+			res.body.rc.should.equal(rcs.SUCCESS);
+			p1 = res.body.postId;
+			upload.postFileExists(p1, 'newName.txt').should.be.true;
+			request.get(test.url + '/api/threads/' + t1 + '/' + p1, function (err, res) {
+				res.status.should.equal(200);
+				res.body.rc.should.equal(rcs.SUCCESS);
+				res.body.post.files.should.length(1);
+				res.body.post.files[0].name.should.equal('newName.txt');
+				res.body.post.files[0].should.have.property('url')
+				next();
+			});
+		});
+	});
+});
+
+describe('saving file with invalid name 2', function () {
+	it('given dummy.txt upload', function (next) {
+		request
+			.post(test.url + '/api/upload')
+			.attach('file', 'server/test/fixture/dummy.txt')
+			.end(function (err, res) {
+				res.status.should.equal(200);
+				res.body.rc.should.equal(rcs.SUCCESS);
+				files = res.body.files;
+				next();
+			}
+		);
+	});
+	it('should success', function (next) {
+		var form = { writer: 'snowman', text: 'text', files: { './../.../mygod#1 그리고 한글.txt': files['dummy.txt'] } };
+		request.post(test.url + '/api/threads/' + t1).send(form).end(function (err, res) {
+			res.status.should.equal(200);
+			res.body.rc.should.equal(rcs.SUCCESS);
+			p1 = res.body.postId;
+			upload.postFileExists(p1, 'mygod#1 그리고 한글.txt').should.be.true;
+			request.get(test.url + '/api/threads/' + t1 + '/' + p1, function (err, res) {
+				res.status.should.equal(200);
+				res.body.rc.should.equal(rcs.SUCCESS);
+				res.body.post.files.should.length(1);
+				res.body.post.files[0].name.should.equal('mygod#1 그리고 한글.txt');
+				res.body.post.files[0].should.have.property('url')
+				next();
+			});
+		});
+	});
+});
+
+describe('saving file with invalid name 3', function () {
+	it('given dummy.txt upload', function (next) {
+		request
+			.post(test.url + '/api/upload')
+			.attach('file', 'server/test/fixture/dummy.txt')
+			.end(function (err, res) {
+				res.status.should.equal(200);
+				res.body.rc.should.equal(rcs.SUCCESS);
+				files = res.body.files;
+				next();
+			}
+		);
+	});
+	it('should success', function (next) {
+		var form = { writer: 'snowman', text: 'text', files: { './../.../mygod#2 :?<>|.txt': files['dummy.txt'] } };
+		request.post(test.url + '/api/threads/' + t1).send(form).end(function (err, res) {
+			res.status.should.equal(200);
+			res.body.rc.should.equal(rcs.SUCCESS);
+			p1 = res.body.postId;
+			upload.postFileExists(p1, 'mygod#2 _____.txt').should.be.true;
+			request.get(test.url + '/api/threads/' + t1 + '/' + p1, function (err, res) {
+				res.status.should.equal(200);
+				res.body.rc.should.equal(rcs.SUCCESS);
+				res.body.post.files.should.length(1);
+				res.body.post.files[0].name.should.equal('mygod#2 _____.txt');
+				res.body.post.files[0].should.have.property('url')
+				next();
+			});
+		});
+	});
+});
+
