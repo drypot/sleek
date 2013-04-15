@@ -389,7 +389,7 @@ init.add(function () {
 		return urls;
 	}
 
-	function head(thead, post) {
+	function head(thread, post) {
 		return thread.created.getTime() === post.created.getTime();
 	}
 

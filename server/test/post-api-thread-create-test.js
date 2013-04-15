@@ -88,7 +88,7 @@ describe('post /api/threads', function () {
 		});
 	});
 	it('should success', function (next) {
-		var form = { categoryId: 101, writer: 'snowman', title: 'title 1', text: 'head text 1' };
+		var form = { categoryId: 101, writer: 'snowman', title: 'title 1', text: 'post11' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);

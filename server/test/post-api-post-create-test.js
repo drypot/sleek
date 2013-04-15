@@ -36,7 +36,7 @@ describe('post /api/threads/1', function () {
 	});
 	var tid;
 	it('given thread', function (next) {
-		var form = { categoryId: 101, writer: 'snowman', title: 'title 1', text: 'head text 1' };
+		var form = { categoryId: 101, writer: 'snowman', title: 'title 1', text: 'text' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
@@ -69,7 +69,7 @@ describe('post /api/threads/1', function () {
 		});
 	});
 	it('should success', function (next) {
-		var form = { writer: 'snowman', text: 'reply text 1' };
+		var form = { writer: 'snowman', text: 'text' };
 		request.post(test.url + '/api/threads/' + tid).send(form).end(function (err, res) {
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.should.have.property('postId');

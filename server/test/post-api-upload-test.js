@@ -19,7 +19,7 @@ describe('uploading post file', function () {
 	var t1, p11, p12;
 	it('and head', function (next) {
 		request.post(url + '/api/threads',
-			{ categoryId: 101, writer: 'snowman', title: 'title 1', text: 'head text 1' },
+			{ categoryId: 101, writer: 'snowman', title: 'title 1', text: 'post11' },
 			function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(rcs.SUCCESS);

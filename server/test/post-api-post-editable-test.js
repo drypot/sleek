@@ -20,15 +20,14 @@ before(function () {
 	express.listen();
 });
 
-describe('editable field', function () {
+describe('post.editable', function () {
 	it('given user session', function (next) {
-		request.post(test.url + '/api/sessions', { password: '1' }, next);
+		test.loginUser(next);
 	});
 	var t1, p11, p12;
-	it('and head t1, p11', function (next) {
-		request.post(test.url + '/api/threads',
-			{ categoryId: 101, writer: 'snowman', title: 'title 1', text: 'head text 1' },
-			function (err, res) {
+	it('given t1, p11', function (next) {
+		var form = { categoryId: 101, writer: 'snowman', title: 'title 1', text: 'post1' };
+			request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(rcs.SUCCESS);
 				t1 = res.body.threadId;
@@ -37,18 +36,16 @@ describe('editable field', function () {
 			}
 		);
 	});
-	it('and reply p12', function (next) {
-		request.post(test.url + '/api/threads/' + t1,
-			{ writer: 'snowman', text: 'reply text 1' },
-			function (err, res) {
-				res.status.should.equal(200);
-				res.body.rc.should.equal(rcs.SUCCESS);
-				p12 = res.body.postId;
-				next();
-			}
-		);
+	it('given p12', function (next) {
+		var form = { writer: 'snowman', text: 'post2' };
+		request.post(test.url + '/api/threads/' + t1).send(form).end(function (err, res) {
+			res.status.should.equal(200);
+			res.body.rc.should.equal(rcs.SUCCESS);
+			p12 = res.body.postId;
+			next();
+		});
 	});
-	it('for p11, should be true', function (next) {
+	it('should be true for p11', function (next) {
 		request.get(test.url + '/api/threads/' + t1 + '/' + p11, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
@@ -56,7 +53,7 @@ describe('editable field', function () {
 			next();
 		});
 	});
-	it('for p12, should be true', function (next) {
+	it('should be true for p12', function (next) {
 		request.get(test.url + '/api/threads/' + t1 + '/' + p12, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
@@ -65,9 +62,9 @@ describe('editable field', function () {
 		});
 	});
 	it('given new user session', function (next) {
-		request.post(test.url + '/api/sessions', { password: '1' }, next);
+		test.loginUser(next);
 	});
-	it('for p11, should be false', function (next) {
+	it('should be false for p11', function (next) {
 		request.get(test.url + '/api/threads/' + t1 + '/' + p11, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
@@ -75,7 +72,7 @@ describe('editable field', function () {
 			next();
 		});
 	});
-	it('for p12, should be false', function (next) {
+	it('should be false for p12', function (next) {
 		request.get(test.url + '/api/threads/' + t1 + '/' + p12, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
@@ -84,9 +81,9 @@ describe('editable field', function () {
 		});
 	});
 	it('given admin session', function (next) {
-		request.post(test.url + '/api/sessions', { password: '3' }, next);
+		test.loginAdmin(next);
 	});
-	it('for p11, should be true', function (next) {
+	it('should be true for p11', function (next) {
 		request.get(test.url + '/api/threads/' + t1 + '/' + p11, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
@@ -94,7 +91,7 @@ describe('editable field', function () {
 			next();
 		});
 	});
-	it('for p12, should be true', function (next) {
+	it('should be true for p12', function (next) {
 		request.get(test.url + '/api/threads/' + t1 + '/' + p12, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
