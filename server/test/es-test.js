@@ -2,78 +2,91 @@ var should = require('should');
 
 var init = require('../main/init');
 var config = require('../main/config').options({ test: true });
-var mongo = require('../main/mongo').options({ dropDatabase: true });
 var es = require('../main/es').options({ dropIndex: true });
 
 before(function (next) {
 	init.run(next);
 });
 
-describe('es', function () {
-	var docs;
+var docs = [
+	{
+		thread: {
+			_id: 1000, categoryId: 101, created: new Date(2000, 1, 1),
+			title: 'hello world'
+		},
+		post: {
+			_id: 700, created: new Date(2000, 1, 1),
+			writer: 'snowman', text: 'apple pine banana'
+		}
+	},
+	{
+		thread: {
+			_id: 1000, categoryId: 101, created: new Date(2000, 1, 1),
+			title: 'hello world'
+		},
+		post: {
+			_id: 701, created: new Date(2000, 1, 2),
+			writer: 'snowman', text: 'apple pine orange'
+		}
+	},
+	{
+		thread: {
+			_id: 1001, categoryId: 101, created: new Date(2000, 2, 1),
+			title: '안녕하세요. 한글 테스트'
+		},
+		post: {
+			_id: 703, created: new Date(2000, 2, 1),
+			writer: '홍길동', text: '둥글게 네모나게 붉게 파랗게'
+		}
+	},
+	{
+		thread: {
+			_id: 1002, categoryId: 101, created: new Date(2000, 3, 1),
+			title: '안녕할까요. 한글 테스트'
+		},
+		post: {
+			_id: 704, created: new Date(2000, 3, 1),
+			writer: '개똥이', text: '둥글게 네모나게'
+		}
+	},
+	{
+		thread: {
+			_id: 1003, categoryId: 101, created: new Date(2000, 4, 1),
+			title: '강물엔 유람선이 떠있고'
+		},
+		post: {
+			_id: 705, created: new Date(2000, 4, 1),
+			writer: '말똥이', text: '둥글게 붉게 파랗게'
+		}
+	}
+];
 
-	before(function (next) {
-		var tid;
-		docs = [
-			{
-				thread: {
-					_id: tid = mongo.getNewThreadId(), categoryId: 101, created: new Date(2000, 1, 1),
-					title: 'hello world'
-				},
-				post: {
-					_id: mongo.getNewPostId(), created: new Date(2000, 1, 1),
-					writer: 'snowman', text: 'apple pine banana'
-				}
-			},
-			{
-				thread: {
-					_id: tid, categoryId: 101, created: new Date(2000, 1, 1),
-					title: 'hello world'
-				},
-				post: {
-					_id: mongo.getNewPostId(), created: new Date(2000, 1, 2),
-					writer: 'snowman', text: 'apple pine orange'
-				}
-			},
-			{
-				thread: {
-					_id: mongo.getNewThreadId(), categoryId: 101, created: new Date(2000, 2, 1),
-					title: '안녕하세요. 한글 테스트'
-				},
-				post: {
-					_id: mongo.getNewPostId(), created: new Date(2000, 2, 1),
-					writer: '홍길동', text: '둥글게 네모나게 붉게 파랗게'
-				}
-			},
-			{
-				thread: {
-					_id: mongo.getNewThreadId(), categoryId: 101, created: new Date(2000, 3, 1),
-					title: '안녕할까요. 한글 테스트'
-				},
-				post: {
-					_id: mongo.getNewPostId(), created: new Date(2000, 3, 1),
-					writer: '개똥이', text: '둥글게 네모나게'
-				}
-			},
-			{
-				thread: {
-					_id: mongo.getNewThreadId(), categoryId: 101, created: new Date(2000, 4, 1),
-					title: '강물엔 유람선이 떠있고'
-				},
-				post: {
-					_id: mongo.getNewPostId(), created: new Date(2000, 4, 1),
-					writer: '말똥이', text: '둥글게 붉게 파랗게'
-				}
-			}
-		];
+describe('searching empty db', function () {
+	it('should success', function (next) {
+		es.search({
+			query: { query_string: { query: 'apple', default_operator: 'and' }},
+			sort: [{ created : "asc" }]
+		},
+		function (err, res) {
+			should.not.exist(err);
+			res.status.should.equal(200);
+			res.body.hits.total.should.equal(0);
+			next();
+		});
+	});
+});
 
+describe('filling db', function () {
+	it('should success', function (next) {
 		var i = 0;
 		var len = docs.length;
-
 		(function insert() {
-			if (i == len) return next();
+			if (i == len) {
+				es.flush(next);
+				return;
+			};
 			var doc = docs[i++];
-			es.updatePost(doc.thread, doc.post, function (err, res) {
+			es.update(doc.thread, doc.post, function (err, res) {
 				should.not.exist(err);
 				should(res.statusCode == 201 || res.statusCode == 200);
 				res.body.ok.should.true;
@@ -81,10 +94,10 @@ describe('es', function () {
 			});
 		})();
 	});
-	before(function (next) {
-		es.flush(next);
-	});
-	it('can get post head', function (next) {
+});
+
+describe('getPost', function () {
+	it('should success for head', function (next) {
 		var doc0 = docs[0];
 		es.getPost(doc0.post._id, function (err, res) {
 			should.not.exist(err);
@@ -101,7 +114,7 @@ describe('es', function () {
 			next();
 		});
 	});
-	it('can get post reply', function (next) {
+	it('should success for reply', function (next) {
 		var doc1 = docs[1];
 		es.getPost(doc1.post._id, function (err, res) {
 			should.not.exist(err);
@@ -118,8 +131,39 @@ describe('es', function () {
 			next();
 		});
 	});
-	it('can search in title', function (next) {
-		es.searchPost({
+});
+
+describe('searching non-existing', function () {
+	it('should success', function (next) {
+		es.search({
+			query: { query_string: { query: 'jifeoajfiefjs', default_operator: 'and' }},
+			sort: [{ created : "asc" }]
+		},
+		function (err, res) {
+			should.not.exist(err);
+			res.status.should.equal(200);
+			res.body.hits.total.should.equal(0);
+			next();
+		});
+	});
+});
+
+describe('searching empty string', function () {
+	it('should fail', function (next) {
+		es.search({
+				query: { query_string: { query: ' ', default_operator: 'and' }},
+				sort: [{ created : "asc" }]
+			},
+			function (err, res) {
+				should.exist(err);
+				next();
+			});
+	});
+});
+
+describe('searching title', function () {
+	it('should success', function (next) {
+		es.search({
 			query: { query_string: { query: 'hello', default_operator: 'and' }},
 			sort: [{ created : "asc" }]
 		},
@@ -131,49 +175,61 @@ describe('es', function () {
 			next();
 		});
 	});
-	it('can search in writer', function (next) {
-		es.searchPost({
-			query: { query_string: { query: 'snowman', default_operator: 'and' }},
-			sort: [{ created : "asc" }]
-		},
-		function (err, res) {
-			should.not.exist(err);
-			res.status.should.equal(200);
-			res.body.hits.total.should.equal(2);
-			res.body.hits.hits[0]._id.should.equal(docs[0].post._id);
-			res.body.hits.hits[1]._id.should.equal(docs[1].post._id);
-			next();
-		});
+});
+
+describe('searching writer', function () {
+	it('should success', function (next) {
+		es.search({
+				query: { query_string: { query: 'snowman', default_operator: 'and' }},
+				sort: [{ created : "asc" }]
+			},
+			function (err, res) {
+				should.not.exist(err);
+				res.status.should.equal(200);
+				res.body.hits.total.should.equal(2);
+				res.body.hits.hits[0]._id.should.equal(docs[0].post._id);
+				res.body.hits.hits[1]._id.should.equal(docs[1].post._id);
+				next();
+			});
 	});
-	it('can search in reply', function (next) {
-		es.searchPost({
-			query: { query_string: { query: 'apple', default_operator: 'and' }},
-			sort: [{ created : "asc" }]
-		},
-		function (err, res) {
-			should.not.exist(err);
-			res.status.should.equal(200);
-			res.body.hits.total.should.equal(2);
-			res.body.hits.hits[0]._id.should.equal(docs[0].post._id);
-			res.body.hits.hits[1]._id.should.equal(docs[1].post._id);
-			next(err);
-		});
+});
+
+describe('searching apple in text', function () {
+	it('should success', function (next) {
+		es.search({
+				query: { query_string: { query: 'apple', default_operator: 'and' }},
+				sort: [{ created : "asc" }]
+			},
+			function (err, res) {
+				should.not.exist(err);
+				res.status.should.equal(200);
+				res.body.hits.total.should.equal(2);
+				res.body.hits.hits[0]._id.should.equal(docs[0].post._id);
+				res.body.hits.hits[1]._id.should.equal(docs[1].post._id);
+				next(err);
+			});
 	});
-	it('can search in reply 2', function (next) {
-		es.searchPost({
-			query: { query_string: { query: 'orange', default_operator: 'and' }},
-			sort:[{ created : "asc" }]
-		},
-		function (err, res) {
-			should.not.exist(err);
-			res.status.should.equal(200);
-			res.body.hits.total.should.equal(1);
-			res.body.hits.hits[0]._id.should.equal(docs[1].post._id);
-			next();
-		});
+});
+
+describe('searching orange in text', function () {
+	it('should success', function (next) {
+		es.search({
+				query: { query_string: { query: 'orange', default_operator: 'and' }},
+				sort:[{ created : "asc" }]
+			},
+			function (err, res) {
+				should.not.exist(err);
+				res.status.should.equal(200);
+				res.body.hits.total.should.equal(1);
+				res.body.hits.hits[0]._id.should.equal(docs[1].post._id);
+				next();
+			});
 	});
-	it('can search with two word', function (next) {
-		es.searchPost({
+});
+
+describe('searching two words', function () {
+	it('should success', function (next) {
+		es.search({
 			query: { query_string: { query: 'apple orange', default_operator: 'and' }},
 			sort: [{ created : "asc" }]
 		},
@@ -185,26 +241,33 @@ describe('es', function () {
 			next();
 		});
 	});
-	it('can search in text order by desc', function (next) {
-		es.searchPost({
-			query: { query_string: { query: '둥글게', default_operator: 'and' }},
-			sort: [{ created : "desc" }]
-		},
-		function (err, res) {
-			should.not.exist(err);
-			res.status.should.equal(200);
-			res.body.hits.hits.should.length(3);
-			res.body.hits.hits[0]._id.should.equal(docs[4].post._id);
-			res.body.hits.hits[1]._id.should.equal(docs[3].post._id);
-			res.body.hits.hits[2]._id.should.equal(docs[2].post._id);
-			next();
-		});
+});
+
+describe('searching order by desc', function () {
+	it('should success', function (next) {
+		es.search({
+				query: { query_string: { query: '둥글게', default_operator: 'and' }},
+				sort: [{ created : "desc" }]
+			},
+			function (err, res) {
+				should.not.exist(err);
+				res.status.should.equal(200);
+				res.body.hits.hits.should.length(3);
+				res.body.hits.hits[0]._id.should.equal(docs[4].post._id);
+				res.body.hits.hits[1]._id.should.equal(docs[3].post._id);
+				res.body.hits.hits[2]._id.should.equal(docs[2].post._id);
+				next();
+			});
 	});
-	it('can limit result range with from', function (next) {
-		es.searchPost({
+});
+
+describe('searching results limit', function () {
+	it('should work', function (next) {
+		es.search({
 			query: { query_string: { query: '둥글게', default_operator: 'and' }},
 			sort: [{ created : "desc" }],
-			size: 16, from: 1
+			size: 16,
+			from: 1
 		},
 		function (err, res) {
 			should.not.exist(err);
@@ -215,8 +278,11 @@ describe('es', function () {
 			next(err);
 		});
 	});
-	it('can search hangul', function (next) {
-		es.searchPost({
+});
+
+describe('searching hangul', function () {
+	it('should success', function (next) {
+		es.search({
 			query: { query_string: { query: '안녕', default_operator: 'and' }},
 			sort:[{created : "asc"}]
 		},
@@ -229,8 +295,8 @@ describe('es', function () {
 			next();
 		});
 	});
-	it('can search hangul 2', function (next) {
-		es.searchPost({
+	it('should success', function (next) {
+		es.search({
 			query: { query_string: { query: '파랗게', default_operator: 'and' }},
 			sort:[{ created : "asc" }]
 		},
@@ -243,8 +309,8 @@ describe('es', function () {
 			next();
 		});
 	});
-	it('can search hangul 3', function (next) {
-		es.searchPost({
+	it('should success', function (next) {
+		es.search({
 			query: { query_string: { query: '파랗게 말똥이', default_operator: 'and' }},
 			sort: [{ created : 'asc' }]
 		},
