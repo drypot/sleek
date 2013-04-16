@@ -26,7 +26,7 @@ describe('get /api/threads/0/0', function () {
 	});
 	var t1, p11, p12;
 	it('given t1, p11', function (next) {
-		var form = { categoryId: 101, writer: 'snowman', title: 'title 1', text: 'post 11' };
+		var form = { categoryId: 101, writer: 'snowman1', title: 'title1', text: 'post11' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
@@ -36,7 +36,7 @@ describe('get /api/threads/0/0', function () {
 		});
 	});
 	it('given p12', function (next) {
-		var form = { writer: 'snowman', text: 'post 12' };
+		var form = { writer: 'snowman1', text: 'post12' };
 		request.post(test.url + '/api/threads/' + t1).send(form).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
@@ -49,7 +49,7 @@ describe('get /api/threads/0/0', function () {
 	});
 	var t2, p21, p22;
 	it('given t2, p21 in recycle bin', function (next) {
-		var form = { categoryId: 40, writer: 'snowman', title: 'title 2', text: 'post 21' };
+		var form = { categoryId: 40, writer: 'snowman2', title: 'title2', text: 'post21' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
@@ -59,7 +59,7 @@ describe('get /api/threads/0/0', function () {
 		});
 	});
 	it('given p22 in recycle bin', function (next) {
-		var form = { writer: 'snowman', text: 'post 22' };
+		var form = { writer: 'snowman2', text: 'post22' };
 		request.post(test.url + '/api/threads/' + t2).send(form).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
@@ -105,10 +105,10 @@ describe('get /api/threads/0/0', function () {
 		request.get(test.url + '/api/threads/' + t1 + '/' + p11, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
-			res.body.thread.title.should.equal('title 1');
+			res.body.thread.title.should.equal('title1');
 			res.body.category.id.should.equal(101);
-			res.body.post.writer.should.equal('snowman');
-			res.body.post.text.should.equal('post 11');
+			res.body.post.writer.should.equal('snowman1');
+			res.body.post.text.should.equal('post11');
 			res.body.post.head.should.true;
 			res.body.post.visible.should.true;
 			next();
@@ -118,9 +118,10 @@ describe('get /api/threads/0/0', function () {
 		request.get(test.url + '/api/threads/' + t1 + '/' + p12, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
-			res.body.post.writer.should.equal('snowman');
-			res.body.post.text.should.equal('post 12');
+			res.body.post.writer.should.equal('snowman1');
+			res.body.post.text.should.equal('post12');
 			res.body.post.head.should.false;
+			res.body.post.visible.should.true;
 			next();
 		});
 	});
@@ -148,6 +149,12 @@ describe('get /api/threads/0/0', function () {
 		request.get(test.url + '/api/threads/' + t2 + '/' + p21, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
+			res.body.thread.title.should.equal('title2');
+			res.body.category.id.should.equal(40);
+			res.body.post.writer.should.equal('snowman2');
+			res.body.post.text.should.equal('post21');
+			res.body.post.head.should.true;
+			res.body.post.visible.should.true;
 			next();
 		});
 	});
@@ -155,6 +162,10 @@ describe('get /api/threads/0/0', function () {
 		request.get(test.url + '/api/threads/' + t2 + '/' + p22, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
+			res.body.post.writer.should.equal('snowman2');
+			res.body.post.text.should.equal('post22');
+			res.body.post.head.should.false;
+			res.body.post.visible.should.true;
 			next();
 		});
 	});

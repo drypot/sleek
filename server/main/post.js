@@ -306,7 +306,7 @@ init.add(function () {
 			_id: postId,
 			threadId: thread._id,
 			created: form.now,
-			visible: category.editable ? form.visible : true,
+			visible: true,
 			writer: form.writer,
 			text: form.text
 		};
@@ -315,7 +315,7 @@ init.add(function () {
 		}
 		mongo.insertPost(post, function (err) {
 			if (err) return next(err);
-			es.updatePost(thread, post, next);
+			es.update(thread, post, next);
 		});
 	}
 
@@ -346,7 +346,7 @@ init.add(function () {
 			}
 			mongo.updatePost(post, function (err) {
 				if (err) return next(err);
-				es.updatePost(thread, post, next);
+				es.update(thread, post, next);
 			});
 		});
 
