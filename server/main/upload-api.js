@@ -11,9 +11,7 @@ init.add(function () {
 
 	app.post('/api/upload', function (req, res) {
 		req.authorized(function (err) {
-			if (err) {
-				return res.json(err);
-			}
+			if (err) return res.json(err);
 			res.json({
 				rc: rcs.SUCCESS,
 				files: upload.tmpFiles(req.files.file)
@@ -23,9 +21,7 @@ init.add(function () {
 
 	app.del('/api/upload', function (req, res) {
 		req.authorized(function (err) {
-			if (err) {
-				return res.json(err);
-			}
+			if (err) return res.json(err);
 			upload.deleteTmpFiles(req.body.files);
 			res.json({ rc: rcs.SUCCESS });
 		});
