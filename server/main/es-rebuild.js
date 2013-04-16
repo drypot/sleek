@@ -54,7 +54,7 @@ module.exports = function (opt, next) {
 			});
 		}
 
-		var updatePost = es.updatePost;
+		var updatePost = es.update;
 
 		function updateSearchIndex(thread, post, next) {
 			updatePost(thread, post, function (err) {
