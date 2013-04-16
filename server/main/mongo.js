@@ -1,5 +1,5 @@
 var MongoClient = require('mongodb').MongoClient;
-var	Server = require('mongodb').Server;
+var Server = require('mongodb').Server;
 
 var init = require('../main/init');
 var config = require('../main/config');
@@ -18,15 +18,18 @@ init.add(function (next) {
 	var server = new Server('localhost', 27017, { /* auto_reconnect: true */ } );
 	var client = new MongoClient(server);
 	var db;
+	var log = 'mongo:';
 
 	initDb(function (err) {
 		if (err) return next(err);
-		console.log('mongo: ' + db.databaseName);
 		checkDrop(function (err) {
 			if (err) return next(err);
 			initThread(function (err) {
 				if (err) return next(err);
-				initPost(next);
+				initPost(function (err) {
+					console.log(log);
+					next(err);
+				});
 			});
 		});
 	});
@@ -35,12 +38,14 @@ init.add(function (next) {
 		client.open(function (err) {
 			if (err) return next(err);
 			db = exports.db = client.db(config.data.mongoDbName);
+			log += ' ' + db.databaseName;
 			next();
 		});
 	}
 
 	function checkDrop(next) {
 		if (opt.dropDatabase) {
+			log += ' drop-database';
 			db.dropDatabase(next);
 		} else {
 			next();
