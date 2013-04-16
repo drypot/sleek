@@ -15,14 +15,18 @@ exports.options = function (_opt) {
 init.add(function (next) {
 
 	var url = config.data.esUrl + '/' + config.data.esIndexName;
-
-	console.log('elasticsearch: ' + url);
+	var log = 'elasticsearch: ' + url;
 
 	initExports();
-	checkDrop(next);
+
+	checkDrop(function (err) {
+		console.log(log);
+		next(err);
+	});
 
 	function checkDrop(next) {
 		if (opt.dropIndex) {
+			log += ' drop-index';
 			exports.dropIndex(next);
 		} else {
 			setSchema(next)
@@ -54,7 +58,7 @@ init.add(function (next) {
 		};
 		request.post(url).send(schema).end(function (err, res) {
 			if (err) return next(err);
-			if (res.error) return next(res.error);
+			if (res.error) return next(res.body);
 			next(null, res);
 		});
 	};
@@ -63,20 +67,21 @@ init.add(function (next) {
 		exports.dropIndex = function (next) {
 			request.del(url, function (err, res) {
 				if (err) return next(err);
-				if (res.error) return next(res.error);
+				if (res.error) return next(res.body);
 				setSchema(next);
 			});
 		};
 
 		exports.flush = function (next) {
 			request.post(url + '/_flush', function (err, res) {
-				if (res.error) return next(res.error);
-				next(err, res);
+				if (err) return next(err);
+				if (res.error) return next(res.body);
+				next(null, res);
 			});
 		};
 
-		exports.updatePost = function (thread, post, next) {
-			request.put(url + '/post/' + post._id).send({
+		exports.update = function (thread, post, next) {
+			var form = {
 				threadId: thread._id,
 				categoryId: thread.categoryId,
 				created: post.created,
@@ -85,26 +90,28 @@ init.add(function (next) {
 				writer: post.writer,
 				text: post.text,
 				visible: post.visible
-			}).end(function (err, res) {
-					if (res.error) return next(res.error);
-					next(err, res);
-				});
+			}
+			request.put(url + '/post/' + post._id).send(form).end(function (err, res) {
+				if (err) return next(err);
+				if (res.error) return next(res.body);
+				next(null, res);
+			});
 		};
 
 		exports.getPost = function (postId, next) {
 			request.get(url + '/post/' + postId, function (err, res) {
 				if (err) return next(err);
-				if (res.error) return next(res.error);
+				if (res.error) return next(res.body);
 				res.body._id = parseInt(res.body._id);
 				res.body._source.created = new Date(res.body._source.created);
-				next(err, res);
+				next(null, res);
 			});
 		};
 
-		exports.searchPost = function (body, next) {
-			request.post(url + '/post/_search').send(body).end(function (err, res) {
+		exports.search = function (form, next) {
+			request.post(url + '/post/_search').send(form).end(function (err, res) {
 				if (err) return next(err);
-				if (res.error) return next(res.error);
+				if (res.error) return next(res.body);
 				if (res.body.hits) {
 					var hits = res.body.hits.hits;
 					var len = hits.length;
@@ -115,7 +122,7 @@ init.add(function (next) {
 						hit._source.created = new Date(hit._source.created);
 					}
 				}
-				next(err, res);
+				next(null, res);
 			});
 		};
 	}
