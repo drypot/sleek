@@ -25,17 +25,18 @@ before(function () {
 
 var t1, p1, files;
 
-it('given user session', function (next) {
-	test.loginUser(next);
-});
-
-it('given t1', function (next) {
-	var form = { categoryId: 101, writer: 'snowman', title: 'title', text: 'text' };
-	request.post(test.url + '/api/threads').send(form).end(function (err, res) {
-		res.status.should.equal(200);
-		res.body.rc.should.equal(rcs.SUCCESS);
-		t1 = res.body.threadId;
-		next();
+describe('preparing t1', function () {
+	it('given user session', function (next) {
+		test.loginUser(next);
+	});
+	it('should success', function (next) {
+		var form = { categoryId: 101, writer: 'snowman', title: 'title', text: 'text' };
+		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
+			res.status.should.equal(200);
+			res.body.rc.should.equal(rcs.SUCCESS);
+			t1 = res.body.threadId;
+			next();
+		});
 	});
 });
 
