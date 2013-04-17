@@ -151,7 +151,7 @@ describe("post collection", function () {
 	describe("updating", function () {
 		var p = {
 			threadId: 1030, created: new Date(50), visible: true,
-			writer: 'ifewjifsf', text: 'iefajfidsfid'
+			writer: 'snowman', text: 'text'
 		}
 		it("given empty collection", function (next) {
 			mongo.posts.remove(next);
