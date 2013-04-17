@@ -102,7 +102,11 @@ describe("searching", function () {
 describe("dropping es", function () {
 	it("should success", function (next) {
 		es.dropIndex(function (err) {
-			setTimeout(next, 300);
+			if (err) return next(err);
+			es.setSchema(function (err) {
+				if (err) return next(err);
+				setTimeout(next, 300);
+			});
 		});
 	});
 });

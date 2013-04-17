@@ -29,12 +29,15 @@ init.run(function (err) {
 	if (err) throw err;
 	es.dropIndex(function (err) {
 		if (err) throw err;
-		console.log('start rebuilding:');
-		rebuild.rebuild(function (err) {
+		es.setSchema(function (err) {
 			if (err) throw err;
-			mongo.db.close(function (err) {
+			console.log('start rebuilding:');
+			rebuild.rebuild(function (err) {
 				if (err) throw err;
-			})
+				mongo.db.close(function (err) {
+					if (err) throw err;
+				})
+			});
 		});
 	});
 });

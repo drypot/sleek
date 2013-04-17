@@ -17,23 +17,15 @@ init.add(function (next) {
 	var url = config.data.esUrl + '/' + config.data.esIndexName;
 	var log = 'elasticsearch: ' + url;
 
-	initExports();
+	exports.dropIndex = function (next) {
+		request.del(url, function (err, res) {
+			if (err) return next(err);
+			if (res.error) return next(res.body);
+			next();
+		});
+	};
 
-	checkDrop(function (err) {
-		console.log(log);
-		next(err);
-	});
-
-	function checkDrop(next) {
-		if (opt.dropIndex) {
-			log += ' drop-index';
-			exports.dropIndex(next);
-		} else {
-			setSchema(next)
-		}
-	}
-
-	function setSchema(next) {
+	exports.setSchema = function (next) {
 		var schema = {
 			settings: {
 				index: {
@@ -63,68 +55,76 @@ init.add(function (next) {
 		});
 	};
 
-	function initExports() {
-		exports.dropIndex = function (next) {
-			request.del(url, function (err, res) {
-				if (err) return next(err);
-				if (res.error) return next(res.body);
-				setSchema(next);
-			});
-		};
+	exports.flush = function (next) {
+		request.post(url + '/_flush', function (err, res) {
+			if (err) return next(err);
+			if (res.error) return next(res.body);
+			next(null, res);
+		});
+	};
 
-		exports.flush = function (next) {
-			request.post(url + '/_flush', function (err, res) {
-				if (err) return next(err);
-				if (res.error) return next(res.body);
-				next(null, res);
-			});
-		};
+	exports.update = function (thread, post, next) {
+		var form = {
+			threadId: thread._id,
+			categoryId: thread.categoryId,
+			created: post.created,
+			title: thread.title,
+			titlei: thread.created.getTime() === post.created.getTime() ? thread.title : '',
+			writer: post.writer,
+			text: post.text,
+			visible: post.visible
+		}
+		request.put(url + '/post/' + post._id).send(form).end(function (err, res) {
+			if (err) return next(err);
+			if (res.error) return next(res.body);
+			next(null, res);
+		});
+	};
 
-		exports.update = function (thread, post, next) {
-			var form = {
-				threadId: thread._id,
-				categoryId: thread.categoryId,
-				created: post.created,
-				title: thread.title,
-				titlei: thread.created.getTime() === post.created.getTime() ? thread.title : '',
-				writer: post.writer,
-				text: post.text,
-				visible: post.visible
-			}
-			request.put(url + '/post/' + post._id).send(form).end(function (err, res) {
-				if (err) return next(err);
-				if (res.error) return next(res.body);
-				next(null, res);
-			});
-		};
+	exports.getPost = function (postId, next) {
+		request.get(url + '/post/' + postId, function (err, res) {
+			if (err) return next(err);
+			if (res.error) return next(res.body);
+			res.body._id = parseInt(res.body._id);
+			res.body._source.created = new Date(res.body._source.created);
+			next(null, res);
+		});
+	};
 
-		exports.getPost = function (postId, next) {
-			request.get(url + '/post/' + postId, function (err, res) {
-				if (err) return next(err);
-				if (res.error) return next(res.body);
-				res.body._id = parseInt(res.body._id);
-				res.body._source.created = new Date(res.body._source.created);
-				next(null, res);
-			});
-		};
-
-		exports.search = function (form, next) {
-			request.post(url + '/post/_search').send(form).end(function (err, res) {
-				if (err) return next(err);
-				if (res.error) return next(res.body);
-				if (res.body.hits) {
-					var hits = res.body.hits.hits;
-					var len = hits.length;
-					var i;
-					for (i = 0; i < len; i++) {
-						var hit = hits[i];
-						hit._id = parseInt(hit._id);
-						hit._source.created = new Date(hit._source.created);
-					}
+	exports.search = function (form, next) {
+		request.post(url + '/post/_search').send(form).end(function (err, res) {
+			if (err) return next(err);
+			if (res.error) return next(res.body);
+			if (res.body.hits) {
+				var hits = res.body.hits.hits;
+				var len = hits.length;
+				var i;
+				for (i = 0; i < len; i++) {
+					var hit = hits[i];
+					hit._id = parseInt(hit._id);
+					hit._source.created = new Date(hit._source.created);
 				}
-				next(null, res);
-			});
-		};
+			}
+			next(null, res);
+		});
+	};
+
+	checkDrop(function (err) {
+		if (err) return next(err);
+		exports.setSchema(function (err) {
+			if (err) return next(err);
+			console.log(log);
+			next();
+		})
+	});
+
+	function checkDrop(next) {
+		if (opt.dropIndex) {
+			log += ' drop-index';
+			exports.dropIndex(next);
+		} else {
+			next()
+		}
 	}
 
 });
