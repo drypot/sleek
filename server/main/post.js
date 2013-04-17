@@ -17,7 +17,7 @@ init.add(function () {
 		form.writer  = String(body.writer || '').trim();
 		form.title = String(body.title || '').trim();
 		form.text = String(body.text || '');
-		form.visible = !!body.visible;
+		form.visible = !!(body.hasOwnProperty('visible') ? body.visible : true);
 		form.files = body.files;
 		form.delFiles = body.delFiles;
 		return form;
@@ -306,7 +306,7 @@ init.add(function () {
 			_id: postId,
 			threadId: thread._id,
 			created: form.now,
-			visible: true,
+			visible: category.editable ? form.visible : true,
 			writer: form.writer,
 			text: form.text
 		};

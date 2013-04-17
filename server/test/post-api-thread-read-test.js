@@ -87,7 +87,7 @@ describe("get /api/threads/0", function () {
 		test.loginAdmin(next);
 	});
 	it('given another invisible reply', function (next) {
-		var form = { writer: 'admin', text: 'post4' };
+		var form = { writer: 'admin', text: 'post4', visible: false };
 		request.post(test.url + '/api/threads/' + tid).send(form).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
@@ -106,7 +106,6 @@ describe("get /api/threads/0", function () {
 		test.loginUser(next);
 	});
 	it('should return 3 posts', function (next) {
-		console.log('start');
 		request.get(test.url + '/api/threads/' + tid, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
