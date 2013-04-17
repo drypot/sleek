@@ -61,8 +61,8 @@ var docs = [
 	}
 ];
 
-describe('searching empty db', function () {
-	it('should success', function (next) {
+describe("searching empty db", function () {
+	it("should success", function (next) {
 		es.search({
 			query: { query_string: { query: 'apple', default_operator: 'and' }},
 			sort: [{ created : "asc" }]
@@ -76,8 +76,8 @@ describe('searching empty db', function () {
 	});
 });
 
-describe('filling db', function () {
-	it('should success', function (next) {
+describe("filling db", function () {
+	it("should success", function (next) {
 		var i = 0;
 		var len = docs.length;
 		(function insert() {
@@ -96,8 +96,8 @@ describe('filling db', function () {
 	});
 });
 
-describe('getPost', function () {
-	it('should success for head', function (next) {
+describe("getPost", function () {
+	it("should success for head", function (next) {
 		var doc0 = docs[0];
 		es.getPost(doc0.post._id, function (err, res) {
 			should.not.exist(err);
@@ -114,7 +114,7 @@ describe('getPost', function () {
 			next();
 		});
 	});
-	it('should success for reply', function (next) {
+	it("should success for reply", function (next) {
 		var doc1 = docs[1];
 		es.getPost(doc1.post._id, function (err, res) {
 			should.not.exist(err);
@@ -133,8 +133,8 @@ describe('getPost', function () {
 	});
 });
 
-describe('searching non-existing', function () {
-	it('should success', function (next) {
+describe("searching non-existing", function () {
+	it("should success", function (next) {
 		es.search({
 			query: { query_string: { query: 'jifeoajfiefjs', default_operator: 'and' }},
 			sort: [{ created : "asc" }]
@@ -148,8 +148,8 @@ describe('searching non-existing', function () {
 	});
 });
 
-describe('searching empty string', function () {
-	it('should fail', function (next) {
+describe("searching empty string", function () {
+	it("should fail", function (next) {
 		es.search({
 				query: { query_string: { query: ' ', default_operator: 'and' }},
 				sort: [{ created : "asc" }]
@@ -161,8 +161,8 @@ describe('searching empty string', function () {
 	});
 });
 
-describe('searching title', function () {
-	it('should success', function (next) {
+describe("searching title", function () {
+	it("should success", function (next) {
 		es.search({
 			query: { query_string: { query: 'hello', default_operator: 'and' }},
 			sort: [{ created : "asc" }]
@@ -177,8 +177,8 @@ describe('searching title', function () {
 	});
 });
 
-describe('searching writer', function () {
-	it('should success', function (next) {
+describe("searching writer", function () {
+	it("should success", function (next) {
 		es.search({
 				query: { query_string: { query: 'snowman', default_operator: 'and' }},
 				sort: [{ created : "asc" }]
@@ -194,8 +194,8 @@ describe('searching writer', function () {
 	});
 });
 
-describe('searching apple in text', function () {
-	it('should success', function (next) {
+describe("searching apple in text", function () {
+	it("should success", function (next) {
 		es.search({
 				query: { query_string: { query: 'apple', default_operator: 'and' }},
 				sort: [{ created : "asc" }]
@@ -211,8 +211,8 @@ describe('searching apple in text', function () {
 	});
 });
 
-describe('searching orange in text', function () {
-	it('should success', function (next) {
+describe("searching orange in text", function () {
+	it("should success", function (next) {
 		es.search({
 				query: { query_string: { query: 'orange', default_operator: 'and' }},
 				sort:[{ created : "asc" }]
@@ -227,8 +227,8 @@ describe('searching orange in text', function () {
 	});
 });
 
-describe('searching two words', function () {
-	it('should success', function (next) {
+describe("searching two words", function () {
+	it("should success", function (next) {
 		es.search({
 			query: { query_string: { query: 'apple orange', default_operator: 'and' }},
 			sort: [{ created : "asc" }]
@@ -243,8 +243,8 @@ describe('searching two words', function () {
 	});
 });
 
-describe('searching order by desc', function () {
-	it('should success', function (next) {
+describe("searching order by desc", function () {
+	it("should success", function (next) {
 		es.search({
 				query: { query_string: { query: '둥글게', default_operator: 'and' }},
 				sort: [{ created : "desc" }]
@@ -261,8 +261,8 @@ describe('searching order by desc', function () {
 	});
 });
 
-describe('searching results limit', function () {
-	it('should work', function (next) {
+describe("searching results limit", function () {
+	it("should work", function (next) {
 		es.search({
 			query: { query_string: { query: '둥글게', default_operator: 'and' }},
 			sort: [{ created : "desc" }],
@@ -280,8 +280,8 @@ describe('searching results limit', function () {
 	});
 });
 
-describe('searching hangul', function () {
-	it('should success', function (next) {
+describe("searching hangul", function () {
+	it("should success", function (next) {
 		es.search({
 			query: { query_string: { query: '안녕', default_operator: 'and' }},
 			sort:[{created : "asc"}]
@@ -295,7 +295,7 @@ describe('searching hangul', function () {
 			next();
 		});
 	});
-	it('should success', function (next) {
+	it("should success", function (next) {
 		es.search({
 			query: { query_string: { query: '파랗게', default_operator: 'and' }},
 			sort:[{ created : "asc" }]
@@ -309,7 +309,7 @@ describe('searching hangul', function () {
 			next();
 		});
 	});
-	it('should success', function (next) {
+	it("should success", function (next) {
 		es.search({
 			query: { query_string: { query: '파랗게 말똥이', default_operator: 'and' }},
 			sort: [{ created : 'asc' }]

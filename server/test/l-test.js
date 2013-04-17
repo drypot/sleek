@@ -2,16 +2,16 @@ var should = require('should');
 
 var l = require('../main/l');
 
-//describe('value', function () {
-//	it('should success', function () {
+//describe("value", function () {
+//	it("should success", function () {
 //		l.value({x: 'def'}, 'x', 'abc').should.equal('def');
 //		l.value({y: 'def'}, 'x', 'abc').should.equal('abc');
 //		l.value(null, 'x', 'abc').should.equal('abc');
 //	});
 //});
 //
-//describe('int', function () {
-//	it('should success', function () {
+//describe("int", function () {
+//	it("should success", function () {
 //		l.int({x: '10'}, 'x', 30).should.equal(10);
 //		l.int({x: 10}, 'x', 30).should.equal(10);
 //		l.int({x: 'def'}, 'x', 30).should.equal(30);
@@ -19,7 +19,7 @@ var l = require('../main/l');
 //		l.int(null, 'x', 30).should.equal(30);
 //	});
 //
-//	it('when min, max given, should success', function () {
+//	it("when min, max given, should success", function () {
 //		l.int({x: '10'}, 'x', 30, 0, 50).should.equal(10);
 //		l.int({x: 10}, 'x', 30, 0, 50).should.equal(10);
 //		l.int({x: 'def'}, 'x', 30, 0, 50).should.equal(30);
@@ -30,8 +30,8 @@ var l = require('../main/l');
 //	});
 //});
 //
-//describe('string', function () {
-//	it('should success', function () {
+//describe("string", function () {
+//	it("should success", function () {
 //		l.string({x: 'def'}, 'x', 'abc').should.equal('def');
 //		l.string({x: 10}, 'x', 'abc').should.equal('10');
 //		l.string({x: ' def '}, 'x', 'abc').should.equal('def');
@@ -40,8 +40,8 @@ var l = require('../main/l');
 //	});
 //});
 //
-//describe('bool', function () {
-//	it('should success', function () {
+//describe("bool", function () {
+//	it("should success", function () {
 //		l.bool({x: 'true'}, 'x', true).should.equal(true);
 //		l.bool({x: true}, 'x', true).should.equal(true);
 //		l.bool({x: 'false'}, 'x', true).should.equal(false);
@@ -54,14 +54,14 @@ var l = require('../main/l');
 //	});
 //});
 
-describe('mergeProperty', function () {
+describe("mergeProperty", function () {
 	var src = {
 		f1 : 1,
 		f2 : 2,
 		f3 : undefined,
 		f4 : 4
 	}
-	it('should success', function () {
+	it("should success", function () {
 		var tar = l.merge({}, src, ['f1', 'f2', 'f3']);
 		tar.should.ok;
 		tar.should.have.keys(['f1', 'f2', 'f3']);
@@ -70,26 +70,26 @@ describe('mergeProperty', function () {
 	})
 });
 
-describe('UrlMaker', function () {
-	it('given baseUrl, should success', function () {
+describe("UrlMaker", function () {
+	it("given baseUrl, should success", function () {
 		var u = new l.UrlMaker('/thread');
 		u.toString().should.equal('/thread');
 	});
-	it('given query param, should success', function () {
+	it("given query param, should success", function () {
 		var u = new l.UrlMaker('/thread');
 		u.add('p', 10);
 		u.toString().should.equal('/thread?p=10');
 	});
-	it('given two query params, should success', function () {
+	it("given two query params, should success", function () {
 		var u = new l.UrlMaker('/thread');
 		u.add('p', 10);
 		u.add('ps', 16);
 		u.toString().should.equal('/thread?p=10&ps=16');
 	});
-	it('given chained expression, should success', function () {
+	it("given chained expression, should success", function () {
 		new l.UrlMaker('/thread').add('p', 10).add('ps', 16).toString().should.equal('/thread?p=10&ps=16');
 	});
-	it('given default value, should success', function () {
+	it("given default value, should success", function () {
 		var u = new l.UrlMaker('/thread');
 		var p = 0;
 		var ps = 16;
@@ -99,8 +99,8 @@ describe('UrlMaker', function () {
 	});
 });
 
-describe('formatDate', function () {
-	it('should success', function () {
+describe("formatDate", function () {
+	it("should success", function () {
 		var d = new Date(1974, 4, 16, 12, 0);
 		l.formatDateTime(d).should.equal('1974-05-16 12:00');
 	})

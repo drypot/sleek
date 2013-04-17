@@ -20,7 +20,7 @@ before(function () {
 	express.listen();
 });
 
-describe("get /api/threads", function () {
+describe("listing threads", function () {
 	var samples = [
 		{ categoryId: 100, writer: 'snowman', title: 'title 1', text: 'text 1' },
 		{ categoryId: 100, writer: 'snowman', title: 'title 2', text: 'text 2' },
@@ -31,7 +31,7 @@ describe("get /api/threads", function () {
 		{ categoryId: 400, writer: 'snowman', title: 'title 7', text: 'text 7' }
 	];
 
-	it('given no session', function (next) {
+	it("given no session", function (next) {
 		test.logout(next);
 	});
 	it("should fail", function (next) {
@@ -41,10 +41,10 @@ describe("get /api/threads", function () {
 			next();
 		});
 	});
-	it('given user session', function (next) {
+	it("given user session", function (next) {
 		test.loginUser(next);
 	});
-	it('given sample threads', function (next) {
+	it("given sample threads", function (next) {
 		var i = 0;
 		var len = samples.length;
 		(function insert() {
@@ -56,7 +56,7 @@ describe("get /api/threads", function () {
 			});
 		})();
 	});
-	it('should success when no op', function (next) {
+	it("should success when no op", function (next) {
 		request.get(test.url + '/api/threads', function (err, res) {
 			res.body.rc.should.equal(rcs.SUCCESS);
 			res.body.threads.should.length(7);
@@ -78,7 +78,7 @@ describe("get /api/threads", function () {
 			next();
 		});
 	});
-	it('should success when category 0', function (next) {
+	it("should success with category 0", function (next) {
 		request.get(test.url + '/api/threads').query({ c: 0 }).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
@@ -86,7 +86,7 @@ describe("get /api/threads", function () {
 			next();
 		});
 	});
-	it('should success when category 300', function (next) {
+	it("should success with category 300", function (next) {
 		request.get(test.url + '/api/threads').query({ c: 300 }).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
@@ -94,7 +94,7 @@ describe("get /api/threads", function () {
 			next();
 		});
 	});
-	it('should success when page 2', function (next) {
+	it("should success with page 2", function (next) {
 		request.get(test.url + '/api/threads').query({ c: 0, p: 2, ps: 3 }).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);

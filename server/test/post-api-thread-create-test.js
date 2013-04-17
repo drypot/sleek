@@ -21,8 +21,8 @@ before(function () {
 	express.listen();
 });
 
-describe('post /api/threads', function () {
-	it('given no session', function (next) {
+describe("creating thread", function () {
+	it("given no session", function (next) {
 		test.logout(next);
 	});
 	it("should fail", function (next) {
@@ -32,7 +32,7 @@ describe('post /api/threads', function () {
 			next();
 		});
 	});
-	it('given user session', function (next) {
+	it("given user session", function (next) {
 		test.loginUser(next);
 	});
 	it("should fail when categoryId invalid", function (next) {
@@ -80,15 +80,7 @@ describe('post /api/threads', function () {
 			next();
 		});
 	});
-	it('should fail when category is recycle bin', function (next) {
-		var form = { categoryId: 40, writer: 'snowman', title: 'title', text: 'text' };
-		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
-			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.INVALID_CATEGORY);
-			next();
-		});
-	});
-	it('should success', function (next) {
+	it("should success", function (next) {
 		var form = { categoryId: 101, writer: 'snowman', title: 'title 1', text: 'post11' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
@@ -98,10 +90,24 @@ describe('post /api/threads', function () {
 			next();
 		});
 	});
-	it('given admin session', function (next) {
+});
+
+describe("creating thread in recycle bin", function () {
+	it("given user session", function (next) {
+		test.loginUser(next);
+	});
+	it("should fail", function (next) {
+		var form = { categoryId: 40, writer: 'snowman', title: 'title', text: 'text' };
+		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
+			res.status.should.equal(200);
+			res.body.rc.should.equal(rcs.INVALID_CATEGORY);
+			next();
+		});
+	});
+	it("given admin session", function (next) {
 		test.loginAdmin(next);
 	});
-	it('should success when category is recycle bin', function (next) {
+	it("should success", function (next) {
 		var form = { categoryId: 40, writer: 'snowman', title: 'title in recycle bin', text: 'head text in recycle bin' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);

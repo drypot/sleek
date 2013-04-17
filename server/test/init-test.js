@@ -2,8 +2,8 @@ var should = require('should');
 
 var init = require('../main/init');
 
-describe('normal init function', function () {
-	it('should success', function (next) {
+describe("normal init function", function () {
+	it("should success", function (next) {
 		var a = [];
 		init.reset();
 		init.add(function () {
@@ -21,8 +21,8 @@ describe('normal init function', function () {
 	});
 });
 
-describe('async init function', function () {
-	it('should success', function (next) {
+describe("async init function", function () {
+	it("should success", function (next) {
 		var a = [];
 		init.reset();
 		init.add(function (next) {
@@ -42,8 +42,8 @@ describe('async init function', function () {
 	});
 });
 
-describe('normal throw', function () {
-	it('should success', function (next) {
+describe("normal throw", function () {
+	it("should success", function (next) {
 		var a = [];
 		init.reset();
 		init.add(function () {
@@ -66,8 +66,8 @@ describe('normal throw', function () {
 	});
 });
 
-describe('async throw', function () {
-	it('should success', function (next) {
+describe("async throw", function () {
+	it("should success", function (next) {
 		var a = [];
 		init.reset();
 		init.add(function (next) {

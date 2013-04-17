@@ -8,30 +8,30 @@ before(function (next) {
 	init.run(next);
 });
 
-describe('mongo module', function () {
-	it('should have db property', function () {
+describe("mongo module", function () {
+	it("should have db property", function () {
 		should.exist(mongo.db);
 	});
 });
 
-describe('db', function () {
-	it('should have databaseName', function () {
+describe("db", function () {
+	it("should have databaseName", function () {
 		mongo.db.databaseName.should.equal('sleek-test');
 	});
 });
 
-describe('empty post collection', function () {
-	it('should exist', function () {
+describe("empty post collection", function () {
+	it("should exist", function () {
 		should(mongo.posts);
 	});
-	it('should be empty', function (next) {
+	it("should be empty", function (next) {
 		mongo.posts.count(function (err, count) {
 			should.not.exist(err);
 			count.should.equal(0);
 			next();
 		})
 	});
-	it('should have two indexes', function (next) {
+	it("should have two indexes", function (next) {
 		mongo.posts.indexes(function (err, index) {
 			should.not.exist(err);
 			index.should.be.instanceof(Array);
@@ -39,14 +39,14 @@ describe('empty post collection', function () {
 			next();
 		});
 	});
-	it('can make serialized ids', function () {
+	it("can make serialized ids", function () {
 		var id1 = mongo.getNewPostId();
 		var id2 = mongo.getNewPostId();
 		should(id1 < id2);
 	});
 });
 
-describe('filled post collection', function () {
+describe("filled post collection", function () {
 	var ppost;
 
 	before(function (next) {
@@ -89,14 +89,14 @@ describe('filled post collection', function () {
 			});
 		})();
 	});
-	it('can count records', function (next) {
+	it("can count records", function (next) {
 		mongo.posts.count(function (err, count) {
 			should.not.exist(err);
 			count.should.equal(5);
 			next();
 		});
 	});
-	it('can find post by id', function (next) {
+	it("can find post by id", function (next) {
 		mongo.findPost(ppost._id, function (err, post) {
 			should.not.exist(err);
 			post._id.should.equal(ppost._id);
@@ -104,7 +104,7 @@ describe('filled post collection', function () {
 			next();
 		});
 	});
-	it('can update', function (next) {
+	it("can update", function (next) {
 		ppost.writer  = "fireman";
 		ppost.hit = 17;
 		mongo.updatePost(ppost, function (err) {
@@ -115,7 +115,7 @@ describe('filled post collection', function () {
 			});
 		});
 	});
-	it('can find posts by thread id', function (next) {
+	it("can find posts by thread id", function (next) {
 		var count = 0;
 		mongo.findPostsByThread(1000, function (err, post) {
 			should.not.exist(err);
@@ -127,7 +127,7 @@ describe('filled post collection', function () {
 			next();
 		});
 	});
-	it('can find posts by thread id, 2', function (next) {
+	it("can find posts by thread id, 2", function (next) {
 		var count = 0;
 		mongo.findPostsByThread(1010, function (err, post) {
 			should.not.exist(err);
@@ -139,7 +139,7 @@ describe('filled post collection', function () {
 			next();
 		});
 	});
-	it('can find posts as sorted', function (next) {
+	it("can find posts as sorted", function (next) {
 		var posts = [];
 		mongo.findPostsByThread(1000, function (err, post) {
 			should.not.exist(err);
@@ -154,18 +154,18 @@ describe('filled post collection', function () {
 	});
 });
 
-describe('empty thread collection', function () {
-	it('should exist', function () {
+describe("empty thread collection", function () {
+	it("should exist", function () {
 		should.exist(mongo.threads);
 	});
-	it('should be empty', function (next) {
+	it("should be empty", function (next) {
 		mongo.threads.count(function (err, count) {
 			should.not.exist(err);
 			count.should.equal(0);
 			next();
 		})
 	});
-	it('should have one index', function (next) {
+	it("should have one index", function (next) {
 		mongo.threads.indexes(function (err, indexList) {
 			should.not.exist(err);
 			indexList.should.be.instanceof(Array);
@@ -173,14 +173,14 @@ describe('empty thread collection', function () {
 			next();
 		});
 	});
-	it('can make serialized ids', function () {
+	it("can make serialized ids", function () {
 		var id1 = mongo.getNewThreadId();
 		var id2 = mongo.getNewThreadId();
 		should(id1 < id2);
 	});
 });
 
-describe('filled thread collection', function () {
+describe("filled thread collection", function () {
 	var pthread;
 
 	before(function (next) {
@@ -243,14 +243,14 @@ describe('filled thread collection', function () {
 			});
 		})();
 	});
-	it('can count records', function (next) {
+	it("can count records", function (next) {
 		mongo.threads.count(function (err, count) {
 			should.not.exist(err);
 			count.should.equal(10);
 			next();
 		});
 	});
-	it('can find by id', function (next) {
+	it("can find by id", function (next) {
 		mongo.findThread(pthread._id, function (err, thread) {
 			should.not.exist(err);
 			thread._id.should.equal(pthread._id);
@@ -258,7 +258,7 @@ describe('filled thread collection', function () {
 			next();
 		});
 	});
-	it('can update record', function (next) {
+	it("can update record", function (next) {
 		pthread.writer  = "fireman";
 		pthread.hit = 17;
 		mongo.updateThread(pthread, function (err) {
@@ -270,7 +270,7 @@ describe('filled thread collection', function () {
 			});
 		});
 	});
-	it('can increase hit', function (next) {
+	it("can increase hit", function (next) {
 		mongo.updateThreadHit(pthread._id, function (err) {
 			should.not.exist(err);
 			mongo.findThread(pthread._id, function (err, thread) {
@@ -280,7 +280,7 @@ describe('filled thread collection', function () {
 			});
 		});
 	});
-	it('can update lenth & updated', function (next) {
+	it("can update lenth & updated", function (next) {
 		var now = new Date();
 		mongo.updateThreadLength(pthread._id, now, function (err) {
 			should.not.exist(err);
@@ -292,8 +292,8 @@ describe('filled thread collection', function () {
 			});
 		});
 	});
-	describe('findThreadsByCategory', function () {
-		it('should success when categoryId is 0', function (next) {
+	describe("findThreadsByCategory", function () {
+		it("should success when categoryId is 0", function (next) {
 			var threads = [];
 			mongo.findThreadsByCategory(0, 1, 99, function (err, thread) {
 				should.not.exist(err);
@@ -309,7 +309,7 @@ describe('filled thread collection', function () {
 				next();
 			})
 		});
-		it('should success when categoryId is 101', function (next) {
+		it("should success when categoryId is 101", function (next) {
 			var threads = [];
 			mongo.findThreadsByCategory(101, 1, 99, function (err, thread) {
 				should.not.exist(err);
@@ -321,7 +321,7 @@ describe('filled thread collection', function () {
 				next();
 			});
 		});
-		it('should success when page is 2', function (next) {
+		it("should success when page is 2", function (next) {
 			var threads = [];
 			mongo.findThreadsByCategory(0, 2, 3, function (err, thread) {
 				should.not.exist(err);
@@ -336,7 +336,7 @@ describe('filled thread collection', function () {
 				next();
 			})
 		});
-//		it('should success when page is -1', function (next) {
+//		it("should success when page is -1", function (next) {
 //			var threads = [];
 //			mongo.findThreadsByCategory(0, -1, 3, function (err, thread) {
 //				should.not.exist(err);

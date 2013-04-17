@@ -21,22 +21,22 @@ before(function () {
 	express.listen();
 });
 
-describe('updating', function () {
+describe("updating", function () {
 	var t1, p1;
-	it('given no session', function (next) {
+	it("given no session", function (next) {
 		test.logout(next);
 	});
-	it('should fail', function (next) {
+	it("should fail", function (next) {
 		request.put(test.url + '/api/threads/0/0', function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.NOT_AUTHENTICATED);
 			next(err);
 		});
 	});
-	it('given user session', function (next) {
+	it("given user session", function (next) {
 		test.loginUser(next);
 	});
-	it('given p11', function (next) {
+	it("given p11", function (next) {
 		var form = { categoryId: 101, writer: 'snowman', title: 'title', text: 'text' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
@@ -46,7 +46,7 @@ describe('updating', function () {
 			next(err);
 		});
 	});
-	it('should fail when title empty', function (next) {
+	it("should fail when title empty", function (next) {
 		var form = { categoryId: 101, writer: 'snowman', title: ' ', text: 'text', visible: true };
 		request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
 			res.status.should.equal(200);
@@ -55,7 +55,7 @@ describe('updating', function () {
 			next(err);
 		});
 	});
-	it('should fail when writer empty', function (next) {
+	it("should fail when writer empty", function (next) {
 		var form = { categoryId: 101, writer: ' ', title: 'title', text: 'text', visible: true };
 		request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
 			res.status.should.equal(200);
@@ -64,7 +64,7 @@ describe('updating', function () {
 			next(err);
 		});
 	});
-	it('should success when category not changed', function (next) {
+	it("should success when category not changed", function (next) {
 		var form = { categoryId: 101, writer: 'snowman1', title: 'title1', text: 'text1' };
 		request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
 			res.status.should.equal(200);
@@ -82,7 +82,7 @@ describe('updating', function () {
 			});
 		});
 	});
-	it('should success when category changed', function (next) {
+	it("should success when category changed", function (next) {
 		var form = { categoryId: 102, writer: 'snowman2', title: 'title2', text: 'text2' };
 		request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
 			res.status.should.equal(200);
@@ -95,7 +95,7 @@ describe('updating', function () {
 			});
 		});
 	});
-	it('should success but can not change visible', function (next) {
+	it("should success but can not change visible", function (next) {
 		var form = { categoryId: 102, writer: 'snowman3', title: 'title3', text: 'text3', visible: false };
 		request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
 			res.status.should.equal(200);
@@ -108,10 +108,10 @@ describe('updating', function () {
 			});
 		});
 	});
-	it('given admin session', function (next) {
+	it("given admin session", function (next) {
 		test.loginAdmin(next);
 	});
-	it('should success and can change visible', function (next) {
+	it("should success and can change visible", function (next) {
 		var form = { categoryId: 102, writer: 'snowman4', title: 'title4', text: 'text4', visible: false };
 		request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
 			res.status.should.equal(200);
@@ -126,12 +126,12 @@ describe('updating', function () {
 	});
 });
 
-describe('updating reply', function () {
+describe("updating reply", function () {
 	var t1, p1, p2;
-	it('given user session', function (next) {
+	it("given user session", function (next) {
 		test.loginUser(next);
 	});
-	it('given p1', function (next) {
+	it("given p1", function (next) {
 		var form = { categoryId: 101, writer: 'snowman', title: 'title', text: 'text' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
@@ -141,7 +141,7 @@ describe('updating reply', function () {
 			next(err);
 		});
 	});
-	it('given p2', function (next) {
+	it("given p2", function (next) {
 		var form = { writer: 'snowman', text: 'text' };
 		request.post(test.url + '/api/threads/' + t1).send(form).end(function (err, res) {
 			res.status.should.equal(200);
@@ -150,7 +150,7 @@ describe('updating reply', function () {
 			next(err);
 		});
 	});
-	it('should success except visible field', function (next) {
+	it("should success except visible field", function (next) {
 		var form = { writer: 'snowman1', text: 'text1', visible: false };
 		request.put(test.url + '/api/threads/' + t1 + '/' + p2).send(form).end(function (err, res) {
 			res.status.should.equal(200);
@@ -168,12 +168,12 @@ describe('updating reply', function () {
 	});
 });
 
-describe('updating recycle bin', function () {
+describe("updating recycle bin", function () {
 	var t1, p1;
-	it('given admin session', function (next) {
+	it("given admin session", function (next) {
 		test.loginAdmin(next);
 	});
-	it('given p11 in recyle bin', function (next) {
+	it("given p11 in recyle bin", function (next) {
 		var form = { categoryId: 40, writer: 'snowman', title: 'title', text: 'text' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
@@ -183,7 +183,7 @@ describe('updating recycle bin', function () {
 			next(err);
 		});
 	});
-	it('should success', function (next) {
+	it("should success", function (next) {
 		var form = { categoryId: 40, writer: 'snowman1', title: 'title1', text: 'text1' };
 		request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
 			res.status.should.equal(200);
@@ -191,10 +191,10 @@ describe('updating recycle bin', function () {
 			next(err);
 		});
 	});
-	it('given user session', function (next) {
+	it("given user session", function (next) {
 		test.loginUser(next);
 	});
-	it('should fail', function (next) {
+	it("should fail", function (next) {
 		var form = { categoryId: 40, writer: 'snowman1', title: 'title1', text: 'text1' };
 		request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
 			res.status.should.equal(200);

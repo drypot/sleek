@@ -19,12 +19,12 @@ before(function () {
 	express.listen();
 });
 
-it('given user session', function (next) {
+it("given user session", function (next) {
 	test.loginUser(next);
 });
 
-describe('uploading none', function () {
-	it('should success', function (next) {
+describe("uploading none", function () {
+	it("should success", function (next) {
 		request
 			.post(test.url + '/api/upload')
 			.end(function (err, res) {
@@ -38,8 +38,8 @@ describe('uploading none', function () {
 	});
 });
 
-describe('uploading one file', function () {
-	it('should success', function (next) {
+describe("uploading one file", function () {
+	it("should success", function (next) {
 		request
 			.post(test.url + '/api/upload')
 			.attach('file', 'server/test/fixture/dummy.txt')
@@ -56,8 +56,8 @@ describe('uploading one file', function () {
 	});
 });
 
-describe('uploading two files', function () {
-	it('should success', function (next) {
+describe("uploading two files", function () {
+	it("should success", function (next) {
 		request
 			.post(test.url + '/api/upload')
 			.attach('file', 'server/test/fixture/dummy.txt')
@@ -77,9 +77,9 @@ describe('uploading two files', function () {
 	});
 });
 
-describe('deleting file', function () {
+describe("deleting file", function () {
 	var files;
-	it('given two uploaded files', function (next) {
+	it("given two uploaded files", function (next) {
 		request
 			.post(test.url + '/api/upload')
 			.attach('file', 'server/test/fixture/dummy.txt')
@@ -93,7 +93,7 @@ describe('deleting file', function () {
 				next();
 			});
 	});
-	it('should success for dummy.txt', function (next) {
+	it("should success for dummy.txt", function (next) {
 		var delFiles = [];
 		delFiles.push(files['dummy.txt']);
 		upload.tmpFileExists(files['dummy.txt']).should.be.true;
@@ -105,7 +105,7 @@ describe('deleting file', function () {
 			next();
 		});
 	});
-	it('should success for dummy2.txt and dummy3.txt', function (next) {
+	it("should success for dummy2.txt and dummy3.txt", function (next) {
 		var delFiles = [];
 		delFiles.push(files['dummy2.txt']);
 		delFiles.push(files['dummy3.txt']);
@@ -120,7 +120,7 @@ describe('deleting file', function () {
 			next();
 		});
 	});
-	it('should success for invalid file', function (next) {
+	it("should success for invalid file", function (next) {
 		var delFiles = [];
 		var filename = 'xxxxx-nonexist';
 		delFiles.push(filename);

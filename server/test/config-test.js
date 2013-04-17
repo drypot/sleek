@@ -3,8 +3,8 @@ var should = require('should');
 var init = require('../main/init');
 var config = require('../main/config');
 
-describe('config with invalid path', function () {
-	it('should fail', function (next) {
+describe("config with invalid path", function () {
+	it("should fail", function (next) {
 		config.options({ reset: true, path: 'config/config-none.json' });
 		init.run(function (err) {
 			should.exists(err);
@@ -14,8 +14,8 @@ describe('config with invalid path', function () {
 	});
 });
 
-describe('config with test: true', function () {
-	it('should success', function (next) {
+describe("config with test: true", function () {
+	it("should success", function (next) {
 		config.options({ reset: true, test: true });
 		init.run(function (err) {
 			should.not.exists(err);
@@ -25,8 +25,8 @@ describe('config with test: true', function () {
 	});
 });
 
-describe('config with valid path', function () {
-	it('should success', function (next) {
+describe("config with valid path", function () {
+	it("should success", function (next) {
 		config.options({ reset: true, path: 'config/config-test.json' });
 		init.run(function (err) {
 			should.not.exists(err);

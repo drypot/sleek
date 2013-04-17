@@ -8,8 +8,8 @@ before(function (next) {
 	init.run(next);
 });
 
-describe('roleByName()', function () {
-	it('can find role by name', function () {
+describe("roleByName()", function () {
+	it("can find role by name", function () {
 		auth.roleByName('user').name.should.equal('user');
 		auth.roleByName('cheater').name.should.equal('cheater');
 		auth.roleByName('admin').name.should.equal('admin');
@@ -17,8 +17,8 @@ describe('roleByName()', function () {
 	});
 });
 
-describe('roleByPassword()', function () {
-	it('can find auth by password', function () {
+describe("roleByPassword()", function () {
+	it("can find auth by password", function () {
 		auth.roleByPassword('1').name.should.equal('user');
 		auth.roleByPassword('2').name.should.equal('cheater');
 		auth.roleByPassword('3').name.should.equal('admin');
@@ -26,12 +26,12 @@ describe('roleByPassword()', function () {
 	})
 });
 
-describe('user role', function () {
+describe("user role", function () {
 	var role;
 	before(function () {
 		role = auth.roleByName('user');
 	});
-	it('should have all category', function () {
+	it("should have all category", function () {
 		var c = role.categories[0];
 		c.should.ok;
 		c.name.should.equal('all');
@@ -39,7 +39,7 @@ describe('user role', function () {
 		c.writable.should.not.ok;
 		c.editable.should.not.ok;
 	});
-	it('should have freetalk', function () {
+	it("should have freetalk", function () {
 		var c = role.categories[100];
 		c.should.ok;
 		c.name.should.equal('freetalk');
@@ -47,18 +47,18 @@ describe('user role', function () {
 		c.writable.should.ok;
 		c.editable.should.not.ok;
 	});
-	it('should not have cheat', function () {
+	it("should not have cheat", function () {
 		var c = role.categories[60];
 		should(!c);
 	});
 });
 
-describe('admin role', function () {
+describe("admin role", function () {
 	var role;
 	before(function () {
 		role = auth.roleByName('admin');
 	});
-	it('should have all category', function () {
+	it("should have all category", function () {
 		var c = role.categories[0];
 		c.should.ok;
 		c.name.should.equal('all');
@@ -66,7 +66,7 @@ describe('admin role', function () {
 		c.writable.should.not.ok;
 		c.editable.should.not.ok;
 	});
-	it('should have freetalk', function () {
+	it("should have freetalk", function () {
 		var c = role.categories[100];
 		c.should.ok;
 		c.name.should.equal('freetalk');
@@ -74,7 +74,7 @@ describe('admin role', function () {
 		c.writable.should.ok;
 		c.editable.should.ok;
 	});
-	it('should have cheat', function () {
+	it("should have cheat", function () {
 		var c = role.categories[60];
 		c.should.ok;
 		c.name.should.equal('cheat');

@@ -35,8 +35,8 @@ before(function(next) {
 
 var url;
 
-describe('/hello', function () {
-	it('should return "hello"', function (next) {
+describe("/hello", function () {
+	it("should return 'hello'", function (next) {
 		request.get(url + '/api/hello', function (err, res) {
 			res.should.status(200);
 			res.should.be.json;
@@ -46,8 +46,8 @@ describe('/hello', function () {
 	});
 });
 
-describe('/test', function () {
-	it('should return "test home"', function (next) {
+describe("/test", function () {
+	it("should return 'test home'", function (next) {
 		request.get(url + '/test', function (err, res) {
 			res.should.status(200);
 			res.type.should.equal
@@ -57,8 +57,8 @@ describe('/test', function () {
 	});
 });
 
-describe('/test/no-action', function () {
-	it('should return not found', function (next) {
+describe("/test/no-action", function () {
+	it("should return not found", function (next) {
 		request.get(url + '/no-action', function (err, res) {
 			res.should.status(404);
 			next();
@@ -66,8 +66,8 @@ describe('/test/no-action', function () {
 	});
 });
 
-describe('/api/send-rc-33', function () {
-	it('should return rc', function (next) {
+describe("/api/send-rc-33", function () {
+	it("should return rc", function (next) {
 		request.get(url + '/api/send-rc-33').end(function (err, res) {
 			res.should.status(200);
 			res.should.be.json;

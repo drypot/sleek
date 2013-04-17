@@ -25,11 +25,11 @@ before(function () {
 
 var t1, p1, p2, t2, p3;
 
-describe('posting', function () {
-	it('given user session', function (next) {
+describe("posting", function () {
+	it("given user session", function (next) {
 		test.loginUser(next);
 	});
-	it('should success for t1, p1', function (next) {
+	it("should success for t1, p1", function (next) {
 		var form = { categoryId: 101, writer: 'snowman', title: '첫번째 글줄', text: 'apple pine banana' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
@@ -39,7 +39,7 @@ describe('posting', function () {
 			next();
 		});
 	});
-	it('should success for p2', function (next) {
+	it("should success for p2", function (next) {
 		var form = { writer: '김순이', text: '둥글게 네모나게 붉게 파랗게' };
 		request.post(test.url + '/api/threads/' + t1).send(form).end(function (err, res) {
 			res.status.should.equal(200);
@@ -48,7 +48,7 @@ describe('posting', function () {
 			next();
 		});
 	});
-	it('should success for t2, p3', function (next) {
+	it("should success for t2, p3", function (next) {
 		var form = { categoryId: 101, writer: '박철수', title: '두번째 글줄', text: '붉은 벽돌길을 걷다보면' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
@@ -60,14 +60,14 @@ describe('posting', function () {
 	});
 });
 
-describe('flushing', function () {
-	it('should success', function (next) {
+describe("flushing", function () {
+	it("should success", function (next) {
 		es.flush(next);
 	});
 });
 
-describe('searching', function () {
-	it('should success for p1', function (next) {
+describe("searching", function () {
+	it("should success for p1", function (next) {
 		request.get(test.url + '/api/search').query({ q: '첫번째' }).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
@@ -77,7 +77,7 @@ describe('searching', function () {
 			next();
 		});
 	});
-	it('should success for p2', function (next) {
+	it("should success for p2", function (next) {
 		request.get(test.url + '/api/search').query({ q: '둥글게 네모나게' }).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
@@ -87,7 +87,7 @@ describe('searching', function () {
 			next();
 		});
 	});
-	it('should success for p3', function (next) {
+	it("should success for p3", function (next) {
 		request.get(test.url + '/api/search').query({ q: '박철수' }).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
@@ -99,16 +99,16 @@ describe('searching', function () {
 	});
 });
 
-describe('dropping es', function () {
-	it('should success', function (next) {
+describe("dropping es", function () {
+	it("should success", function (next) {
 		es.dropIndex(function (err) {
 			setTimeout(next, 300);
 		});
 	});
 });
 
-describe('searching emtpy es', function () {
-	it('should success for p1', function (next) {
+describe("searching emtpy es", function () {
+	it("should success for p1", function (next) {
 		request.get(test.url + '/api/search').query({ q: '첫번째' }).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
@@ -116,7 +116,7 @@ describe('searching emtpy es', function () {
 			next();
 		});
 	});
-	it('should success for p2', function (next) {
+	it("should success for p2", function (next) {
 		request.get(test.url + '/api/search').query({ q: '둥글게 네모나게' }).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
@@ -124,7 +124,7 @@ describe('searching emtpy es', function () {
 			next();
 		});
 	});
-	it('should success for p3', function (next) {
+	it("should success for p3", function (next) {
 		request.get(test.url + '/api/search').query({ q: '박철수' }).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
@@ -135,22 +135,22 @@ describe('searching emtpy es', function () {
 	});
 });
 
-describe('rebuilding', function () {
-	it('should success', function (next) {
+describe("rebuilding", function () {
+	it("should success", function (next) {
 		rebuild.rebuild(next);
 	});
 });
 
-describe('flushing', function () {
-	it('should success', function (next) {
+describe("flushing", function () {
+	it("should success", function (next) {
 		es.flush(function (err) {
 			setTimeout(next, 1000);
 		});
 	});
 });
 
-describe('re-searching', function () {
-	it('should success for p1', function (next) {
+describe("re-searching", function () {
+	it("should success for p1", function (next) {
 		request.get(test.url + '/api/search').query({ q: '첫번째' }).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
@@ -160,7 +160,7 @@ describe('re-searching', function () {
 			next();
 		});
 	});
-	it('should success for p2', function (next) {
+	it("should success for p2", function (next) {
 		request.get(test.url + '/api/search').query({ q: '둥글게 네모나게' }).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
@@ -170,7 +170,7 @@ describe('re-searching', function () {
 			next();
 		});
 	});
-	it('should success for p3', function (next) {
+	it("should success for p3", function (next) {
 		request.get(test.url + '/api/search').query({ q: '박철수' }).end(function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);

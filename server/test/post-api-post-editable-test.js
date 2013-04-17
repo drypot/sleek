@@ -20,12 +20,12 @@ before(function () {
 	express.listen();
 });
 
-describe('post.editable', function () {
-	it('given user session', function (next) {
+describe("post.editable", function () {
+	it("given user session", function (next) {
 		test.loginUser(next);
 	});
 	var t1, p11, p12;
-	it('given t1, p11', function (next) {
+	it("given t1, p11", function (next) {
 		var form = { categoryId: 101, writer: 'snowman', title: 'title 1', text: 'post1' };
 			request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 				res.status.should.equal(200);
@@ -36,7 +36,7 @@ describe('post.editable', function () {
 			}
 		);
 	});
-	it('given p12', function (next) {
+	it("given p12", function (next) {
 		var form = { writer: 'snowman', text: 'post2' };
 		request.post(test.url + '/api/threads/' + t1).send(form).end(function (err, res) {
 			res.status.should.equal(200);
@@ -45,7 +45,7 @@ describe('post.editable', function () {
 			next();
 		});
 	});
-	it('should be true for p11', function (next) {
+	it("should be true for p11", function (next) {
 		request.get(test.url + '/api/threads/' + t1 + '/' + p11, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
@@ -53,7 +53,7 @@ describe('post.editable', function () {
 			next();
 		});
 	});
-	it('should be true for p12', function (next) {
+	it("should be true for p12", function (next) {
 		request.get(test.url + '/api/threads/' + t1 + '/' + p12, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
@@ -61,10 +61,10 @@ describe('post.editable', function () {
 			next();
 		});
 	});
-	it('given new user session', function (next) {
+	it("given new user session", function (next) {
 		test.loginUser(next);
 	});
-	it('should be false for p11', function (next) {
+	it("should be false for p11", function (next) {
 		request.get(test.url + '/api/threads/' + t1 + '/' + p11, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
@@ -72,7 +72,7 @@ describe('post.editable', function () {
 			next();
 		});
 	});
-	it('should be false for p12', function (next) {
+	it("should be false for p12", function (next) {
 		request.get(test.url + '/api/threads/' + t1 + '/' + p12, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
@@ -80,10 +80,10 @@ describe('post.editable', function () {
 			next();
 		});
 	});
-	it('given admin session', function (next) {
+	it("given admin session", function (next) {
 		test.loginAdmin(next);
 	});
-	it('should be true for p11', function (next) {
+	it("should be true for p11", function (next) {
 		request.get(test.url + '/api/threads/' + t1 + '/' + p11, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
@@ -91,7 +91,7 @@ describe('post.editable', function () {
 			next();
 		});
 	});
-	it('should be true for p12', function (next) {
+	it("should be true for p12", function (next) {
 		request.get(test.url + '/api/threads/' + t1 + '/' + p12, function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);

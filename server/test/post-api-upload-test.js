@@ -25,11 +25,11 @@ before(function () {
 
 var t1, p1, files;
 
-describe('preparing t1', function () {
-	it('given user session', function (next) {
+describe("preparing t1", function () {
+	it("given user session", function (next) {
 		test.loginUser(next);
 	});
-	it('should success', function (next) {
+	it("should success", function (next) {
 		var form = { categoryId: 101, writer: 'snowman', title: 'title', text: 'text' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
@@ -40,8 +40,8 @@ describe('preparing t1', function () {
 	});
 });
 
-describe('saving dummy.txt, dummy2.txt', function () {
-	it('given dummy.txt, dummy2.txt', function (next) {
+describe("saving dummy.txt, dummy2.txt", function () {
+	it("given dummy.txt, dummy2.txt", function (next) {
 		request
 			.post(test.url + '/api/upload')
 			.attach('file', 'server/test/fixture/dummy.txt')
@@ -56,7 +56,7 @@ describe('saving dummy.txt, dummy2.txt', function () {
 			}
 		);
 	});
-	it('should success', function (next) {
+	it("should success", function (next) {
 		var form = { writer: 'snowman', text: 'text', files: files };
 		request.post(test.url + '/api/threads/' + t1).send(form).end(function (err, res) {
 			res.status.should.equal(200);
@@ -76,8 +76,8 @@ describe('saving dummy.txt, dummy2.txt', function () {
 			});
 		});
 	});
-	describe('deleting dummy.txt', function () {
-		it('should success', function (next) {
+	describe("deleting dummy.txt", function () {
+		it("should success", function (next) {
 			var form = { writer: 'snowman', text: 'text', delFiles: [ 'dummy.txt' ] };
 			request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
 				res.status.should.equal(200);
@@ -95,8 +95,8 @@ describe('saving dummy.txt, dummy2.txt', function () {
 			});
 		});
 	});
-	describe('saving dummy3.txt again', function () {
-		it('given dummy3.txt', function (next) {
+	describe("saving dummy3.txt again", function () {
+		it("given dummy3.txt", function (next) {
 			request
 				.post(test.url + '/api/upload')
 				.attach('file', 'server/test/fixture/dummy3.txt')
@@ -108,7 +108,7 @@ describe('saving dummy.txt, dummy2.txt', function () {
 				}
 			);
 		});
-		it('should success', function (next) {
+		it("should success", function (next) {
 			var form = { writer: 'snowman', text: 'text', files: files };
 			request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
 				res.status.should.equal(200);
@@ -124,8 +124,8 @@ describe('saving dummy.txt, dummy2.txt', function () {
 			});
 		});
 	});
-	describe('deleting dummy2.txt, dummy3.txt', function () {
-		it('should success', function (next) {
+	describe("deleting dummy2.txt, dummy3.txt", function () {
+		it("should success", function (next) {
 			var form = { writer: 'snowman', text: 'text', delFiles: [ 'dummy2.txt', 'dummy3.txt' ] };
 			request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
 				res.status.should.equal(200);
@@ -143,8 +143,8 @@ describe('saving dummy.txt, dummy2.txt', function () {
 	});
 });
 
-describe('saving non-existing file', function () {
-	it('should success', function (next) {
+describe("saving non-existing file", function () {
+	it("should success", function (next) {
 		var form = { writer: 'snowman', text: 'text', files: { 'abc.txt': 'xxxxxxxx' } };
 		request.post(test.url + '/api/threads/' + t1).send(form).end(function (err, res) {
 			res.status.should.equal(200);
@@ -154,8 +154,8 @@ describe('saving non-existing file', function () {
 	});
 });
 
-describe('saving file with invalid name', function () {
-	it('given dummy.txt upload', function (next) {
+describe("saving file with invalid name", function () {
+	it("given dummy.txt upload", function (next) {
 		request
 			.post(test.url + '/api/upload')
 			.attach('file', 'server/test/fixture/dummy.txt')
@@ -167,7 +167,7 @@ describe('saving file with invalid name', function () {
 			}
 		);
 	});
-	it('should success', function (next) {
+	it("should success", function (next) {
 		var form = { writer: 'snowman', text: 'text', files: { './../.../newName.txt': files['dummy.txt'] } };
 		request.post(test.url + '/api/threads/' + t1).send(form).end(function (err, res) {
 			res.status.should.equal(200);
@@ -186,8 +186,8 @@ describe('saving file with invalid name', function () {
 	});
 });
 
-describe('saving file with invalid name 2', function () {
-	it('given dummy.txt upload', function (next) {
+describe("saving file with invalid name 2", function () {
+	it("given dummy.txt upload", function (next) {
 		request
 			.post(test.url + '/api/upload')
 			.attach('file', 'server/test/fixture/dummy.txt')
@@ -199,7 +199,7 @@ describe('saving file with invalid name 2', function () {
 			}
 		);
 	});
-	it('should success', function (next) {
+	it("should success", function (next) {
 		var form = { writer: 'snowman', text: 'text', files: { './../.../mygod#1 그리고 한글.txt': files['dummy.txt'] } };
 		request.post(test.url + '/api/threads/' + t1).send(form).end(function (err, res) {
 			res.status.should.equal(200);
@@ -218,8 +218,8 @@ describe('saving file with invalid name 2', function () {
 	});
 });
 
-describe('saving file with invalid name 3', function () {
-	it('given dummy.txt upload', function (next) {
+describe("saving file with invalid name 3", function () {
+	it("given dummy.txt upload", function (next) {
 		request
 			.post(test.url + '/api/upload')
 			.attach('file', 'server/test/fixture/dummy.txt')
@@ -231,7 +231,7 @@ describe('saving file with invalid name 3', function () {
 			}
 		);
 	});
-	it('should success', function (next) {
+	it("should success", function (next) {
 		var form = { writer: 'snowman', text: 'text', files: { './../.../mygod#2 :?<>|.txt': files['dummy.txt'] } };
 		request.post(test.url + '/api/threads/' + t1).send(form).end(function (err, res) {
 			res.status.should.equal(200);

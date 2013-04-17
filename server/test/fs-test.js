@@ -5,7 +5,7 @@ var fs2 = require('../main/fs');
 
 var base = 'tmp';
 
-describe('mkdirs', function () {
+describe("mkdirs", function () {
 	before(function () {
 		try {
 			fs.rmdirSync(base + '/sub1/sub2');
@@ -20,20 +20,20 @@ describe('mkdirs', function () {
 			should(err.code === 'ENOENT');
 		}
 	});
-	it('can make sub1', function () {
+	it("can make sub1", function () {
 		fs.existsSync(base + '/sub1').should.be.false;
 		fs2.mkdirs([base, 'sub1']).should.equal(base + '/sub1');
 		fs.existsSync(base + '/sub1').should.be.true;
 	});
-	it('can make sub2', function () {
+	it("can make sub2", function () {
 		fs.existsSync(base + '/sub1/sub2').should.be.false;
 		fs2.mkdirs([base, 'sub1', 'sub2']).should.equal(base + '/sub1/sub2');
 		fs.existsSync(base + '/sub1/sub2').should.be.true;
 	});
 });
 
-describe('safeFilename', function () {
-	it('should success', function () {
+describe("safeFilename", function () {
+	it("should success", function () {
 		var table = [
 			[ "`", "`" ], [ "~", "~" ],
 			[ "!", "!" ], [ "@", "@" ], [ "#", "#" ], [ "$", "$" ],	[ "%", "%" ],

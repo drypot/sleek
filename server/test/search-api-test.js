@@ -22,7 +22,7 @@ before(function () {
 	express.listen();
 });
 
-describe('searching', function () {
+describe("searching", function () {
 
 	var docs = [
 		{ categoryId: 100, writer: 'snowman', title: 'title 1', text: 'apple orange banana' },
@@ -35,20 +35,20 @@ describe('searching', function () {
 		{ categoryId:  40, writer: 'admin',   title: 'title 8', text: 'text 8' }
 	];
 
-	it('given no session', function (next) {
+	it("given no session", function (next) {
 		test.logout(next);
 	});
-	it('should fail', function (next) {
+	it("should fail", function (next) {
 		request.get(test.url + '/api/search', function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.NOT_AUTHENTICATED);
 			next();
 		});
 	});
-	it('given admin session', function (next) {
+	it("given admin session", function (next) {
 		test.loginAdmin(next);
 	});
-	it('should success', function (next) {
+	it("should success", function (next) {
 		request.get(test.url + '/api/search', function (err, res) {
 			res.status.should.equal(200);
 			res.body.rc.should.equal(rcs.SUCCESS);
@@ -57,7 +57,7 @@ describe('searching', function () {
 			next();
 		});
 	});
-	it('given threads', function (next) {
+	it("given threads", function (next) {
 		var i = 0;
 		var len = docs.length;
 		(function insert() {
@@ -75,11 +75,11 @@ describe('searching', function () {
 			});
 		})();
 	});
-	it('given user session', function (next) {
+	it("given user session", function (next) {
 		test.loginUser(next);
 	});
-	describe('user name', function () {
-		it('should success', function (next) {
+	describe("user name", function () {
+		it("should success", function (next) {
 			request.get(test.url + '/api/search').query({ q: 'snowman' }).end(function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(rcs.SUCCESS);
@@ -92,8 +92,8 @@ describe('searching', function () {
 			});
 		});
 	});
-	describe('title', function () {
-		it('should success', function (next) {
+	describe("title", function () {
+		it("should success", function (next) {
 			request.get(test.url + '/api/search').query({ q: 'title 4' }).end(function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(rcs.SUCCESS);
@@ -104,8 +104,8 @@ describe('searching', function () {
 			});
 		});
 	});
-	describe('text', function () {
-		it('should success', function (next) {
+	describe("text", function () {
+		it("should success", function (next) {
 			request.get(test.url + '/api/search').query({ q: 'apple orange' }).end(function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(rcs.SUCCESS);
@@ -116,7 +116,7 @@ describe('searching', function () {
 				next();
 			});
 		});
-		it('should success', function (next) {
+		it("should success", function (next) {
 			request.get(test.url + '/api/search').query({ q: 'apple banana' }).end(function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(rcs.SUCCESS);
@@ -127,8 +127,8 @@ describe('searching', function () {
 			});
 		});
 	});
-	describe('hangul', function () {
-		it('should success', function (next) {
+	describe("hangul", function () {
+		it("should success", function (next) {
 			request.get(test.url + '/api/search').query({ q: '둥글' }).end(function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(rcs.SUCCESS);
@@ -141,11 +141,11 @@ describe('searching', function () {
 			});
 		});
 	});
-	describe('recycle bin', function () {
-		it('given user session', function (next) {
+	describe("recycle bin", function () {
+		it("given user session", function (next) {
 			test.loginUser(next);
 		});
-		it('should return no results', function (next) {
+		it("should return no results", function (next) {
 			request.get(test.url + '/api/search').query({ q: 'admin' }).end(function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(rcs.SUCCESS);
@@ -154,10 +154,10 @@ describe('searching', function () {
 				next();
 			});
 		});
-		it('given admin session', function (next) {
+		it("given admin session", function (next) {
 			test.loginAdmin(next);
 		});
-		it('should return results', function (next) {
+		it("should return results", function (next) {
 			request.get(test.url + '/api/search').query({ q: 'admin' }).end(function (err, res) {
 				res.status.should.equal(200);
 				res.body.rc.should.equal(rcs.SUCCESS);
