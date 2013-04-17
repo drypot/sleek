@@ -58,7 +58,7 @@ init.add(function (next) {
 		};
 		request.post(url).send(schema).end(function (err, res) {
 			if (err) return next(err);
-			if (res.error) return next(res.body);
+			//if (res.error) return next(res.body); // Skip 400 IndexAlreadyExistsException
 			next(null, res);
 		});
 	};

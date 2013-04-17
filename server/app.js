@@ -1,7 +1,11 @@
 
 process.on('uncaughtException', function (err) {
 	console.error('UNCAUGHT EXCEPTION');
-	console.error(err.stack);
+	if (err.stack) {
+		console.error(err.stack);
+	} else {
+		console.log(require('util').inspect(err));
+	}
 });
 
 var configPath;
@@ -15,22 +19,17 @@ for (var i = 2; i < process.argv.length; i++) {
 	}
 }
 
-var config = require('./main/config')({ path: configPath });
-var auth = require('./main/auth')({ config: config });
-var upload = require('./main/upload')({ config: config });
+var init = require('./main/init');
+var config = require('./main/config').options({ path: configPath });
+var express = require('./main/express');
 
-require('./main/mongo')({ config: config }, function (mongo) {
-	require('./main/es')({ config: config }, function (es) {
-		var app = require('express')();
-		require('./main/express')({ config: config, auth: auth, store: 'redis', app: app });
-		require('./main/upload-api')({ upload: upload, app: app });
-		require('./main/hello-api')({ app: app });
-		app.listen(config.port);
-		console.log("express: %d", config.port);
-	});
+require('./main/post-api');
+require('./main/search-api');
+require('./main/upload-api');
+require('./main/session-api');
+require('./main/hello-api');
+
+init.run(function (err) {
+	if (err) throw err;
+	express.listen();
 });
-
-//require('./main/session-api.js');
-//require('./main/upload-api.js');
-//require('./main/post-api.js');
-//require('./main/search-api.js');
