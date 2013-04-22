@@ -1,0 +1,118 @@
+!!! 5
+html
+	head
+		meta(charset='utf-8')
+
+		if locals.title
+			title #{title} - #{siteTitle}
+		else
+			title #{siteTitle}
+
+		meta(name='viewport', content='width=device-width, initial-scale=1.0')
+		meta(name='description', content='')
+		meta(name='author', content='')
+
+		link(rel='shortcut icon', href='/image/favicon1.ico', type='image/x-icon')
+
+		link(rel='stylesheet', href='/lib/bootstrap/css/bootstrap.css')
+		link(rel='stylesheet', href='/css/l.css')
+
+		script(src='/lib/es5-shim.min.js')
+		script(src='/lib/json2.js')
+		script(src='/lib/jquery.min.js')
+		script(src='/lib/jquery.simpleplaceholder.js')
+		script(src='/lib/bootstrap/js/bootstrap.min.js')
+		script(src='/lib/superagent.js')
+		script(src='/lib/spin.min.js')
+
+		//
+			<script src="/lib/URI.js"></script>
+			script(src='/js/l-b.js')
+			script(src='/js/msg-b.js')
+			script(src='/js/session-b.js')
+			script(src='/js/post-b.js')
+			<script src="js/search.js"></script>
+
+	body
+		// navbar
+		.navbar.navbar-fixed-top
+			.navbar-inner
+				.container-fluid
+					if role
+						a.btn.btn-navbar(data-toggle='collapse', data-target='.nav-collapse')
+							span.icon-bar
+							span.icon-bar
+							span.icon-bar
+						ul.nav
+							li
+								a(href='/thread')= siteTitle
+							li.divider-vertical
+							li
+								a(href='/logout') logout
+							// all 카테고리 때문에 New 버튼 표시를 분기하는 것은 쉽지 않다
+							li.divider-vertical
+							li
+								button.btn.btn-primary(onclick="location='/thread/new?c={category.id}'; return false;") New
+						.nav-collapse
+							form.navbar-search.pull-right
+								input.input-large.search-query(type='text', placeholder='Search')
+					else
+						ul.nav
+							li
+								a(href='/thread')= siteTitle
+
+		// category
+		.container-fluid
+			.row-fluid
+				.span2
+					if locals.category
+						#category.well.well-small.hidden-phone(style='margin-top: 100px;')
+							ul.nav.nav-list
+								| {#role.readableCategory curCategoryId=category.id}
+								| {@if cond="{id} === {curCategoryId}"}
+								li.active
+									| {:else}
+									li
+										| {/if}
+										| {@if cond="{id} === 0"}
+										a(href='/thread') {name}
+										| {:else}
+										a(href='/thread?c={id}') {name}
+										| {/if}
+									| {?sep}
+									| {@sep}
+									li.divider
+									| {/sep}
+									| {/sep}
+									| {/role.readableCategory}
+						#category-phone.visible-phone
+							.btn-group
+								a.btn.dropdown-toggle(data-toggle='dropdown', href='#')
+									| {category.name}{~s}
+									span.caret
+								ul.dropdown-menu
+									| {#role.readableCategory}
+									li
+										| {@if cond="{id} === 0"}
+										a(href='/thread') {name}
+										| {:else}
+										a(href='/thread?c={id}') {name}
+										| {/if}
+									| {?sep}
+									| {@sep}
+									li.divider
+									| {/sep}
+									| {/sep}
+									| {/role.readableCategory}
+				.span10
+					h1.page-header(style='border: 0;') #{title}
+					block content
+
+		#error-modal.modal.hide
+			.modal-header
+				h3
+			.modal-body
+				p
+			.modal-footer
+				a.btn.btn-primary(href='#', data-dismiss='modal') Close
+

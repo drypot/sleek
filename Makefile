@@ -1,3 +1,3 @@
 
 css:
-	lessc html/less/l.less > html/public/css/l.css
+	lessc client/less/l.less > client/public/css/l.css

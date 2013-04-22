@@ -24,9 +24,12 @@ init.add(function () {
 
 	app.disable('x-powered-by');
 
-//	app.engine('dust', consolidate.dust); // extention to view engine mapping
-//	app.set('view engine', 'dust'); // default view engine
-//	app.set('views', process.cwd() + '/client/dust'); // view root
+	app.engine('jade', require('jade').renderFile);
+	app.set('view engine', 'jade'); // default view engine
+	app.set('views', process.cwd() + '/client/jade'); // view root
+	if ('development' == app.get('env')) {
+		app.locals.pretty = true;
+	}
 
 	app.locals.siteTitle = config.data.siteTitle;
 
@@ -56,13 +59,13 @@ init.add(function () {
 	});
 
 	app.get('/', function (req, res) {
-		res.render('TODO: home');
-//		if (res.locals.role) {
-//			res.redirect('/thread');
-//		} else {
-//			res.locals.title = 'Login';
-//			res.render('index');
-//		}
+		if (res.locals.role) {
+			res.redirect('/threads');
+		} else {
+			res.render('index', {
+				title: 'Login'
+			});
+		}
 	});
 
 	app.use(express.errorHandler());
