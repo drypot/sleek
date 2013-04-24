@@ -14,10 +14,10 @@ html
 
 		link(rel='shortcut icon', href='/image/favicon1.ico', type='image/x-icon')
 
-		link(rel='stylesheet', href='/lib/bootstrap/css/bootstrap.css')
-		link(rel='stylesheet', href='/css/l.css')
+		link(rel='stylesheet', href='/lib/bootstrap/css/bootstrap.min.css')
+		link(rel='stylesheet', href='/css/base.css')
 
-		script(src='/lib/es5-shim.min.js')
+		//script(src='/lib/es5-shim.min.js')
 		script(src='/lib/json2.js')
 		script(src='/lib/jquery.min.js')
 		script(src='/lib/jquery.simpleplaceholder.js')
@@ -37,34 +37,36 @@ html
 		// navbar
 		.navbar.navbar-fixed-top
 			.navbar-inner
-				.container-fluid
-					if role
-						a.btn.btn-navbar(data-toggle='collapse', data-target='.nav-collapse')
-							span.icon-bar
-							span.icon-bar
-							span.icon-bar
-						ul.nav
-							li
-								a(href='/thread')= siteTitle
-							li.divider-vertical
-							li
-								a(href='/logout') logout
-							// all 카테고리 때문에 New 버튼 표시를 분기하는 것은 쉽지 않다
-							li.divider-vertical
-							li
-								button.btn.btn-primary(onclick="location='/thread/new?c={category.id}'; return false;") New
-						.nav-collapse
-							form.navbar-search.pull-right
-								input.input-large.search-query(type='text', placeholder='Search')
-					else
+				.container
+					.col-offset-2
+						if role
+							button.navbar-toggle(type='button', data-toggle='collapse', data-target='.navbar-responsive-collapse')
+								span.icon-bar
+								span.icon-bar
+								span.icon-bar
+							ul.nav
+								li
+									a(href='/thread')= siteTitle
+								li.divider
+								li
+									a(href='/logout') logout
+								// all 카테고리 때문에 New 버튼 표시를 분기하는 것은 쉽지 않다
+								li.divider
+								li
+									button.btn.btn-primary(onclick="location='/thread/new?c={category.id}'; return false;") New
+							.nav-collapse.collapse
+								form.navbar-form.pull-right
+										input(type='text', placeholder='Search')
+										button.btn(type="submit") Submit
+						else
 						ul.nav
 							li
 								a(href='/thread')= siteTitle
 
 		// category
-		.container-fluid
-			.row-fluid
-				.span2
+		.container
+			.row
+				.col-span-2
 					if locals.category
 						#category.well.well-small.hidden-phone(style='margin-top: 100px;')
 							ul.nav.nav-list
@@ -104,15 +106,19 @@ html
 									| {/sep}
 									| {/sep}
 									| {/role.readableCategory}
-				.span10
-					h1.page-header(style='border: 0;') #{title}
+				.col-span-10
+					.page-header
+						h1(style='border: 0;') #{title}
 					block content
 
-		#error-modal.modal.hide
-			.modal-header
-				h3
-			.modal-body
-				p
-			.modal-footer
-				a.btn.btn-primary(href='#', data-dismiss='modal') Close
-
+		#error-modal.modal
+			.modal-dialog
+				.modal-content
+					.modal-header
+						button.close(type='button', data-dismiss='modal', aria-hidden='true') ×
+						h4.modal-title Modal title
+					.modal-body
+						p
+					.modal-footer
+						a.btn Close
+						a.btn.btn-primary Save changes
