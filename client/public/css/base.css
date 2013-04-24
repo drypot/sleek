@@ -1,0 +1,56 @@
+body {
+  padding-top: 50px;
+  padding-bottom: 40px;
+}
+.thread-list span {
+  margin-right: 5px;
+}
+.thread-list-phone small {
+  margin-right: 10px;
+}
+.thread-list-phone td {
+  width: 700px;
+}
+.thread-list-phone span {
+  margin-right: 10px;
+}
+.posts {
+  border-bottom: 1px solid #ddd;
+}
+.posts .post {
+  border-top: 1px solid #ddd;
+}
+.posts .post .files {
+  clear: both;
+  margin-bottom: 1.5em;
+}
+.posts .post .files .file {
+  margin-bottom: 0.3em;
+}
+.posts .post .files .file .img {
+  margin-top: 0.3em;
+  margin-bottom: 0.8em;
+}
+.posts .post .writer {
+  margin: 0.4em 2em 1.5em 0em;
+  float: left;
+  font-weight: bold;
+}
+.posts .post .created {
+  margin: 0.4em 2em 1.5em 0em;
+  float: left;
+  font-size: 85%;
+}
+.posts .post .text {
+  clear: both;
+  margin: 0em;
+  margin-bottom: 1.5em;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+.posts .post .text img {
+  vertical-align: top;
+}
+.posts .post .cmd {
+  margin-bottom: 1em;
+}
