@@ -4,95 +4,6 @@ var l = {};
 
 (function () {
 
-	var func = {};
-
-	reset();
-
-	l.init = function (pri, func0) {
-		var funcAtPri;
-
-		if (_.isFunction(pri)) {
-			func0 = pri;
-			pri = 0;
-		}
-
-		funcAtPri = func[pri];
-		if (!funcAtPri) {
-			funcAtPri = func[pri] = [];
-		}
-
-		funcAtPri.push(func0);
-	};
-
-	l.init.reset = reset;
-
-	function reset() {
-		func = {};
-	}
-
-	l.init.run = function (next) {
-		var all = [];
-
-		_.each(_.keys(func).sort(), function (pri) {
-			all = all.concat(func[pri]);
-		});
-
-		var i = 0, len = all.length;
-		while (i < len) {
-			all[i]();
-			i++;
-		}
-	};
-
-	$(function () {
-		l.init.run();
-	});
-
-})();
-
-l.init(function () {
-
-	l.isObject = function (obj) {
-		return Object.prototype.toString.call(obj) === '[object Object]';
-	};
-
-	l.value = function (obj, prop, def) {
-		if (!obj) return def;
-		if (!_.has(obj, prop)) return def;
-		return obj[prop];
-	};
-
-	l.int = function (obj, prop, def, min, max) {
-		if (!obj) return def;
-		if (!_.has(obj, prop)) return def;
-		var i = parseInt(obj[prop]);
-		if (isNaN(i)) return def;
-		if (min === undefined) return i;
-		return i > max ? max : i < min ? min : i;
-	};
-
-	l.string = function (obj, prop, def) {
-		if (!obj) return def;
-		if (!_.has(obj, prop)) return def;
-		return String(obj[prop]).trim();
-	};
-
-	l.bool = function (obj, prop, def) {
-		if (!obj) return def;
-		if (!_.has(obj, prop)) return def;
-		var v = obj[prop];
-		return v === true || v === 'true';
-	};
-
-	l.merge = function (tar, src, props) {
-		_.each(props, function (p) {
-			if (src.hasOwnProperty(p)) {
-				tar[p] = src[p];
-			}
-		});
-		return tar;
-	}
-
 	var space = /^\s+|\s+$/g;
 
 	if (!String.prototype.trim) {
@@ -117,9 +28,9 @@ l.init(function () {
 		}
 	}
 
-});
+})();
 
-l.init(function () {
+(function () {
 
 	// global var
 
@@ -130,7 +41,7 @@ l.init(function () {
 //	l.url = URI(location.toString());
 //	l.query = l.url.query(true);
 
-});
+})();
 
 l.init(function() {
 
