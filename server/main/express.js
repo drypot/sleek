@@ -62,9 +62,7 @@ init.add(function () {
 		if (res.locals.role) {
 			res.redirect('/threads');
 		} else {
-			res.render('index', {
-				title: 'Login'
-			});
+			res.render('index');
 		}
 	});
 

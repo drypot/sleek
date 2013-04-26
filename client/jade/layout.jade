@@ -3,10 +3,7 @@ html
 	head
 		meta(charset='utf-8')
 
-		if locals.title
-			title #{title} - #{siteTitle}
-		else
-			title #{siteTitle}
+		block title
 
 		meta(name='viewport', content='width=device-width, initial-scale=1.0')
 		meta(name='description', content='')
@@ -59,7 +56,7 @@ html
 					else
 						ul.nav
 							li
-								a(href='/thread')= siteTitle
+								a(href='/')= siteTitle
 
 		// category
 		.container
@@ -105,9 +102,7 @@ html
 									| {/sep}
 									| {/role.readableCategory}
 				.col-span-10
-					if locals.title
-						.page-header
-							h1(style='border: 0;') #{title}
+
 					block content
 
 		#error-modal.modal

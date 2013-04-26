@@ -1,5 +1,8 @@
 extends layout
 
+block title
+	title #{siteTitle}
+
 block content
 	script
 		init.add(function () {
@@ -7,6 +10,9 @@ block content
 		});
 
 	#content
+		.page-header
+			h1 Login
+
 		form
 			.control-group.row
 				label.col-span-4 Password
@@ -14,6 +20,5 @@ block content
 			.control-group.checkbox
 				label Remember
 					input(name='remember', type='checkbox')
-			.control-group
-				button.btn.btn-primary(name='submit', type='submit') Submit
-
+			.control-group.submit-group
+				button.btn.btn-primary(name='submit', type='submit') Sign in

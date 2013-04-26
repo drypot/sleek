@@ -2,6 +2,9 @@ body {
   padding-top: 50px;
   padding-bottom: 40px;
 }
+.submit-group {
+  margin-top: 25px;
+}
 .thread-list span {
   margin-right: 5px;
 }
