@@ -1,17 +1,20 @@
-l.session = {};
 
 init.add(function () {
 
-	l.session.initLoginPage = function () {
+	window.session = {};
+
+	session.initLoginPage = function () {
 		trySavedPassword(function (err, success) {
 			if (err) {
-				l.systemError(err);
-			} else if (success) {
-				location = '/thread';
-			} else {
-				l.$content.find('[name=submit]').click(sendLoginForm);
-				l.$content.find('[placeholder]').simplePlaceholder();
+				errorDialog.system(err);
+				return;
 			}
+			if (success) {
+				location = '/thread';
+				return;
+			}
+			$content.find('[name=submit]').click(sendLoginForm);
+			//$content.find('[placeholder]').simplePlaceholder();
 		});
 	};
 
@@ -19,45 +22,48 @@ init.add(function () {
 		var pw = localStorage.getItem('password');
 		if (!pw) {
 			next(null, false);
-		} else {
-			console.log('trying saved password,');
-			request.post(url + '/api/sessions').send({ password: pw }).endEx(function (err, res) {
-				if (err) {
-					next(err, false);
-				} else {
-					next(null, res.body.rc === rcs.SUCCESS)
-				}
-			});
+			return;
 		}
+		console.log('trying saved password,');
+		request.post('/api/sessions').send({ password: pw }).end(function (err, res) {
+			if (err) {
+				next(err, false);
+				return;
+			}
+			next(null, res.body.rc === rcs.SUCCESS);
+		});
 	}
 
 	function sendLoginForm() {
-		var $password = l.$content.find('[name=password]');
-		var $remember = l.$content.find('[name=remember]');
-		l.form.clearAlert(l.$content);
-		request.post(url + '/api/sessions').send({ password: $password.val() }).endEx(function (err, res) {
+		var $password = $content.find('[name=password]');
+		var $remember = $content.find('[name=remember]');
+		alerts.clear($content);
+		request.post('/api/sessions').send({ password: $password.val() }).end(function (err, res) {
 			if (err) {
-				l.systemError(err);
-			} else if (res.body.rc !== rcs.SUCCESS) {
-				l.form.addAlert($password, l.rcMsg[res.body.rc]);
-			} else {
-				if ($remember.prop('checked')) {
-					localStorage.setItem('password', $password.val());
-				} else {
-					localStorage.removeItem('password');
-				}
-				location = '/thread';
+				errorDialog.system(err);
+				return;
 			}
+			if (res.body.rc !== rcs.SUCCESS) {
+				alerts.add($password, msgs[res.body.rc]);
+				return;
+			}
+			console.log('333');
+			if ($remember.prop('checked')) {
+				localStorage.setItem('password', $password.val());
+			} else {
+				localStorage.removeItem('password');
+			}
+			location = '/thread';
 		});
 		return false;
 	}
 
-});
-
-init.add(function () {
-
-	l.session.logout = function () {
-		request.del('/api/sessions').end(function (res) {
+	session.logout = function () {
+		request.del('/api/sessions').end(function (err, res) {
+			if (err) {
+				errorDialog.system(err);
+				return;
+			}
 			localStorage.removeItem('password');
 			console.log('logged out');
 			location = '/';

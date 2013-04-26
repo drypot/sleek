@@ -8,7 +8,7 @@ init.add(function () {
 
 		return;
 
-		var $posts = l.$content.find('.posts');
+		var $posts = $content.find('.posts');
 
 		//var imgFile = /.*\.(jpg|jpeg|gif|png)$/i;
 
@@ -133,12 +133,12 @@ init.add(function() {
 			title: $title.val(),
 			text: $text.val()
 		}
-		l.form.clearAlert(l.$content);
+		l.form.clearAlert($content);
 		showSending();
-		request.post(url + '/api/threads').send(post).endEx(function (err, res) {
+		request.post('/api/threads').send(post).end(function (err, res) {
 			showSend();
 			if (err) {
-				l.systemError(err);
+				errorDialog.system(err);
 			} else if (res.body.rc === rcs.INVALID_DATA) {
 				_.each(res.body.error, function (error, field) {
 					_.each(error, function (error) {

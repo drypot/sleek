@@ -20,50 +20,46 @@ html
 		script(src='/lib/es5-shim.min.js')
 		script(src='/lib/json2.js')
 		script(src='/lib/jquery.min.js')
-		script(src='/lib/jquery.simpleplaceholder.js')
+		//script(src='/lib/jquery.simpleplaceholder.js')
 		script(src='/lib/bootstrap/js/bootstrap.min.js')
 		script(src='/lib/superagent.js')
 		script(src='/lib/spin.min.js')
+		//script(src='/lib/URI.js')
 
 		script(src='/js/base.js')
 		script(src='/js/ui.js')
-
-//
-			<script src="/lib/URI.js"></script>
-			script(src='/js/msg-b.js')
-			script(src='/js/session-b.js')
-			script(src='/js/post-b.js')
-			<script src="js/search.js"></script>
+		script(src='/js/session.js')
+		//script(src='/js/post.js')
+		//script(src='/js/search.js')
 
 	body
 		// navbar
 		.navbar.navbar-fixed-top
-			.navbar-inner
-				.container
-					.col-offset-2
-						if role
-							button.navbar-toggle(type='button', data-toggle='collapse', data-target='.navbar-responsive-collapse')
-								span.icon-bar
-								span.icon-bar
-								span.icon-bar
-							ul.nav
-								li
-									a(href='/thread')= siteTitle
-								li.divider
-								li
-									a(href='/logout') logout
-								// all 카테고리 때문에 New 버튼 표시를 분기하는 것은 쉽지 않다
-								li.divider
-								li
-									button.btn.btn-primary(onclick="location='/thread/new?c={category.id}'; return false;") New
-							.nav-collapse.collapse
-								form.navbar-form.pull-right
-										input(type='text', placeholder='Search')
-										button.btn(type="submit") Submit
-						else
-							ul.nav
-								li
-									a(href='/thread')= siteTitle
+			.container
+				.col-offset-2
+					if role
+						button.navbar-toggle(type='button', data-toggle='collapse', data-target='.navbar-responsive-collapse')
+							span.icon-bar
+							span.icon-bar
+							span.icon-bar
+						ul.nav
+							li
+								a(href='/thread')= siteTitle
+							li.divider
+							li
+								a(href='/logout') logout
+							// all 카테고리 때문에 New 버튼 표시를 분기하는 것은 쉽지 않다
+							li.divider
+							li
+								button.btn.btn-primary(onclick="location='/thread/new?c={category.id}'; return false;") New
+						.nav-collapse.collapse
+							form.navbar-form.pull-right
+									input(type='text', placeholder='Search')
+									button.btn(type="submit") Submit
+					else
+						ul.nav
+							li
+								a(href='/thread')= siteTitle
 
 		// category
 		.container

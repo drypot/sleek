@@ -2,20 +2,18 @@ extends layout
 
 block content
 	script
-
-	//-
-		l.init(function () {
-			l.session.initLoginPage();
-			});
+		init.add(function () {
+			session.initLoginPage();
+		});
 
 	#content
 		form
-			.control-group
-				input.span3(name='password', type='password', placeholder='password')
-			.control-group
-				label.checkbox
+			.control-group.row
+				label.col-span-4 Password
+					input(name='password', type='password')
+			.control-group.checkbox
+				label Remember
 					input(name='remember', type='checkbox')
-					span remember password
 			.control-group
-				button.btn(name='submit', type='submit') Submit
+				button.btn.btn-primary(name='submit', type='submit') Submit
 

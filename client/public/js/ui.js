@@ -23,24 +23,22 @@ init.add(function() {
 
 init.add(function () {
 
-	window.spinner = new Spinner({
-		lines: 11, // The number of lines to draw
-		length: 5, // The length of each line
-		width: 2, // The line thickness
-		radius: 6, // The radius of the inner circle
-		rotate: 0, // The rotation offset
-		color: '#000', // #rgb or #rrggbb
-		speed: 1, // Rounds per second
-		trail: 60, // Afterglow percentage
-		shadow: false, // Whether to render a shadow
-		hwaccel: false, // Whether to use hardware acceleration
-		className: 'spinner', // The CSS class to assign to the spinner
-		zIndex: 2e9, // The z-index (defaults to 2000000000)
-		top: 'auto', // Top position relative to parent in px
-		left: 'auto' // Left position relative to parent in px
-	});
+	window.alerts = {};
+
+	alerts.clear = function ($content) {
+		$content.find('.alert').remove();
+		$content.find('.has-error').removeClass('has-error');
+	};
+
+	alerts.add = function ($control, msg) {
+		var $alert = $('<div>').addClass('alert alert-error').text(msg);
+		var $group = $control.closest('div');
+		$group.addClass('has-error');
+		$group.before($alert);
+	};
 
 });
+
 
 init.add(function () {
 
@@ -50,25 +48,6 @@ init.add(function () {
 	});
 
 });
-
-
-//init.add(function () {
-//
-//	l.form = {};
-//
-//	l.form.clearAlert = function ($content) {
-//		$content.find('.alert').remove();
-//		$content.find('.error').removeClass('error');
-//	};
-//
-//	l.form.addAlert = function ($control, msg) {
-//		var $alert = $('<div>').addClass('alert alert-error').text(msg);
-//		$control.parent().addClass('error');
-//		$control.parent().before($alert);
-//	};
-//
-//});
-//
 
 //
 //init.add(function () {
@@ -104,3 +83,23 @@ init.add(function () {
 //
 //});
 
+init.add(function () {
+
+	window.spinner = new Spinner({
+		lines: 11, // The number of lines to draw
+		length: 5, // The length of each line
+		width: 2, // The line thickness
+		radius: 6, // The radius of the inner circle
+		rotate: 0, // The rotation offset
+		color: '#000', // #rgb or #rrggbb
+		speed: 1, // Rounds per second
+		trail: 60, // Afterglow percentage
+		shadow: false, // Whether to render a shadow
+		hwaccel: false, // Whether to use hardware acceleration
+		className: 'spinner', // The CSS class to assign to the spinner
+		zIndex: 2e9, // The z-index (defaults to 2000000000)
+		top: 'auto', // Top position relative to parent in px
+		left: 'auto' // Left position relative to parent in px
+	});
+
+});
