@@ -1,6 +1,6 @@
 l.session = {};
 
-l.init(function () {
+init.add(function () {
 
 	l.session.initLoginPage = function () {
 		trySavedPassword(function (err, success) {
@@ -54,7 +54,7 @@ l.init(function () {
 
 });
 
-l.init(function () {
+init.add(function () {
 
 	l.session.logout = function () {
 		request.del('/api/sessions').end(function (res) {

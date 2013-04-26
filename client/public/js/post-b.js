@@ -1,6 +1,6 @@
 l.post = {};
 
-l.init(function () {
+init.add(function () {
 
 	// Thread
 
@@ -96,7 +96,7 @@ l.init(function () {
 
 
 
-l.init(function() {
+init.add(function() {
 
 	// New Thread
 

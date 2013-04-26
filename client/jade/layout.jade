@@ -17,7 +17,7 @@ html
 		link(rel='stylesheet', href='/lib/bootstrap/css/bootstrap.min.css')
 		link(rel='stylesheet', href='/css/base.css')
 
-		//script(src='/lib/es5-shim.min.js')
+		script(src='/lib/es5-shim.min.js')
 		script(src='/lib/json2.js')
 		script(src='/lib/jquery.min.js')
 		script(src='/lib/jquery.simpleplaceholder.js')
@@ -25,9 +25,11 @@ html
 		script(src='/lib/superagent.js')
 		script(src='/lib/spin.min.js')
 
-		//
+		script(src='/js/base.js')
+		script(src='/js/ui.js')
+
+//
 			<script src="/lib/URI.js"></script>
-			script(src='/js/l-b.js')
 			script(src='/js/msg-b.js')
 			script(src='/js/session-b.js')
 			script(src='/js/post-b.js')
@@ -59,9 +61,9 @@ html
 										input(type='text', placeholder='Search')
 										button.btn(type="submit") Submit
 						else
-						ul.nav
-							li
-								a(href='/thread')= siteTitle
+							ul.nav
+								li
+									a(href='/thread')= siteTitle
 
 		// category
 		.container
