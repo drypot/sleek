@@ -1,6 +1,28 @@
-module.exports = function () {
+var init = require('../main/init');
+var post = require('../main/post');
+var express = require('../main/express');
+var rcs = require('../main/rcs');
 
-	app.get('/thread', function (req, res, next) {
+init.add(function () {
+
+	var app = express.app;
+
+	console.log('post-html:');
+
+	app.get('/threads', function (req, res, next) {
+		res.render('error', { msg: 'hello world '});
+		return;
+		req.authorized(function (err, role) {
+			if (err) return res.json(err);
+			var params = post.threadsParams(req);
+			post.threads(role, params, function (err, threads) {
+				if (err) return res.json(err);
+				res.json({
+					rc: rcs.SUCCESS,
+					threads: threads
+				});
+			});
+		});
 		req.authorized(function () {
 			threadsParams(req, function (categoryId, page, pageSize) {
 				categoryForRead(res, categoryId, function (category) {
@@ -139,5 +161,4 @@ module.exports = function () {
 		});
 	});
 
-
-};
+});

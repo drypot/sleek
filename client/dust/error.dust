@@ -1,9 +1,0 @@
-{>"client/dust/layout.dust"/}
-
-{<content}
-
-	<div id="content">
-		<h3>{msg}</h3>
-	</div>
-
-{/content}

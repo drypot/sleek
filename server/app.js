@@ -24,6 +24,7 @@ var config = require('./main/config').options({ path: configPath });
 var express = require('./main/express');
 
 require('./main/post-api');
+require('./main/post-html');
 require('./main/search-api');
 require('./main/upload-api');
 require('./main/session-api');
