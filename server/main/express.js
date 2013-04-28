@@ -47,6 +47,7 @@ init.add(function () {
 
 	app.use(function (req, res, next) {
 		res.locals.role = auth.roleByName(req.session.roleName);
+		res.locals.require = require;
 		next();
 	});
 
@@ -68,8 +69,8 @@ init.add(function () {
 
 	app.use(express.errorHandler());
 
-	should.not.exist(app.request.authorized);
-	app.request.authorized = function (roleName, next) {
+	should.not.exist(app.request.role);
+	app.request.role = function (roleName, next) {
 		if (typeof roleName === 'function') {
 			next = roleName;
 			roleName = null;
@@ -86,8 +87,8 @@ init.add(function () {
 		next(null, role);
 	};
 
-	should.not.exist(app.request.authorizedHtml);
-	app.request.authorizedHtml = function (roleName, next) {
+	should.not.exist(app.request.roleHtml);
+	app.request.roleHtml = function (roleName, next) {
 		if (typeof roleName === 'function') {
 			next = roleName;
 			roleName = null;
@@ -99,9 +100,9 @@ init.add(function () {
 			return res.redirect('/');
 		}
 		if (roleName && roleName !== role.name) {
-			return res.render('error', { msg: msgs[rcs.NOT_AUTHORIZED] });
+			return res.render('error', { err: { rc: rcs.NOT_AUTHORIZED }});
 		}
-		next(role);
+		next(null, role);
 	};
 
 	exports.listen = function () {

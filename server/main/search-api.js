@@ -10,7 +10,7 @@ init.add(function () {
 	console.log('search-api:');
 
 	app.get('/api/search', function (req, res) {
-		req.authorized(function (err, role) {
+		req.role(function (err, role) {
 			if (err) return res.json(err);
 			var query = String(req.query.q || '').trim();
 			var offset = parseInt(req.query.offset) || 0;

@@ -11,7 +11,7 @@ init.add(function () {
 	console.log('session-api:');
 
 	app.get('/api/sessions', function (req, res) {
-		req.authorized(function (err, role) {
+		req.role(function (err, role) {
 			res.json(err || {
 				rc: rcs.SUCCESS,
 				role: {
@@ -70,19 +70,19 @@ init.add(function () {
 		});
 
 		app.get('/api/test/auth/any', function (req, res) {
-			req.authorized(function (err) {
+			req.role(function (err) {
 				res.json(err || { rc: rcs.SUCCESS });
 			})
 		});
 
 		app.get('/api/test/auth/user', function (req, res) {
-			req.authorized('user', function (err) {
+			req.role('user', function (err) {
 				res.json(err || { rc: rcs.SUCCESS });
 			});
 		});
 
 		app.get('/api/test/auth/admin', function (req, res) {
-			req.authorized('admin', function (err) {
+			req.role('admin', function (err) {
 				res.json(err || { rc: rcs.SUCCESS });
 			});
 		});

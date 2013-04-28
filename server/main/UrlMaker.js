@@ -6,7 +6,10 @@ function UrlMaker(baseUrl) {
 	this.qmAdded = false;
 }
 
-UrlMaker.prototype.add = function (name, value) {
+UrlMaker.prototype.add = function (name, value, def) {
+	if (def !== undefined && def === value) {
+		return this;
+	}
 	if (!this.qmAdded) {
 		this.url += '?';
 		this.qmAdded = true;
@@ -16,14 +19,6 @@ UrlMaker.prototype.add = function (name, value) {
 	this.url += name;
 	this.url += '=';
 	this.url += value;
-
-	return this;
-}
-
-UrlMaker.prototype.addIfNot = function (name, value, def) {
-	if (value !== def) {
-		this.add(name, value);
-	}
 
 	return this;
 }

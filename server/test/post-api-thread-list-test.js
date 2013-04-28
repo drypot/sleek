@@ -105,4 +105,38 @@ describe("listing threads", function () {
 			next();
 		});
 	});
+	describe("last", function () {
+		it("should be false with page 1", function (next) {
+			request.get(test.url + '/api/threads').query({ c: 0, p: 1, ps: 3 }).end(function (err, res) {
+				res.status.should.equal(200);
+				res.body.rc.should.equal(rcs.SUCCESS);
+				res.body.last.should.false;
+				next();
+			});
+		});
+		it("should be false with page 2", function (next) {
+			request.get(test.url + '/api/threads').query({ c: 0, p: 2, ps: 3 }).end(function (err, res) {
+				res.status.should.equal(200);
+				res.body.rc.should.equal(rcs.SUCCESS);
+				res.body.last.should.false;
+				next();
+			});
+		});
+		it("should be false with page 3", function (next) {
+			request.get(test.url + '/api/threads').query({ c: 0, p: 3, ps: 3 }).end(function (err, res) {
+				res.status.should.equal(200);
+				res.body.rc.should.equal(rcs.SUCCESS);
+				res.body.last.should.true;
+				next();
+			});
+		});
+		it("should be false with page 4", function (next) {
+			request.get(test.url + '/api/threads').query({ c: 0, p: 4, ps: 3 }).end(function (err, res) {
+				res.status.should.equal(200);
+				res.body.rc.should.equal(rcs.SUCCESS);
+				res.body.last.should.true;
+				next();
+			});
+		});
+	});
 });

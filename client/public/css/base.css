@@ -5,16 +5,22 @@ body {
 .submit-group {
   margin-top: 25px;
 }
-.thread-list span {
+.threads td {
+  white-space: nowrap;
+}
+.threads td.t {
+  width: 100%;
+}
+.threads span {
   margin-right: 5px;
 }
-.thread-list-phone small {
+.threads-phone small {
   margin-right: 10px;
 }
-.thread-list-phone td {
+.threads-phone td {
   width: 700px;
 }
-.thread-list-phone span {
+.threads-phone span {
   margin-right: 10px;
 }
 .posts {

@@ -25,8 +25,8 @@ describe("UrlMaker", function () {
 		var u = new UrlMaker('/thread');
 		var p = 0;
 		var ps = 16;
-		u.addIfNot('p', p, 0);
-		u.addIfNot('ps', ps, 32);
+		u.add('p', p, 0);
+		u.add('ps', ps, 32);
 		u.toString().should.equal('/thread?ps=16');
 	});
 });

@@ -10,7 +10,7 @@ init.add(function () {
 	console.log('upload-api:');
 
 	app.post('/api/upload', function (req, res) {
-		req.authorized(function (err) {
+		req.role(function (err) {
 			if (err) return res.json(err);
 			res.json({
 				rc: rcs.SUCCESS,
@@ -20,7 +20,7 @@ init.add(function () {
 	});
 
 	app.del('/api/upload', function (req, res) {
-		req.authorized(function (err) {
+		req.role(function (err) {
 			if (err) return res.json(err);
 			upload.deleteTmpFiles(req.body.files);
 			res.json({ rc: rcs.SUCCESS });

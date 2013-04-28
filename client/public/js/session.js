@@ -10,7 +10,7 @@ init.add(function () {
 				return;
 			}
 			if (success) {
-				location = '/thread';
+				location = '/threads';
 				return;
 			}
 			$content.find('[name=submit]').click(sendLoginForm);
@@ -53,7 +53,7 @@ init.add(function () {
 			} else {
 				localStorage.removeItem('password');
 			}
-			location = '/thread';
+			location = '/threads';
 		});
 		return false;
 	}

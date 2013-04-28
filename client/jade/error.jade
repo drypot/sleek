@@ -1,7 +1,7 @@
 extends layout
 
 block title
-	title #{siteTitle}
+	title Error - #{siteTitle}
 
 block content
 
@@ -9,4 +9,22 @@ block content
 		h1 Error
 
 	#content
-		h3= msg
+		if !locals.err
+			h3 'err' not defined
+		else
+			- var count = 0;
+			if err.rc
+				- count++;
+				- var msgs = require('./msgs');
+				h3 RC
+				pre= err.rc + ', ' + msgs[err.rc]
+			if err.message
+				- count++;
+				h3 Message
+				pre= err.message
+			if err.stack
+				- count++;
+				h3 Stack
+				pre= err.stack
+			if !count
+				h3 Unknown Error

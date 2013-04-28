@@ -102,7 +102,7 @@ init.add(function () {
 		params.categoryId = parseInt(query.c) || 0;
 		var page = parseInt(query.p) || 1;
 		params.page = page < 1 ? 1 : page;
-		var pageSize = parseInt(query.ps) || 32;
+		var pageSize = parseInt(query.ps) || 16;
 		params.pageSize = pageSize > 128 ? 128 : pageSize < 1 ? 1 : pageSize;
 		return params;
 	}
@@ -112,9 +112,11 @@ init.add(function () {
 			if (err) return next(err);
 			var categories = role.categories;
 			var threads = [];
+			var count = 0;
 			mongo.findThreadsByCategory(params.categoryId, params.page, params.pageSize, function (err, thread) {
 				if (err) return next(err);
 				if (thread) {
+					count++;
 					if (category.id !== 0 || categories[thread.categoryId]) {
 						threads.push({
 							id: thread._id,
@@ -130,7 +132,7 @@ init.add(function () {
 					}
 					return;
 				}
-				next(null, threads);
+				next(null, category, threads, count !== params.pageSize);
 			});
 		});
 	};

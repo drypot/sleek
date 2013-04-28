@@ -10,21 +10,22 @@ init.add(function () {
 	console.log('post-api:');
 
 	app.get('/api/threads', function (req, res) {
-		req.authorized(function (err, role) {
+		req.role(function (err, role) {
 			if (err) return res.json(err);
 			var params = post.threadsParams(req);
-			post.threads(role, params, function (err, threads) {
+			post.threads(role, params, function (err, category, threads, last) {
 				if (err) return res.json(err);
 				res.json({
 					rc: rcs.SUCCESS,
-					threads: threads
+					threads: threads,
+					last: last
 				});
 			});
 		});
 	});
 
 	app.get('/api/threads/:threadId([0-9]+)', function (req, res) {
-		req.authorized(function (err, role) {
+		req.role(function (err, role) {
 			if (err) return res.json(err);
 			var threadId = parseInt(req.params.threadId) || 0;
 			post.threadAndPosts(role, threadId, function (err, thread, category, posts) {
@@ -45,7 +46,7 @@ init.add(function () {
 	});
 
 	app.get('/api/threads/:threadId([0-9]+)/:postId([0-9]+)', function (req, res, next) {
-		req.authorized(function (err, role) {
+		req.role(function (err, role) {
 			if (err) return res.json(err);
 			var threadId = parseInt(req.params.threadId) || 0;
 			var postId = parseInt(req.params.postId) || 0;
@@ -67,7 +68,7 @@ init.add(function () {
 	});
 
 	app.post('/api/threads', function (req, res) {
-		req.authorized(function (err, role) {
+		req.role(function (err, role) {
 			if (err) return res.json(err);
 			var form = post.form(req);
 			post.createThread(role, form, function (err, threadId, postId) {
@@ -83,7 +84,7 @@ init.add(function () {
 	});
 
 	app.post('/api/threads/:threadId([0-9]+)', function (req, res) {
-		req.authorized(function (err, role) {
+		req.role(function (err, role) {
 			if (err) return res.json(err);
 			var form = post.form(req);
 			var threadId = form.threadId = parseInt(req.params.threadId) || 0;
@@ -100,7 +101,7 @@ init.add(function () {
 	});
 
 	app.put('/api/threads/:threadId([0-9]+)/:postId([0-9]+)', function (req, res, next) {
-		req.authorized(function (err, role) {
+		req.role(function (err, role) {
 			if (err) return res.json(err);
 			var form = post.form(req);
 			form.threadId = parseInt(req.params.threadId) || 0;
