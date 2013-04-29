@@ -2,7 +2,7 @@ var should = require('should');
 var request = require('superagent').agent();
 
 var init = require('../main/init');
-var config = require('../main/config').options({ test: true });
+var config = require('../main/config')({ test: true });
 var express = require('../main/express');
 var error = require('../main/error');
 

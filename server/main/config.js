@@ -4,7 +4,7 @@ var init = require('../main/init');
 
 var opt = {};
 
-exports.options = function (_opt) {
+exports = module.exports = function (_opt) {
 	if (_opt.reset) {
 		opt = {};
 		delete exports.data;

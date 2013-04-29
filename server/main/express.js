@@ -9,7 +9,7 @@ var error = require('../main/error');
 
 var opt = {};
 
-exports.options = function (_opt) {
+exports = module.exports = function (_opt) {
 	for(var p in _opt) {
 		opt[p] = _opt[p];
 	}
@@ -98,7 +98,7 @@ init.add(function () {
 			return res.redirect('/');
 		}
 		if (roleName && roleName !== role.name) {
-			return res.render('error', { err: error(error.NOT_AUTHORIZED) });
+			return res.renderErr(error(error.NOT_AUTHORIZED));
 		}
 		next(null, role);
 	};

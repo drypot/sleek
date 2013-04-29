@@ -5,7 +5,7 @@ var config = require('../main/config');
 
 var opt = {};
 
-exports.options = function (_opt) {
+exports = module.exports = function (_opt) {
 	for(var p in _opt) {
 		opt[p] = _opt[p];
 	}

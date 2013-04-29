@@ -1,1 +1,1 @@
-NODE_ENV=production node server/app.js $@
+NODE_ENV=production node server/main/app.js $@

@@ -2,12 +2,12 @@ var should = require('should');
 var request = require('superagent').agent();
 
 var init = require('../main/init');
-var config = require('../main/config').options({ test: true });
-var mongo = require('../main/mongo').options({ dropDatabase: true });
-var es = require('../main/es').options({ dropIndex: true });
+var config = require('../main/config')({ test: true });
+var mongo = require('../main/mongo')({ dropDatabase: true });
+var es = require('../main/es')({ dropIndex: true });
 var express = require('../main/express');
 var error = require('../main/error');
-var test = require('../main/test').options({ request: request });
+var test = require('../main/test')({ request: request });
 
 require('../main/session-api');
 require('../main/post-api');
@@ -28,7 +28,7 @@ describe("reading post", function () {
 	it("given t1, p11", function (next) {
 		var form = { categoryId: 101, writer: 'snowman1', title: 'title1', text: 'post11' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
-			should.not.exist(res.error);
+			res.should.have.status(200);
 			should.not.exist(res.body.err);
 			t1 = res.body.threadId;
 			p11 = res.body.postId;
@@ -38,7 +38,7 @@ describe("reading post", function () {
 	it("given p12", function (next) {
 		var form = { writer: 'snowman1', text: 'post12' };
 		request.post(test.url + '/api/threads/' + t1).send(form).end(function (err, res) {
-			should.not.exist(res.error);
+			res.should.have.status(200);
 			should.not.exist(res.body.err);
 			p12 = res.body.postId;
 			next();
@@ -51,7 +51,7 @@ describe("reading post", function () {
 	it("given t2, p21 in recycle bin", function (next) {
 		var form = { categoryId: 40, writer: 'snowman2', title: 'title2', text: 'post21' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
-			should.not.exist(res.error);
+			res.should.have.status(200);
 			should.not.exist(res.body.err);
 			t2 = res.body.threadId;
 			p21 = res.body.postId;
@@ -61,7 +61,7 @@ describe("reading post", function () {
 	it("given p22 in recycle bin", function (next) {
 		var form = { writer: 'snowman2', text: 'post22' };
 		request.post(test.url + '/api/threads/' + t2).send(form).end(function (err, res) {
-			should.not.exist(res.error);
+			res.should.have.status(200);
 			should.not.exist(res.body.err);
 			p22 = res.body.postId;
 			next();
@@ -72,7 +72,7 @@ describe("reading post", function () {
 	});
 	it("should fail", function (next) {
 		request.get(test.url + '/api/threads/' + t1 + '/' + p11, function (err, res) {
-			should.not.exist(res.error);
+			res.should.have.status(200);
 			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next();
 		});
@@ -82,28 +82,28 @@ describe("reading post", function () {
 	});
 	it("should fail with invalid threadId", function (next) {
 		request.get(test.url + '/api/threads/' + 99999 + '/' + p11, function (err, res) {
-			should.not.exist(res.error);
+			res.should.have.status(200);
 			res.body.err.rc.should.equal(error.INVALID_THREAD);
 			next();
 		});
 	});
 	it("should fail with mismatching threadId", function (next) {
 		request.get(test.url + '/api/threads/' + t2 + '/' + p11, function (err, res) {
-			should.not.exist(res.error);
+			res.should.have.status(200);
 			res.body.err.rc.should.equal(error.INVALID_POST);
 			next();
 		});
 	});
 	it("should fail with invalid postId", function (next) {
 		request.get(test.url + '/api/threads/' + t1 + '/' + 99999, function (err, res) {
-			should.not.exist(res.error);
+			res.should.have.status(200);
 			res.body.err.rc.should.equal(error.INVALID_POST);
 			next();
 		});
 	});
 	it("should success for p11", function (next) {
 		request.get(test.url + '/api/threads/' + t1 + '/' + p11, function (err, res) {
-			should.not.exist(res.error);
+			res.should.have.status(200);
 			should.not.exist(res.body.err);
 			res.body.thread.title.should.equal('title1');
 			res.body.category.id.should.equal(101);
@@ -116,7 +116,7 @@ describe("reading post", function () {
 	});
 	it("should success for p12", function (next) {
 		request.get(test.url + '/api/threads/' + t1 + '/' + p12, function (err, res) {
-			should.not.exist(res.error);
+			res.should.have.status(200);
 			should.not.exist(res.body.err);
 			res.body.post.writer.should.equal('snowman1');
 			res.body.post.text.should.equal('post12');
@@ -130,14 +130,14 @@ describe("reading post", function () {
 	});
 	it("should fail for p21 in recycle bin", function (next) {
 		request.get(test.url + '/api/threads/' + t2 + '/' + p21, function (err, res) {
-			should.not.exist(res.error);
+			res.should.have.status(200);
 			res.body.err.rc.should.equal(error.INVALID_CATEGORY);
 			next();
 		});
 	});
 	it("should fail for p22 in recycle bin", function (next) {
 		request.get(test.url + '/api/threads/' + t2 + '/' + p22, function (err, res) {
-			should.not.exist(res.error);
+			res.should.have.status(200);
 			res.body.err.rc.should.equal(error.INVALID_CATEGORY);
 			next();
 		});
@@ -147,7 +147,7 @@ describe("reading post", function () {
 	});
 	it("should success for p21 in recycle bin", function (next) {
 		request.get(test.url + '/api/threads/' + t2 + '/' + p21, function (err, res) {
-			should.not.exist(res.error);
+			res.should.have.status(200);
 			should.not.exist(res.body.err);
 			res.body.thread.title.should.equal('title2');
 			res.body.category.id.should.equal(40);
@@ -160,7 +160,7 @@ describe("reading post", function () {
 	});
 	it("should success for p22 in recycle bin", function (next) {
 		request.get(test.url + '/api/threads/' + t2 + '/' + p22, function (err, res) {
-			should.not.exist(res.error);
+			res.should.have.status(200);
 			should.not.exist(res.body.err);
 			res.body.post.writer.should.equal('snowman2');
 			res.body.post.text.should.equal('post22');

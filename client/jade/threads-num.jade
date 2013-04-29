@@ -1,0 +1,31 @@
+extends layout
+
+block title
+	title #{category.name} - #{siteTitle}
+
+block content
+
+	script
+		init.add(function () {
+			post.initThreadPage();
+		});
+
+	.page-header(style="border: 0")
+		h1 #{category.name}
+
+	#content
+		.posts
+			for post in posts
+				.post(id=post.id)
+					.writer #{writer}
+					.created !{dateTime.format(new Date(post.created))}
+					if post.files
+						.files
+						for file in post.files
+							.file
+								a(href=file.url, target='_blank') #{file.name}
+					.text
+						pre #{text}
+					if post.editable
+						.cmd
+							a.btn(href='/threads/' + thread.id + '/' + post.id + '/edit') Edit

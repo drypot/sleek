@@ -1,7 +1,7 @@
 var should = require('should');
 
 var init = require('../main/init');
-var config = require('../main/config').options({ test: true });
+var config = require('../main/config')({ test: true });
 var auth = require('../main/auth');
 
 before(function (next) {

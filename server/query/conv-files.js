@@ -19,11 +19,11 @@ for (var i = 2; i < process.argv.length; i++) {
 	}
 }
 
-var init = require('./main/init');
-var config = require('./main/config').options({ path: configPath });
-var mongo = require('./main/mongo');
-var es = require('./main/es');
-var rebuild = require('./main/es-rebuild');
+var init = require('../main/init');
+var config = require('../main/config')({ path: configPath });
+var mongo = require('../main/mongo');
+var es = require('../main/es');
+var rebuild = require('../main/es-rebuild');
 
 init.run(function (err) {
 	if (err) throw err;

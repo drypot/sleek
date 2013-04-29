@@ -5,7 +5,7 @@ var config = require('../main/config');
 
 describe("config with invalid path", function () {
 	it("should fail", function (next) {
-		config.options({ reset: true, path: 'config/config-none.json' });
+		config({ reset: true, path: 'config/config-none.json' });
 		init.run(function (err) {
 			should.exists(err);
 			err.code.should.equal('ENOENT');
@@ -16,7 +16,7 @@ describe("config with invalid path", function () {
 
 describe("config with test: true", function () {
 	it("should success", function (next) {
-		config.options({ reset: true, test: true });
+		config({ reset: true, test: true });
 		init.run(function (err) {
 			should.not.exists(err);
 			config.data.siteTitle.should.equal("sleek test");
@@ -27,7 +27,7 @@ describe("config with test: true", function () {
 
 describe("config with valid path", function () {
 	it("should success", function (next) {
-		config.options({ reset: true, path: 'config/config-test.json' });
+		config({ reset: true, path: 'config/config-test.json' });
 		init.run(function (err) {
 			should.not.exists(err);
 			config.data.siteTitle.should.equal("sleek test");
