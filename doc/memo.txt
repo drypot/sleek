@@ -28,3 +28,5 @@ db.posts.update(
 
 upload-file 디렉토리를 upload 로 변경
 
+node server/query/conv-files.js config/*.json
+

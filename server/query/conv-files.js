@@ -22,22 +22,42 @@ for (var i = 2; i < process.argv.length; i++) {
 var init = require('../main/init');
 var config = require('../main/config')({ path: configPath });
 var mongo = require('../main/mongo');
-var es = require('../main/es');
-var rebuild = require('../main/es-rebuild');
 
 init.run(function (err) {
 	if (err) throw err;
-	es.dropIndex(function (err) {
-		if (err) throw err;
-		es.setSchema(function (err) {
+	var posts = mongo.posts.find();
+	(function nextPost() {
+		posts.nextObject(function (err, post) {
 			if (err) throw err;
-			console.log('start rebuilding:');
-			rebuild.rebuild(function (err) {
-				if (err) throw err;
-				mongo.db.close(function (err) {
-					if (err) throw err;
-				})
-			});
+			if (!post) {
+				console.log('ended');
+				return;
+			}
+			if (post.files) {
+				console.log(post.files);
+				if (post.files.length === 0) {
+					delete post.files;
+					mongo.posts.save(post, function (err) {
+						if (err) throw err;
+						console.log('files removed.');
+						setImmediate(nextPost);
+					});
+					return;
+				}
+				if (typeof post.files[0] === 'string') {
+					for (var i = 0; i < post.files.length; i++) {
+						post.files[i] = { name: post.files[i] };
+					}
+					mongo.posts.save(post, function (err) {
+						if (err) throw err;
+						console.log('files converted.');
+						setImmediate(nextPost);
+					});
+					return;
+				}
+				console.log('skip conversion.');
+			}
+			setImmediate(nextPost);
 		});
-	});
+	})();
 });

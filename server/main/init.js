@@ -26,7 +26,7 @@ exports.run = function (next) {
 		var func = funcs[i++];
 		func(function (err) {
 			if (err) return next(err);
-			process.nextTick(run);
+			setImmediate(run);
 		});
 	})();
 };

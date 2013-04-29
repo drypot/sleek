@@ -52,7 +52,7 @@ describe("listing threads", function () {
 			var item = samples[i++];
 			request.post(test.url + '/api/threads').send(item).end(function (err, res) {
 				res.should.have.status(200);
-				process.nextTick(insert);
+				setImmediate(insert);
 			});
 		})();
 	});

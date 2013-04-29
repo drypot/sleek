@@ -29,7 +29,7 @@ init.add(function () {
 				if (err) return next(err);
 				var threadId = mongo.getNewThreadId();
 				var postId = mongo.getNewPostId();
-				upload.savePostFiles(form.files, postId, function (err, saved) {
+				upload.savePostFiles(postId, form.files, function (err, saved) {
 					if (err) return next(err);
 					insertThread(threadId, form, function (err, thread) {
 						if (err) return next(err);
@@ -51,7 +51,7 @@ init.add(function () {
 				checkForm(form, false, function (err) {
 					if (err) return next(err);
 					var postId = mongo.getNewPostId();
-					upload.savePostFiles(form.files, postId, function (err, saved) {
+					upload.savePostFiles(postId, form.files, function (err, saved) {
 						if (err) return next(err);
 						insertPost(postId, thread, category, form, saved, function (err) {
 							if (err) return next(err);
@@ -83,7 +83,7 @@ init.add(function () {
 							if (err) return next(err);
 							upload.deletePostFiles(post._id, form.delFiles, function (err, deleted) {
 								if (err) return next(err);
-								upload.savePostFiles(form.files, post._id, function (err, saved) {
+								upload.savePostFiles(post._id, form.files, function (err, saved) {
 									if (err) return next(err);
 									updatePost(thread, post, category, form, deleted, saved, next);
 								});

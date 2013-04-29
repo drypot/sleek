@@ -70,7 +70,7 @@ describe("searching", function () {
 				should.not.exist(res.body.err);
 				doc.postId = res.body.postId;
 				doc.threadId = res.body.threadId;
-				process.nextTick(insert);
+				setImmediate(insert);
 			});
 		})();
 	});

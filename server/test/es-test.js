@@ -90,7 +90,7 @@ describe("filling db", function () {
 				should.not.exist(err);
 				should(res.statusCode == 201 || res.statusCode == 200);
 				res.body.ok.should.true;
-				process.nextTick(insert);
+				setImmediate(insert);
 			});
 		})();
 	});
