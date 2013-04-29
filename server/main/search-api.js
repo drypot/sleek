@@ -1,7 +1,7 @@
 var init = require('../main/init');
 var es = require('../main/es');
 var express = require('../main/express');
-var rcs = require('../main/rcs');
+var error = require('../main/error');
 
 init.add(function () {
 
@@ -11,17 +11,16 @@ init.add(function () {
 
 	app.get('/api/search', function (req, res) {
 		req.role(function (err, role) {
-			if (err) return res.json(err);
+			if (err) return res.jsonErr(err);
 			var query = String(req.query.q || '').trim();
 			var offset = parseInt(req.query.offset) || 0;
 			var limit = parseInt(req.query.limit) || 16;
 			limit = limit > 64 ? 64 : limit < 0 ? 0 : limit;
 			search(role, query, offset, limit, function (err, results) {
 				if (err) {
-					return res.json(err);
+					return res.jsonErr(err);
 				}
 				res.json({
-					rc: rcs.SUCCESS,
 					results: results
 				});
 			});

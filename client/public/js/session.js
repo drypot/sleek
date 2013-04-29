@@ -30,7 +30,7 @@ init.add(function () {
 				next(err, false);
 				return;
 			}
-			next(null, res.body.rc === rcs.SUCCESS);
+			next(null, res.body.rc === rc.SUCCESS);
 		});
 	}
 
@@ -43,8 +43,8 @@ init.add(function () {
 				errorDialog.system(err);
 				return;
 			}
-			if (res.body.rc !== rcs.SUCCESS) {
-				alerts.add($password, msgs[res.body.rc]);
+			if (res.body.rc !== rc.SUCCESS) {
+				alerts.add($password, msg[res.body.rc]);
 				return;
 			}
 			console.log('333');

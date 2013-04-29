@@ -2,7 +2,7 @@ var init = require('../main/init');
 var config = require('../main/config');
 var auth = require('../main/auth');
 var express = require('../main/express');
-var rcs = require('../main/rcs');
+var error = require('../main/error');
 
 init.add(function () {
 
@@ -12,8 +12,10 @@ init.add(function () {
 
 	app.get('/api/sessions', function (req, res) {
 		req.role(function (err, role) {
-			res.json(err || {
-				rc: rcs.SUCCESS,
+			if (err) {
+				return res.jsonErr(err);
+			}
+			res.json({
 				role: {
 					name: role.name,
 					categoriesForMenu: role.categoriesForMenu
@@ -26,10 +28,10 @@ init.add(function () {
 	app.post('/api/sessions', function (req, res) {
 		var role = auth.roleByPassword(req.body.password || '');
 		if (!role) {
-			return res.json({ rc: rcs.INVALID_PASSWORD });
+			return res.jsonErr(error(error.INVALID_PASSWORD));
 		}
 		req.session.regenerate(function (err) {
-			if (err) return res.json(err);
+			if (err) return res.jsonErr(err);
 			if (req.cookies && req.cookies.lv3) {
 				res.clearCookie('lv3');
 				res.clearCookie('lv');
@@ -39,7 +41,6 @@ init.add(function () {
 			req.session.roleName = role.name;
 			req.session.posts = [];
 			res.json({
-				rc: rcs.SUCCESS,
 				role: {
 					name: role.name
 				}
@@ -49,7 +50,7 @@ init.add(function () {
 
 	app.del('/api/sessions', function (req, res) {
 		req.session.destroy();
-		res.json({ rc: rcs.SUCCESS });
+		res.jsonEmpty();
 	});
 
 	app.configure('development', function () {
@@ -71,19 +72,22 @@ init.add(function () {
 
 		app.get('/api/test/auth/any', function (req, res) {
 			req.role(function (err) {
-				res.json(err || { rc: rcs.SUCCESS });
+				if (err) return res.jsonErr(err);
+				res.jsonEmpty();
 			})
 		});
 
 		app.get('/api/test/auth/user', function (req, res) {
 			req.role('user', function (err) {
-				res.json(err || { rc: rcs.SUCCESS });
+				if (err) return res.jsonErr(err);
+				res.jsonEmpty();
 			});
 		});
 
 		app.get('/api/test/auth/admin', function (req, res) {
 			req.role('admin', function (err) {
-				res.json(err || { rc: rcs.SUCCESS });
+				if (err) return res.jsonErr(err);
+				res.jsonEmpty();
 			});
 		});
 	});

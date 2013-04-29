@@ -4,6 +4,7 @@ var request = require('superagent').agent();
 var init = require('../main/init');
 var config = require('../main/config').options({ test: true });
 var express = require('../main/express');
+var error = require('../main/error');
 
 require('../main/hello-api');
 
@@ -22,8 +23,8 @@ before(function(next) {
 		next();
 	});
 
-	app.get('/api/send-rc-33', function (req, res) {
-		res.json({ rc: 33 });
+	app.get('/api/send-invalid-data', function (req, res) {
+		res.jsonErr(error(error.INVALID_DATA));
 	});
 
 	express.listen();
@@ -50,7 +51,6 @@ describe("/test", function () {
 	it("should return 'test home'", function (next) {
 		request.get(url + '/test', function (err, res) {
 			res.should.status(200);
-			res.type.should.equal
 			res.text.should.equal('test home');
 			next();
 		});
@@ -68,10 +68,12 @@ describe("/test/no-action", function () {
 
 describe("/api/send-rc-33", function () {
 	it("should return rc", function (next) {
-		request.get(url + '/api/send-rc-33').end(function (err, res) {
+		request.get(url + '/api/send-invalid-data').end(function (err, res) {
 			res.should.status(200);
 			res.should.be.json;
-			res.body.rc.should.equal(33);
+			res.body.err.rc.should.equal(error.INVALID_DATA);
+			res.body.err.message.should.equal(error.msg[error.INVALID_DATA]);
+			should.exist(res.body.err.stack);
 			next();
 		});
 	});

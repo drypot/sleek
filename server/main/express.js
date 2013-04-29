@@ -5,8 +5,7 @@ var redisStore = require('connect-redis')(express);
 var init = require('../main/init');
 var config = require('../main/config');
 var auth = require('../main/auth');
-var rcs = require('../main/rcs');
-var msgs = require('../main/msgs');
+var error = require('../main/error');
 
 var opt = {};
 
@@ -47,7 +46,6 @@ init.add(function () {
 
 	app.use(function (req, res, next) {
 		res.locals.role = auth.roleByName(req.session.roleName);
-		res.locals.require = require;
 		next();
 	});
 
@@ -79,10 +77,10 @@ init.add(function () {
 		var res = this.res;
 		var role = res.locals.role;
 		if (!role) {
-			return next({ rc: rcs.NOT_AUTHENTICATED });
+			return next(error(error.NOT_AUTHENTICATED));
 		}
 		if (roleName && roleName !== role.name) {
-			return next({ rc: rcs.NOT_AUTHORIZED });
+			return next(error(error.NOT_AUTHORIZED));
 		}
 		next(null, role);
 	};
@@ -100,10 +98,42 @@ init.add(function () {
 			return res.redirect('/');
 		}
 		if (roleName && roleName !== role.name) {
-			return res.render('error', { err: { rc: rcs.NOT_AUTHORIZED }});
+			return res.render('error', { err: error(error.NOT_AUTHORIZED) });
 		}
 		next(null, role);
 	};
+
+	var empty = {};
+
+	should.not.exist(app.response.jsonEmpty);
+	app.response.jsonEmpty = function (err) {
+		this.json(empty);
+	}
+
+	var cut5LinesPattern = /^(?:.*\n){1,5}/m;
+	var emptyMatch = [''];
+
+	should.not.exist(app.response.jsonErr);
+	app.response.jsonErr = function (err) {
+		var err2 = {};
+		for (var key in err) {
+			err2[key] = err[key];
+		}
+		err2.message = err.message;
+		err2.stack = (err.stack.match(cut5LinesPattern) || emptyMatch)[0];
+		this.json({ err: err2 });
+	}
+
+	should.not.exist(app.response.renderErr);
+	app.response.renderErr = function (err) {
+		var err2 = {};
+		for (var key in err) {
+			err2[key] = err[key];
+		}
+		err2.message = err.message;
+		err2.stack = err.stack;
+		this.render('error', { err: err2 });
+	}
 
 	exports.listen = function () {
 		app.listen(config.data.port);

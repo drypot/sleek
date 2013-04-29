@@ -1,7 +1,7 @@
 var init = require('../main/init');
 var upload = require('../main/upload');
 var express = require('../main/express');
-var rcs = require('../main/rcs');
+var error = require('../main/error');
 
 init.add(function () {
 
@@ -11,9 +11,8 @@ init.add(function () {
 
 	app.post('/api/upload', function (req, res) {
 		req.role(function (err) {
-			if (err) return res.json(err);
+			if (err) return res.jsonErr(err);
 			res.json({
-				rc: rcs.SUCCESS,
 				files: upload.tmpFiles(req.files.file)
 			});
 		});
@@ -21,9 +20,9 @@ init.add(function () {
 
 	app.del('/api/upload', function (req, res) {
 		req.role(function (err) {
-			if (err) return res.json(err);
+			if (err) return res.jsonErr(err);
 			upload.deleteTmpFiles(req.body.files);
-			res.json({ rc: rcs.SUCCESS });
+			res.jsonEmpty();
 		});
 	});
 

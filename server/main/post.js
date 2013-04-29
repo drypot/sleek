@@ -2,8 +2,7 @@ var init = require('../main/init');
 var mongo = require('../main/mongo');
 var es = require('../main/es');
 var upload = require('../main/upload');
-var rcs = require('../main/rcs');
-var msgs = require('../main/msgs');
+var error = require('../main/error');
 
 init.add(function () {
 
@@ -75,7 +74,7 @@ init.add(function () {
 				categoryForUpdate(role, thread.categoryId, function (err, category) {
 					if (err) return next(err);
 					if (!isEditable(category, post._id, editables)) {
-						return next({ rc: rcs.NOT_AUTHORIZED });
+						return next(error(error.NOT_AUTHORIZED));
 					}
 					var head = isHead(thread, post);
 					checkNewCategory(role, form.categoryId, head, function (err) {
@@ -188,57 +187,36 @@ init.add(function () {
 	};
 
 	function checkForm(form, head, next) {
-		var error = new FieldError();
+		var fields = [];
 
 		if (head) {
 			if (!form.title.length) {
-				error.push('title', msgs.FILL_TITLE );
+				fields.push({ name: 'title', msg: error.msg.FILL_TITLE });
 			}
 			if (form.title.length > 128) {
-				error.push('title', msgs.SHORTEN_TITLE);
+				fields.push({ name: 'title', msg: error.msg.SHORTEN_TITLE });
 			}
 		}
 		if (!form.writer) {
-			error.push('writer', msgs.FILL_WRITER);
+			fields.push({ name: 'writer', msg: error.msg.FILL_WRITER });
 		}
 		if (form.writer.length > 32) {
-			error.push('writer', msgs.SHORTEN_WRITER);
+			fields.push({ name: 'writer', msg: error.msg.SHORTEN_WRITER });
 		}
-		if (error.hasError()) {
-			return next({ rc: rcs.INVALID_DATA, fields: error.fields });
+		if (fields.length) {
+			return next(error({ rc: error.INVALID_DATA, fields: fields }));
 		}
 
 		next();
 	}
 
-	var FieldError = function () {
-		this.fields = {};
-	}
-
-	FieldError.prototype.push = function push(field, msg) {
-		var errors = this.fields[field];
-		if (!errors) {
-			errors = this.fields[field] = [];
-		}
-		errors.push(msg);
-	}
-
-	FieldError.prototype.hasError = function () {
-		var has = false;
-		for (var key in this.fields) {
-			has = true;
-			break;
-		}
-		return has;
-	}
-
 	function categoryForUpdate(role, categoryId, next) {
 		var category = role.categories[categoryId];
 		if (!category) {
-			return next({ rc: rcs.INVALID_CATEGORY });
+			return next(error(error.INVALID_CATEGORY));
 		}
 		if (!category.writable) {
-			return next({ rc: rcs.NOT_AUTHORIZED });
+			return next(error(error.NOT_AUTHORIZED));
 		}
 		next(null, category);
 	}
@@ -246,10 +224,10 @@ init.add(function () {
 	function categoryForRead(role, categoryId, next) {
 		var category = role.categories[categoryId];
 		if (!category) {
-			return next({ rc: rcs.INVALID_CATEGORY });
+			return next(error(error.INVALID_CATEGORY));
 		}
 		if (!category.readable) {
-			return next({ rc: rcs.NOT_AUTHORIZED });
+			return next(error(error.NOT_AUTHORIZED));
 		}
 		next(null, category);
 	}
@@ -268,7 +246,7 @@ init.add(function () {
 				return next(err);
 			}
 			if (!thread) {
-				return next({ rc: rcs.INVALID_THREAD });
+				return next(error(error.INVALID_THREAD));
 			}
 			next(null, thread);
 		});
@@ -280,7 +258,7 @@ init.add(function () {
 				return next(err);
 			}
 			if (!post || post.threadId !== thread._id) {
-				return next({ rc: rcs.INVALID_POST });
+				return next(error(error.INVALID_POST));
 			}
 			next(null, post);
 		});

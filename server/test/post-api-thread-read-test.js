@@ -6,7 +6,7 @@ var config = require('../main/config').options({ test: true });
 var mongo = require('../main/mongo').options({ dropDatabase: true });
 var es = require('../main/es').options({ dropIndex: true });
 var express = require('../main/express');
-var rcs = require('../main/rcs');
+var error = require('../main/error');
 var test = require('../main/test').options({ request: request });
 
 require('../main/session-api');
@@ -27,7 +27,7 @@ describe("reading thread and posts", function () {
 	it("should fail", function (next) {
 		request.get(test.url + '/api/threads/0', function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.NOT_AUTHENTICATED);
+			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next();
 		});
 	});
@@ -39,7 +39,7 @@ describe("reading thread and posts", function () {
 		var form = { categoryId: 101, writer: 'snowman', title: 'title', text: 'post1' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			tid = res.body.threadId;
 			next();
 		});
@@ -48,14 +48,14 @@ describe("reading thread and posts", function () {
 		var form = { writer: 'snowman2', text: 'post2' };
 		request.post(test.url + '/api/threads/' + tid).send(form).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			next();
 		});
 	});
 	it("should return 2 posts", function (next) {
 		request.get(test.url + '/api/threads/' + tid, function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			res.body.thread.id.should.equal(tid);
 			res.body.thread.title.should.equal('title');
 			res.body.category.id.should.equal(101);
@@ -71,14 +71,14 @@ describe("reading thread and posts", function () {
 		var form = { writer: 'snowman2', text: 'post3' };
 		request.post(test.url + '/api/threads/' + tid).send(form).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			next();
 		});
 	});
 	it("should return 3 posts", function (next) {
 		request.get(test.url + '/api/threads/' + tid, function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			res.body.posts.should.length(3);
 			next();
 		});
@@ -90,14 +90,14 @@ describe("reading thread and posts", function () {
 		var form = { writer: 'admin', text: 'post4', visible: false };
 		request.post(test.url + '/api/threads/' + tid).send(form).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			next();
 		});
 	});
 	it("should return 4 posts", function (next) {
 		request.get(test.url + '/api/threads/' + tid, function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			res.body.posts.should.length(4);
 			next();
 		});
@@ -108,7 +108,7 @@ describe("reading thread and posts", function () {
 	it("should return 3 posts", function (next) {
 		request.get(test.url + '/api/threads/' + tid, function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			res.body.posts.should.length(3);
 			next();
 		});

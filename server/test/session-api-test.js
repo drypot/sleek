@@ -4,7 +4,7 @@ var request = require('superagent').agent();
 var init = require('../main/init');
 var config = require('../main/config').options({ test: true });
 var express = require('../main/express');
-var rcs = require('../main/rcs');
+var error = require('../main/error');
 var test = require('../main/test').options({ request: request });
 
 require('../main/session-api');
@@ -56,7 +56,7 @@ describe("session making", function () {
 	it("should fail with wrong password", function (next) {
 		request.post(test.url + '/api/sessions').send({ password: 'xxx' }).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.INVALID_PASSWORD);
+			res.body.err.rc.should.equal(error.INVALID_PASSWORD);
 			next();
 		});
 	});
@@ -69,7 +69,7 @@ describe("session info", function () {
 	it("should return error", function (next) {
 		request.get(test.url + '/api/sessions', function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.NOT_AUTHENTICATED);
+			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next();
 		});
 	});
@@ -79,7 +79,7 @@ describe("session info", function () {
 	it("should success", function (next) {
 		request.get(test.url + '/api/sessions', function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			res.body.role.name.should.equal('user');
 			should.exist(res.body.role.categoriesForMenu);
 			next();
@@ -94,7 +94,7 @@ describe("accessing /api/test/auth/any", function () {
 	it("should fail", function (next) {
 		request.get(test.url + '/api/test/auth/any', function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.NOT_AUTHENTICATED);
+			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next();
 		});
 	});
@@ -104,7 +104,7 @@ describe("accessing /api/test/auth/any", function () {
 	it("should success", function (next) {
 		request.get(test.url + '/api/test/auth/any', function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			next();
 		});
 	});
@@ -114,7 +114,7 @@ describe("accessing /api/test/auth/any", function () {
 	it("should fail", function (next) {
 		request.get(test.url + '/api/test/auth/any', function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.NOT_AUTHENTICATED);
+			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next();
 		});
 	});
@@ -127,7 +127,7 @@ describe("accessing /api/test/auth/user", function () {
 	it("should fail", function (next) {
 		request.get(test.url + '/api/test/auth/user', function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.NOT_AUTHENTICATED);
+			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next();
 		});
 	});
@@ -137,7 +137,7 @@ describe("accessing /api/test/auth/user", function () {
 	it("should success", function (next) {
 		request.get(test.url + '/api/test/auth/user', function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			next();
 		});
 	});
@@ -150,7 +150,7 @@ describe("accessing /api/test/auth/admin", function () {
 	it("should fail", function (next) {
 		request.get(test.url + '/api/test/auth/admin', function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.NOT_AUTHENTICATED);
+			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next();
 		});
 	});
@@ -160,7 +160,7 @@ describe("accessing /api/test/auth/admin", function () {
 	it("should fail", function (next) {
 		request.get(test.url + '/api/test/auth/admin', function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.NOT_AUTHORIZED);
+			res.body.err.rc.should.equal(error.NOT_AUTHORIZED);
 			next();
 		});
 	});
@@ -170,7 +170,7 @@ describe("accessing /api/test/auth/admin", function () {
 	it("should success", function (next) {
 		request.get(test.url + '/api/test/auth/admin', function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			next();
 		});
 	});

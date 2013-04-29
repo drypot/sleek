@@ -6,8 +6,7 @@ var config = require('../main/config').options({ test: true });
 var mongo = require('../main/mongo').options({ dropDatabase: true });
 var es = require('../main/es').options({ dropIndex: true });
 var express = require('../main/express');
-var rcs = require('../main/rcs');
-var msgs = require('../main/msgs');
+var error = require('../main/error');
 var test = require('../main/test').options({ request: request });
 
 require('../main/session-api');
@@ -29,7 +28,7 @@ describe("updating", function () {
 	it("should fail", function (next) {
 		request.put(test.url + '/api/threads/0/0', function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.NOT_AUTHENTICATED);
+			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next(err);
 		});
 	});
@@ -40,7 +39,7 @@ describe("updating", function () {
 		var form = { categoryId: 101, writer: 'snowman', title: 'title', text: 'text' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			t1 = res.body.threadId;
 			p1 = res.body.postId;
 			next(err);
@@ -50,8 +49,10 @@ describe("updating", function () {
 		var form = { categoryId: 101, writer: 'snowman', title: ' ', text: 'text', visible: true };
 		request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.INVALID_DATA);
-			res.body.fields.title.should.include(msgs.FILL_TITLE);
+			res.body.err.rc.should.equal(error.INVALID_DATA);
+			res.body.err.fields.some(function (field) {
+				return field.name === 'title' && field.msg === error.msg.FILL_TITLE;
+			}).should.true;
 			next(err);
 		});
 	});
@@ -59,8 +60,10 @@ describe("updating", function () {
 		var form = { categoryId: 101, writer: ' ', title: 'title', text: 'text', visible: true };
 		request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.INVALID_DATA);
-			res.body.fields.writer.should.include(msgs.FILL_WRITER);
+			res.body.err.rc.should.equal(error.INVALID_DATA);
+			res.body.err.fields.some(function (field) {
+				return field.name === 'writer' && field.msg === error.msg.FILL_WRITER;
+			}).should.true;
 			next(err);
 		});
 	});
@@ -68,10 +71,10 @@ describe("updating", function () {
 		var form = { categoryId: 101, writer: 'snowman1', title: 'title1', text: 'text1' };
 		request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			request.get(test.url + '/api/threads/' + t1 + '/' + p1, function (err, res) {
 				res.status.should.equal(200);
-				res.body.rc.should.equal(rcs.SUCCESS);
+				should.not.exist(res.body.err);
 				res.body.post.head.should.true;
 				res.body.category.id.should.equal(101);
 				res.body.post.writer.should.equal('snowman1');
@@ -86,10 +89,10 @@ describe("updating", function () {
 		var form = { categoryId: 102, writer: 'snowman2', title: 'title2', text: 'text2' };
 		request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			request.get(test.url + '/api/threads/' + t1 + '/' + p1, function (err, res) {
 				res.status.should.equal(200);
-				res.body.rc.should.equal(rcs.SUCCESS);
+				should.not.exist(res.body.err);
 				res.body.category.id.should.equal(102);
 				next(err);
 			});
@@ -99,10 +102,10 @@ describe("updating", function () {
 		var form = { categoryId: 102, writer: 'snowman3', title: 'title3', text: 'text3', visible: false };
 		request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			request.get(test.url + '/api/threads/' + t1 + '/' + p1, function (err, res) {
 				res.status.should.equal(200);
-				res.body.rc.should.equal(rcs.SUCCESS);
+				should.not.exist(res.body.err);
 				res.body.post.visible.should.true;
 				next(err);
 			});
@@ -115,10 +118,10 @@ describe("updating", function () {
 		var form = { categoryId: 102, writer: 'snowman4', title: 'title4', text: 'text4', visible: false };
 		request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			request.get(test.url + '/api/threads/' + t1 + '/' + p1, function (err, res) {
 				res.status.should.equal(200);
-				res.body.rc.should.equal(rcs.SUCCESS);
+				should.not.exist(res.body.err);
 				res.body.post.visible.should.false;
 				next(err);
 			});
@@ -135,7 +138,7 @@ describe("updating reply", function () {
 		var form = { categoryId: 101, writer: 'snowman', title: 'title', text: 'text' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			t1 = res.body.threadId;
 			p1 = res.body.postId;
 			next(err);
@@ -145,7 +148,7 @@ describe("updating reply", function () {
 		var form = { writer: 'snowman', text: 'text' };
 		request.post(test.url + '/api/threads/' + t1).send(form).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			p2 = res.body.postId;
 			next(err);
 		});
@@ -154,10 +157,10 @@ describe("updating reply", function () {
 		var form = { writer: 'snowman1', text: 'text1', visible: false };
 		request.put(test.url + '/api/threads/' + t1 + '/' + p2).send(form).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			request.get(test.url + '/api/threads/' + t1 + '/' + p2, function (err, res) {
 				res.status.should.equal(200);
-				res.body.rc.should.equal(rcs.SUCCESS);
+				should.not.exist(res.body.err);
 				res.body.post.head.should.false;
 				res.body.post.writer.should.equal('snowman1');
 				res.body.post.text.should.equal('text1');
@@ -177,7 +180,7 @@ describe("updating recycle bin", function () {
 		var form = { categoryId: 40, writer: 'snowman', title: 'title', text: 'text' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			t1 = res.body.threadId;
 			p1 = res.body.postId;
 			next(err);
@@ -187,7 +190,7 @@ describe("updating recycle bin", function () {
 		var form = { categoryId: 40, writer: 'snowman1', title: 'title1', text: 'text1' };
 		request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			next(err);
 		});
 	});
@@ -198,7 +201,7 @@ describe("updating recycle bin", function () {
 		var form = { categoryId: 40, writer: 'snowman1', title: 'title1', text: 'text1' };
 		request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.INVALID_CATEGORY);
+			res.body.err.rc.should.equal(error.INVALID_CATEGORY);
 			next(err);
 		});
 	});

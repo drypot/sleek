@@ -139,13 +139,13 @@ init.add(function() {
 			showSend();
 			if (err) {
 				errorDialog.system(err);
-			} else if (res.body.rc === rcs.INVALID_DATA) {
+			} else if (res.body.rc === rc.INVALID_DATA) {
 				_.each(res.body.error, function (error, field) {
 					_.each(error, function (error) {
 						l.form.addAlert($form.find('[name="' + field + '"]'), error);
 					});
 				})
-			} else if (res.body.rc !== rcs.SUCCESS) {
+			} else if (res.body.rc !== rc.SUCCESS) {
 				l.unhandledError(res.body.rc)
 			} else {
 				l.post.saveWriter(post.writer);

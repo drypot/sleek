@@ -1,7 +1,6 @@
 var init = require('../main/init');
 var post = require('../main/post');
 var express = require('../main/express');
-var rcs = require('../main/rcs');
 var UrlMaker = require('../main/UrlMaker');
 var dateTime = require('../main/dateTime');
 
@@ -15,7 +14,7 @@ init.add(function () {
 		req.roleHtml(function (err, role) {
 			var params = post.threadsParams(req);
 			post.threads(role, params, function (err, category, threads, last) {
-				if (err) return res.render('error', { err: err });
+				if (err) return res.renderErr(err);
 
 // TODO: 최근글 하일라이트
 //				CharSequence titleCss = "thread" +

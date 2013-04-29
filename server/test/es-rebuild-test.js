@@ -7,8 +7,7 @@ var mongo = require('../main/mongo').options({ dropDatabase: true });
 var es = require('../main/es').options({ dropIndex: true });
 var rebuild = require('../main/es-rebuild');
 var express = require('../main/express');
-var rcs = require('../main/rcs');
-var msgs = require('../main/msgs');
+var error = require('../main/error');
 var test = require('../main/test').options({ request: request });
 
 require('../main/session-api');
@@ -33,7 +32,7 @@ describe("posting", function () {
 		var form = { categoryId: 101, writer: 'snowman', title: '첫번째 글줄', text: 'apple pine banana' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			t1 = res.body.threadId;
 			p1 = res.body.postId;
 			next();
@@ -43,7 +42,7 @@ describe("posting", function () {
 		var form = { writer: '김순이', text: '둥글게 네모나게 붉게 파랗게' };
 		request.post(test.url + '/api/threads/' + t1).send(form).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			p2 = res.body.postId;
 			next();
 		});
@@ -52,7 +51,7 @@ describe("posting", function () {
 		var form = { categoryId: 101, writer: '박철수', title: '두번째 글줄', text: '붉은 벽돌길을 걷다보면' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			t2 = res.body.threadId;
 			p3 = res.body.postId;
 			next();
@@ -70,7 +69,7 @@ describe("searching", function () {
 	it("should success for p1", function (next) {
 		request.get(test.url + '/api/search').query({ q: '첫번째' }).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			var r = res.body.results;
 			r.should.length(1);
 			r[0].postId.should.equal(p1);
@@ -80,7 +79,7 @@ describe("searching", function () {
 	it("should success for p2", function (next) {
 		request.get(test.url + '/api/search').query({ q: '둥글게 네모나게' }).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			var r = res.body.results;
 			r.should.length(1);
 			r[0].postId.should.equal(p2);
@@ -90,7 +89,7 @@ describe("searching", function () {
 	it("should success for p3", function (next) {
 		request.get(test.url + '/api/search').query({ q: '박철수' }).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			var r = res.body.results;
 			r.should.length(1);
 			r[0].postId.should.equal(p3);
@@ -115,7 +114,7 @@ describe("searching emtpy es", function () {
 	it("should success for p1", function (next) {
 		request.get(test.url + '/api/search').query({ q: '첫번째' }).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			res.body.results.should.length(0);
 			next();
 		});
@@ -123,7 +122,7 @@ describe("searching emtpy es", function () {
 	it("should success for p2", function (next) {
 		request.get(test.url + '/api/search').query({ q: '둥글게 네모나게' }).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			res.body.results.should.length(0);
 			next();
 		});
@@ -131,7 +130,7 @@ describe("searching emtpy es", function () {
 	it("should success for p3", function (next) {
 		request.get(test.url + '/api/search').query({ q: '박철수' }).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			var r = res.body.results;
 			res.body.results.should.length(0);
 			next();
@@ -157,7 +156,7 @@ describe("re-searching", function () {
 	it("should success for p1", function (next) {
 		request.get(test.url + '/api/search').query({ q: '첫번째' }).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			var r = res.body.results;
 			r.should.length(1);
 			r[0].postId.should.equal(p1);
@@ -167,7 +166,7 @@ describe("re-searching", function () {
 	it("should success for p2", function (next) {
 		request.get(test.url + '/api/search').query({ q: '둥글게 네모나게' }).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			var r = res.body.results;
 			r.should.length(1);
 			r[0].postId.should.equal(p2);
@@ -177,7 +176,7 @@ describe("re-searching", function () {
 	it("should success for p3", function (next) {
 		request.get(test.url + '/api/search').query({ q: '박철수' }).end(function (err, res) {
 			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			var r = res.body.results;
 			r.should.length(1);
 			r[0].postId.should.equal(p3);
