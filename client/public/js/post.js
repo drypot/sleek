@@ -138,7 +138,7 @@ init.add(function() {
 		request.post('/api/threads').send(post).end(function (err, res) {
 			showSend();
 			if (err) {
-				errorDialog.system(err);
+				msgBox.error(err);
 			} else if (res.body.rc === rc.INVALID_DATA) {
 				_.each(res.body.error, function (error, field) {
 					_.each(error, function (error) {

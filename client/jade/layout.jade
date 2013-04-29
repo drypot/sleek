@@ -42,7 +42,7 @@ html
 					.nav-collapse.collapse.navbar-responsive-collapse
 						form.navbar-form.pull-right
 							input(type="text", style="width:200px", placeholder="Search")
-							button.btn(onclick="location='/logout'") Logout
+							button.btn(onclick="session.logout(); return false;") Logout
 							button.btn.btn-primary(onclick="location='/thread/new?c=!{category.id}'; return false;") New
 
 				else
@@ -67,7 +67,5 @@ html
 						button.close(type="button", data-dismiss="modal", aria-hidden="true") ×
 						h4.modal-title Modal title
 					.modal-body
-						p
 					.modal-footer
-						a.btn Close
-						a.btn.btn-primary Save changes
+						a.btn.btn-primary(data-dismiss="modal") Close

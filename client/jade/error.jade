@@ -15,10 +15,9 @@ block content
 			- var count = 0;
 			if err.rc
 				- count++;
-				- var msgs = require('./msgs');
-				h3 RC
-				pre= err.rc + ', ' + msgs[err.rc]
-			if err.message
+				h3 Message
+				pre= err.rc + ', ' + err.message
+			else if err.message
 				- count++;
 				h3 Message
 				pre= err.message

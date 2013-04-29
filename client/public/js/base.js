@@ -1,7 +1,5 @@
 var request = superagent;
 
-var l = {};
-
 (function () {
 
 	// for IE 7
@@ -60,34 +58,16 @@ var l = {};
 
 init.add(function () {
 
-	window.rc = {
-		SUCCESS: 1,
+	var error = window.error = {};
 
-		NOT_AUTHENTICATED: 101,
-		NOT_AUTHORIZED: 102,
-		INVALID_PASSWORD: 103,
+	error.NOT_AUTHENTICATED = 101;
+	error.NOT_AUTHORIZED = 102;
+	error.INVALID_PASSWORD = 103;
 
-		INVALID_DATA: 201,
-		INVALID_CATEGORY: 202,
-		INVALID_THREAD: 203,
-		INVALID_POST: 204
-	};
-
-	window.msg = {
-		FILL_TITLE: '제목을 입력해 주십시오.',
-		SHORTEN_TITLE: '제목을 줄여 주십시오.',
-		FILL_WRITER: '필명을 입력해 주십시오.',
-		SHORTEN_WRITER: '필명을 줄여 주십시오.'
-	};
-
-	msg[rc.NOT_AUTHENTICATED] = '먼저 로그인 해주십시오.';
-	msg[rc.NOT_AUTHORIZED] = '사용 권한이 없습니다.';
-	msg[rc.INVALID_PASSWORD] = '비밀번호를 다시 확인해 주십시오.';
-
-	msg[rc.INVALID_DATA] = '비정상적인 값이 입력되었습니다.';
-	msg[rc.INVALID_CATEGORY] = '정상적인 카테고리가 아닙니다.';
-	msg[rc.INVALID_THREAD] = '정상적인 글줄이 아닙니다.';
-	msg[rc.INVALID_POST] = '정상적인 글이 아닙니다.';
+	error.INVALID_DATA = 201;
+	error.INVALID_CATEGORY = 202;
+	error.INVALID_THREAD = 203;
+	error.INVALID_POST = 204
 
 });
 
@@ -105,12 +85,24 @@ init.add(function () {
 init.add(function () {
 
 	window.ping = function () {
-		request.get('/api/hello').end();
+		request.get('/api/hello').end(function (err, res) {
+			if (err || !res.ok) {
+				console.log('ping: error');
+				return;
+			}
+			console.log('ping:');
+		});
 	};
 
 	window.ping.repeat = function () {
 		window.setInterval(function() {
-			request.get('/api/hello').end();
+			request.get('/api/hello').end(function (err, res) {
+				if (err || !res.ok) {
+					console.log('ping: error');
+					return;
+				}
+				console.log('ping:');
+			});
 		}, 1000 * 60 * 5); // 5 min
 	};
 

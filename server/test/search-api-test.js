@@ -39,7 +39,7 @@ describe("searching", function () {
 	});
 	it("should fail", function (next) {
 		request.get(test.url + '/api/search', function (err, res) {
-			res.status.should.equal(200);
+			should.not.exist(res.error);
 			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next();
 		});
@@ -49,7 +49,7 @@ describe("searching", function () {
 	});
 	it("should success", function (next) {
 		request.get(test.url + '/api/search', function (err, res) {
-			res.status.should.equal(200);
+			should.not.exist(res.error);
 			should.not.exist(res.body.err);
 			var r = res.body.results;
 			r.should.length(0);
@@ -80,7 +80,7 @@ describe("searching", function () {
 	describe("user name", function () {
 		it("should success", function (next) {
 			request.get(test.url + '/api/search').query({ q: 'snowman' }).end(function (err, res) {
-				res.status.should.equal(200);
+				should.not.exist(res.error);
 				should.not.exist(res.body.err);
 				var r = res.body.results;
 				r.should.length(3);
@@ -94,7 +94,7 @@ describe("searching", function () {
 	describe("title", function () {
 		it("should success", function (next) {
 			request.get(test.url + '/api/search').query({ q: 'title 4' }).end(function (err, res) {
-				res.status.should.equal(200);
+				should.not.exist(res.error);
 				should.not.exist(res.body.err);
 				var r = res.body.results;
 				r.should.length(1);
@@ -106,7 +106,7 @@ describe("searching", function () {
 	describe("text", function () {
 		it("should success", function (next) {
 			request.get(test.url + '/api/search').query({ q: 'apple orange' }).end(function (err, res) {
-				res.status.should.equal(200);
+				should.not.exist(res.error);
 				should.not.exist(res.body.err);
 				var r = res.body.results;
 				r.should.length(2);
@@ -117,7 +117,7 @@ describe("searching", function () {
 		});
 		it("should success", function (next) {
 			request.get(test.url + '/api/search').query({ q: 'apple banana' }).end(function (err, res) {
-				res.status.should.equal(200);
+				should.not.exist(res.error);
 				should.not.exist(res.body.err);
 				var r = res.body.results;
 				r.should.length(1);
@@ -129,7 +129,7 @@ describe("searching", function () {
 	describe("hangul", function () {
 		it("should success", function (next) {
 			request.get(test.url + '/api/search').query({ q: '둥글' }).end(function (err, res) {
-				res.status.should.equal(200);
+				should.not.exist(res.error);
 				should.not.exist(res.body.err);
 				var r = res.body.results;
 				r.should.length(3);
@@ -146,7 +146,7 @@ describe("searching", function () {
 		});
 		it("should return no results", function (next) {
 			request.get(test.url + '/api/search').query({ q: 'admin' }).end(function (err, res) {
-				res.status.should.equal(200);
+				should.not.exist(res.error);
 				should.not.exist(res.body.err);
 				var r = res.body.results;
 				r.should.length(0);
@@ -158,7 +158,7 @@ describe("searching", function () {
 		});
 		it("should return results", function (next) {
 			request.get(test.url + '/api/search').query({ q: 'admin' }).end(function (err, res) {
-				res.status.should.equal(200);
+				should.not.exist(res.error);
 				should.not.exist(res.body.err);
 				var r = res.body.results;
 				r.should.length(2);

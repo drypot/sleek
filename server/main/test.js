@@ -21,7 +21,7 @@ init.add(function () {
 	exports.logout = function (next) {
 		request.del(url + '/api/sessions', function (err, res) {
 			should.not.exist(err);
-			res.status.should.equal(200);
+			should.not.exist(res.error);
 			should.not.exist(res.body.err);
 			next();
 		});
@@ -30,7 +30,7 @@ init.add(function () {
 	exports.loginUser = function (next) {
 		request.post(url + '/api/sessions').send({ password: '1' }).end(function (err, res) {
 			should.not.exist(err);
-			res.status.should.equal(200);
+			should.not.exist(res.error);
 			should.not.exist(res.body.err);
 			res.body.role.name.should.equal('user');
 			next();
@@ -40,7 +40,7 @@ init.add(function () {
 	exports.loginAdmin = function (next) {
 		request.post(url + '/api/sessions').send({ password: '3' }).end(function (err, res) {
 			should.not.exist(err);
-			res.status.should.equal(200);
+			should.not.exist(res.error);
 			should.not.exist(res.body.err);
 			res.body.role.name.should.equal('admin');
 			next();

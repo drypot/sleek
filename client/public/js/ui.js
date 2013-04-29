@@ -1,22 +1,26 @@
 init.add(function() {
 
-	var $modal;
+	var $modal = $('#error-modal');
+	var $title = $modal.find('.modal-title');
+	var $body = $modal.find('.modal-body');
 
-	window.errorDialog = function (header, text) {
-		if (!$modal) {
-			$modal = $('#error-modal');
-		}
-		$modal.find('h3').html(header);
-		$modal.find('p').html(text);
+	window.msgBox = function (header, text) {
+		$title.empty();
+		$title.append('<h3>' + header + '</h3>');
+		$body.empty();
+		$body.append('<p>' + text + '</p>');
 		$modal.modal('show');
 	};
 
-	window.errorDialog.system = function (err) {
-		errorDialog("시스템 오류", err);
-	};
-
-	window.errorDialog.unhandled = function (rc) {
-		errorDialog("발생해서는 안 되는 오류", '' + rc + ':' + l.rcMsg[rc]);
+	window.msgBox.error = function (err) {
+		$title.empty();
+		$title.append('<h3>시스템 오류</h3>');
+		$body.empty();
+		$body.append('<h3>Message</h3>');
+		$body.append('<pre>' + err.message + '</pre>');
+		$body.append('<h3>Stack</h3>');
+		$body.append('<pre>' + err.stack + '</pre>');
+		$modal.modal('show');
 	};
 
 });
@@ -31,7 +35,7 @@ init.add(function () {
 	};
 
 	alerts.add = function ($control, msg) {
-		var $alert = $('<div>').addClass('alert alert-error').text(msg);
+		var $alert = $('<div>').addClass('alert alert-danger').text(msg);
 		var $group = $control.closest('div');
 		$group.addClass('has-error');
 		$group.before($alert);

@@ -20,14 +20,14 @@ before(function () {
 describe("session", function () {
 	it("can save value", function (next) {
 		request.put(test.url + '/api/test/session').send({ book: 'book217', price: 112 }).end(function (err, res) {
-			res.status.should.equal(200);
+			should.not.exist(res.error);
 			res.body.should.equal('ok');
 			next();
 		});
 	});
 	it("can get value", function (next) {
 		request.get(test.url + '/api/test/session').send([ 'book', 'price' ]).end(function (err, res) {
-			res.status.should.equal(200);
+			should.not.exist(res.error);
 			res.body.should.have.property('book', 'book217');
 			res.body.should.have.property('price', 112);
 			next();
@@ -38,7 +38,7 @@ describe("session", function () {
 	});
 	it("should return nothing after terminated", function (next) {
 		request.get(test.url + '/api/test/session').send([ 'book', 'price' ]).end(function (err, res) {
-			res.status.should.equal(200);
+			should.not.exist(res.error);
 			res.body.should.not.have.property('book');
 			res.body.should.not.have.property('price');
 			next();
@@ -55,7 +55,7 @@ describe("session making", function () {
 	});
 	it("should fail with wrong password", function (next) {
 		request.post(test.url + '/api/sessions').send({ password: 'xxx' }).end(function (err, res) {
-			res.status.should.equal(200);
+			should.not.exist(res.error);
 			res.body.err.rc.should.equal(error.INVALID_PASSWORD);
 			next();
 		});
@@ -68,7 +68,7 @@ describe("session info", function () {
 	});
 	it("should return error", function (next) {
 		request.get(test.url + '/api/sessions', function (err, res) {
-			res.status.should.equal(200);
+			should.not.exist(res.error);
 			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next();
 		});
@@ -78,7 +78,7 @@ describe("session info", function () {
 	});
 	it("should success", function (next) {
 		request.get(test.url + '/api/sessions', function (err, res) {
-			res.status.should.equal(200);
+			should.not.exist(res.error);
 			should.not.exist(res.body.err);
 			res.body.role.name.should.equal('user');
 			should.exist(res.body.role.categoriesForMenu);
@@ -93,7 +93,7 @@ describe("accessing /api/test/auth/any", function () {
 	});
 	it("should fail", function (next) {
 		request.get(test.url + '/api/test/auth/any', function (err, res) {
-			res.status.should.equal(200);
+			should.not.exist(res.error);
 			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next();
 		});
@@ -103,7 +103,7 @@ describe("accessing /api/test/auth/any", function () {
 	});
 	it("should success", function (next) {
 		request.get(test.url + '/api/test/auth/any', function (err, res) {
-			res.status.should.equal(200);
+			should.not.exist(res.error);
 			should.not.exist(res.body.err);
 			next();
 		});
@@ -113,7 +113,7 @@ describe("accessing /api/test/auth/any", function () {
 	});
 	it("should fail", function (next) {
 		request.get(test.url + '/api/test/auth/any', function (err, res) {
-			res.status.should.equal(200);
+			should.not.exist(res.error);
 			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next();
 		});
@@ -126,7 +126,7 @@ describe("accessing /api/test/auth/user", function () {
 	});
 	it("should fail", function (next) {
 		request.get(test.url + '/api/test/auth/user', function (err, res) {
-			res.status.should.equal(200);
+			should.not.exist(res.error);
 			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next();
 		});
@@ -136,7 +136,7 @@ describe("accessing /api/test/auth/user", function () {
 	});
 	it("should success", function (next) {
 		request.get(test.url + '/api/test/auth/user', function (err, res) {
-			res.status.should.equal(200);
+			should.not.exist(res.error);
 			should.not.exist(res.body.err);
 			next();
 		});
@@ -149,7 +149,7 @@ describe("accessing /api/test/auth/admin", function () {
 	});
 	it("should fail", function (next) {
 		request.get(test.url + '/api/test/auth/admin', function (err, res) {
-			res.status.should.equal(200);
+			should.not.exist(res.error);
 			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next();
 		});
@@ -159,7 +159,7 @@ describe("accessing /api/test/auth/admin", function () {
 	});
 	it("should fail", function (next) {
 		request.get(test.url + '/api/test/auth/admin', function (err, res) {
-			res.status.should.equal(200);
+			should.not.exist(res.error);
 			res.body.err.rc.should.equal(error.NOT_AUTHORIZED);
 			next();
 		});
@@ -169,7 +169,7 @@ describe("accessing /api/test/auth/admin", function () {
 	});
 	it("should success", function (next) {
 		request.get(test.url + '/api/test/auth/admin', function (err, res) {
-			res.status.should.equal(200);
+			should.not.exist(res.error);
 			should.not.exist(res.body.err);
 			next();
 		});
