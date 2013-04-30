@@ -68,15 +68,16 @@ init.add(function (next) {
 		try {
 			var tarDir = fs2.mkdirs(subs);
 			var saved = [];
-			for (var orgName in files) {
-				var safeName = fs2.safeFilename(path.basename(orgName));
-				var tmpName = path.basename(files[orgName]);
+			for (var i = 0; i < files.length; i++) {
+				var file = files[i];
+				var safeName = fs2.safeFilename(path.basename(file.name));
+				var tmpName = path.basename(file.tmpName);
 				try {
 					fs.renameSync(tmpDir + '/' + tmpName, tarDir + '/' + safeName);
 				} catch (err) {
-					if (err.code !== 'ENOENT') throw err;
+					if (err.code !== 'ENOENT') next(err);
 				}
-				saved.push(safeName);
+				saved.push({ name: safeName });
 			}
 			next(null, saved);
 		} catch (err) {
@@ -88,20 +89,20 @@ init.add(function (next) {
 		if (!files || files.length == 0) {
 			return next();
 		}
-		deleteFiles(exports.postFileDir(postId), files, next);
+		deleteFiles(files, exports.postFileDir(postId), next);
 	};
 
-	function deleteFiles(dir, files, next) {
+	function deleteFiles(files, dir, next) {
 		try {
 			var deleted = [];
 			files.forEach(function (file) {
 				var name = path.basename(file)
 				var p = dir + '/' + name;
-//					console.log('deleting: ' + p);
+//				console.log('deleting: ' + p);
 				try {
 					fs.unlinkSync(p);
 				} catch (err) {
-					if (err.code !== 'ENOENT') throw err;
+					if (err.code !== 'ENOENT') next(err);
 				}
 				deleted.push(name);
 			});

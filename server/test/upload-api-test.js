@@ -1,6 +1,7 @@
 var should = require('should');
 var request = require('superagent').agent();
 
+var l = require('../main/l');
 var init = require('../main/init');
 var config = require('../main/config')({ test: true });
 var upload = require('../main/upload');
@@ -49,8 +50,11 @@ describe("uploading one file", function () {
 				should.not.exist(res.body.err);
 //				console.log(res.body);
 				var files = res.body.files;
-				files.should.have.property('dummy.txt');
-				upload.tmpFileExists(files['dummy.txt']).should.be.true;
+				var file = l.find(files, function (file) {
+					return file.name === 'dummy.txt';
+				});
+				should.exist(file);
+				upload.tmpFileExists(file.tmpName).should.be.true;
 				next();
 			});
 	});
@@ -68,10 +72,16 @@ describe("uploading two files", function () {
 				should.not.exist(res.body.err);
 //				console.log(res.body);
 				var files = res.body.files;
-				files.should.have.property('dummy.txt');
-				files.should.have.property('dummy2.txt');
-				upload.tmpFileExists(files['dummy.txt']).should.be.true;
-				upload.tmpFileExists(files['dummy2.txt']).should.be.true;
+				var file = l.find(files, function (file) {
+					return file.name === 'dummy.txt';
+				});
+				should.exist(file);
+				upload.tmpFileExists(file.tmpName).should.be.true;
+				var file = l.find(files, function (file) {
+					return file.name === 'dummy2.txt';
+				});
+				should.exist(file);
+				upload.tmpFileExists(file.tmpName).should.be.true;
 				next();
 			});
 	});
@@ -95,28 +105,37 @@ describe("deleting file", function () {
 	});
 	it("should success for dummy.txt", function (next) {
 		var delFiles = [];
-		delFiles.push(files['dummy.txt']);
-		upload.tmpFileExists(files['dummy.txt']).should.be.true;
+		var dummy = l.find(files, function (file) {
+			return file.name === 'dummy.txt';
+		});
+		delFiles.push(dummy);
+		upload.tmpFileExists(dummy.tmpName).should.be.true;
 		request.del(test.url + '/api/upload').send({ files: delFiles }).end(function (err, res) {
 			should.not.exist(err);
 			res.should.have.status(200);
 			should.not.exist(res.body.err);
-			upload.tmpFileExists(files['dummy.txt']).should.be.false;
+			upload.tmpFileExists(dummy.tmpName).should.be.false;
 			next();
 		});
 	});
 	it("should success for dummy2.txt and dummy3.txt", function (next) {
 		var delFiles = [];
-		delFiles.push(files['dummy2.txt']);
-		delFiles.push(files['dummy3.txt']);
-		upload.tmpFileExists(files['dummy2.txt']).should.be.true;
-		upload.tmpFileExists(files['dummy3.txt']).should.be.true;
+		var dummy2 = l.find(files, function (file) {
+			return file.name === 'dummy2.txt';
+		});
+		var dummy3 = l.find(files, function (file) {
+			return file.name === 'dummy3.txt';
+		});
+		delFiles.push(dummy2);
+		delFiles.push(dummy3);
+		upload.tmpFileExists(dummy2.tmpName).should.be.true;
+		upload.tmpFileExists(dummy3.tmpName).should.be.true;
 		request.del(test.url + '/api/upload').send({ files: delFiles }).end(function (err, res) {
 			should.not.exist(err);
 			res.should.have.status(200);
 			should.not.exist(res.body.err);
-			upload.tmpFileExists(files['dummy2.txt']).should.be.false;
-			upload.tmpFileExists(files['dummy3.txt']).should.be.false;
+			upload.tmpFileExists(dummy2.tmpName).should.be.false;
+			upload.tmpFileExists(dummy3.tmpName).should.be.false;
 			next();
 		});
 	});
