@@ -5,8 +5,10 @@ block title
 
 block content
 
-	.page-header(style="border: 0")
-		h1 #{category.name}
+	- var categories = role.categories
+
+	.page-header
+		h2 #{category.name}
 
 	#content
 		table#threads.table.table-hover.hidden-phone.threads
@@ -23,7 +25,7 @@ block content
 								a(href="/threads?c=" + thread.category.id) #{categories[thread.category.id].name}
 						td #{thread.writer}
 						td !{thread.hit}
-						td !{dateTime.format(new Date(thread.updated))}
+						td !{thread.updatedStr}
 				else
 					tr
 						td.t 표시할 내용이 없습니다.
@@ -44,7 +46,7 @@ block content
 									small
 										a(href="/threads?c=" + thread.category.id) #{categories[thread.category.id].name}
 								small #{thread.writer}
-								small !{dateTime.format(new Date(thread.updated))}
+								small !{thread.updatedStr}
 				else
 					tr
 						td.t 표시할 내용이 없습니다.

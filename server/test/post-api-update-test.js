@@ -29,7 +29,7 @@ describe("updating", function () {
 		request.put(test.url + '/api/threads/0/0', function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
-			next(err);
+			next();
 		});
 	});
 	it("given user session", function (next) {
@@ -42,7 +42,7 @@ describe("updating", function () {
 			should(!res.body.err);
 			t1 = res.body.threadId;
 			p1 = res.body.postId;
-			next(err);
+			next();
 		});
 	});
 	it("should fail when title empty", function (next) {
@@ -53,7 +53,7 @@ describe("updating", function () {
 			res.body.err.fields.some(function (field) {
 				return field.name === 'title' && field.msg === error.msg.FILL_TITLE;
 			}).should.true;
-			next(err);
+			next();
 		});
 	});
 	it("should fail when writer empty", function (next) {
@@ -64,7 +64,7 @@ describe("updating", function () {
 			res.body.err.fields.some(function (field) {
 				return field.name === 'writer' && field.msg === error.msg.FILL_WRITER;
 			}).should.true;
-			next(err);
+			next();
 		});
 	});
 	it("should success when category not changed", function (next) {
@@ -72,17 +72,20 @@ describe("updating", function () {
 		request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
-			request.get(test.url + '/api/threads/' + t1 + '/' + p1, function (err, res) {
-				should(!res.error);
-				should(!res.body.err);
-				res.body.post.head.should.true;
-				res.body.category.id.should.equal(101);
-				res.body.post.writer.should.equal('snowman1');
-				res.body.thread.title.should.equal('title1');
-				res.body.post.text.should.equal('text1');
-				res.body.post.visible.should.true;
-				next(err);
-			});
+			next();
+		});
+	});
+	it("can be confirmed", function (next) {
+		request.get(test.url + '/api/threads/' + t1 + '/' + p1, function (err, res) {
+			should(!res.error);
+			should(!res.body.err);
+			res.body.post.head.should.true;
+			res.body.category.id.should.equal(101);
+			res.body.post.writer.should.equal('snowman1');
+			res.body.thread.title.should.equal('title1');
+			res.body.post.text.should.equal('text1');
+			res.body.post.visible.should.true;
+			next();
 		});
 	});
 	it("should success when category changed", function (next) {
@@ -90,12 +93,15 @@ describe("updating", function () {
 		request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
-			request.get(test.url + '/api/threads/' + t1 + '/' + p1, function (err, res) {
-				should(!res.error);
-				should(!res.body.err);
-				res.body.category.id.should.equal(102);
-				next(err);
-			});
+			next();
+		});
+	});
+	it("can be confirmed", function (next) {
+		request.get(test.url + '/api/threads/' + t1 + '/' + p1, function (err, res) {
+			should(!res.error);
+			should(!res.body.err);
+			res.body.category.id.should.equal(102);
+			next();
 		});
 	});
 	it("should success but can not change visible", function (next) {
@@ -103,12 +109,27 @@ describe("updating", function () {
 		request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
-			request.get(test.url + '/api/threads/' + t1 + '/' + p1, function (err, res) {
-				should(!res.error);
-				should(!res.body.err);
-				res.body.post.visible.should.true;
-				next(err);
-			});
+			next();
+		});
+	});
+	it("can be confirmed", function (next) {
+		request.get(test.url + '/api/threads/' + t1 + '/' + p1, function (err, res) {
+			should(!res.error);
+			should(!res.body.err);
+			res.body.post.visible.should.true;
+			next();
+		});
+	});
+	it("given new user session", function (next) {
+		test.loginUser(next);
+	});
+	it("should fail after reloged", function (next) {
+		var form = { categoryId: 102, writer: 'snowman3', title: 'title3', text: 'text3', visible: false };
+		request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
+			should(!res.error);
+			should(res.body.err);
+			res.body.err.rc.should.equal(error.NOT_AUTHORIZED);
+			next();
 		});
 	});
 	it("given admin session", function (next) {
@@ -119,12 +140,15 @@ describe("updating", function () {
 		request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
-			request.get(test.url + '/api/threads/' + t1 + '/' + p1, function (err, res) {
-				should(!res.error);
-				should(!res.body.err);
-				res.body.post.visible.should.false;
-				next(err);
-			});
+			next();
+		});
+	});
+	it("can be confirmed", function (next) {
+		request.get(test.url + '/api/threads/' + t1 + '/' + p1, function (err, res) {
+			should(!res.error);
+			should(!res.body.err);
+			res.body.post.visible.should.false;
+			next();
 		});
 	});
 });
@@ -141,7 +165,7 @@ describe("updating reply", function () {
 			should(!res.body.err);
 			t1 = res.body.threadId;
 			p1 = res.body.postId;
-			next(err);
+			next();
 		});
 	});
 	it("given p2", function (next) {
@@ -150,7 +174,7 @@ describe("updating reply", function () {
 			should(!res.error);
 			should(!res.body.err);
 			p2 = res.body.postId;
-			next(err);
+			next();
 		});
 	});
 	it("should success except visible field", function (next) {
@@ -158,15 +182,18 @@ describe("updating reply", function () {
 		request.put(test.url + '/api/threads/' + t1 + '/' + p2).send(form).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
-			request.get(test.url + '/api/threads/' + t1 + '/' + p2, function (err, res) {
-				should(!res.error);
-				should(!res.body.err);
-				res.body.post.head.should.false;
-				res.body.post.writer.should.equal('snowman1');
-				res.body.post.text.should.equal('text1');
-				res.body.post.visible.should.true;
-				next(err);
-			});
+			next();
+		});
+	});
+	it("can be confirmed", function (next) {
+		request.get(test.url + '/api/threads/' + t1 + '/' + p2, function (err, res) {
+			should(!res.error);
+			should(!res.body.err);
+			res.body.post.head.should.false;
+			res.body.post.writer.should.equal('snowman1');
+			res.body.post.text.should.equal('text1');
+			res.body.post.visible.should.true;
+			next();
 		});
 	});
 });
@@ -183,7 +210,7 @@ describe("updating recycle bin", function () {
 			should(!res.body.err);
 			t1 = res.body.threadId;
 			p1 = res.body.postId;
-			next(err);
+			next();
 		});
 	});
 	it("should success", function (next) {
@@ -191,7 +218,7 @@ describe("updating recycle bin", function () {
 		request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
-			next(err);
+			next();
 		});
 	});
 	it("given user session", function (next) {
@@ -202,7 +229,7 @@ describe("updating recycle bin", function () {
 		request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.INVALID_CATEGORY);
-			next(err);
+			next();
 		});
 	});
 });

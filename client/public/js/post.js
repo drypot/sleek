@@ -1,10 +1,9 @@
-l.post = {};
 
 init.add(function () {
 
-	// Thread
+	window.post = {};
 
-	l.post.initThreadPage = function () {
+	post.initThreadPage = function () {
 
 		return;
 
@@ -108,7 +107,7 @@ init.add(function() {
 		$send,
 		$sending;
 
-	l.post.initNewThread = function () {
+	post.initNewThread = function () {
 		$form = $('#new-thread');
 		$category = $form.find('[name=category]');
 		$writer = $form.find('[name=writer]');
@@ -117,7 +116,7 @@ init.add(function() {
 		$send = $form.find('[name=send]');
 		$sending = $form.find('[name=sending]');
 
-		$writer.val(l.post.savedWriter());
+		$writer.val(post.savedWriter());
 		if ($writer.val()) {
 			$title.focus();
 		} else {
@@ -166,11 +165,11 @@ init.add(function() {
 		$sending.removeClass('hide');
 	}
 
-	l.post.saveWriter = function (writer) {
+	post.saveWriter = function (writer) {
 		localStorage.setItem('writer', writer);
 	}
 
-	l.post.savedWriter = function () {
+	post.savedWriter = function () {
 		return localStorage.getItem('writer') || '';
 	}
 

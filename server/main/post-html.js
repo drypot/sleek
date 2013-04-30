@@ -2,7 +2,6 @@ var init = require('../main/init');
 var post = require('../main/post');
 var express = require('../main/express');
 var UrlMaker = require('../main/UrlMaker');
-var dateTime = require('../main/dateTime');
 
 init.add(function () {
 
@@ -11,7 +10,8 @@ init.add(function () {
 	console.log('post-html:');
 
 	app.get('/threads', function (req, res, next) {
-		req.roleHtml(function (err, role) {
+		req.role(function (err, role) {
+			if (err) return res.renderErr(err);
 			var params = post.threadsParams(req);
 			post.threads(role, params, function (err, category, threads, last) {
 				if (err) return res.renderErr(err);
@@ -23,12 +23,10 @@ init.add(function () {
 
 				prevNext(params, last, function (prevUrl, nextUrl) {
 					res.render('threads', {
-						dateTime: dateTime,
 						category: category,
-						categories: role.categories,
 						threads: threads,
 						prevUrl: prevUrl,
-						nextUrl: nextUrl
+						nextUrl: nextUrl,
 					});
 				});
 			});
@@ -37,65 +35,41 @@ init.add(function () {
 
 	function prevNext(params, last, func) {
 		var page = params.page;
-		var prev = page === 1 ? null : page - 1;
-		var next = page + 1;
 		var prevUrl, nextUrl;
 		var u;
-		if (prev) {
+		if (page > 1) {
 			u = new UrlMaker('/threads')
 			u.add('c', params.categoryId, 0);
-			u.add('p', prev, 1);
+			u.add('p', page - 1, 1);
 			prevUrl = u.toString();
 		}
 		if (!last) {
 			u = new UrlMaker('/threads');
 			u.add('c', params.categoryId, 0);
-			u.add('p', next, 1);
+			u.add('p', page + 1, 1);
 			nextUrl = u.toString();
 		}
 		func(prevUrl, nextUrl);
 	}
 
-	app.get('/thread/:threadId([0-9]+)', function (req, res, next) {
-		req.role(function () {
-			var threadId = l.int(req.params, 'threadId', 0);
-			prepareThread(res, threadId, function (thread) {
-				categoryForRead(res, thread.categoryId, function (category) {
-					var r = {
-						title: thread.title,
-						thread: {
-							id: thread._id
-						},
-						category: {
-							id: category.id,
-							name: category.name
-						},
-						post: []
-					};
-					mongo.findPostsByThread(threadId, function (err, post) {
-						if (err) {
-							next(err);
-						} else {
-							iterPostList(category, post, function (post) {
-								r.post.push({
-									id: post._id,
-									writer: post.writer,
-									//created: post.created,
-									text: post.text,
-									upload: uploadUrl(post),
-
-									createdStr: l.formatDateTime(new Date(post.created)),
-									editable: category.editable || _.include(req.session.posts, post.id),
-								});
-
-
-							});
-							res.render('thread-num', r);
-						}
-					});
+	app.get('/threads/:threadId([0-9]+)', function (req, res, next) {
+		req.role(function (err, role) {
+			if (err) return res.renderErr(err);
+			var threadId = parseInt(req.params.threadId) || 0;
+			post.threadAndPosts(role, threadId, req.session.posts, function (err, category, thread, posts) {
+				if (err) return res.renderErr(err);
+				res.render('threads-num', {
+					category: {
+						id: category.id,
+						name: category.name
+					},
+					thread: {
+						id: thread._id,
+						title: thread.title
+					},
+					posts: posts
 				});
 			});
-
 		});
 	});
 

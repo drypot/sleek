@@ -1,4 +1,5 @@
 var l = require('../main/l');
+var dateTime = require('../main/dateTime');
 var init = require('../main/init');
 var mongo = require('../main/mongo');
 var es = require('../main/es');
@@ -126,6 +127,7 @@ init.add(function () {
 							hit: thread.hit,
 							length: thread.length,
 							updated: thread.updated.getTime(),
+							updatedStr: dateTime.format(thread.updated),
 							writer: thread.writer,
 							title: thread.title
 						});
@@ -137,7 +139,7 @@ init.add(function () {
 		});
 	};
 
-	exports.threadAndPosts = function (role, threadId, next) {
+	exports.threadAndPosts = function (role, threadId, editables, next) {
 		findThread(threadId, function (err, thread) {
 			if (err) return next(err);
 			categoryForRead(role, thread.categoryId, function (err, category) {
@@ -152,20 +154,22 @@ init.add(function () {
 							posts.push({
 								id: post._id,
 								writer: post.writer,
-								created: post.created,
+								created: post.created.getTime(),
+								createdStr: dateTime.format(post.created),
 								text: post.text,
-								files: post.files
+								files: post.files,
+								editable: isEditable(category, post._id, editables)
 							});
 						}
 						return;
 					}
-					next(null, thread, category, posts);
+					next(null, category, thread, posts);
 				});
 			});
 		});
 	};
 
-	exports.threadAndPost = function (role, threadId, postId, editablePosts, next) {
+	exports.threadAndPost = function (role, threadId, postId, editables, next) {
 		findThread(threadId, function (err, thread) {
 			if (err) return next(err);
 			findPost(thread, postId, function (err, post) {
@@ -176,14 +180,15 @@ init.add(function () {
 					var postX = {
 						id: post._id,
 						writer: post.writer,
-						created: post.created,
+						created: post.created.getTime(),
+						createdStr: dateTime.format(post.created),
 						text: post.text,
 						visible: post.visible,
 						files: post.files,
 						head: isHead(thread, post),
-						editable: isEditable(category, post._id, editablePosts)
+						editable: isEditable(category, post._id, editables)
 					}
-					next(err, thread, postX);
+					next(null, thread, postX);
 				});
 			});
 		});

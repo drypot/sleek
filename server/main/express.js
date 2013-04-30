@@ -85,24 +85,6 @@ init.add(function () {
 		next(null, role);
 	};
 
-	should.not.exist(app.request.roleHtml);
-	app.request.roleHtml = function (roleName, next) {
-		if (typeof roleName === 'function') {
-			next = roleName;
-			roleName = null;
-		}
-		var req = this;
-		var res = this.res;
-		var role = res.locals.role;
-		if (!role) {
-			return res.redirect('/');
-		}
-		if (roleName && roleName !== role.name) {
-			return res.renderErr(error(error.NOT_AUTHORIZED));
-		}
-		next(null, role);
-	};
-
 	var empty = {};
 
 	should.not.exist(app.response.jsonEmpty);
@@ -126,6 +108,10 @@ init.add(function () {
 
 	should.not.exist(app.response.renderErr);
 	app.response.renderErr = function (err) {
+		if (err.rc && err.rc == error.NOT_AUTHENTICATED) {
+			this.redirect('/');
+			return;
+		}
 		var err2 = {};
 		for (var key in err) {
 			err2[key] = err[key];

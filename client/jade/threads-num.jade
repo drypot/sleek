@@ -1,7 +1,7 @@
 extends layout
 
 block title
-	title #{category.name} - #{siteTitle}
+	title #{thread.title} - #{siteTitle}
 
 block content
 
@@ -10,22 +10,22 @@ block content
 			post.initThreadPage();
 		});
 
-	.page-header(style="border: 0")
-		h1 #{category.name}
+	.page-header
+		h2 #{thread.title}
 
 	#content
 		.posts
 			for post in posts
 				.post(id=post.id)
-					.writer #{writer}
-					.created !{dateTime.format(new Date(post.created))}
+					h5 #{post.writer}
+						small !{post.createdStr}
 					if post.files
-						.files
-						for file in post.files
-							.file
-								a(href=file.url, target='_blank') #{file.name}
-					.text
-						pre #{text}
+						.list-unstyled.files
+							for file in post.files
+								.file
+									a(href=file.url, target='_blank') #{file.name}
+					.t
+						pre #{post.text}
 					if post.editable
 						.cmd
 							a.btn(href='/threads/' + thread.id + '/' + post.id + '/edit') Edit

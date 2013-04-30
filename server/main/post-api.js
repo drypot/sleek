@@ -26,7 +26,7 @@ init.add(function () {
 		req.role(function (err, role) {
 			if (err) return res.jsonErr(err);
 			var threadId = parseInt(req.params.threadId) || 0;
-			post.threadAndPosts(role, threadId, function (err, thread, category, posts) {
+			post.threadAndPosts(role, threadId, req.session.posts, function (err, category, thread, posts) {
 				if (err) return res.jsonErr(err);
 				res.json({
 					thread: {

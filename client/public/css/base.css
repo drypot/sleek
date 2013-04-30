@@ -2,6 +2,10 @@ body {
   padding-top: 50px;
   padding-bottom: 40px;
 }
+.page-header {
+  border: 0;
+  margin-bottom: 10px;
+}
 .submit-group {
   margin-top: 25px;
 }
@@ -29,35 +33,26 @@ body {
 .posts .post {
   border-top: 1px solid #ddd;
 }
+.posts .post h5 small,
+.posts .post h4 small {
+  margin-left: 15px;
+}
 .posts .post .files {
+  margin-bottom: 10px;
+}
+.posts .post .t {
   clear: both;
-  margin-bottom: 1.5em;
+  margin-bottom: 25px;
 }
-.posts .post .files .file {
-  margin-bottom: 0.3em;
-}
-.posts .post .files .file .img {
-  margin-top: 0.3em;
-  margin-bottom: 0.8em;
-}
-.posts .post .writer {
-  margin: 0.4em 2em 1.5em 0em;
-  float: left;
-  font-weight: bold;
-}
-.posts .post .created {
-  margin: 0.4em 2em 1.5em 0em;
-  float: left;
-  font-size: 85%;
-}
-.posts .post .text {
-  clear: both;
-  margin: 0em;
-  margin-bottom: 1.5em;
+.posts .post .t pre {
+  border: 0;
+  background-color: white;
+  margin: 0px;
+  padding: 0px;
   white-space: pre-wrap;
   word-wrap: break-word;
 }
-.posts .post .text img {
+.posts .post .t img {
   vertical-align: top;
 }
 .posts .post .cmd {
