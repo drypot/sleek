@@ -49,8 +49,8 @@ init.add(function (next) {
 		return publicDir + '/post/' + Math.floor(postId / 10000) + '/' + postId
 	};
 
-	exports.postFileUrl = function (postId, file) {
-		return config.data.uploadUrl + '/post/' + Math.floor(postId / 10000) + '/' + postId + '/' + encodeURIComponent(file.name);
+	exports.postFileUrl = function (postId, fname) {
+		return config.data.uploadUrl + '/post/' + Math.floor(postId / 10000) + '/' + postId + '/' + encodeURIComponent(fname);
 	}
 
 	exports.postFileExists = function (postId, filename) {

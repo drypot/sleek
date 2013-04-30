@@ -26,7 +26,7 @@ describe("creating post/replay", function () {
 	});
 	it("should fail", function (next) {
 		request.post(test.url + '/api/threads/0', function (err, res) {
-			res.should.have.status(200);
+			should(!res.error);
 			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next();
 		});
@@ -38,8 +38,8 @@ describe("creating post/replay", function () {
 	it("given t1", function (next) {
 		var form = { categoryId: 101, writer: 'snowman', title: 'title 1', text: 'text' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
-			res.should.have.status(200);
-			should.not.exist(res.body.err);
+			should(!res.error);
+			should(!res.body.err);
 			t1 = res.body.threadId;
 			next();
 		});
@@ -47,7 +47,7 @@ describe("creating post/replay", function () {
 	it("should fail with threadId 99999", function (next) {
 		var form = { writer: 'snowman', text: 'text' };
 		request.post(test.url + '/api/threads/99999').send(form).end(function (err, res) {
-			res.should.have.status(200);
+			should(!res.error);
 			res.body.err.rc.should.equal(error.INVALID_THREAD);
 			next();
 		});
@@ -62,7 +62,7 @@ describe("creating post/replay", function () {
 	it("should fail with writer empty", function (next) {
 		var form = { writer: ' ', text: 'text' };
 		request.post(test.url + '/api/threads/' + t1).send(form).end(function (err, res) {
-			res.should.have.status(200);
+			should(!res.error);
 			res.body.err.rc.should.equal(error.INVALID_DATA);
 			res.body.err.fields.some(function (field) {
 				return field.name === 'writer' && field.msg === error.msg.FILL_WRITER;
@@ -73,7 +73,7 @@ describe("creating post/replay", function () {
 	it("should success", function (next) {
 		var form = { writer: 'snowman', text: 'text' };
 		request.post(test.url + '/api/threads/' + t1).send(form).end(function (err, res) {
-			should.not.exist(res.body.err);
+			should(!res.body.err);
 			res.body.should.have.property('postId');
 			next();
 		});
@@ -88,8 +88,8 @@ describe("creating post/replay in recycle bin", function () {
 	it("given t2", function (next) {
 		var form = { categoryId: 40, writer: 'snowman', title: 'title in recycle bin', text: 'head text in recycle bin' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
-			res.should.have.status(200);
-			should.not.exist(res.body.err);
+			should(!res.error);
+			should(!res.body.err);
 			t2 = res.body.threadId;
 			next();
 		});
@@ -100,7 +100,7 @@ describe("creating post/replay in recycle bin", function () {
 	it("should fail", function (next) {
 		var form = { writer: 'snowman', text: 'text' };
 		request.post(test.url + '/api/threads/' + t2).send(form).end(function (err, res) {
-			res.should.have.status(200);
+			should(!res.error);
 			res.body.err.rc.should.equal(error.INVALID_CATEGORY);
 			next();
 		});
@@ -111,8 +111,8 @@ describe("creating post/replay in recycle bin", function () {
 	it("should success", function (next) {
 		var form = { writer: 'snowman', text: 'text' };
 		request.post(test.url + '/api/threads/' + t2).send(form).end(function (err, res) {
-			res.should.have.status(200);
-			should.not.exist(res.body.err);
+			should(!res.error);
+			should(!res.body.err);
 			next();
 		});
 	});

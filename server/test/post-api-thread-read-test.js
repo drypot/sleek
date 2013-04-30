@@ -26,7 +26,7 @@ describe("reading thread and posts", function () {
 	});
 	it("should fail", function (next) {
 		request.get(test.url + '/api/threads/0', function (err, res) {
-			res.should.have.status(200);
+			should(!res.error);
 			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next();
 		});
@@ -38,8 +38,8 @@ describe("reading thread and posts", function () {
 	it("given thread", function (next) {
 		var form = { categoryId: 101, writer: 'snowman', title: 'title', text: 'post1' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
-			res.should.have.status(200);
-			should.not.exist(res.body.err);
+			should(!res.error);
+			should(!res.body.err);
 			tid = res.body.threadId;
 			next();
 		});
@@ -47,15 +47,15 @@ describe("reading thread and posts", function () {
 	it("given reply", function (next) {
 		var form = { writer: 'snowman2', text: 'post2' };
 		request.post(test.url + '/api/threads/' + tid).send(form).end(function (err, res) {
-			res.should.have.status(200);
-			should.not.exist(res.body.err);
+			should(!res.error);
+			should(!res.body.err);
 			next();
 		});
 	});
 	it("should return 2 posts", function (next) {
 		request.get(test.url + '/api/threads/' + tid, function (err, res) {
-			res.should.have.status(200);
-			should.not.exist(res.body.err);
+			should(!res.error);
+			should(!res.body.err);
 			res.body.thread.id.should.equal(tid);
 			res.body.thread.title.should.equal('title');
 			res.body.category.id.should.equal(101);
@@ -70,15 +70,15 @@ describe("reading thread and posts", function () {
 	it("given another reply", function (next) {
 		var form = { writer: 'snowman2', text: 'post3' };
 		request.post(test.url + '/api/threads/' + tid).send(form).end(function (err, res) {
-			res.should.have.status(200);
-			should.not.exist(res.body.err);
+			should(!res.error);
+			should(!res.body.err);
 			next();
 		});
 	});
 	it("should return 3 posts", function (next) {
 		request.get(test.url + '/api/threads/' + tid, function (err, res) {
-			res.should.have.status(200);
-			should.not.exist(res.body.err);
+			should(!res.error);
+			should(!res.body.err);
 			res.body.posts.should.length(3);
 			next();
 		});
@@ -89,15 +89,15 @@ describe("reading thread and posts", function () {
 	it("given another invisible reply", function (next) {
 		var form = { writer: 'admin', text: 'post4', visible: false };
 		request.post(test.url + '/api/threads/' + tid).send(form).end(function (err, res) {
-			res.should.have.status(200);
-			should.not.exist(res.body.err);
+			should(!res.error);
+			should(!res.body.err);
 			next();
 		});
 	});
 	it("should return 4 posts", function (next) {
 		request.get(test.url + '/api/threads/' + tid, function (err, res) {
-			res.should.have.status(200);
-			should.not.exist(res.body.err);
+			should(!res.error);
+			should(!res.body.err);
 			res.body.posts.should.length(4);
 			next();
 		});
@@ -107,8 +107,8 @@ describe("reading thread and posts", function () {
 	});
 	it("should return 3 posts", function (next) {
 		request.get(test.url + '/api/threads/' + tid, function (err, res) {
-			res.should.have.status(200);
-			should.not.exist(res.body.err);
+			should(!res.error);
+			should(!res.body.err);
 			res.body.posts.should.length(3);
 			next();
 		});

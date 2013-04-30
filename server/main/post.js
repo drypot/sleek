@@ -1,3 +1,4 @@
+var l = require('../main/l');
 var init = require('../main/init');
 var mongo = require('../main/mongo');
 var es = require('../main/es');
@@ -147,12 +148,13 @@ init.add(function () {
 					if (err) return next(err);
 					if (post) {
 						if (post.visible || admin) {
+							expFileUrls(post);
 							posts.push({
 								id: post._id,
 								writer: post.writer,
 								created: post.created,
 								text: post.text,
-								files: fileUrls(post)
+								files: post.files
 							});
 						}
 						return;
@@ -170,13 +172,14 @@ init.add(function () {
 				if (err) return next(err);
 				categoryForRead(role, thread.categoryId, function (err, category) {
 					if (err) return next(err);
+					expFileUrls(post);
 					var postX = {
 						id: post._id,
 						writer: post.writer,
 						created: post.created,
 						text: post.text,
 						visible: post.visible,
-						files: fileUrls(post),
+						files: post.files,
 						head: isHead(thread, post),
 						editable: isEditable(category, post._id, editablePosts)
 					}
@@ -315,13 +318,8 @@ init.add(function () {
 			}
 			if (saved) {
 				if (post.files) {
-					saved.forEach(function (file) {
-						var found = post.files.some(function (file2) {
-							return file.name === file2.name;
-						})
-						if (!found) {
-							post.files.push(file);
-						}
+					l.merge(post.files, saved, function (file1, file2) {
+						return file1.name === file2.name;
 					});
 				} else {
 					post.files = saved;
@@ -345,18 +343,14 @@ init.add(function () {
 		}
 	}
 
-	function fileUrls(post) {
+	function expFileUrls(post) {
 		if (!post.files) {
-			return undefined;
+			return;
 		}
-		var urls = [];
-		post.files.forEach(function (file) {
-			urls.push({
-				name: file,
-				url: upload.postFileUrl(post._id, file)
-			});
-		});
-		return urls;
+		for (var i = 0; i < post.files.length; i++) {
+			var file = post.files[i];
+			file.url = upload.postFileUrl(post._id, file.name);
+		}
 	}
 
 	function isHead(thread, post) {

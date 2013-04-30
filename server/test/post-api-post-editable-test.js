@@ -28,8 +28,8 @@ describe("post.editable", function () {
 	it("given t1, p11", function (next) {
 		var form = { categoryId: 101, writer: 'snowman', title: 'title 1', text: 'post1' };
 			request.post(test.url + '/api/threads').send(form).end(function (err, res) {
-				res.should.have.status(200);
-				should.not.exist(res.body.err);
+				should(!res.error);
+				should(!res.body.err);
 				t1 = res.body.threadId;
 				p11 = res.body.postId;
 				next();
@@ -39,24 +39,24 @@ describe("post.editable", function () {
 	it("given p12", function (next) {
 		var form = { writer: 'snowman', text: 'post2' };
 		request.post(test.url + '/api/threads/' + t1).send(form).end(function (err, res) {
-			res.should.have.status(200);
-			should.not.exist(res.body.err);
+			should(!res.error);
+			should(!res.body.err);
 			p12 = res.body.postId;
 			next();
 		});
 	});
 	it("should be true for p11", function (next) {
 		request.get(test.url + '/api/threads/' + t1 + '/' + p11, function (err, res) {
-			res.should.have.status(200);
-			should.not.exist(res.body.err);
+			should(!res.error);
+			should(!res.body.err);
 			res.body.post.editable.should.be.true;
 			next();
 		});
 	});
 	it("should be true for p12", function (next) {
 		request.get(test.url + '/api/threads/' + t1 + '/' + p12, function (err, res) {
-			res.should.have.status(200);
-			should.not.exist(res.body.err);
+			should(!res.error);
+			should(!res.body.err);
 			res.body.post.editable.should.be.true;
 			next();
 		});
@@ -66,16 +66,16 @@ describe("post.editable", function () {
 	});
 	it("should be false for p11", function (next) {
 		request.get(test.url + '/api/threads/' + t1 + '/' + p11, function (err, res) {
-			res.should.have.status(200);
-			should.not.exist(res.body.err);
+			should(!res.error);
+			should(!res.body.err);
 			res.body.post.editable.should.be.false;
 			next();
 		});
 	});
 	it("should be false for p12", function (next) {
 		request.get(test.url + '/api/threads/' + t1 + '/' + p12, function (err, res) {
-			res.should.have.status(200);
-			should.not.exist(res.body.err);
+			should(!res.error);
+			should(!res.body.err);
 			res.body.post.editable.should.be.false;
 			next();
 		});
@@ -85,16 +85,16 @@ describe("post.editable", function () {
 	});
 	it("should be true for p11", function (next) {
 		request.get(test.url + '/api/threads/' + t1 + '/' + p11, function (err, res) {
-			res.should.have.status(200);
-			should.not.exist(res.body.err);
+			should(!res.error);
+			should(!res.body.err);
 			res.body.post.editable.should.be.true;
 			next();
 		});
 	});
 	it("should be true for p12", function (next) {
 		request.get(test.url + '/api/threads/' + t1 + '/' + p12, function (err, res) {
-			res.should.have.status(200);
-			should.not.exist(res.body.err);
+			should(!res.error);
+			should(!res.body.err);
 			res.body.post.editable.should.be.true;
 			next();
 		});

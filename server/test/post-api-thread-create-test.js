@@ -26,7 +26,7 @@ describe("creating thread", function () {
 	});
 	it("should fail", function (next) {
 		request.post(test.url + '/api/threads', function (err, res) {
-			res.should.have.status(200);
+			should(!res.error);
 			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next();
 		});
@@ -37,7 +37,7 @@ describe("creating thread", function () {
 	it("should fail when categoryId invalid", function (next) {
 		var form = { categoryId: 10100, writer: 'snowman', title: 'title', text: 'text' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
-			res.should.have.status(200);
+			should(!res.error);
 			res.body.err.rc.should.equal(error.INVALID_CATEGORY);
 			next();
 		});
@@ -45,7 +45,7 @@ describe("creating thread", function () {
 	it("should fail when title empty", function (next) {
 		var form = { categoryId: 101, writer: 'snowman', title: ' ', text: 'text' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
-			res.should.have.status(200);
+			should(!res.error);
 			res.body.err.rc.should.equal(error.INVALID_DATA);
 			res.body.err.fields.some(function (field) {
 				return field.name === 'title' && field.msg === error.msg.FILL_TITLE;
@@ -57,7 +57,7 @@ describe("creating thread", function () {
 		var bigTitle = 'big title title title title title title title title title title title title title title title title title title title title title title title title title title title title';
 		var form = { categoryId: 101, writer: 'snowman', text: 'text', title: bigTitle };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
-			res.should.have.status(200);
+			should(!res.error);
 			res.body.err.rc.should.equal(error.INVALID_DATA);
 			res.body.err.fields.some(function (field) {
 				return field.name === 'title' && field.msg === error.msg.SHORTEN_TITLE;
@@ -68,7 +68,7 @@ describe("creating thread", function () {
 	it("should fail when writer empty", function (next) {
 		var form = { categoryId: 101, writer: ' ', title: 'title', text: 'text' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
-			res.should.have.status(200);
+			should(!res.error);
 			res.body.err.rc.should.equal(error.INVALID_DATA);
 			res.body.err.fields.some(function (field) {
 				return field.name === 'writer' && field.msg === error.msg.FILL_WRITER;
@@ -79,7 +79,7 @@ describe("creating thread", function () {
 	it("should fail when writer big", function (next) {
 		var form = { categoryId: 101, writer: '123456789012345678901234567890123', title: 'title', text: 'text' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
-			res.should.have.status(200);
+			should(!res.error);
 			res.body.err.rc.should.equal(error.INVALID_DATA);
 			res.body.err.fields.some(function (field) {
 				return field.name === 'writer' && field.msg === error.msg.SHORTEN_WRITER;
@@ -90,8 +90,8 @@ describe("creating thread", function () {
 	it("should success", function (next) {
 		var form = { categoryId: 101, writer: 'snowman', title: 'title 1', text: 'post11' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
-			res.should.have.status(200);
-			should.not.exist(res.body.err);
+			should(!res.error);
+			should(!res.body.err);
 			res.body.should.have.property('threadId');
 			res.body.should.have.property('postId');
 			next();
@@ -106,7 +106,7 @@ describe("creating thread in recycle bin", function () {
 	it("should fail", function (next) {
 		var form = { categoryId: 40, writer: 'snowman', title: 'title', text: 'text' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
-			res.should.have.status(200);
+			should(!res.error);
 			res.body.err.rc.should.equal(error.INVALID_CATEGORY);
 			next();
 		});
@@ -117,8 +117,8 @@ describe("creating thread in recycle bin", function () {
 	it("should success", function (next) {
 		var form = { categoryId: 40, writer: 'snowman', title: 'title in recycle bin', text: 'head text in recycle bin' };
 		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
-			res.should.have.status(200);
-			should.not.exist(res.body.err);
+			should(!res.error);
+			should(!res.body.err);
 			next();
 		});
 	});

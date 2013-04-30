@@ -30,8 +30,8 @@ describe("uploading none", function () {
 			.post(test.url + '/api/upload')
 			.end(function (err, res) {
 				should.not.exist(err);
-				res.should.have.status(200);
-				should.not.exist(res.body.err);
+				should(!res.error);
+				should(!res.body.err);
 				var files = res.body.files;
 				Object.keys(files).should.be.empty;
 				next();
@@ -46,8 +46,8 @@ describe("uploading one file", function () {
 			.attach('file', 'server/test/fixture/dummy.txt')
 			.end(function (err, res) {
 				should.not.exist(err);
-				res.should.have.status(200);
-				should.not.exist(res.body.err);
+				should(!res.error);
+				should(!res.body.err);
 //				console.log(res.body);
 				var files = res.body.files;
 				var file = l.find(files, function (file) {
@@ -68,8 +68,8 @@ describe("uploading two files", function () {
 			.attach('file', 'server/test/fixture/dummy2.txt')
 			.end(function (err, res) {
 				should.not.exist(err);
-				res.should.have.status(200);
-				should.not.exist(res.body.err);
+				should(!res.error);
+				should(!res.body.err);
 //				console.log(res.body);
 				var files = res.body.files;
 				var file = l.find(files, function (file) {
@@ -97,8 +97,8 @@ describe("deleting file", function () {
 			.attach('file', 'server/test/fixture/dummy3.txt')
 			.end(function (err, res) {
 				should.not.exist(err);
-				res.should.have.status(200);
-				should.not.exist(res.body.err);
+				should(!res.error);
+				should(!res.body.err);
 				files = res.body.files;
 				next();
 			});
@@ -112,8 +112,8 @@ describe("deleting file", function () {
 		upload.tmpFileExists(dummy.tmpName).should.be.true;
 		request.del(test.url + '/api/upload').send({ files: delFiles }).end(function (err, res) {
 			should.not.exist(err);
-			res.should.have.status(200);
-			should.not.exist(res.body.err);
+			should(!res.error);
+			should(!res.body.err);
 			upload.tmpFileExists(dummy.tmpName).should.be.false;
 			next();
 		});
@@ -132,8 +132,8 @@ describe("deleting file", function () {
 		upload.tmpFileExists(dummy3.tmpName).should.be.true;
 		request.del(test.url + '/api/upload').send({ files: delFiles }).end(function (err, res) {
 			should.not.exist(err);
-			res.should.have.status(200);
-			should.not.exist(res.body.err);
+			should(!res.error);
+			should(!res.body.err);
 			upload.tmpFileExists(dummy2.tmpName).should.be.false;
 			upload.tmpFileExists(dummy3.tmpName).should.be.false;
 			next();
@@ -146,8 +146,8 @@ describe("deleting file", function () {
 		upload.tmpFileExists(filename).should.be.false;
 		request.del(test.url + '/api/upload').send({ files: delFiles }).end(function (err, res) {
 			should.not.exist(err);
-			res.should.have.status(200);
-			should.not.exist(res.body.err);
+			should(!res.error);
+			should(!res.body.err);
 			next();
 		});
 	});

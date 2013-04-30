@@ -39,7 +39,7 @@ describe("searching", function () {
 	});
 	it("should fail", function (next) {
 		request.get(test.url + '/api/search', function (err, res) {
-			res.should.have.status(200);
+			should(!res.error);
 			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next();
 		});
@@ -49,8 +49,8 @@ describe("searching", function () {
 	});
 	it("should success", function (next) {
 		request.get(test.url + '/api/search', function (err, res) {
-			res.should.have.status(200);
-			should.not.exist(res.body.err);
+			should(!res.error);
+			should(!res.body.err);
 			var r = res.body.results;
 			r.should.length(0);
 			next();
@@ -67,7 +67,7 @@ describe("searching", function () {
 			var doc = docs[i++];
 			request.post(test.url + '/api/threads').send(doc).end(function (err, res) {
 				should.not.exists(err);
-				should.not.exist(res.body.err);
+				should(!res.body.err);
 				doc.postId = res.body.postId;
 				doc.threadId = res.body.threadId;
 				setImmediate(insert);
@@ -80,8 +80,8 @@ describe("searching", function () {
 	describe("user name", function () {
 		it("should success", function (next) {
 			request.get(test.url + '/api/search').query({ q: 'snowman' }).end(function (err, res) {
-				res.should.have.status(200);
-				should.not.exist(res.body.err);
+				should(!res.error);
+				should(!res.body.err);
 				var r = res.body.results;
 				r.should.length(3);
 				r[0].title.should.equal('title 3');
@@ -94,8 +94,8 @@ describe("searching", function () {
 	describe("title", function () {
 		it("should success", function (next) {
 			request.get(test.url + '/api/search').query({ q: 'title 4' }).end(function (err, res) {
-				res.should.have.status(200);
-				should.not.exist(res.body.err);
+				should(!res.error);
+				should(!res.body.err);
 				var r = res.body.results;
 				r.should.length(1);
 				r[0].title.should.equal('title 4');
@@ -106,8 +106,8 @@ describe("searching", function () {
 	describe("text", function () {
 		it("should success", function (next) {
 			request.get(test.url + '/api/search').query({ q: 'apple orange' }).end(function (err, res) {
-				res.should.have.status(200);
-				should.not.exist(res.body.err);
+				should(!res.error);
+				should(!res.body.err);
 				var r = res.body.results;
 				r.should.length(2);
 				r[0].title.should.equal('title 2');
@@ -117,8 +117,8 @@ describe("searching", function () {
 		});
 		it("should success", function (next) {
 			request.get(test.url + '/api/search').query({ q: 'apple banana' }).end(function (err, res) {
-				res.should.have.status(200);
-				should.not.exist(res.body.err);
+				should(!res.error);
+				should(!res.body.err);
 				var r = res.body.results;
 				r.should.length(1);
 				r[0].title.should.equal('title 1');
@@ -129,8 +129,8 @@ describe("searching", function () {
 	describe("hangul", function () {
 		it("should success", function (next) {
 			request.get(test.url + '/api/search').query({ q: '둥글' }).end(function (err, res) {
-				res.should.have.status(200);
-				should.not.exist(res.body.err);
+				should(!res.error);
+				should(!res.body.err);
 				var r = res.body.results;
 				r.should.length(3);
 				r[0].title.should.equal('title 5');
@@ -146,8 +146,8 @@ describe("searching", function () {
 		});
 		it("should return no results", function (next) {
 			request.get(test.url + '/api/search').query({ q: 'admin' }).end(function (err, res) {
-				res.should.have.status(200);
-				should.not.exist(res.body.err);
+				should(!res.error);
+				should(!res.body.err);
 				var r = res.body.results;
 				r.should.length(0);
 				next();
@@ -158,8 +158,8 @@ describe("searching", function () {
 		});
 		it("should return results", function (next) {
 			request.get(test.url + '/api/search').query({ q: 'admin' }).end(function (err, res) {
-				res.should.have.status(200);
-				should.not.exist(res.body.err);
+				should(!res.error);
+				should(!res.body.err);
 				var r = res.body.results;
 				r.should.length(2);
 				next();
