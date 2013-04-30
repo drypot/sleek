@@ -309,14 +309,17 @@ init.add(function () {
 			}
 			if (deleted && post.files) {
 				post.files = post.files.filter(function (file) {
-					return deleted.indexOf(file) == -1;
+					return deleted.indexOf(file.name) == -1;
 				});
 				if (post.files.length == 0) delete post.files;
 			}
 			if (saved) {
 				if (post.files) {
 					saved.forEach(function (file) {
-						if (post.files.indexOf(file) == -1) {
+						var found = post.files.some(function (file2) {
+							return file.name === file2.name;
+						})
+						if (!found) {
 							post.files.push(file);
 						}
 					});

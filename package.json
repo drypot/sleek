@@ -14,7 +14,6 @@
     "should": "~1.2.2",
     "superagent": "~0.14.0",
     "jade": "~0.29.0",
-    "expect.js": "~0.2.0"
   },
   "devDependencies": {},
   "scripts": {
