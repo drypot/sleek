@@ -6,7 +6,7 @@ var config = require('../main/config').options({ test: true });
 var mongo = require('../main/mongo').options({ dropDatabase: true });
 var es = require('../main/es').options({ dropIndex: true });
 var express = require('../main/express');
-var rcs = require('../main/rcs');
+var error = require('../main/error');
 var test = require('../main/test').options({ request: request });
 
 require('../main/session-api');
@@ -36,8 +36,8 @@ describe("listing threads", function () {
 	});
 	it("should fail", function (next) {
 		request.post(test.url + '/api/threads', function (err, res) {
-			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.NOT_AUTHENTICATED);
+			should.not.exist(res.error);
+			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next();
 		});
 	});
@@ -51,14 +51,14 @@ describe("listing threads", function () {
 			if (i == len) return next();
 			var item = samples[i++];
 			request.post(test.url + '/api/threads').send(item).end(function (err, res) {
-				res.status.should.equal(200);
+				should.not.exist(res.error);
 				process.nextTick(insert);
 			});
 		})();
 	});
 	it("should success when no op", function (next) {
 		request.get(test.url + '/api/threads', function (err, res) {
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.body.err);
 			res.body.threads.should.length(7);
 
 			var t;
@@ -80,29 +80,63 @@ describe("listing threads", function () {
 	});
 	it("should success with category 0", function (next) {
 		request.get(test.url + '/api/threads').query({ c: 0 }).end(function (err, res) {
-			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.error);
+			should.not.exist(res.body.err);
 			res.body.threads.should.length(7);
 			next();
 		});
 	});
 	it("should success with category 300", function (next) {
 		request.get(test.url + '/api/threads').query({ c: 300 }).end(function (err, res) {
-			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.error);
+			should.not.exist(res.body.err);
 			res.body.threads.should.length(2);
 			next();
 		});
 	});
 	it("should success with page 2", function (next) {
 		request.get(test.url + '/api/threads').query({ c: 0, p: 2, ps: 3 }).end(function (err, res) {
-			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.error);
+			should.not.exist(res.body.err);
 			res.body.threads.should.length(3);
 			res.body.threads[0].title.should.equal('title 4');
 			res.body.threads[1].title.should.equal('title 3');
 			res.body.threads[2].title.should.equal('title 2');
 			next();
+		});
+	});
+	describe("last", function () {
+		it("should be false with page 1", function (next) {
+			request.get(test.url + '/api/threads').query({ c: 0, p: 1, ps: 3 }).end(function (err, res) {
+				should.not.exist(res.error);
+				should.not.exist(res.body.err);
+				res.body.last.should.false;
+				next();
+			});
+		});
+		it("should be false with page 2", function (next) {
+			request.get(test.url + '/api/threads').query({ c: 0, p: 2, ps: 3 }).end(function (err, res) {
+				should.not.exist(res.error);
+				should.not.exist(res.body.err);
+				res.body.last.should.false;
+				next();
+			});
+		});
+		it("should be false with page 3", function (next) {
+			request.get(test.url + '/api/threads').query({ c: 0, p: 3, ps: 3 }).end(function (err, res) {
+				should.not.exist(res.error);
+				should.not.exist(res.body.err);
+				res.body.last.should.true;
+				next();
+			});
+		});
+		it("should be false with page 4", function (next) {
+			request.get(test.url + '/api/threads').query({ c: 0, p: 4, ps: 3 }).end(function (err, res) {
+				should.not.exist(res.error);
+				should.not.exist(res.body.err);
+				res.body.last.should.true;
+				next();
+			});
 		});
 	});
 });

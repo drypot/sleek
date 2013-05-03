@@ -2,7 +2,7 @@ var should = require('should');
 
 var init = require('../main/init');
 var config = require('../main/config');
-var rcs = require('../main/rcs');
+var error = require('../main/error');
 
 var opt = {};
 
@@ -21,8 +21,8 @@ init.add(function () {
 	exports.logout = function (next) {
 		request.del(url + '/api/sessions', function (err, res) {
 			should.not.exist(err);
-			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.error);
+			should.not.exist(res.body.err);
 			next();
 		});
 	}
@@ -30,8 +30,8 @@ init.add(function () {
 	exports.loginUser = function (next) {
 		request.post(url + '/api/sessions').send({ password: '1' }).end(function (err, res) {
 			should.not.exist(err);
-			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.error);
+			should.not.exist(res.body.err);
 			res.body.role.name.should.equal('user');
 			next();
 		});
@@ -40,8 +40,8 @@ init.add(function () {
 	exports.loginAdmin = function (next) {
 		request.post(url + '/api/sessions').send({ password: '3' }).end(function (err, res) {
 			should.not.exist(err);
-			res.status.should.equal(200);
-			res.body.rc.should.equal(rcs.SUCCESS);
+			should.not.exist(res.error);
+			should.not.exist(res.body.err);
 			res.body.role.name.should.equal('admin');
 			next();
 		});

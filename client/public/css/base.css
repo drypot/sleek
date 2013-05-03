@@ -2,17 +2,26 @@ body {
   padding-top: 50px;
   padding-bottom: 40px;
 }
-.thread-list span {
+.submit-group {
+  margin-top: 25px;
+}
+.threads td {
+  white-space: nowrap;
+}
+.threads td.t {
+  width: 100%;
+}
+.threads span {
   margin-right: 5px;
 }
-.thread-list-phone small {
+.threads-phone small {
   margin-right: 10px;
 }
-.thread-list-phone td {
+.threads-phone td {
   width: 700px;
 }
-.thread-list-phone span {
-  margin-right: 5px;
+.threads-phone span {
+  margin-right: 10px;
 }
 .posts {
   border-bottom: 1px solid #ddd;

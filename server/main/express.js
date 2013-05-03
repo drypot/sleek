@@ -5,8 +5,7 @@ var redisStore = require('connect-redis')(express);
 var init = require('../main/init');
 var config = require('../main/config');
 var auth = require('../main/auth');
-var rcs = require('../main/rcs');
-var msgs = require('../main/msgs');
+var error = require('../main/error');
 
 var opt = {};
 
@@ -24,9 +23,12 @@ init.add(function () {
 
 	app.disable('x-powered-by');
 
-//	app.engine('dust', consolidate.dust); // extention to view engine mapping
-//	app.set('view engine', 'dust'); // default view engine
-//	app.set('views', process.cwd() + '/client/dust'); // view root
+	app.engine('jade', require('jade').renderFile);
+	app.set('view engine', 'jade'); // default view engine
+	app.set('views', process.cwd() + '/client/jade'); // view root
+	if ('development' == app.get('env')) {
+		app.locals.pretty = true;
+	}
 
 	app.locals.siteTitle = config.data.siteTitle;
 
@@ -56,19 +58,17 @@ init.add(function () {
 	});
 
 	app.get('/', function (req, res) {
-		res.render('TODO: home');
-//		if (res.locals.role) {
-//			res.redirect('/thread');
-//		} else {
-//			res.locals.title = 'Login';
-//			res.render('index');
-//		}
+		if (res.locals.role) {
+			res.redirect('/threads');
+		} else {
+			res.render('index');
+		}
 	});
 
 	app.use(express.errorHandler());
 
-	should.not.exist(app.request.authorized);
-	app.request.authorized = function (roleName, next) {
+	should.not.exist(app.request.role);
+	app.request.role = function (roleName, next) {
 		if (typeof roleName === 'function') {
 			next = roleName;
 			roleName = null;
@@ -77,16 +77,16 @@ init.add(function () {
 		var res = this.res;
 		var role = res.locals.role;
 		if (!role) {
-			return next({ rc: rcs.NOT_AUTHENTICATED });
+			return next(error(error.NOT_AUTHENTICATED));
 		}
 		if (roleName && roleName !== role.name) {
-			return next({ rc: rcs.NOT_AUTHORIZED });
+			return next(error(error.NOT_AUTHORIZED));
 		}
 		next(null, role);
 	};
 
-	should.not.exist(app.request.authorizedHtml);
-	app.request.authorizedHtml = function (roleName, next) {
+	should.not.exist(app.request.roleHtml);
+	app.request.roleHtml = function (roleName, next) {
 		if (typeof roleName === 'function') {
 			next = roleName;
 			roleName = null;
@@ -98,10 +98,42 @@ init.add(function () {
 			return res.redirect('/');
 		}
 		if (roleName && roleName !== role.name) {
-			return res.render('error', { msg: msgs[rcs.NOT_AUTHORIZED] });
+			return res.render('error', { err: error(error.NOT_AUTHORIZED) });
 		}
-		next(role);
+		next(null, role);
 	};
+
+	var empty = {};
+
+	should.not.exist(app.response.jsonEmpty);
+	app.response.jsonEmpty = function (err) {
+		this.json(empty);
+	}
+
+	var cut5LinesPattern = /^(?:.*\n){1,5}/m;
+	var emptyMatch = [''];
+
+	should.not.exist(app.response.jsonErr);
+	app.response.jsonErr = function (err) {
+		var err2 = {};
+		for (var key in err) {
+			err2[key] = err[key];
+		}
+		err2.message = err.message;
+		err2.stack = (err.stack.match(cut5LinesPattern) || emptyMatch)[0];
+		this.json({ err: err2 });
+	}
+
+	should.not.exist(app.response.renderErr);
+	app.response.renderErr = function (err) {
+		var err2 = {};
+		for (var key in err) {
+			err2[key] = err[key];
+		}
+		err2.message = err.message;
+		err2.stack = err.stack;
+		this.render('error', { err: err2 });
+	}
 
 	exports.listen = function () {
 		app.listen(config.data.port);

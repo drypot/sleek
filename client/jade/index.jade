@@ -1,0 +1,24 @@
+extends layout
+
+block title
+	title #{siteTitle}
+
+block content
+	script
+		init.add(function () {
+			session.initLoginPage();
+		});
+
+	#content
+		.page-header
+			h1 Login
+
+		form
+			.row
+				label Password
+					input(name='password', type='password')
+			.checkbox
+				label Remember
+					input(name='remember', type='checkbox')
+			.submit-group
+				button.btn.btn-primary(name='submit', type='submit') Sign in

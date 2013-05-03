@@ -1,6 +1,6 @@
 l.post = {};
 
-l.init(function () {
+init.add(function () {
 
 	// Thread
 
@@ -8,7 +8,7 @@ l.init(function () {
 
 		return;
 
-		var $posts = l.$content.find('.posts');
+		var $posts = $content.find('.posts');
 
 		//var imgFile = /.*\.(jpg|jpeg|gif|png)$/i;
 
@@ -96,7 +96,7 @@ l.init(function () {
 
 
 
-l.init(function() {
+init.add(function() {
 
 	// New Thread
 
@@ -133,19 +133,19 @@ l.init(function() {
 			title: $title.val(),
 			text: $text.val()
 		}
-		l.form.clearAlert(l.$content);
+		l.form.clearAlert($content);
 		showSending();
-		request.post(url + '/api/threads').send(post).endEx(function (err, res) {
+		request.post('/api/threads').send(post).end(function (err, res) {
 			showSend();
 			if (err) {
-				l.systemError(err);
-			} else if (res.body.rc === rcs.INVALID_DATA) {
+				msgBox.error(err);
+			} else if (res.body.rc === rc.INVALID_DATA) {
 				_.each(res.body.error, function (error, field) {
 					_.each(error, function (error) {
 						l.form.addAlert($form.find('[name="' + field + '"]'), error);
 					});
 				})
-			} else if (res.body.rc !== rcs.SUCCESS) {
+			} else if (res.body.rc !== rc.SUCCESS) {
 				l.unhandledError(res.body.rc)
 			} else {
 				l.post.saveWriter(post.writer);

@@ -69,7 +69,7 @@ describe("searching empty db", function () {
 		},
 		function (err, res) {
 			should.not.exist(err);
-			res.status.should.equal(200);
+			should.not.exist(res.error);
 			res.body.hits.total.should.equal(0);
 			next();
 		});
@@ -101,7 +101,7 @@ describe("getPost", function () {
 		var doc0 = docs[0];
 		es.getPost(doc0.post._id, function (err, res) {
 			should.not.exist(err);
-			res.status.should.equal(200);
+			should.not.exist(res.error);
 			res.body._id.should.equal(doc0.post._id);
 			var s = res.body._source;
 			s.threadId.should.equal(doc0.thread._id);
@@ -118,7 +118,7 @@ describe("getPost", function () {
 		var doc1 = docs[1];
 		es.getPost(doc1.post._id, function (err, res) {
 			should.not.exist(err);
-			res.status.should.equal(200);
+			should.not.exist(res.error);
 			res.body._id.should.equal(doc1.post._id);
 			var s = res.body._source;
 			s.threadId.should.equal(doc1.thread._id);
@@ -141,7 +141,7 @@ describe("searching non-existing", function () {
 		},
 		function (err, res) {
 			should.not.exist(err);
-			res.status.should.equal(200);
+			should.not.exist(res.error);
 			res.body.hits.total.should.equal(0);
 			next();
 		});
@@ -169,7 +169,7 @@ describe("searching title", function () {
 		},
 		function (err, res) {
 			should.not.exist(err);
-			res.status.should.equal(200);
+			should.not.exist(res.error);
 			res.body.hits.total.should.equal(1);
 			res.body.hits.hits[0]._id.should.equal(docs[0].post._id);
 			next();
@@ -185,7 +185,7 @@ describe("searching writer", function () {
 			},
 			function (err, res) {
 				should.not.exist(err);
-				res.status.should.equal(200);
+				should.not.exist(res.error);
 				res.body.hits.total.should.equal(2);
 				res.body.hits.hits[0]._id.should.equal(docs[0].post._id);
 				res.body.hits.hits[1]._id.should.equal(docs[1].post._id);
@@ -202,7 +202,7 @@ describe("searching apple in text", function () {
 			},
 			function (err, res) {
 				should.not.exist(err);
-				res.status.should.equal(200);
+				should.not.exist(res.error);
 				res.body.hits.total.should.equal(2);
 				res.body.hits.hits[0]._id.should.equal(docs[0].post._id);
 				res.body.hits.hits[1]._id.should.equal(docs[1].post._id);
@@ -219,7 +219,7 @@ describe("searching orange in text", function () {
 			},
 			function (err, res) {
 				should.not.exist(err);
-				res.status.should.equal(200);
+				should.not.exist(res.error);
 				res.body.hits.total.should.equal(1);
 				res.body.hits.hits[0]._id.should.equal(docs[1].post._id);
 				next();
@@ -235,7 +235,7 @@ describe("searching two words", function () {
 		},
 		function (err, res) {
 			should.not.exist(err);
-			res.status.should.equal(200);
+			should.not.exist(res.error);
 			res.body.hits.total.should.equal(1);
 			res.body.hits.hits[0]._id.should.equal(docs[1].post._id);
 			next();
@@ -251,7 +251,7 @@ describe("searching order by desc", function () {
 			},
 			function (err, res) {
 				should.not.exist(err);
-				res.status.should.equal(200);
+				should.not.exist(res.error);
 				res.body.hits.hits.should.length(3);
 				res.body.hits.hits[0]._id.should.equal(docs[4].post._id);
 				res.body.hits.hits[1]._id.should.equal(docs[3].post._id);
@@ -271,7 +271,7 @@ describe("searching results limit", function () {
 		},
 		function (err, res) {
 			should.not.exist(err);
-			res.status.should.equal(200);
+			should.not.exist(res.error);
 			res.body.hits.hits.should.length(2);
 			res.body.hits.hits[0]._id.should.equal(docs[3].post._id);
 			res.body.hits.hits[1]._id.should.equal(docs[2].post._id);
@@ -288,7 +288,7 @@ describe("searching hangul", function () {
 		},
 		function (err, res) {
 			should.not.exist(err);
-			res.status.should.equal(200);
+			should.not.exist(res.error);
 			res.body.hits.total.should.equal(2);
 			res.body.hits.hits[0]._id.should.equal(docs[2].post._id);
 			res.body.hits.hits[1]._id.should.equal(docs[3].post._id);
@@ -302,7 +302,7 @@ describe("searching hangul", function () {
 		},
 		function (err, res) {
 			should.not.exist(err);
-			res.status.should.equal(200);
+			should.not.exist(res.error);
 			res.body.hits.total.should.equal(2);
 			res.body.hits.hits[0]._id.should.equal(docs[2].post._id);
 			res.body.hits.hits[1]._id.should.equal(docs[4].post._id);
@@ -316,7 +316,7 @@ describe("searching hangul", function () {
 		},
 		function (err, res) {
 			should.not.exist(err);
-			res.status.should.equal(200);
+			should.not.exist(res.error);
 			res.body.hits.total.should.equal(1);
 			res.body.hits.hits[0]._id.should.equal(docs[4].post._id);
 			next();
