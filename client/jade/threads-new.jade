@@ -1,0 +1,37 @@
+extends layout
+
+block title
+	title New Post - #{siteTitle}
+
+block content
+
+	script
+		init.add(function () {
+			post.initNewThread();
+		});
+
+	.page-header
+		h2 New Post
+
+	#content
+		form#new-form
+			select(name='category')
+				for category in role.categoriesForNew
+					option(value='{category.id}') #{category.name}
+			.row
+				label 필명
+					input.col-span-4(name='writer', type='text', value='', maxlength='32')
+			.row
+				label 제목
+					input.col-span-4(name='title', type='text', value='', maxlength='128')
+			.row
+				label 내용
+					textarea(name='text', style='height: 450px;')
+			.well.well-small
+				input.file(name='files', type='file', multiple='multiple')
+				br
+				button.btn.btn-small
+					i.icon-plus
+			hr
+			button.btn.btn-primary(name='send', type='submit') Send
+			button.btn.disabled.hide(name='sending', type='button') Sending

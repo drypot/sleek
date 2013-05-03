@@ -36,7 +36,7 @@ var msg = exports.msg = {
 	SHORTEN_WRITER: '필명을 줄여 주십시오.'
 };
 
-msg[exports.NOT_AUTHENTICATED] = '먼저 로그인 해주십시오.';
+msg[exports.NOT_AUTHENTICATED] = '먼저 로그인해 주십시오.';
 msg[exports.NOT_AUTHORIZED] = '사용 권한이 없습니다.';
 msg[exports.INVALID_PASSWORD] = '비밀번호를 다시 확인해 주십시오.';
 

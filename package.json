@@ -1,10 +1,10 @@
 {
-  "name": "sleek-server",
+  "name": "Sleek",
   "version": "0.1.1",
-  "description": "개인적인 기술 실험용 게시판 시스템의 서버 파트입니다.",
+  "description": "개인적인 기술 실험용 게시판 시스템",
   "main": "app.js",
   "directories": {
-    "test": "test"
+    "test": "server/test"
   },
   "dependencies": {
     "bcrypt": "~0.7.5",
@@ -13,7 +13,7 @@
     "mongodb": "~1.2.14",
     "should": "~1.2.2",
     "superagent": "~0.14.0",
-    "jade": "~0.29.0",
+    "jade": "~0.29.0"
   },
   "devDependencies": {},
   "scripts": {
@@ -21,7 +21,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/drypot/sleek-server-node.git"
+    "url": "git://github.com/drypot/sleek.git"
   },
   "author": "drypot@gmail.com",
   "license": "MIT"

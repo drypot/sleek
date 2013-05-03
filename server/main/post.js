@@ -194,6 +194,10 @@ init.add(function () {
 		});
 	};
 
+//	exports.categoryForUpdate = function (role, categoryId, next) {
+//		categoryForUpdate(role, categoryId, next);
+//	}
+
 	function checkForm(form, head, next) {
 		var fields = [];
 

@@ -1,6 +1,8 @@
 
 init.add(function () {
 
+	// Threads
+
 	window.post = {};
 
 	post.initThreadPage = function () {
@@ -94,7 +96,6 @@ init.add(function () {
 })
 
 
-
 init.add(function() {
 
 	// New Thread
@@ -108,7 +109,7 @@ init.add(function() {
 		$sending;
 
 	post.initNewThread = function () {
-		$form = $('#new-thread');
+		$form = $('#new-form');
 		$category = $form.find('[name=category]');
 		$writer = $form.find('[name=writer]');
 		$title = $form.find('[name=title]');
@@ -116,12 +117,18 @@ init.add(function() {
 		$send = $form.find('[name=send]');
 		$sending = $form.find('[name=sending]');
 
+		if (query.c) {
+			$category.val(query.c);
+		}
+
 		$writer.val(post.savedWriter());
+
 		if ($writer.val()) {
 			$title.focus();
 		} else {
 			$writer.focus();
 		}
+
 		$send.click(sendForm);
 	}
 
@@ -132,37 +139,39 @@ init.add(function() {
 			title: $title.val(),
 			text: $text.val()
 		}
-		l.form.clearAlert($content);
+		alerts.clear($content);
 		showSending();
 		request.post('/api/threads').send(post).end(function (err, res) {
 			showSend();
-			if (err) {
-				msgBox.error(err);
-			} else if (res.body.rc === rc.INVALID_DATA) {
+			err = err || res.error || res.body.err;
+			if (err.rc && err.rc == error.INVALID_DATA) {
+				for (var i = 0; i < err.fields.length; i++) {
+					var field = err.fields[i];
+					alerts.add($form.find('[name="' + field.name + '"]'))
+				}
 				_.each(res.body.error, function (error, field) {
 					_.each(error, function (error) {
-						l.form.addAlert($form.find('[name="' + field + '"]'), error);
+						l.form.addAlert(, error);
 					});
 				})
-			} else if (res.body.rc !== rc.SUCCESS) {
-				l.unhandledError(res.body.rc)
-			} else {
-				l.post.saveWriter(post.writer);
-				location = '/thread/' + res.body.threadId;
+				return
 			}
+			if (err) return msgBox.error(err);
+			l.post.saveWriter(post.writer);
+			location = '/thread/' + res.body.threadId;
 		});
 
 		return false;
 	}
 
 	function showSend() {
-		$send.removeClass('hide');
-		$sending.addClass('hide');
+		$send.show();
+		$sending.hide();
 	}
 
 	function showSending() {
-		$send.addClass('hide');
-		$sending.removeClass('hide');
+		$send.hide();
+		$sending.show();
 	}
 
 	post.saveWriter = function (writer) {

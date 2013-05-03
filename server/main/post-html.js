@@ -73,22 +73,10 @@ init.add(function () {
 		});
 	});
 
-	app.get('/thread/new', function (req, res, next) {
-		req.role(function () {
-			var categoryId = l.int(req.query, 'c', 0);
-			if (categoryId == 0) {
-				categoryId = res.locals.role.writableCategory[0].id;
-			}
-			categoriesForNew(res, categoryId, function (category) {
-				var r = {
-					title: 'New',
-					category: {
-						id: category.id,
-						name: category.name
-					}
-				};
-				res.render('thread-new', r);
-			});
+	app.get('/threads/new', function (req, res, next) {
+		req.role(function (err, role) {
+			if (err) return res.renderErr(err);
+			res.render('threads-new');
 		});
 	});
 

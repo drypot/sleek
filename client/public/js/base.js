@@ -77,8 +77,8 @@ init.add(function () {
 	window.$document = $(document);
 	window.$content = $('#content');
 
-//	cache.url = URI(location.toString());
-//	cache.query = cache.url.query(true);
+	window.url = new URI(location.toString());
+	window.query = url.query(true);
 
 });
 
