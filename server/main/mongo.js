@@ -72,7 +72,7 @@ init.add(function (next) {
 		};
 
 		exports.updateThreadLength = function (threadId, now, next) {
-			threads.update({ _id: threadId }, { $inc: { length: 1 }, $set: { updated: now }}, next);
+			threads.update({ _id: threadId }, { $inc: { length: 1 }, $set: { udate: now }}, next);
 		};
 
 		exports.findThread = function (id, next) {
@@ -87,13 +87,13 @@ init.add(function (next) {
 			if (categoryId) {
 				findOp.categoryId = categoryId;
 			}
-			threads.find(findOp).sort({ updated: dir }).skip(skip).limit(pageSize).each(next);
+			threads.find(findOp).sort({ udate: dir }).skip(skip).limit(pageSize).each(next);
 		};
 
 		threads = exports.threads = db.collection("threads");
-		threads.ensureIndex({ categoryId: 1, updated: -1 }, function (err) {
+		threads.ensureIndex({ categoryId: 1, udate: -1 }, function (err) {
 			if (err) return next(err);
-			threads.ensureIndex({ updated: -1 }, function (err) {
+			threads.ensureIndex({ udate: -1 }, function (err) {
 				if (err) return next(err);
 				threads.find({}, { _id: 1 }).sort({ _id: -1 }).limit(1).nextObject(function (err, obj) {
 					if (err) return next(err);
@@ -126,11 +126,11 @@ init.add(function (next) {
 		};
 
 		exports.findPostsByThread = function (threadId, next) {
-			posts.find({ threadId: threadId }).sort({ created: 1 }).each(next);
+			posts.find({ threadId: threadId }).sort({ cdate: 1 }).each(next);
 		};
 
 		posts = exports.posts = db.collection("posts");
-		posts.ensureIndex({ threadId: 1, created: 1 }, function (err) {
+		posts.ensureIndex({ threadId: 1, cdate: 1 }, function (err) {
 			if (err) return next(err);
 			posts.find({}, { _id: 1 }).sort({ _id: -1 }).limit(1).nextObject(function (err, obj) {
 				if (err) return next(err);

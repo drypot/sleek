@@ -42,7 +42,7 @@ init.add(function (next) {
 					properties: {
 						threadId: { type: 'integer', index: 'no', include_in_all: false },
 						categoryId: { type: 'integer', index: 'no', include_in_all: false },
-						created: { type: 'date', index: 'not_analyzed', include_in_all: false },
+						cdate: { type: 'date', index: 'not_analyzed', include_in_all: false },
 						title: { type: 'string', index: 'no', include_in_all: false },
 						titlei: { type: 'string', index: 'no', include_in_all: true },
 						writer: { type: 'string', index: 'no', include_in_all: true },
@@ -74,9 +74,9 @@ init.add(function (next) {
 		var form = {
 			threadId: thread._id,
 			categoryId: thread.categoryId,
-			created: post.created,
+			cdate: post.cdate,
 			title: thread.title,
-			titlei: thread.created.getTime() === post.created.getTime() ? thread.title : '',
+			titlei: thread.cdate.getTime() === post.cdate.getTime() ? thread.title : '',
 			writer: post.writer,
 			text: post.text,
 			visible: post.visible
@@ -95,7 +95,7 @@ init.add(function (next) {
 			if (err) return next(err);
 			if (res.error) return next(res.body);
 			res.body._id = parseInt(res.body._id);
-			res.body._source.created = new Date(res.body._source.created);
+			res.body._source.cdate = new Date(res.body._source.cdate);
 			next(null, res);
 		});
 	};
@@ -113,7 +113,7 @@ init.add(function (next) {
 				for (i = 0; i < len; i++) {
 					var hit = hits[i];
 					hit._id = parseInt(hit._id);
-					hit._source.created = new Date(hit._source.created);
+					hit._source.cdate = new Date(hit._source.cdate);
 				}
 			}
 			next(null, res);

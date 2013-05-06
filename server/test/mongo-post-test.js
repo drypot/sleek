@@ -45,7 +45,7 @@ describe("post collection", function () {
 	describe("inserting", function () {
 		it("should success", function (next) {
 			var p = {
-				threadId: 1000, created: new Date(50), visible: true,
+				threadId: 1000, cdate: new Date(50), visible: true,
 				writer: 'snowman', text: 'text'
 			}
 			mongo.insertPost(p, function (err) {
@@ -61,7 +61,7 @@ describe("post collection", function () {
 
 	describe("finding by id", function () {
 		var p = {
-			threadId: 1000, created: new Date(50), visible: true,
+			threadId: 1000, cdate: new Date(50), visible: true,
 			writer: 'snowman', text: 'text'
 		}
 		it("given empty collection", function (next) {
@@ -87,23 +87,23 @@ describe("post collection", function () {
 		it("given posts", function (next) {
 			var rows = [
 				{
-					_id: mongo.getNewPostId(), threadId: 1000, created: new Date(10), visible: true,
+					_id: mongo.getNewPostId(), threadId: 1000, cdate: new Date(10), visible: true,
 					writer: 'snowman', text: 'cool post 11'
 				},
 				{
-					_id: mongo.getNewPostId(), threadId: 1000, created: new Date(20), visible: true,
+					_id: mongo.getNewPostId(), threadId: 1000, cdate: new Date(20), visible: true,
 					writer: 'snowman', text: 'cool post 12'
 				},
 				{
-					_id: mongo.getNewPostId(), threadId: 1000, created: new Date(30), visible: false,
+					_id: mongo.getNewPostId(), threadId: 1000, cdate: new Date(30), visible: false,
 					writer: 'snowman', text: 'cool post 13'
 				},
 				{
-					_id: mongo.getNewPostId(), threadId: 1010, created: new Date(10), visible: true,
+					_id: mongo.getNewPostId(), threadId: 1010, cdate: new Date(10), visible: true,
 					writer: 'snowman', text: 'cool post 21'
 				},
 				{
-					_id: mongo.getNewPostId(), threadId: 1010, created: new Date(20), visible: true,
+					_id: mongo.getNewPostId(), threadId: 1010, cdate: new Date(20), visible: true,
 					writer: 'snowman', text: 'cool post 22'
 				}
 			];
@@ -141,8 +141,8 @@ describe("post collection", function () {
 					posts.push(post);
 					return;
 				}
-				posts[0].created.should.below(posts[1].created);
-				posts[1].created.should.below(posts[2].created);
+				posts[0].cdate.should.below(posts[1].cdate);
+				posts[1].cdate.should.below(posts[2].cdate);
 				next();
 			});
 		});
@@ -150,7 +150,7 @@ describe("post collection", function () {
 
 	describe("updating", function () {
 		var p = {
-			threadId: 1030, created: new Date(50), visible: true,
+			threadId: 1030, cdate: new Date(50), visible: true,
 			writer: 'snowman', text: 'text'
 		}
 		it("given empty collection", function (next) {

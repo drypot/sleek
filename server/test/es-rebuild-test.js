@@ -24,7 +24,7 @@ before(function () {
 
 var t1, p1, p2, t2, p3;
 
-describe("posting", function () {
+describe.skip("posting", function () {
 	it("given user session", function (next) {
 		test.loginUser(next);
 	});
@@ -59,13 +59,13 @@ describe("posting", function () {
 	});
 });
 
-describe("flushing", function () {
+describe.skip("flushing", function () {
 	it("should success", function (next) {
 		es.flush(next);
 	});
 });
 
-describe("searching", function () {
+describe.skip("searching", function () {
 	it("should success for p1", function (next) {
 		request.get(test.url + '/api/search').query({ q: '첫번째' }).end(function (err, res) {
 			should(!res.error);
@@ -98,7 +98,7 @@ describe("searching", function () {
 	});
 });
 
-describe("dropping es", function () {
+describe.skip("dropping es", function () {
 	it("should success", function (next) {
 		es.dropIndex(function (err) {
 			if (err) return next(err);
@@ -110,7 +110,7 @@ describe("dropping es", function () {
 	});
 });
 
-describe("searching emtpy es", function () {
+describe.skip("searching emtpy es", function () {
 	it("should success for p1", function (next) {
 		request.get(test.url + '/api/search').query({ q: '첫번째' }).end(function (err, res) {
 			should(!res.error);
@@ -138,13 +138,13 @@ describe("searching emtpy es", function () {
 	});
 });
 
-describe("rebuilding", function () {
+describe.skip("rebuilding", function () {
 	it("should success", function (next) {
 		rebuild.rebuild(next);
 	});
 });
 
-describe("flushing", function () {
+describe.skip("flushing", function () {
 	it("should success", function (next) {
 		es.flush(function (err) {
 			setTimeout(next, 1000);
@@ -152,7 +152,7 @@ describe("flushing", function () {
 	});
 });
 
-describe("re-searching", function () {
+describe.skip("re-searching", function () {
 	it("should success for p1", function (next) {
 		request.get(test.url + '/api/search').query({ q: '첫번째' }).end(function (err, res) {
 			should(!res.error);

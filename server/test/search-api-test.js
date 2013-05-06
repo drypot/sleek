@@ -21,7 +21,7 @@ before(function () {
 	express.listen();
 });
 
-describe("searching", function () {
+describe.skip("searching", function () {
 
 	var docs = [
 		{ categoryId: 100, writer: 'snowman', title: 'title 1', text: 'apple orange banana' },
@@ -77,7 +77,7 @@ describe("searching", function () {
 	it("given user session", function (next) {
 		test.loginUser(next);
 	});
-	describe("user name", function () {
+	describe.skip("user name", function () {
 		it("should success", function (next) {
 			request.get(test.url + '/api/search').query({ q: 'snowman' }).end(function (err, res) {
 				should(!res.error);
@@ -91,7 +91,7 @@ describe("searching", function () {
 			});
 		});
 	});
-	describe("title", function () {
+	describe.skip("title", function () {
 		it("should success", function (next) {
 			request.get(test.url + '/api/search').query({ q: 'title 4' }).end(function (err, res) {
 				should(!res.error);
@@ -103,7 +103,7 @@ describe("searching", function () {
 			});
 		});
 	});
-	describe("text", function () {
+	describe.skip("text", function () {
 		it("should success", function (next) {
 			request.get(test.url + '/api/search').query({ q: 'apple orange' }).end(function (err, res) {
 				should(!res.error);
@@ -126,7 +126,7 @@ describe("searching", function () {
 			});
 		});
 	});
-	describe("hangul", function () {
+	describe.skip("hangul", function () {
 		it("should success", function (next) {
 			request.get(test.url + '/api/search').query({ q: '둥글' }).end(function (err, res) {
 				should(!res.error);
@@ -140,7 +140,7 @@ describe("searching", function () {
 			});
 		});
 	});
-	describe("recycle bin", function () {
+	describe.skip("recycle bin", function () {
 		it("given user session", function (next) {
 			test.loginUser(next);
 		});

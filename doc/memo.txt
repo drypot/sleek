@@ -6,8 +6,6 @@ db.threads.update(
 	{
 		$rename: {
 			userName: 'writer',
-			cdate: 'created',
-			udate: 'updated',
 		}
 	},
 	false, true
@@ -18,7 +16,6 @@ db.posts.update(
 	{
 		$rename: {
 			userName: 'writer',
-			cdate: 'created',
 			fileNameList: 'files',
 		}
 	},

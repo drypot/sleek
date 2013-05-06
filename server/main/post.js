@@ -126,8 +126,8 @@ init.add(function () {
 							},
 							hit: thread.hit,
 							length: thread.length,
-							updated: thread.updated.getTime(),
-							updatedStr: dateTime.format(thread.updated),
+							udate: thread.udate.getTime(),
+							updatedStr: dateTime.format(thread.udate),
 							writer: thread.writer,
 							title: thread.title
 						});
@@ -154,8 +154,8 @@ init.add(function () {
 							posts.push({
 								id: post._id,
 								writer: post.writer,
-								created: post.created.getTime(),
-								createdStr: dateTime.format(post.created),
+								cdate: post.cdate.getTime(),
+								createdStr: dateTime.format(post.cdate),
 								text: post.text,
 								files: post.files,
 								editable: isEditable(category, post._id, editables)
@@ -180,8 +180,8 @@ init.add(function () {
 					var postX = {
 						id: post._id,
 						writer: post.writer,
-						created: post.created.getTime(),
-						createdStr: dateTime.format(post.created),
+						cdate: post.cdate.getTime(),
+						createdStr: dateTime.format(post.cdate),
 						text: post.text,
 						visible: post.visible,
 						files: post.files,
@@ -282,8 +282,8 @@ init.add(function () {
 			categoryId: form.categoryId,
 			hit: 0,
 			length: 1,
-			created: form.now,
-			updated: form.now,
+			cdate: form.now,
+			udate: form.now,
 			writer: form.writer,
 			title: form.title
 		};
@@ -297,7 +297,7 @@ init.add(function () {
 		var post = {
 			_id: postId,
 			threadId: thread._id,
-			created: form.now,
+			cdate: form.now,
 			visible: category.editable ? form.visible : true,
 			writer: form.writer,
 			text: form.text
@@ -363,7 +363,7 @@ init.add(function () {
 	}
 
 	function isHead(thread, post) {
-		return thread.created.getTime() === post.created.getTime();
+		return thread.cdate.getTime() === post.cdate.getTime();
 	}
 
 	function isEditable(category, postId, editables) {

@@ -33,7 +33,7 @@ init.add(function () {
 		}
 		var form = {
 			query: { query_string: { query: query, default_operator: 'and' } },
-			sort: [ { created : "desc" } ],
+			sort: [ { cdate : "desc" } ],
 			size: limit,
 			from: offset
 		}
@@ -52,7 +52,7 @@ init.add(function () {
 						postId: hit._id,
 						threadId: s.threadId,
 						categoryId: s.categoryId,
-						created: s.created.getTime(),
+						cdate: s.cdate.getTime(),
 						writer: s.writer,
 						title: s.title,
 						text: s.text.substring(0, 512)

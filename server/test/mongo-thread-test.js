@@ -45,7 +45,7 @@ describe("thread collection", function () {
 	describe("inserting", function () {
 		it("should success", function (next) {
 			var t = {
-				categoryId: 100, hit: 10, length: 5, created: new Date(10), updated: new Date(10),
+				categoryId: 100, hit: 10, length: 5, cdate: new Date(10), udate: new Date(10),
 				writer: 'snowman', title: 'title'
 			};
 			mongo.insertThread(t, function (err) {
@@ -61,7 +61,7 @@ describe("thread collection", function () {
 
 	describe("finding by id", function () {
 		var t = {
-			categoryId: 100, hit: 10, length: 5, created: new Date(10), updated: new Date(10),
+			categoryId: 100, hit: 10, length: 5, cdate: new Date(10), udate: new Date(10),
 			writer: 'snowman', title: 'title'
 		};
 		it("given empty collection", function (next) {
@@ -87,43 +87,43 @@ describe("thread collection", function () {
 		it("given threads", function (next) {
 			var rows = [
 				{
-					_id: mongo.getNewThreadId(), categoryId: 101, hit: 10, length: 5, created: new Date(10), updated: new Date(10),
+					_id: mongo.getNewThreadId(), categoryId: 101, hit: 10, length: 5, cdate: new Date(10), udate: new Date(10),
 					writer: 'snowman', title: 'title1'
 				},
 				{
-					_id: mongo.getNewThreadId(), categoryId: 101, hit: 10, length: 5, created: new Date(10), updated: new Date(20),
+					_id: mongo.getNewThreadId(), categoryId: 101, hit: 10, length: 5, cdate: new Date(10), udate: new Date(20),
 					writer: 'snowman', title: 'title2'
 				},
 				{
-					_id: mongo.getNewThreadId(), categoryId: 101, hit: 10, length: 5, created: new Date(10), updated: new Date(30),
+					_id: mongo.getNewThreadId(), categoryId: 101, hit: 10, length: 5, cdate: new Date(10), udate: new Date(30),
 					writer: 'snowman', title: 'title3'
 				},
 				{
-					_id: mongo.getNewThreadId(), categoryId: 101, hit: 10, length: 5, created: new Date(10), updated: new Date(40),
+					_id: mongo.getNewThreadId(), categoryId: 101, hit: 10, length: 5, cdate: new Date(10), udate: new Date(40),
 					writer: 'snowman', title: 'title4'
 				},
 				{
-					_id: mongo.getNewThreadId(), categoryId: 103, hit: 10, length: 5, created: new Date(10), updated: new Date(50),
+					_id: mongo.getNewThreadId(), categoryId: 103, hit: 10, length: 5, cdate: new Date(10), udate: new Date(50),
 					writer: 'snowman', title: 'title5'
 				},
 				{
-					_id: mongo.getNewThreadId(), categoryId: 103, hit: 10, length: 5, created: new Date(10), updated: new Date(60),
+					_id: mongo.getNewThreadId(), categoryId: 103, hit: 10, length: 5, cdate: new Date(10), udate: new Date(60),
 					writer: 'snowman', title: 'title6'
 				},
 				{
-					_id: mongo.getNewThreadId(), categoryId: 104, hit: 10, length: 5, created: new Date(10), updated: new Date(70),
+					_id: mongo.getNewThreadId(), categoryId: 104, hit: 10, length: 5, cdate: new Date(10), udate: new Date(70),
 					writer: 'snowman', title: 'title7'
 				},
 				{
-					_id: mongo.getNewThreadId(), categoryId: 104, hit: 10, length: 5, created: new Date(10), updated: new Date(80),
+					_id: mongo.getNewThreadId(), categoryId: 104, hit: 10, length: 5, cdate: new Date(10), udate: new Date(80),
 					writer: 'snowman', title: 'title8'
 				},
 				{
-					_id: mongo.getNewThreadId(), categoryId: 104, hit: 10, length: 5, created: new Date(10), updated: new Date(90),
+					_id: mongo.getNewThreadId(), categoryId: 104, hit: 10, length: 5, cdate: new Date(10), udate: new Date(90),
 					writer: 'snowman', title: 'title9'
 				},
 				{
-					_id: mongo.getNewThreadId(), categoryId: 104, hit: 10, length: 5, created: new Date(10), updated: new Date(100),
+					_id: mongo.getNewThreadId(), categoryId: 104, hit: 10, length: 5, cdate: new Date(10), udate: new Date(100),
 					writer: 'snowman', title: 'title10'
 				}
 			];
@@ -176,7 +176,7 @@ describe("thread collection", function () {
 
 	describe("updating", function () {
 		var t = {
-			categoryId: 100, hit: 10, length: 5, created: new Date(10), updated: new Date(10),
+			categoryId: 100, hit: 10, length: 5, cdate: new Date(10), udate: new Date(10),
 			writer: 'snowman', title: 'title'
 		};
 		it("given empty collection", function (next) {
@@ -203,7 +203,7 @@ describe("thread collection", function () {
 
 	describe("increasing hit", function () {
 		var t = {
-			categoryId: 100, hit: 10, length: 5, created: new Date(10), updated: new Date(10),
+			categoryId: 100, hit: 10, length: 5, cdate: new Date(10), udate: new Date(10),
 			writer: 'snowman', title: 'title'
 		};
 		it("given empty collection", function (next) {
@@ -225,9 +225,9 @@ describe("thread collection", function () {
 		});
 	});
 
-	describe("updating lenth & updated", function () {
+	describe("updating lenth & udate", function () {
 		var t = {
-			categoryId: 100, hit: 10, length: 5, created: new Date(10), updated: new Date(10),
+			categoryId: 100, hit: 10, length: 5, cdate: new Date(10), udate: new Date(10),
 			writer: 'snowman', title: 'title'
 		};
 		it("given empty collection", function (next) {
@@ -243,7 +243,7 @@ describe("thread collection", function () {
 				should.not.exist(err);
 				mongo.findThread(t._id, function (err, thread) {
 					should.not.exist(err);
-					t.updated = now;
+					t.udate = now;
 					t.length = 6;
 					thread.should.eql(t);
 					next();
