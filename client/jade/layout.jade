@@ -41,7 +41,7 @@ html
 					a.navbar-brand(href="/threads")= siteTitle
 					.nav-collapse.collapse.navbar-responsive-collapse
 						form.navbar-form.pull-right
-							input(type="text", style="width:200px", placeholder="Search")
+							input(type="text", style="width:200px", placeholder="Search", disabled)
 							button.btn(onclick="session.logout(); return false;") Logout
 							button.btn.btn-primary(onclick="location='/threads/new?c=!{category.id}'; return false;") New
 

@@ -18,6 +18,7 @@ init.add(function (next) {
 	var log = 'elasticsearch: ' + url;
 
 	exports.dropIndex = function (next) {
+		return next();
 		request.del(url, function (err, res) {
 			if (err) return next(err);
 			if (res.error) return next(res.body);
@@ -26,6 +27,8 @@ init.add(function (next) {
 	};
 
 	exports.setSchema = function (next) {
+		return next();
+
 		var schema = {
 			settings: {
 				index: {
@@ -56,6 +59,8 @@ init.add(function (next) {
 	};
 
 	exports.flush = function (next) {
+		return next();
+
 		request.post(url + '/_flush', function (err, res) {
 			if (err) return next(err);
 			if (res.error) return next(res.body);
@@ -64,6 +69,8 @@ init.add(function (next) {
 	};
 
 	exports.update = function (thread, post, next) {
+		return next();
+
 		var form = {
 			threadId: thread._id,
 			categoryId: thread.categoryId,
@@ -82,6 +89,8 @@ init.add(function (next) {
 	};
 
 	exports.getPost = function (postId, next) {
+		return next();
+
 		request.get(url + '/post/' + postId, function (err, res) {
 			if (err) return next(err);
 			if (res.error) return next(res.body);
@@ -92,6 +101,8 @@ init.add(function (next) {
 	};
 
 	exports.search = function (form, next) {
+		return next();
+
 		request.post(url + '/post/_search').send(form).end(function (err, res) {
 			if (err) return next(err);
 			if (res.error) return next(res.body);
