@@ -29,3 +29,21 @@ block content
 					if post.editable
 						.cmd
 							a.btn(href='/threads/' + thread.id + '/' + post.id + '/edit') Edit
+		h2 Reply
+		form#reply-form(action='/threads/' + thread.id, method="post", enctype="multipart/form-data")
+			.row
+				label 필명
+				br
+				input.col-span-4(name='writer', type='text', value='', maxlength='32')
+			.row
+				label 내용
+				textarea(name='text', style='height: 450px;')
+			//
+				.well.well-small
+				input.file(name='files', type='file', multiple='multiple')
+				br
+				button.btn.btn-small
+					i.icon-plus
+			hr
+			button.btn.btn-primary(name='send', type='submit') Send
+			button.btn.disabled.hide(name='sending', type='button') Sending

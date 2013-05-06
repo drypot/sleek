@@ -43,7 +43,7 @@ html
 						form.navbar-form.pull-right
 							input(type="text", style="width:200px", placeholder="Search")
 							button.btn(onclick="session.logout(); return false;") Logout
-							button.btn.btn-primary(onclick="location='/thread/new?c=!{category.id}'; return false;") New
+							button.btn.btn-primary(onclick="location='/threads/new?c=!{category.id}'; return false;") New
 
 				else
 					a.navbar-brand(href="/")= siteTitle

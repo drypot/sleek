@@ -33,7 +33,7 @@ init.add(function () {
 		});
 	});
 
-	function prevNext(params, last, func) {
+	function prevNext(params, last, next) {
 		var page = params.page;
 		var prevUrl, nextUrl;
 		var u;
@@ -49,7 +49,7 @@ init.add(function () {
 			u.add('p', page + 1, 1);
 			nextUrl = u.toString();
 		}
-		func(prevUrl, nextUrl);
+		next(prevUrl, nextUrl);
 	}
 
 	app.get('/threads/:threadId([0-9]+)', function (req, res, next) {
@@ -80,4 +80,28 @@ init.add(function () {
 		});
 	});
 
+	app.post('/threads', function (req, res) {
+		req.role(function (err, role) {
+			if (err) return res.renderErr(err);
+			var form = post.form(req);
+			post.createThread(role, form, function (err, threadId, postId) {
+				if (err) return res.renderErr(err);
+				req.session.posts.push(postId);
+				res.redirect('/threads');
+			});
+		});
+	});
+
+	app.post('/threads/:threadId([0-9]+)', function (req, res) {
+		req.role(function (err, role) {
+			if (err) return res.renderErr(err);
+			var form = post.form(req);
+			var threadId = form.threadId = parseInt(req.params.threadId) || 0;
+			post.createReply(role, form, function (err, postId) {
+				if (err) return res.renderErr(err);
+				req.session.posts.push(postId);
+				res.redirect('/threads/' + threadId);
+			});
+		});
+	});
 });
