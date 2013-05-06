@@ -144,26 +144,29 @@ init.add(function () {
 			if (err) return next(err);
 			categoryForRead(role, thread.categoryId, function (err, category) {
 				if (err) return next(err);
-				var admin = category.editable;
-				var posts = [];
-				mongo.findPostsByThread(threadId, function (err, post) {
+				mongo.updateThreadHit(threadId, function (err) {
 					if (err) return next(err);
-					if (post) {
-						if (post.visible || admin) {
-							expFileUrls(post);
-							posts.push({
-								id: post._id,
-								writer: post.writer,
-								cdate: post.cdate.getTime(),
-								createdStr: dateTime.format(post.cdate),
-								text: post.text,
-								files: post.files,
-								editable: isEditable(category, post._id, editables)
-							});
+					var admin = category.editable;
+					var posts = [];
+					mongo.findPostsByThread(threadId, function (err, post) {
+						if (err) return next(err);
+						if (post) {
+							if (post.visible || admin) {
+								expFileUrls(post);
+								posts.push({
+									id: post._id,
+									writer: post.writer,
+									cdate: post.cdate.getTime(),
+									createdStr: dateTime.format(post.cdate),
+									text: post.text,
+									files: post.files,
+									editable: isEditable(category, post._id, editables)
+								});
+							}
+							return;
 						}
-						return;
-					}
-					next(null, category, thread, posts);
+						next(null, category, thread, posts);
+					});
 				});
 			});
 		});
