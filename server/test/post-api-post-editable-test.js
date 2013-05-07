@@ -45,7 +45,7 @@ describe("post.editable", function () {
 		});
 	});
 	it("should be true for p11", function (next) {
-		request.get(test.url + '/api/threads/' + t1 + '/' + p11, function (err, res) {
+		express.get('/api/threads/' + t1 + '/' + p11, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.post.editable.should.be.true;
@@ -53,7 +53,7 @@ describe("post.editable", function () {
 		});
 	});
 	it("should be true for p12", function (next) {
-		request.get(test.url + '/api/threads/' + t1 + '/' + p12, function (err, res) {
+		express.get('/api/threads/' + t1 + '/' + p12, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.post.editable.should.be.true;
@@ -64,7 +64,7 @@ describe("post.editable", function () {
 		ufix.loginUser(next);
 	});
 	it("should be false for p11", function (next) {
-		request.get(test.url + '/api/threads/' + t1 + '/' + p11, function (err, res) {
+		express.get('/api/threads/' + t1 + '/' + p11, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.post.editable.should.be.false;
@@ -72,7 +72,7 @@ describe("post.editable", function () {
 		});
 	});
 	it("should be false for p12", function (next) {
-		request.get(test.url + '/api/threads/' + t1 + '/' + p12, function (err, res) {
+		express.get('/api/threads/' + t1 + '/' + p12, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.post.editable.should.be.false;
@@ -83,7 +83,7 @@ describe("post.editable", function () {
 		ufix.loginAdmin(next);
 	});
 	it("should be true for p11", function (next) {
-		request.get(test.url + '/api/threads/' + t1 + '/' + p11, function (err, res) {
+		express.get('/api/threads/' + t1 + '/' + p11, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.post.editable.should.be.true;
@@ -91,7 +91,7 @@ describe("post.editable", function () {
 		});
 	});
 	it("should be true for p12", function (next) {
-		request.get(test.url + '/api/threads/' + t1 + '/' + p12, function (err, res) {
+		express.get('/api/threads/' + t1 + '/' + p12, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.post.editable.should.be.true;

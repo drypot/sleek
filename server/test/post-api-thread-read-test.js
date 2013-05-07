@@ -24,7 +24,7 @@ describe("reading thread and posts", function () {
 		ufix.logout(next);
 	});
 	it("should fail", function (next) {
-		request.get(test.url + '/api/threads/0', function (err, res) {
+		express.get('/api/threads/0', function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next();
@@ -52,7 +52,7 @@ describe("reading thread and posts", function () {
 		});
 	});
 	it("should return 2 posts", function (next) {
-		request.get(test.url + '/api/threads/' + tid, function (err, res) {
+		express.get('/api/threads/' + tid, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.thread._id.should.equal(tid);
@@ -75,7 +75,7 @@ describe("reading thread and posts", function () {
 		});
 	});
 	it("should return 3 posts", function (next) {
-		request.get(test.url + '/api/threads/' + tid, function (err, res) {
+		express.get('/api/threads/' + tid, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.posts.should.length(3);
@@ -94,7 +94,7 @@ describe("reading thread and posts", function () {
 		});
 	});
 	it("should return 4 posts", function (next) {
-		request.get(test.url + '/api/threads/' + tid, function (err, res) {
+		express.get('/api/threads/' + tid, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.posts.should.length(4);
@@ -105,7 +105,7 @@ describe("reading thread and posts", function () {
 		ufix.loginUser(next);
 	});
 	it("should return 3 posts", function (next) {
-		request.get(test.url + '/api/threads/' + tid, function (err, res) {
+		express.get('/api/threads/' + tid, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.posts.should.length(3);

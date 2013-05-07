@@ -13,19 +13,59 @@ before(function (next) {
 });
 
 before(function () {
+
+	var app = express.app;
+
+	app.put('/test/session', function (req, res) {
+		for (var key in req.body) {
+			req.session[key] = req.body[key];
+		}
+		res.json('ok');
+	});
+
+	app.get('/test/session', function (req, res) {
+		var obj = {};
+		for (var i = 0; i < req.body.length; i++) {
+			var key = req.body[i];
+			obj[key] = req.session[key];
+		}
+		res.json(obj);
+	});
+
+	app.get('/test/user/any', function (req, res) {
+		req.findUser(function (err) {
+			if (err) return res.jsonErr(err);
+			res.jsonEmpty();
+		})
+	});
+
+	app.get('/test/user/user', function (req, res) {
+		req.findUser('user', function (err) {
+			if (err) return res.jsonErr(err);
+			res.jsonEmpty();
+		});
+	});
+
+	app.get('/test/user/admin', function (req, res) {
+		req.findUser('admin', function (err) {
+			if (err) return res.jsonErr(err);
+			res.jsonEmpty();
+		});
+	});
+
 	express.listen();
 });
 
 describe("session", function () {
 	it("can save value", function (next) {
-		request.put(test.url + '/api/test/session').send({ book: 'book217', price: 112 }).end(function (err, res) {
+		express.put('/test/session').send({ book: 'book217', price: 112 }).end(function (err, res) {
 			should(!res.error);
 			res.body.should.equal('ok');
 			next();
 		});
 	});
 	it("can get value", function (next) {
-		request.get(test.url + '/api/test/session').send([ 'book', 'price' ]).end(function (err, res) {
+		express.get('/test/session').send([ 'book', 'price' ]).end(function (err, res) {
 			should(!res.error);
 			res.body.should.have.property('book', 'book217');
 			res.body.should.have.property('price', 112);
@@ -36,7 +76,7 @@ describe("session", function () {
 		ufix.logout(next);
 	});
 	it("should return nothing after terminated", function (next) {
-		request.get(test.url + '/api/test/session').send([ 'book', 'price' ]).end(function (err, res) {
+		express.get('/test/session').send([ 'book', 'price' ]).end(function (err, res) {
 			should(!res.error);
 			res.body.should.not.have.property('book');
 			res.body.should.not.have.property('price');
@@ -66,7 +106,7 @@ describe("session info", function () {
 		ufix.logout(next);
 	});
 	it("should return error", function (next) {
-		request.get(test.url + '/api/sessions', function (err, res) {
+		express.get('/api/sessions', function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next();
@@ -76,7 +116,7 @@ describe("session info", function () {
 		ufix.loginUser(next);
 	});
 	it("should success", function (next) {
-		request.get(test.url + '/api/sessions', function (err, res) {
+		express.get('/api/sessions', function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.user.name.should.equal('user');
@@ -86,12 +126,12 @@ describe("session info", function () {
 	});
 });
 
-describe("accessing /api/test/user/any", function () {
+describe("accessing /test/user/any", function () {
 	it("given no session", function (next) {
 		ufix.logout(next);
 	});
 	it("should fail", function (next) {
-		request.get(test.url + '/api/test/user/any', function (err, res) {
+		express.get('/test/user/any', function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next();
@@ -101,7 +141,7 @@ describe("accessing /api/test/user/any", function () {
 		ufix.loginUser(next);
 	});
 	it("should success", function (next) {
-		request.get(test.url + '/api/test/user/any', function (err, res) {
+		express.get('/test/user/any', function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			next();
@@ -111,7 +151,7 @@ describe("accessing /api/test/user/any", function () {
 		ufix.logout(next);
 	});
 	it("should fail", function (next) {
-		request.get(test.url + '/api/test/user/any', function (err, res) {
+		express.get('/test/user/any', function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next();
@@ -119,12 +159,12 @@ describe("accessing /api/test/user/any", function () {
 	});
 });
 
-describe("accessing /api/test/user/user", function () {
+describe("accessing /test/user/user", function () {
 	it("given no session", function (next) {
 		ufix.logout(next);
 	});
 	it("should fail", function (next) {
-		request.get(test.url + '/api/test/user/user', function (err, res) {
+		express.get('/test/user/user', function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next();
@@ -134,7 +174,7 @@ describe("accessing /api/test/user/user", function () {
 		ufix.loginUser(next);
 	});
 	it("should success", function (next) {
-		request.get(test.url + '/api/test/user/user', function (err, res) {
+		express.get('/test/user/user', function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			next();
@@ -142,12 +182,12 @@ describe("accessing /api/test/user/user", function () {
 	});
 });
 
-describe("accessing /api/test/user/admin", function () {
+describe("accessing /test/user/admin", function () {
 	it("given no session", function (next) {
 		ufix.logout(next);
 	});
 	it("should fail", function (next) {
-		request.get(test.url + '/api/test/user/admin', function (err, res) {
+		express.get('/test/user/admin', function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next();
@@ -157,7 +197,7 @@ describe("accessing /api/test/user/admin", function () {
 		ufix.loginUser(next);
 	});
 	it("should fail", function (next) {
-		request.get(test.url + '/api/test/user/admin', function (err, res) {
+		express.get('/test/user/admin', function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.NOT_AUTHORIZED);
 			next();
@@ -167,7 +207,7 @@ describe("accessing /api/test/user/admin", function () {
 		ufix.loginAdmin(next);
 	});
 	it("should success", function (next) {
-		request.get(test.url + '/api/test/user/admin', function (err, res) {
+		express.get('/test/user/admin', function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			next();
@@ -181,7 +221,7 @@ describe("user.categoriesForMenu", function () {
 		ufix.loginUser(next);
 	});
 	it("given categoriesForMenu", function (next) {
-		request.get(test.url + '/api/sessions', function (err, res) {
+		express.get('/api/sessions', function (err, res) {
 			categories = res.body.user.categoriesForMenu;
 			next();
 		});
@@ -208,7 +248,7 @@ describe("user.categoriesForMenu", function () {
 		ufix.loginAdmin(next);
 	});
 	it("given categoriesForMenu", function (next) {
-		request.get(test.url + '/api/sessions', function (err, res) {
+		express.get('/api/sessions', function (err, res) {
 			categories = res.body.user.categoriesForMenu;
 			next();
 		});

@@ -70,7 +70,7 @@ describe("reading post", function () {
 		ufix.logout(next);
 	});
 	it("should fail", function (next) {
-		request.get(test.url + '/api/threads/' + t1 + '/' + p11, function (err, res) {
+		express.get('/api/threads/' + t1 + '/' + p11, function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next();
@@ -80,28 +80,28 @@ describe("reading post", function () {
 		ufix.loginUser(next);
 	});
 	it("should fail with invalid tid", function (next) {
-		request.get(test.url + '/api/threads/' + 99999 + '/' + p11, function (err, res) {
+		express.get('/api/threads/' + 99999 + '/' + p11, function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.INVALID_THREAD);
 			next();
 		});
 	});
 	it("should fail with mismatching tid", function (next) {
-		request.get(test.url + '/api/threads/' + t2 + '/' + p11, function (err, res) {
+		express.get('/api/threads/' + t2 + '/' + p11, function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.INVALID_POST);
 			next();
 		});
 	});
 	it("should fail with invalid pid", function (next) {
-		request.get(test.url + '/api/threads/' + t1 + '/' + 99999, function (err, res) {
+		express.get('/api/threads/' + t1 + '/' + 99999, function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.INVALID_POST);
 			next();
 		});
 	});
 	it("should success for p11", function (next) {
-		request.get(test.url + '/api/threads/' + t1 + '/' + p11, function (err, res) {
+		express.get('/api/threads/' + t1 + '/' + p11, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.thread.title.should.equal('title1');
@@ -114,7 +114,7 @@ describe("reading post", function () {
 		});
 	});
 	it("should success for p12", function (next) {
-		request.get(test.url + '/api/threads/' + t1 + '/' + p12, function (err, res) {
+		express.get('/api/threads/' + t1 + '/' + p12, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.post.writer.should.equal('snowman1');
@@ -128,14 +128,14 @@ describe("reading post", function () {
 		ufix.loginUser(next);
 	});
 	it("should fail for p21 in recycle bin", function (next) {
-		request.get(test.url + '/api/threads/' + t2 + '/' + p21, function (err, res) {
+		express.get('/api/threads/' + t2 + '/' + p21, function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.INVALID_CATEGORY);
 			next();
 		});
 	});
 	it("should fail for p22 in recycle bin", function (next) {
-		request.get(test.url + '/api/threads/' + t2 + '/' + p22, function (err, res) {
+		express.get('/api/threads/' + t2 + '/' + p22, function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.INVALID_CATEGORY);
 			next();
@@ -145,7 +145,7 @@ describe("reading post", function () {
 		ufix.loginAdmin(next);
 	});
 	it("should success for p21 in recycle bin", function (next) {
-		request.get(test.url + '/api/threads/' + t2 + '/' + p21, function (err, res) {
+		express.get('/api/threads/' + t2 + '/' + p21, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.thread.title.should.equal('title2');
@@ -158,7 +158,7 @@ describe("reading post", function () {
 		});
 	});
 	it("should success for p22 in recycle bin", function (next) {
-		request.get(test.url + '/api/threads/' + t2 + '/' + p22, function (err, res) {
+		express.get('/api/threads/' + t2 + '/' + p22, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.post.writer.should.equal('snowman2');

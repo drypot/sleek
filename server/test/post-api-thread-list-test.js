@@ -56,13 +56,13 @@ describe("listing threads", function () {
 		})();
 	});
 	it("should success when no op", function (next) {
-		request.get(test.url + '/api/threads', function (err, res) {
+		express.get('/api/threads', function (err, res) {
 			should(!res.body.err);
 			res.body.threads.should.length(7);
 
 			var t;
 			t = res.body.threads[0];
-			t.should.have.property('id');
+			t.should.have.property('_id');
 			t.category.id.should.equal(400);
 			t.writer.should.equal('snowman');
 			t.title.should.equal('title 7');
@@ -70,7 +70,7 @@ describe("listing threads", function () {
 			t.length.should.equal(1);
 
 			t = res.body.threads[6];
-			t.should.have.property('id');
+			t.should.have.property('_id');
 			t.category.id.should.equal(100);
 			t.writer.should.equal('snowman');
 			t.title.should.equal('title 1');
@@ -78,7 +78,7 @@ describe("listing threads", function () {
 		});
 	});
 	it("should success with category 0", function (next) {
-		request.get(test.url + '/api/threads').query({ c: 0 }).end(function (err, res) {
+		express.get('/api/threads').query({ c: 0 }).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.threads.should.length(7);
@@ -86,7 +86,7 @@ describe("listing threads", function () {
 		});
 	});
 	it("should success with category 300", function (next) {
-		request.get(test.url + '/api/threads').query({ c: 300 }).end(function (err, res) {
+		express.get('/api/threads').query({ c: 300 }).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.threads.should.length(2);
@@ -94,7 +94,7 @@ describe("listing threads", function () {
 		});
 	});
 	it("should success with page 2", function (next) {
-		request.get(test.url + '/api/threads').query({ c: 0, p: 2, ps: 3 }).end(function (err, res) {
+		express.get('/api/threads').query({ c: 0, pg: 2, ps: 3 }).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.threads.should.length(3);
@@ -106,7 +106,7 @@ describe("listing threads", function () {
 	});
 	describe("last", function () {
 		it("should be false with page 1", function (next) {
-			request.get(test.url + '/api/threads').query({ c: 0, p: 1, ps: 3 }).end(function (err, res) {
+			express.get('/api/threads').query({ c: 0, pg: 1, ps: 3 }).end(function (err, res) {
 				should(!res.error);
 				should(!res.body.err);
 				res.body.last.should.false;
@@ -114,7 +114,7 @@ describe("listing threads", function () {
 			});
 		});
 		it("should be false with page 2", function (next) {
-			request.get(test.url + '/api/threads').query({ c: 0, p: 2, ps: 3 }).end(function (err, res) {
+			express.get('/api/threads').query({ c: 0, pg: 2, ps: 3 }).end(function (err, res) {
 				should(!res.error);
 				should(!res.body.err);
 				res.body.last.should.false;
@@ -122,7 +122,7 @@ describe("listing threads", function () {
 			});
 		});
 		it("should be false with page 3", function (next) {
-			request.get(test.url + '/api/threads').query({ c: 0, p: 3, ps: 3 }).end(function (err, res) {
+			express.get('/api/threads').query({ c: 0, pg: 3, ps: 3 }).end(function (err, res) {
 				should(!res.error);
 				should(!res.body.err);
 				res.body.last.should.true;
@@ -130,7 +130,7 @@ describe("listing threads", function () {
 			});
 		});
 		it("should be false with page 4", function (next) {
-			request.get(test.url + '/api/threads').query({ c: 0, p: 4, ps: 3 }).end(function (err, res) {
+			express.get('/api/threads').query({ c: 0, pg: 4, ps: 3 }).end(function (err, res) {
 				should(!res.error);
 				should(!res.body.err);
 				res.body.last.should.true;

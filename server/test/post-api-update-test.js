@@ -25,7 +25,7 @@ describe("updating", function () {
 		ufix.logout(next);
 	});
 	it("should fail", function (next) {
-		request.put(test.url + '/api/threads/0/0', function (err, res) {
+		express.put('/api/threads/0/0', function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next();
@@ -46,7 +46,7 @@ describe("updating", function () {
 	});
 	it("should fail when title empty", function (next) {
 		var form = { cid: 101, writer: 'snowman', title: ' ', text: 'text', visible: true };
-		request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
+		express.put('/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.INVALID_DATA);
 			res.body.err.fields.some(function (field) {
@@ -57,7 +57,7 @@ describe("updating", function () {
 	});
 	it("should fail when writer empty", function (next) {
 		var form = { cid: 101, writer: ' ', title: 'title', text: 'text', visible: true };
-		request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
+		express.put('/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.INVALID_DATA);
 			res.body.err.fields.some(function (field) {
@@ -68,14 +68,14 @@ describe("updating", function () {
 	});
 	it("should success when category not changed", function (next) {
 		var form = { cid: 101, writer: 'snowman1', title: 'title1', text: 'text1' };
-		request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
+		express.put('/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			next();
 		});
 	});
 	it("can be confirmed", function (next) {
-		request.get(test.url + '/api/threads/' + t1 + '/' + p1, function (err, res) {
+		express.get('/api/threads/' + t1 + '/' + p1, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.post.head.should.true;
@@ -89,14 +89,14 @@ describe("updating", function () {
 	});
 	it("should success when category changed", function (next) {
 		var form = { cid: 102, writer: 'snowman2', title: 'title2', text: 'text2' };
-		request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
+		express.put('/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			next();
 		});
 	});
 	it("can be confirmed", function (next) {
-		request.get(test.url + '/api/threads/' + t1 + '/' + p1, function (err, res) {
+		express.get('/api/threads/' + t1 + '/' + p1, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.category.id.should.equal(102);
@@ -105,14 +105,14 @@ describe("updating", function () {
 	});
 	it("should success but can not change visible", function (next) {
 		var form = { cid: 102, writer: 'snowman3', title: 'title3', text: 'text3', visible: false };
-		request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
+		express.put('/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			next();
 		});
 	});
 	it("can be confirmed", function (next) {
-		request.get(test.url + '/api/threads/' + t1 + '/' + p1, function (err, res) {
+		express.get('/api/threads/' + t1 + '/' + p1, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.post.visible.should.true;
@@ -124,7 +124,7 @@ describe("updating", function () {
 	});
 	it("should fail after reloged", function (next) {
 		var form = { cid: 102, writer: 'snowman3', title: 'title3', text: 'text3', visible: false };
-		request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
+		express.put('/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
 			should(!res.error);
 			should(res.body.err);
 			res.body.err.rc.should.equal(error.NOT_AUTHORIZED);
@@ -136,14 +136,14 @@ describe("updating", function () {
 	});
 	it("should success and can change visible", function (next) {
 		var form = { cid: 102, writer: 'snowman4', title: 'title4', text: 'text4', visible: false };
-		request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
+		express.put('/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			next();
 		});
 	});
 	it("can be confirmed", function (next) {
-		request.get(test.url + '/api/threads/' + t1 + '/' + p1, function (err, res) {
+		express.get('/api/threads/' + t1 + '/' + p1, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.post.visible.should.false;
@@ -178,14 +178,14 @@ describe("updating reply", function () {
 	});
 	it("should success except visible field", function (next) {
 		var form = { writer: 'snowman1', text: 'text1', visible: false };
-		request.put(test.url + '/api/threads/' + t1 + '/' + p2).send(form).end(function (err, res) {
+		express.put('/api/threads/' + t1 + '/' + p2).send(form).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			next();
 		});
 	});
 	it("can be confirmed", function (next) {
-		request.get(test.url + '/api/threads/' + t1 + '/' + p2, function (err, res) {
+		express.get('/api/threads/' + t1 + '/' + p2, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.post.head.should.false;
@@ -214,7 +214,7 @@ describe("updating recycle bin", function () {
 	});
 	it("should success", function (next) {
 		var form = { cid: 40, writer: 'snowman1', title: 'title1', text: 'text1' };
-		request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
+		express.put('/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			next();
@@ -225,7 +225,7 @@ describe("updating recycle bin", function () {
 	});
 	it("should fail", function (next) {
 		var form = { cid: 40, writer: 'snowman1', title: 'title1', text: 'text1' };
-		request.put(test.url + '/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
+		express.put('/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.INVALID_CATEGORY);
 			next();

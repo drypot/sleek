@@ -68,7 +68,7 @@ describe.skip("flushing", function () {
 
 describe.skip("searching", function () {
 	it("should success for pid1", function (next) {
-		request.get(test.url + '/api/search').query({ q: '첫번째' }).end(function (err, res) {
+		express.get('/api/search').query({ q: '첫번째' }).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			var r = res.body.results;
@@ -78,7 +78,7 @@ describe.skip("searching", function () {
 		});
 	});
 	it("should success for pid2", function (next) {
-		request.get(test.url + '/api/search').query({ q: '둥글게 네모나게' }).end(function (err, res) {
+		express.get('/api/search').query({ q: '둥글게 네모나게' }).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			var r = res.body.results;
@@ -88,7 +88,7 @@ describe.skip("searching", function () {
 		});
 	});
 	it("should success for pid3", function (next) {
-		request.get(test.url + '/api/search').query({ q: '박철수' }).end(function (err, res) {
+		express.get('/api/search').query({ q: '박철수' }).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			var r = res.body.results;
@@ -113,7 +113,7 @@ describe.skip("dropping es", function () {
 
 describe.skip("searching emtpy es", function () {
 	it("should success for pid1", function (next) {
-		request.get(test.url + '/api/search').query({ q: '첫번째' }).end(function (err, res) {
+		express.get('/api/search').query({ q: '첫번째' }).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.results.should.length(0);
@@ -121,7 +121,7 @@ describe.skip("searching emtpy es", function () {
 		});
 	});
 	it("should success for pid2", function (next) {
-		request.get(test.url + '/api/search').query({ q: '둥글게 네모나게' }).end(function (err, res) {
+		express.get('/api/search').query({ q: '둥글게 네모나게' }).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.results.should.length(0);
@@ -129,7 +129,7 @@ describe.skip("searching emtpy es", function () {
 		});
 	});
 	it("should success for pid3", function (next) {
-		request.get(test.url + '/api/search').query({ q: '박철수' }).end(function (err, res) {
+		express.get('/api/search').query({ q: '박철수' }).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			var r = res.body.results;
@@ -155,7 +155,7 @@ describe.skip("flushing", function () {
 
 describe.skip("re-searching", function () {
 	it("should success for pid1", function (next) {
-		request.get(test.url + '/api/search').query({ q: '첫번째' }).end(function (err, res) {
+		express.get('/api/search').query({ q: '첫번째' }).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			var r = res.body.results;
@@ -165,7 +165,7 @@ describe.skip("re-searching", function () {
 		});
 	});
 	it("should success for pid2", function (next) {
-		request.get(test.url + '/api/search').query({ q: '둥글게 네모나게' }).end(function (err, res) {
+		express.get('/api/search').query({ q: '둥글게 네모나게' }).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			var r = res.body.results;
@@ -175,7 +175,7 @@ describe.skip("re-searching", function () {
 		});
 	});
 	it("should success for pid3", function (next) {
-		request.get(test.url + '/api/search').query({ q: '박철수' }).end(function (err, res) {
+		express.get('/api/search').query({ q: '박철수' }).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			var r = res.body.results;

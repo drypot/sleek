@@ -53,43 +53,4 @@ init.add(function () {
 		res.jsonEmpty();
 	});
 
-	app.configure('development', function () {
-		app.put('/api/test/session', function (req, res) {
-			for (var key in req.body) {
-				req.session[key] = req.body[key];
-			}
-			res.json('ok');
-		});
-
-		app.get('/api/test/session', function (req, res) {
-			var obj = {};
-			for (var i = 0; i < req.body.length; i++) {
-				var key = req.body[i];
-				obj[key] = req.session[key];
-			}
-			res.json(obj);
-		});
-
-		app.get('/api/test/user/any', function (req, res) {
-			req.findUser(function (err) {
-				if (err) return res.jsonErr(err);
-				res.jsonEmpty();
-			})
-		});
-
-		app.get('/api/test/user/user', function (req, res) {
-			req.findUser('user', function (err) {
-				if (err) return res.jsonErr(err);
-				res.jsonEmpty();
-			});
-		});
-
-		app.get('/api/test/user/admin', function (req, res) {
-			req.findUser('admin', function (err) {
-				if (err) return res.jsonErr(err);
-				res.jsonEmpty();
-			});
-		});
-	});
-
 });

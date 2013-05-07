@@ -37,7 +37,7 @@ describe.skip("searching", function () {
 		ufix.logout(next);
 	});
 	it("should fail", function (next) {
-		request.get(test.url + '/api/search', function (err, res) {
+		express.get('/api/search', function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next();
@@ -47,7 +47,7 @@ describe.skip("searching", function () {
 		ufix.loginAdmin(next);
 	});
 	it("should success", function (next) {
-		request.get(test.url + '/api/search', function (err, res) {
+		express.get('/api/search', function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			var r = res.body.results;
@@ -78,7 +78,7 @@ describe.skip("searching", function () {
 	});
 	describe.skip("user name", function () {
 		it("should success", function (next) {
-			request.get(test.url + '/api/search').query({ q: 'snowman' }).end(function (err, res) {
+			express.get('/api/search').query({ q: 'snowman' }).end(function (err, res) {
 				should(!res.error);
 				should(!res.body.err);
 				var r = res.body.results;
@@ -92,7 +92,7 @@ describe.skip("searching", function () {
 	});
 	describe.skip("title", function () {
 		it("should success", function (next) {
-			request.get(test.url + '/api/search').query({ q: 'title 4' }).end(function (err, res) {
+			express.get('/api/search').query({ q: 'title 4' }).end(function (err, res) {
 				should(!res.error);
 				should(!res.body.err);
 				var r = res.body.results;
@@ -104,7 +104,7 @@ describe.skip("searching", function () {
 	});
 	describe.skip("text", function () {
 		it("should success", function (next) {
-			request.get(test.url + '/api/search').query({ q: 'apple orange' }).end(function (err, res) {
+			express.get('/api/search').query({ q: 'apple orange' }).end(function (err, res) {
 				should(!res.error);
 				should(!res.body.err);
 				var r = res.body.results;
@@ -115,7 +115,7 @@ describe.skip("searching", function () {
 			});
 		});
 		it("should success", function (next) {
-			request.get(test.url + '/api/search').query({ q: 'apple banana' }).end(function (err, res) {
+			express.get('/api/search').query({ q: 'apple banana' }).end(function (err, res) {
 				should(!res.error);
 				should(!res.body.err);
 				var r = res.body.results;
@@ -127,7 +127,7 @@ describe.skip("searching", function () {
 	});
 	describe.skip("hangul", function () {
 		it("should success", function (next) {
-			request.get(test.url + '/api/search').query({ q: '둥글' }).end(function (err, res) {
+			express.get('/api/search').query({ q: '둥글' }).end(function (err, res) {
 				should(!res.error);
 				should(!res.body.err);
 				var r = res.body.results;
@@ -144,7 +144,7 @@ describe.skip("searching", function () {
 			ufix.loginUser(next);
 		});
 		it("should return no results", function (next) {
-			request.get(test.url + '/api/search').query({ q: 'admin' }).end(function (err, res) {
+			express.get('/api/search').query({ q: 'admin' }).end(function (err, res) {
 				should(!res.error);
 				should(!res.body.err);
 				var r = res.body.results;
@@ -156,7 +156,7 @@ describe.skip("searching", function () {
 			ufix.loginAdmin(next);
 		});
 		it("should return results", function (next) {
-			request.get(test.url + '/api/search').query({ q: 'admin' }).end(function (err, res) {
+			express.get('/api/search').query({ q: 'admin' }).end(function (err, res) {
 				should(!res.error);
 				should(!res.body.err);
 				var r = res.body.results;
