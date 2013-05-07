@@ -10,13 +10,13 @@ init.add(function () {
 	console.log('search-api:');
 
 	app.get('/api/search', function (req, res) {
-		req.role(function (err, role) {
+		req.findUser(function (err, user) {
 			if (err) return res.jsonErr(err);
 			var query = String(req.query.q || '').trim();
 			var offset = parseInt(req.query.offset) || 0;
 			var limit = parseInt(req.query.limit) || 16;
 			limit = limit > 64 ? 64 : limit < 0 ? 0 : limit;
-			search(role, query, offset, limit, function (err, results) {
+			search(user, query, offset, limit, function (err, results) {
 				if (err) {
 					return res.jsonErr(err);
 				}
@@ -27,7 +27,7 @@ init.add(function () {
 		});
 	});
 
-	function search(role, query, offset, limit, next) {
+	function search(user, query, offset, limit, next) {
 		if (query.length == 0) { // es 에 '' 넘어가면 에러난다.
 			return next(null, []);
 		}
@@ -43,15 +43,15 @@ init.add(function () {
 				return next(null, []);
 			}
 			var results = [];
-			var categories = role.categories;
+			var categories = user.categories;
 			res.body.hits.hits.forEach(function (hit) {
 				var s = hit._source;
-				var category = categories[s.categoryId];
+				var category = categories[s.cid];
 				if (category && (s.visible || category.editable)) {
 					results.push({
-						postId: hit._id,
-						threadId: s.threadId,
-						categoryId: s.categoryId,
+						pid: hit._id,
+						tid: s.tid,
+						cid: s.cid,
 						cdate: s.cdate.getTime(),
 						writer: s.writer,
 						title: s.title,

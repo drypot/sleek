@@ -4,7 +4,8 @@ var redisStore = require('connect-redis')(express);
 
 var init = require('../main/init');
 var config = require('../main/config');
-var auth = require('../main/auth');
+var user9 = require('../main/user');
+var upload = require('../main/upload');
 var error = require('../main/error');
 
 var opt = {};
@@ -42,10 +43,10 @@ init.add(function () {
 		log += ' memory';
 	}
 
-	app.use(express.bodyParser({ uploadDir: config.data.uploadDir + '/tmp' }));
+	app.use(express.bodyParser({ uploadDir: upload.tmp }));
 
 	app.use(function (req, res, next) {
-		res.locals.role = auth.roleByName(req.session.roleName);
+		res.locals.user = user9.findUserByName(req.session.userName);
 		next();
 	});
 
@@ -57,32 +58,24 @@ init.add(function () {
 		next();
 	});
 
-	app.get('/', function (req, res) {
-		if (res.locals.role) {
-			res.redirect('/threads');
-		} else {
-			res.render('index');
-		}
-	});
-
 	app.use(express.errorHandler());
 
-	should.not.exist(app.request.role);
-	app.request.role = function (roleName, next) {
-		if (typeof roleName === 'function') {
-			next = roleName;
-			roleName = null;
+	should.not.exist(app.request.findUser);
+	app.request.findUser = function (userName, next) {
+		if (typeof userName === 'function') {
+			next = userName;
+			userName = null;
 		}
 		var req = this;
 		var res = this.res;
-		var role = res.locals.role;
-		if (!role) {
+		var user = res.locals.user;
+		if (!user) {
 			return next(error(error.NOT_AUTHENTICATED));
 		}
-		if (roleName && roleName !== role.name) {
+		if (userName && userName !== user.name) {
 			return next(error(error.NOT_AUTHORIZED));
 		}
-		next(null, role);
+		next(null, user);
 	};
 
 	var empty = {};
@@ -126,5 +119,21 @@ init.add(function () {
 		log += ' ' + config.data.port;
 		console.log(log);
 	};
+
+	// for test
+
+	var request = require('superagent').agent();
+	var url = 'http://localhost:' + config.data.port;
+	var methods = [ 'post', 'get', 'put', 'del' ];
+
+	for (var i = 0; i < methods.length; i++) {
+		var method = methods[i];
+		exports[method] = (function (method) {
+			return function () {
+				arguments[0] = url + arguments[0];
+				return request[method].apply(request, arguments);
+			}
+		})(method)
+	}
 
 });

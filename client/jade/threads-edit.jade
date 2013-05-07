@@ -1,7 +1,7 @@
 extends layout
 
 block title
-	title New Post - #{siteTitle}
+	title Edit Post - #{siteTitle}
 
 block content
 
@@ -11,10 +11,10 @@ block content
 		});
 
 	.page-header
-		h2 New Post
+		h2 Edit Post
 
 	#content
-		form#new-form(action="/threads", method="post", enctype="multipart/form-data")
+		form#edit-form(action="/threads/", method="post", enctype="multipart/form-data")
 			select.col-span-3(name='cid')
 				for category in user.categoriesForNew
 					option(value=category.id) #{category.name}
@@ -29,12 +29,12 @@ block content
 			.row
 				label 내용
 				textarea(name='text', style='height: 450px;')
-			//
-				.well.well-small
-				input.file(name='files', type='file', multiple='multiple')
-				br
-				button.btn.btn-small
-					i.icon-plus
+//
+			.well.well-small
+			input.file(name='files', type='file', multiple='multiple')
+			br
+			button.btn.btn-small
+				i.icon-plus
 			hr
 			button.btn.btn-primary(name='send', type='submit') Send
 			button.btn.disabled.hide(name='sending', type='button') Sending

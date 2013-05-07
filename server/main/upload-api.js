@@ -10,7 +10,7 @@ init.add(function () {
 	console.log('upload-api:');
 
 	app.post('/api/upload', function (req, res) {
-		req.role(function (err) {
+		req.findUser(function (err) {
 			if (err) return res.jsonErr(err);
 			res.json({
 				files: upload.tmpFiles(req.files.file)
@@ -19,7 +19,7 @@ init.add(function () {
 	});
 
 	app.del('/api/upload', function (req, res) {
-		req.role(function (err) {
+		req.findUser(function (err) {
 			if (err) return res.jsonErr(err);
 			upload.deleteTmpFiles(req.body.files);
 			res.jsonEmpty();

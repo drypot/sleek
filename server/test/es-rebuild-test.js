@@ -8,7 +8,7 @@ var es = require('../main/es')({ dropIndex: true });
 var rebuild = require('../main/es-rebuild');
 var express = require('../main/express');
 var error = require('../main/error');
-var test = require('../main/test')({ request: request });
+var ufix = require('../test/user-fixture');
 
 require('../main/session-api');
 require('../main/post-api');
@@ -22,38 +22,39 @@ before(function () {
 	express.listen();
 });
 
-var t1, p1, p2, t2, p3;
+var tid1, tid2;
+var pid1, pid2, pid3;
 
 describe.skip("posting", function () {
 	it("given user session", function (next) {
-		test.loginUser(next);
+		ufix.loginUser(next);
 	});
-	it("should success for t1, p1", function (next) {
-		var form = { categoryId: 101, writer: 'snowman', title: '첫번째 글줄', text: 'apple pine banana' };
-		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
+	it("should success for tid1, pid1", function (next) {
+		var form = { cid: 101, writer: 'snowman', title: '첫번째 글줄', text: 'apple pine banana' };
+		express.post('/api/threads').send(form).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
-			t1 = res.body.threadId;
-			p1 = res.body.postId;
+			tid1 = res.body.tid;
+			pid1 = res.body.pid;
 			next();
 		});
 	});
-	it("should success for p2", function (next) {
+	it("should success for pid2", function (next) {
 		var form = { writer: '김순이', text: '둥글게 네모나게 붉게 파랗게' };
-		request.post(test.url + '/api/threads/' + t1).send(form).end(function (err, res) {
+		express.post('/api/threads/' + tid1).send(form).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
-			p2 = res.body.postId;
+			pid2 = res.body.pid;
 			next();
 		});
 	});
-	it("should success for t2, p3", function (next) {
-		var form = { categoryId: 101, writer: '박철수', title: '두번째 글줄', text: '붉은 벽돌길을 걷다보면' };
-		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
+	it("should success for tid2, pid3", function (next) {
+		var form = { cid: 101, writer: '박철수', title: '두번째 글줄', text: '붉은 벽돌길을 걷다보면' };
+		express.post('/api/threads').send(form).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
-			t2 = res.body.threadId;
-			p3 = res.body.postId;
+			tid2 = res.body.tid;
+			pid3 = res.body.pid;
 			next();
 		});
 	});
@@ -66,33 +67,33 @@ describe.skip("flushing", function () {
 });
 
 describe.skip("searching", function () {
-	it("should success for p1", function (next) {
+	it("should success for pid1", function (next) {
 		request.get(test.url + '/api/search').query({ q: '첫번째' }).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			var r = res.body.results;
 			r.should.length(1);
-			r[0].postId.should.equal(p1);
+			r[0].pid.should.equal(pid1);
 			next();
 		});
 	});
-	it("should success for p2", function (next) {
+	it("should success for pid2", function (next) {
 		request.get(test.url + '/api/search').query({ q: '둥글게 네모나게' }).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			var r = res.body.results;
 			r.should.length(1);
-			r[0].postId.should.equal(p2);
+			r[0].pid.should.equal(pid2);
 			next();
 		});
 	});
-	it("should success for p3", function (next) {
+	it("should success for pid3", function (next) {
 		request.get(test.url + '/api/search').query({ q: '박철수' }).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			var r = res.body.results;
 			r.should.length(1);
-			r[0].postId.should.equal(p3);
+			r[0].pid.should.equal(pid3);
 			next();
 		});
 	});
@@ -111,7 +112,7 @@ describe.skip("dropping es", function () {
 });
 
 describe.skip("searching emtpy es", function () {
-	it("should success for p1", function (next) {
+	it("should success for pid1", function (next) {
 		request.get(test.url + '/api/search').query({ q: '첫번째' }).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
@@ -119,7 +120,7 @@ describe.skip("searching emtpy es", function () {
 			next();
 		});
 	});
-	it("should success for p2", function (next) {
+	it("should success for pid2", function (next) {
 		request.get(test.url + '/api/search').query({ q: '둥글게 네모나게' }).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
@@ -127,7 +128,7 @@ describe.skip("searching emtpy es", function () {
 			next();
 		});
 	});
-	it("should success for p3", function (next) {
+	it("should success for pid3", function (next) {
 		request.get(test.url + '/api/search').query({ q: '박철수' }).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
@@ -153,33 +154,33 @@ describe.skip("flushing", function () {
 });
 
 describe.skip("re-searching", function () {
-	it("should success for p1", function (next) {
+	it("should success for pid1", function (next) {
 		request.get(test.url + '/api/search').query({ q: '첫번째' }).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			var r = res.body.results;
 			r.should.length(1);
-			r[0].postId.should.equal(p1);
+			r[0].pid.should.equal(pid1);
 			next();
 		});
 	});
-	it("should success for p2", function (next) {
+	it("should success for pid2", function (next) {
 		request.get(test.url + '/api/search').query({ q: '둥글게 네모나게' }).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			var r = res.body.results;
 			r.should.length(1);
-			r[0].postId.should.equal(p2);
+			r[0].pid.should.equal(pid2);
 			next();
 		});
 	});
-	it("should success for p3", function (next) {
+	it("should success for pid3", function (next) {
 		request.get(test.url + '/api/search').query({ q: '박철수' }).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			var r = res.body.results;
 			r.should.length(1);
-			r[0].postId.should.equal(p3);
+			r[0].pid.should.equal(pid3);
 			next();
 		});
 	});

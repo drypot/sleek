@@ -9,10 +9,10 @@ init.add(function () {
 	console.log('post-api:');
 
 	app.get('/api/threads', function (req, res) {
-		req.role(function (err, role) {
+		req.findUser(function (err, user) {
 			if (err) return res.jsonErr(err);
-			var params = post.threadsParams(req);
-			post.threads(role, params, function (err, category, threads, last) {
+			var params = post.makeThreadsParams(req);
+			post.findThreads(user, params, function (err, category, threads, last) {
 				if (err) return res.jsonErr(err);
 				res.json({
 					threads: threads,
@@ -22,15 +22,15 @@ init.add(function () {
 		});
 	});
 
-	app.get('/api/threads/:threadId([0-9]+)', function (req, res) {
-		req.role(function (err, role) {
+	app.get('/api/threads/:tid([0-9]+)', function (req, res) {
+		req.findUser(function (err, user) {
 			if (err) return res.jsonErr(err);
-			var threadId = parseInt(req.params.threadId) || 0;
-			post.threadAndPosts(role, threadId, req.session.posts, function (err, category, thread, posts) {
+			var tid = parseInt(req.params.tid) || 0;
+			post.findThreadAndPosts(user, tid, req.session.posts, function (err, category, thread, posts) {
 				if (err) return res.jsonErr(err);
 				res.json({
 					thread: {
-						id: thread._id,
+						_id: thread._id,
 						title: thread.title
 					},
 					category: {
@@ -42,20 +42,20 @@ init.add(function () {
 		});
 	});
 
-	app.get('/api/threads/:threadId([0-9]+)/:postId([0-9]+)', function (req, res, next) {
-		req.role(function (err, role) {
+	app.get('/api/threads/:tid([0-9]+)/:pid([0-9]+)', function (req, res, next) {
+		req.findUser(function (err, user) {
 			if (err) return res.jsonErr(err);
-			var threadId = parseInt(req.params.threadId) || 0;
-			var postId = parseInt(req.params.postId) || 0;
-			post.threadAndPost(role, threadId, postId, req.session.posts, function (err, thread, post) {
+			var tid = parseInt(req.params.tid) || 0;
+			var pid = parseInt(req.params.pid) || 0;
+			post.findThreadAndPost(user, tid, pid, req.session.posts, function (err, thread, post) {
 				if (err) return res.jsonErr(err);
 				res.json({
 					thread: {
-						id: thread._id,
+						_id: thread._id,
 						title: thread.title
 					},
 					category: {
-						id: thread.categoryId
+						id: thread.cid
 					},
 					post: post
 				});
@@ -64,43 +64,43 @@ init.add(function () {
 	});
 
 	app.post('/api/threads', function (req, res) {
-		req.role(function (err, role) {
+		req.findUser(function (err, user) {
 			if (err) return res.jsonErr(err);
-			var form = post.form(req);
-			post.createThread(role, form, function (err, threadId, postId) {
+			var form = post.makeForm(req);
+			post.createThread(user, form, function (err, tid, pid) {
 				if (err) return res.jsonErr(err);
-				req.session.posts.push(postId);
+				req.session.posts.push(pid);
 				res.json({
-					threadId: threadId,
-					postId: postId
+					tid: tid,
+					pid: pid
 				});
 			});
 		});
 	});
 
-	app.post('/api/threads/:threadId([0-9]+)', function (req, res) {
-		req.role(function (err, role) {
+	app.post('/api/threads/:tid([0-9]+)', function (req, res) {
+		req.findUser(function (err, user) {
 			if (err) return res.jsonErr(err);
-			var form = post.form(req);
-			var threadId = form.threadId = parseInt(req.params.threadId) || 0;
-			post.createReply(role, form, function (err, postId) {
+			var form = post.makeForm(req);
+			var tid = form.tid = parseInt(req.params.tid) || 0;
+			post.createReply(user, form, function (err, pid) {
 				if (err) return res.jsonErr(err);
-				req.session.posts.push(postId);
+				req.session.posts.push(pid);
 				res.json({
-					threadId: threadId,
-					postId: postId
+					tid: tid,
+					pid: pid
 				});
 			});
 		});
 	});
 
-	app.put('/api/threads/:threadId([0-9]+)/:postId([0-9]+)', function (req, res, next) {
-		req.role(function (err, role) {
+	app.put('/api/threads/:tid([0-9]+)/:pid([0-9]+)', function (req, res, next) {
+		req.findUser(function (err, user) {
 			if (err) return res.jsonErr(err);
-			var form = post.form(req);
-			form.threadId = parseInt(req.params.threadId) || 0;
-			form.postId = parseInt(req.params.postId) || 0;
-			post.update(role, form, req.session.posts, function (err) {
+			var form = post.makeForm(req);
+			form.tid = parseInt(req.params.tid) || 0;
+			form.pid = parseInt(req.params.pid) || 0;
+			post.update(user, form, req.session.posts, function (err) {
 				if (err) return res.jsonErr(err);
 				res.json({});
 			});

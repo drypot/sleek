@@ -11,7 +11,7 @@ before(function (next) {
 var docs = [
 	{
 		thread: {
-			_id: 1000, categoryId: 101, cdate: new Date(2000, 1, 1),
+			_id: 1000, cid: 101, cdate: new Date(2000, 1, 1),
 			title: 'hello world'
 		},
 		post: {
@@ -21,7 +21,7 @@ var docs = [
 	},
 	{
 		thread: {
-			_id: 1000, categoryId: 101, cdate: new Date(2000, 1, 1),
+			_id: 1000, cid: 101, cdate: new Date(2000, 1, 1),
 			title: 'hello world'
 		},
 		post: {
@@ -31,7 +31,7 @@ var docs = [
 	},
 	{
 		thread: {
-			_id: 1001, categoryId: 101, cdate: new Date(2000, 2, 1),
+			_id: 1001, cid: 101, cdate: new Date(2000, 2, 1),
 			title: '안녕하세요. 한글 테스트'
 		},
 		post: {
@@ -41,7 +41,7 @@ var docs = [
 	},
 	{
 		thread: {
-			_id: 1002, categoryId: 101, cdate: new Date(2000, 3, 1),
+			_id: 1002, cid: 101, cdate: new Date(2000, 3, 1),
 			title: '안녕할까요. 한글 테스트'
 		},
 		post: {
@@ -51,7 +51,7 @@ var docs = [
 	},
 	{
 		thread: {
-			_id: 1003, categoryId: 101, cdate: new Date(2000, 4, 1),
+			_id: 1003, cid: 101, cdate: new Date(2000, 4, 1),
 			title: '강물엔 유람선이 떠있고'
 		},
 		post: {
@@ -68,7 +68,7 @@ describe.skip("searching empty db", function () {
 			sort: [{ cdate : "asc" }]
 		},
 		function (err, res) {
-			should.not.exist(err);
+			should(!err);
 			should(!res.error);
 			res.body.hits.total.should.equal(0);
 			next();
@@ -87,7 +87,7 @@ describe.skip("filling db", function () {
 			};
 			var doc = docs[i++];
 			es.update(doc.thread, doc.post, function (err, res) {
-				should.not.exist(err);
+				should(!err);
 				should(res.statusCode == 201 || res.statusCode == 200);
 				res.body.ok.should.true;
 				setImmediate(insert);
@@ -100,12 +100,12 @@ describe.skip("getPost", function () {
 	it("should success for head", function (next) {
 		var doc0 = docs[0];
 		es.getPost(doc0.post._id, function (err, res) {
-			should.not.exist(err);
+			should(!err);
 			should(!res.error);
 			res.body._id.should.equal(doc0.post._id);
 			var s = res.body._source;
-			s.threadId.should.equal(doc0.thread._id);
-			s.categoryId.should.equal(doc0.thread.categoryId);
+			s.tid.should.equal(doc0.thread._id);
+			s.cid.should.equal(doc0.thread.cid);
 			s.cdate.getTime().should.equal(doc0.post.cdate.getTime());
 			s.title.should.equal(doc0.thread.title);
 			s.titlei.should.equal(doc0.thread.title);
@@ -117,12 +117,12 @@ describe.skip("getPost", function () {
 	it("should success for reply", function (next) {
 		var doc1 = docs[1];
 		es.getPost(doc1.post._id, function (err, res) {
-			should.not.exist(err);
+			should(!err);
 			should(!res.error);
 			res.body._id.should.equal(doc1.post._id);
 			var s = res.body._source;
-			s.threadId.should.equal(doc1.thread._id);
-			s.categoryId.should.equal(doc1.thread.categoryId);
+			s.tid.should.equal(doc1.thread._id);
+			s.cid.should.equal(doc1.thread.cid);
 			s.cdate.getTime().should.equal(doc1.post.cdate.getTime());
 			s.title.should.equal(doc1.thread.title);
 			s.titlei.should.equal('');
@@ -140,7 +140,7 @@ describe.skip("searching non-existing", function () {
 			sort: [{ cdate : "asc" }]
 		},
 		function (err, res) {
-			should.not.exist(err);
+			should(!err);
 			should(!res.error);
 			res.body.hits.total.should.equal(0);
 			next();
@@ -168,7 +168,7 @@ describe.skip("searching title", function () {
 			sort: [{ cdate : "asc" }]
 		},
 		function (err, res) {
-			should.not.exist(err);
+			should(!err);
 			should(!res.error);
 			res.body.hits.total.should.equal(1);
 			res.body.hits.hits[0]._id.should.equal(docs[0].post._id);
@@ -184,7 +184,7 @@ describe.skip("searching writer", function () {
 				sort: [{ cdate : "asc" }]
 			},
 			function (err, res) {
-				should.not.exist(err);
+				should(!err);
 				should(!res.error);
 				res.body.hits.total.should.equal(2);
 				res.body.hits.hits[0]._id.should.equal(docs[0].post._id);
@@ -201,7 +201,7 @@ describe.skip("searching apple in text", function () {
 				sort: [{ cdate : "asc" }]
 			},
 			function (err, res) {
-				should.not.exist(err);
+				should(!err);
 				should(!res.error);
 				res.body.hits.total.should.equal(2);
 				res.body.hits.hits[0]._id.should.equal(docs[0].post._id);
@@ -218,7 +218,7 @@ describe.skip("searching orange in text", function () {
 				sort:[{ cdate : "asc" }]
 			},
 			function (err, res) {
-				should.not.exist(err);
+				should(!err);
 				should(!res.error);
 				res.body.hits.total.should.equal(1);
 				res.body.hits.hits[0]._id.should.equal(docs[1].post._id);
@@ -234,7 +234,7 @@ describe.skip("searching two words", function () {
 			sort: [{ cdate : "asc" }]
 		},
 		function (err, res) {
-			should.not.exist(err);
+			should(!err);
 			should(!res.error);
 			res.body.hits.total.should.equal(1);
 			res.body.hits.hits[0]._id.should.equal(docs[1].post._id);
@@ -250,7 +250,7 @@ describe.skip("searching order by desc", function () {
 				sort: [{ cdate : "desc" }]
 			},
 			function (err, res) {
-				should.not.exist(err);
+				should(!err);
 				should(!res.error);
 				res.body.hits.hits.should.length(3);
 				res.body.hits.hits[0]._id.should.equal(docs[4].post._id);
@@ -270,7 +270,7 @@ describe.skip("searching results limit", function () {
 			from: 1
 		},
 		function (err, res) {
-			should.not.exist(err);
+			should(!err);
 			should(!res.error);
 			res.body.hits.hits.should.length(2);
 			res.body.hits.hits[0]._id.should.equal(docs[3].post._id);
@@ -287,7 +287,7 @@ describe.skip("searching hangul", function () {
 			sort:[{cdate : "asc"}]
 		},
 		function (err, res) {
-			should.not.exist(err);
+			should(!err);
 			should(!res.error);
 			res.body.hits.total.should.equal(2);
 			res.body.hits.hits[0]._id.should.equal(docs[2].post._id);
@@ -301,7 +301,7 @@ describe.skip("searching hangul", function () {
 			sort:[{ cdate : "asc" }]
 		},
 		function (err, res) {
-			should.not.exist(err);
+			should(!err);
 			should(!res.error);
 			res.body.hits.total.should.equal(2);
 			res.body.hits.hits[0]._id.should.equal(docs[2].post._id);
@@ -315,7 +315,7 @@ describe.skip("searching hangul", function () {
 			sort: [{ cdate : 'asc' }]
 		},
 		function (err, res) {
-			should.not.exist(err);
+			should(!err);
 			should(!res.error);
 			res.body.hits.total.should.equal(1);
 			res.body.hits.hits[0]._id.should.equal(docs[4].post._id);

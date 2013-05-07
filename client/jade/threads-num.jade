@@ -28,9 +28,9 @@ block content
 						pre #{post.text}
 					if post.editable
 						.cmd
-							a.btn(href='/threads/' + thread.id + '/' + post.id + '/edit') Edit
+							a.btn(href='/threads/' + thread._id + '/' + post.id + '/edit') Edit
 		h2 Reply
-		form#reply-form(action='/threads/' + thread.id, method="post", enctype="multipart/form-data")
+		form#reply-form(action='/threads/' + thread._id, method="post", enctype="multipart/form-data")
 			.row
 				label 필명
 				br

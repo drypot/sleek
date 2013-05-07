@@ -29,6 +29,7 @@ require('../main/search-api');
 require('../main/upload-api');
 require('../main/session-api');
 require('../main/hello-api');
+require('../main/static-html');
 
 init.run(function (err) {
 	if (err) throw err;

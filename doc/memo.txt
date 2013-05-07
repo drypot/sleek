@@ -1,3 +1,14 @@
+
+db.threads.update({ categoryId: { $exists: true }}, { $rename: { categoryId: 'cid', } }, false, true );
+db.posts.update({ threadId: { $exists: true }}, { $rename: { threadId: 'tid', } }, false, true );
+
+
+
+
+
+=====================
+done
+
 db.postThread.renameCollection('threads');
 db.post.renameCollection('posts');
 

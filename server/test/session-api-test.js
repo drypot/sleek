@@ -1,11 +1,10 @@
 var should = require('should');
-var request = require('superagent').agent();
 
 var init = require('../main/init');
 var config = require('../main/config')({ test: true });
 var express = require('../main/express');
 var error = require('../main/error');
-var test = require('../main/test')({ request: request });
+var ufix = require('../test/user-fixture');
 
 require('../main/session-api');
 
@@ -34,7 +33,7 @@ describe("session", function () {
 		});
 	});
 	it("can terminate", function (next) {
-		test.logout(next);
+		ufix.logout(next);
 	});
 	it("should return nothing after terminated", function (next) {
 		request.get(test.url + '/api/test/session').send([ 'book', 'price' ]).end(function (err, res) {
@@ -48,13 +47,13 @@ describe("session", function () {
 
 describe("session making", function () {
 	it("should success for user", function (next) {
-		test.loginUser(next);
+		ufix.loginUser(next);
 	});
 	it("should success for admin", function (next) {
-		test.loginAdmin(next);
+		ufix.loginAdmin(next);
 	});
 	it("should fail with wrong password", function (next) {
-		request.post(test.url + '/api/sessions').send({ password: 'xxx' }).end(function (err, res) {
+		express.post('/api/sessions').send({ password: 'xxx' }).end(function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.INVALID_PASSWORD);
 			next();
@@ -64,7 +63,7 @@ describe("session making", function () {
 
 describe("session info", function () {
 	it("given no session", function (next) {
-		test.logout(next);
+		ufix.logout(next);
 	});
 	it("should return error", function (next) {
 		request.get(test.url + '/api/sessions', function (err, res) {
@@ -74,45 +73,45 @@ describe("session info", function () {
 		});
 	});
 	it("given user session", function (next) {
-		test.loginUser(next);
+		ufix.loginUser(next);
 	});
 	it("should success", function (next) {
 		request.get(test.url + '/api/sessions', function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
-			res.body.role.name.should.equal('user');
-			should.exist(res.body.role.categoriesForMenu);
+			res.body.user.name.should.equal('user');
+			should.exist(res.body.user.categoriesForMenu);
 			next();
 		});
 	});
 });
 
-describe("accessing /api/test/auth/any", function () {
+describe("accessing /api/test/user/any", function () {
 	it("given no session", function (next) {
-		test.logout(next);
+		ufix.logout(next);
 	});
 	it("should fail", function (next) {
-		request.get(test.url + '/api/test/auth/any', function (err, res) {
+		request.get(test.url + '/api/test/user/any', function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next();
 		});
 	});
 	it("given user session", function (next) {
-		test.loginUser(next);
+		ufix.loginUser(next);
 	});
 	it("should success", function (next) {
-		request.get(test.url + '/api/test/auth/any', function (err, res) {
+		request.get(test.url + '/api/test/user/any', function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			next();
 		});
 	});
 	it("given no session", function (next) {
-		test.logout(next);
+		ufix.logout(next);
 	});
 	it("should fail", function (next) {
-		request.get(test.url + '/api/test/auth/any', function (err, res) {
+		request.get(test.url + '/api/test/user/any', function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next();
@@ -120,22 +119,22 @@ describe("accessing /api/test/auth/any", function () {
 	});
 });
 
-describe("accessing /api/test/auth/user", function () {
+describe("accessing /api/test/user/user", function () {
 	it("given no session", function (next) {
-		test.logout(next);
+		ufix.logout(next);
 	});
 	it("should fail", function (next) {
-		request.get(test.url + '/api/test/auth/user', function (err, res) {
+		request.get(test.url + '/api/test/user/user', function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next();
 		});
 	});
 	it("given user session", function (next) {
-		test.loginUser(next);
+		ufix.loginUser(next);
 	});
 	it("should success", function (next) {
-		request.get(test.url + '/api/test/auth/user', function (err, res) {
+		request.get(test.url + '/api/test/user/user', function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			next();
@@ -143,32 +142,32 @@ describe("accessing /api/test/auth/user", function () {
 	});
 });
 
-describe("accessing /api/test/auth/admin", function () {
+describe("accessing /api/test/user/admin", function () {
 	it("given no session", function (next) {
-		test.logout(next);
+		ufix.logout(next);
 	});
 	it("should fail", function (next) {
-		request.get(test.url + '/api/test/auth/admin', function (err, res) {
+		request.get(test.url + '/api/test/user/admin', function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next();
 		});
 	});
 	it("given user session", function (next) {
-		test.loginUser(next);
+		ufix.loginUser(next);
 	});
 	it("should fail", function (next) {
-		request.get(test.url + '/api/test/auth/admin', function (err, res) {
+		request.get(test.url + '/api/test/user/admin', function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.NOT_AUTHORIZED);
 			next();
 		});
 	});
 	it("given admin session", function (next) {
-		test.loginAdmin(next);
+		ufix.loginAdmin(next);
 	});
 	it("should success", function (next) {
-		request.get(test.url + '/api/test/auth/admin', function (err, res) {
+		request.get(test.url + '/api/test/user/admin', function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			next();
@@ -176,14 +175,14 @@ describe("accessing /api/test/auth/admin", function () {
 	});
 });
 
-describe("role.categoriesForMenu", function () {
+describe("user.categoriesForMenu", function () {
 	var categories;
 	it("given user session", function (next) {
-		test.loginUser(next);
+		ufix.loginUser(next);
 	});
 	it("given categoriesForMenu", function (next) {
 		request.get(test.url + '/api/sessions', function (err, res) {
-			categories = res.body.role.categoriesForMenu;
+			categories = res.body.user.categoriesForMenu;
 			next();
 		});
 	});
@@ -206,11 +205,11 @@ describe("role.categoriesForMenu", function () {
 		should.not.exist(cx);
 	});
 	it("given admin session", function (next) {
-		test.loginAdmin(next);
+		ufix.loginAdmin(next);
 	});
 	it("given categoriesForMenu", function (next) {
 		request.get(test.url + '/api/sessions', function (err, res) {
-			categories = res.body.role.categoriesForMenu;
+			categories = res.body.user.categoriesForMenu;
 			next();
 		});
 	});

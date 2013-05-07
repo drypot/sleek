@@ -1,5 +1,4 @@
 var should = require('should');
-var request = require('superagent').agent();
 
 var init = require('../main/init');
 var config = require('../main/config')({ test: true });
@@ -7,7 +6,7 @@ var mongo = require('../main/mongo')({ dropDatabase: true });
 var es = require('../main/es')({ dropIndex: true });
 var express = require('../main/express');
 var error = require('../main/error');
-var test = require('../main/test')({ request: request });
+var ufix = require('../test/user-fixture');
 
 require('../main/session-api');
 require('../main/post-api');
@@ -22,53 +21,53 @@ before(function () {
 
 describe("reading post", function () {
 	it("given user session", function (next) {
-		test.loginUser(next);
+		ufix.loginUser(next);
 	});
 	var t1, p11, p12;
-	it("given t1, p11", function (next) {
-		var form = { categoryId: 101, writer: 'snowman1', title: 'title1', text: 'post11' };
-		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
+	it("given tid1, p11", function (next) {
+		var form = { cid: 101, writer: 'snowman1', title: 'title1', text: 'post11' };
+		express.post('/api/threads').send(form).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
-			t1 = res.body.threadId;
-			p11 = res.body.postId;
+			t1 = res.body.tid;
+			p11 = res.body.pid;
 			next();
 		});
 	});
 	it("given p12", function (next) {
 		var form = { writer: 'snowman1', text: 'post12' };
-		request.post(test.url + '/api/threads/' + t1).send(form).end(function (err, res) {
+		express.post('/api/threads/' + t1).send(form).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
-			p12 = res.body.postId;
+			p12 = res.body.pid;
 			next();
 		});
 	});
 	it("given admin session", function (next) {
-		test.loginAdmin(next);
+		ufix.loginAdmin(next);
 	});
 	var t2, p21, p22;
-	it("given t2, p21 in recycle bin", function (next) {
-		var form = { categoryId: 40, writer: 'snowman2', title: 'title2', text: 'post21' };
-		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
+	it("given tid2, p21 in recycle bin", function (next) {
+		var form = { cid: 40, writer: 'snowman2', title: 'title2', text: 'post21' };
+		express.post('/api/threads').send(form).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
-			t2 = res.body.threadId;
-			p21 = res.body.postId;
+			t2 = res.body.tid;
+			p21 = res.body.pid;
 			next();
 		});
 	});
 	it("given p22 in recycle bin", function (next) {
 		var form = { writer: 'snowman2', text: 'post22' };
-		request.post(test.url + '/api/threads/' + t2).send(form).end(function (err, res) {
+		express.post('/api/threads/' + t2).send(form).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
-			p22 = res.body.postId;
+			p22 = res.body.pid;
 			next();
 		});
 	});
 	it("given no session", function (next) {
-		test.logout(next);
+		ufix.logout(next);
 	});
 	it("should fail", function (next) {
 		request.get(test.url + '/api/threads/' + t1 + '/' + p11, function (err, res) {
@@ -78,23 +77,23 @@ describe("reading post", function () {
 		});
 	});
 	it("given user session", function (next) {
-		test.loginUser(next);
+		ufix.loginUser(next);
 	});
-	it("should fail with invalid threadId", function (next) {
+	it("should fail with invalid tid", function (next) {
 		request.get(test.url + '/api/threads/' + 99999 + '/' + p11, function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.INVALID_THREAD);
 			next();
 		});
 	});
-	it("should fail with mismatching threadId", function (next) {
+	it("should fail with mismatching tid", function (next) {
 		request.get(test.url + '/api/threads/' + t2 + '/' + p11, function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.INVALID_POST);
 			next();
 		});
 	});
-	it("should fail with invalid postId", function (next) {
+	it("should fail with invalid pid", function (next) {
 		request.get(test.url + '/api/threads/' + t1 + '/' + 99999, function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.INVALID_POST);
@@ -126,7 +125,7 @@ describe("reading post", function () {
 		});
 	});
 	it("given user session", function (next) {
-		test.loginUser(next);
+		ufix.loginUser(next);
 	});
 	it("should fail for p21 in recycle bin", function (next) {
 		request.get(test.url + '/api/threads/' + t2 + '/' + p21, function (err, res) {
@@ -143,7 +142,7 @@ describe("reading post", function () {
 		});
 	});
 	it("given admin session", function (next) {
-		test.loginAdmin(next);
+		ufix.loginAdmin(next);
 	});
 	it("should success for p21 in recycle bin", function (next) {
 		request.get(test.url + '/api/threads/' + t2 + '/' + p21, function (err, res) {

@@ -53,10 +53,10 @@ init.add(function (next) {
 
 	function initThread(db, next) {
 		var threads;
-		var threadIdSeed;
+		var tidSeed;
 
 		exports.getNewThreadId = function () {
-			return ++threadIdSeed;
+			return ++tidSeed;
 		};
 
 		exports.insertThread = function (thread, next) {
@@ -67,38 +67,35 @@ init.add(function (next) {
 			threads.save(thread, next);
 		};
 
-		exports.updateThreadHit = function (threadId, next) {
-			threads.update({ _id: threadId }, { $inc: { hit: 1 }}, next);
+		exports.updateThreadHit = function (tid, next) {
+			threads.update({ _id: tid }, { $inc: { hit: 1 }}, next);
 		};
 
-		exports.updateThreadLength = function (threadId, now, next) {
-			threads.update({ _id: threadId }, { $inc: { length: 1 }, $set: { udate: now }}, next);
+		exports.updateThreadLength = function (tid, now, next) {
+			threads.update({ _id: tid }, { $inc: { length: 1 }, $set: { udate: now }}, next);
 		};
 
 		exports.findThread = function (id, next) {
 			threads.findOne({ _id: id }, next);
 		};
 
-		exports.findThreadsByCategory = function (categoryId, page, pageSize, next) {
-			var findOp = {};
-			var dir = -1;
-			var skip = (Math.abs(page) - 1) * pageSize;
-
-			if (categoryId) {
-				findOp.categoryId = categoryId;
+		exports.findThreadsByCategory = function (cid, pg, pgsize) {
+			var sel = {};
+			if (cid) {
+				sel.cid = cid;
 			}
-			threads.find(findOp).sort({ udate: dir }).skip(skip).limit(pageSize).each(next);
+			return threads.find(sel).sort({ udate: -1 }).skip((Math.abs(pg) - 1) * pgsize).limit(pgsize);
 		};
 
 		threads = exports.threads = db.collection("threads");
-		threads.ensureIndex({ categoryId: 1, udate: -1 }, function (err) {
+		threads.ensureIndex({ cid: 1, udate: -1 }, function (err) {
 			if (err) return next(err);
 			threads.ensureIndex({ udate: -1 }, function (err) {
 				if (err) return next(err);
 				threads.find({}, { _id: 1 }).sort({ _id: -1 }).limit(1).nextObject(function (err, obj) {
 					if (err) return next(err);
-					threadIdSeed = obj ? obj._id : 0;
-					console.log('thread id seed: ' + threadIdSeed);
+					tidSeed = obj ? obj._id : 0;
+					console.log('thread id seed: ' + tidSeed);
 					next();
 				});
 			});
@@ -107,10 +104,10 @@ init.add(function (next) {
 
 	function initPost(db, next) {
 		var posts;
-		var postIdSeed;
+		var pidSeed;
 
 		exports.getNewPostId = function () {
-			return ++postIdSeed;
+			return ++pidSeed;
 		};
 
 		exports.insertPost = function (post, next) {
@@ -121,21 +118,21 @@ init.add(function (next) {
 			posts.save(post, next);
 		};
 
-		exports.findPost = function (id, next) {
-			posts.findOne({ _id: id }, next);
+		exports.findPost = function (pid, next) {
+			posts.findOne({ _id: pid }, next);
 		};
 
-		exports.findPostsByThread = function (threadId, next) {
-			posts.find({ threadId: threadId }).sort({ cdate: 1 }).each(next);
+		exports.findPostsByThread = function (tid) {
+			return posts.find({ tid: tid }).sort({ cdate: 1 });
 		};
 
 		posts = exports.posts = db.collection("posts");
-		posts.ensureIndex({ threadId: 1, cdate: 1 }, function (err) {
+		posts.ensureIndex({ tid: 1, cdate: 1 }, function (err) {
 			if (err) return next(err);
 			posts.find({}, { _id: 1 }).sort({ _id: -1 }).limit(1).nextObject(function (err, obj) {
 				if (err) return next(err);
-				postIdSeed = obj ? obj._id : 0;
-				console.log('post id seed: ' + postIdSeed);
+				pidSeed = obj ? obj._id : 0;
+				console.log('post id seed: ' + pidSeed);
 				next();
 			});
 		});

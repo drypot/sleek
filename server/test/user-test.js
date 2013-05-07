@@ -2,37 +2,37 @@ var should = require('should');
 
 var init = require('../main/init');
 var config = require('../main/config')({ test: true });
-var auth = require('../main/auth');
+var user9 = require('../main/user');
 
 before(function (next) {
 	init.run(next);
 });
 
-describe("roleByName()", function () {
-	it("can find role by name", function () {
-		auth.roleByName('user').name.should.equal('user');
-		auth.roleByName('cheater').name.should.equal('cheater');
-		auth.roleByName('admin').name.should.equal('admin');
-		should.not.exist(auth.roleByName('xxx'));
+describe("findUserByName()", function () {
+	it("can find user by name", function () {
+		user9.findUserByName('user').name.should.equal('user');
+		user9.findUserByName('cheater').name.should.equal('cheater');
+		user9.findUserByName('admin').name.should.equal('admin');
+		should.not.exist(user9.findUserByName('xxx'));
 	});
 });
 
-describe("roleByPassword()", function () {
-	it("can find auth by password", function () {
-		auth.roleByPassword('1').name.should.equal('user');
-		auth.roleByPassword('2').name.should.equal('cheater');
-		auth.roleByPassword('3').name.should.equal('admin');
-		should.not.exist(auth.roleByPassword('x'));
+describe("findUserByPassword()", function () {
+	it("can find user by password", function () {
+		user9.findUserByPassword('1').name.should.equal('user');
+		user9.findUserByPassword('2').name.should.equal('cheater');
+		user9.findUserByPassword('3').name.should.equal('admin');
+		should.not.exist(user9.findUserByPassword('x'));
 	})
 });
 
-describe("user role", function () {
-	var role;
+describe("user", function () {
+	var user;
 	before(function () {
-		role = auth.roleByName('user');
+		user = user9.findUserByName('user');
 	});
 	it("should have all category", function () {
-		var c = role.categories[0];
+		var c = user.categories[0];
 		c.should.ok;
 		c.name.should.equal('all');
 		c.readable.should.ok;
@@ -40,7 +40,7 @@ describe("user role", function () {
 		c.editable.should.not.ok;
 	});
 	it("should have freetalk", function () {
-		var c = role.categories[100];
+		var c = user.categories[100];
 		c.should.ok;
 		c.name.should.equal('freetalk');
 		c.readable.should.ok;
@@ -48,18 +48,18 @@ describe("user role", function () {
 		c.editable.should.not.ok;
 	});
 	it("should not have cheat", function () {
-		var c = role.categories[60];
+		var c = user.categories[60];
 		should(!c);
 	});
 });
 
-describe("admin role", function () {
-	var role;
+describe("admin", function () {
+	var user;
 	before(function () {
-		role = auth.roleByName('admin');
+		user = user9.findUserByName('admin');
 	});
 	it("should have all category", function () {
-		var c = role.categories[0];
+		var c = user.categories[0];
 		c.should.ok;
 		c.name.should.equal('all');
 		c.readable.should.ok;
@@ -67,7 +67,7 @@ describe("admin role", function () {
 		c.editable.should.not.ok;
 	});
 	it("should have freetalk", function () {
-		var c = role.categories[100];
+		var c = user.categories[100];
 		c.should.ok;
 		c.name.should.equal('freetalk');
 		c.readable.should.ok;
@@ -75,7 +75,7 @@ describe("admin role", function () {
 		c.editable.should.ok;
 	});
 	it("should have cheat", function () {
-		var c = role.categories[60];
+		var c = user.categories[60];
 		c.should.ok;
 		c.name.should.equal('cheat');
 		c.readable.should.ok;

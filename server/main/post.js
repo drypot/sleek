@@ -1,5 +1,5 @@
 var l = require('../main/l');
-var dateTime = require('../main/dateTime');
+var dt = require('../main/dt');
 var init = require('../main/init');
 var mongo = require('../main/mongo');
 var es = require('../main/es');
@@ -10,11 +10,11 @@ init.add(function () {
 
 	console.log('post:');
 
-	exports.form = function (req) {
+	exports.makeForm = function (req) {
 		var body = req.body;
 		var form = {};
 		form.now = new Date();
-		form.categoryId = parseInt(body.categoryId) || 0;
+		form.cid = parseInt(body.cid) || 0;
 		form.writer  = String(body.writer || '').trim();
 		form.title = String(body.title || '').trim();
 		form.text = String(body.text || '');
@@ -24,20 +24,20 @@ init.add(function () {
 		return form;
 	};
 
-	exports.createThread = function (role, form, next) {
-		categoryForUpdate(role, form.categoryId, function (err, category) {
+	exports.createThread = function (user, form, next) {
+		categoryForUpdate(user, form.cid, function (err, category) {
 			if (err) return next(err);
 			checkForm(form, true, function (err) {
 				if (err) return next(err);
-				var threadId = mongo.getNewThreadId();
-				var postId = mongo.getNewPostId();
-				upload.savePostFiles(postId, form.files, function (err, saved) {
+				var tid = mongo.getNewThreadId();
+				var pid = mongo.getNewPostId();
+				upload.savePostFiles(pid, form.files, function (err, saved) {
 					if (err) return next(err);
-					insertThread(threadId, form, function (err, thread) {
+					insertThread(tid, form, function (err, thread) {
 						if (err) return next(err);
-						insertPost(postId, thread, category, form, saved, function (err) {
+						insertPost(pid, thread, category, form, saved, function (err) {
 							if (err) return next(err);
-							next(null, threadId, postId);
+							next(null, tid, pid);
 						});
 					});
 				});
@@ -45,21 +45,21 @@ init.add(function () {
 		});
 	}
 
-	exports.createReply = function (role, form, next) {
-		findThread(form.threadId, function (err, thread) {
+	exports.createReply = function (user, form, next) {
+		findThread(form.tid, function (err, thread) {
 			if (err) return next(err);
-			categoryForUpdate(role, thread.categoryId, function (err, category) {
+			categoryForUpdate(user, thread.cid, function (err, category) {
 				if (err) return next(err);
 				checkForm(form, false, function (err) {
 					if (err) return next(err);
-					var postId = mongo.getNewPostId();
-					upload.savePostFiles(postId, form.files, function (err, saved) {
+					var pid = mongo.getNewPostId();
+					upload.savePostFiles(pid, form.files, function (err, saved) {
 						if (err) return next(err);
-						insertPost(postId, thread, category, form, saved, function (err) {
+						insertPost(pid, thread, category, form, saved, function (err) {
 							if (err) return next(err);
 							mongo.updateThreadLength(thread._id, form.now, function (err) {
 								if (err) return next(err);
-								next(null, postId);
+								next(null, pid);
 							});
 						});
 					});
@@ -68,18 +68,18 @@ init.add(function () {
 		});
 	};
 
-	exports.update = function (role, form, editables, next) {
-		findThread(form.threadId, function (err, thread) {
+	exports.update = function (user, form, editables, next) {
+		findThread(form.tid, function (err, thread) {
 			if (err) return next(err);
-			findPost(thread, form.postId, function (err, post) {
+			findPost(thread, form.pid, function (err, post) {
 				if (err) return next(err);
-				categoryForUpdate(role, thread.categoryId, function (err, category) {
+				categoryForUpdate(user, thread.cid, function (err, category) {
 					if (err) return next(err);
 					if (!isEditable(category, post._id, editables)) {
 						return next(error(error.NOT_AUTHORIZED));
 					}
 					var head = isHead(thread, post);
-					checkNewCategory(role, form.categoryId, head, function (err) {
+					checkNewCategory(user, form.cid, head, function (err) {
 						if (err) return next(err);
 						checkForm(form, head, function (err) {
 							if (err) return next(err);
@@ -97,109 +97,97 @@ init.add(function () {
 		});
 	};
 
-	exports.threadsParams = function (req) {
+	exports.makeThreadsParams = function (req) {
 		var query = req.query;
 		var params = {};
-		params.categoryId = parseInt(query.c) || 0;
-		var page = parseInt(query.p) || 1;
-		params.page = page < 1 ? 1 : page;
-		var pageSize = parseInt(query.ps) || 16;
-		params.pageSize = pageSize > 128 ? 128 : pageSize < 1 ? 1 : pageSize;
+		params.cid = parseInt(query.c) || 0;
+		var pg = parseInt(query.pg) || 1;
+		params.pg = pg < 1 ? 1 : pg;
+		var pgsize = parseInt(query.ps) || 16;
+		params.pgsize = pgsize > 128 ? 128 : pgsize < 1 ? 1 : pgsize;
 		return params;
 	}
 
-	exports.threads = function (role, params, next) {
-		categoryForRead(role, params.categoryId, function (err, category) {
+	exports.findThreads = function (user, params, next) {
+		categoryForRead(user, params.cid, function (err, category) {
 			if (err) return next(err);
-			var categories = role.categories;
+			var categories = user.categories;
 			var threads = [];
 			var count = 0;
-			mongo.findThreadsByCategory(params.categoryId, params.page, params.pageSize, function (err, thread) {
-				if (err) return next(err);
-				if (thread) {
-					count++;
-					if (category.id !== 0 || categories[thread.categoryId]) {
-						threads.push({
-							id: thread._id,
-							category: {
-								id: thread.categoryId
-							},
-							hit: thread.hit,
-							length: thread.length,
-							udate: thread.udate.getTime(),
-							updatedStr: dateTime.format(thread.udate),
-							writer: thread.writer,
-							title: thread.title
-						});
+			var cursor = mongo.findThreadsByCategory(params.cid, params.pg, params.pgsize);
+			function read() {
+				cursor.nextObject(function (err, thread) {
+					if (err) return next(err);
+					if (thread) {
+						count++;
+						if (category.id !== 0 || categories[thread.cid]) {
+							thread.category = {
+								id: thread.cid
+							};
+							thread.udateStr = dt.format(thread.udate),
+							thread.udate = thread.udate.getTime(),
+							threads.push(thread);
+						}
+						setImmediate(read);
+						return;
 					}
-					return;
-				}
-				next(null, category, threads, count !== params.pageSize);
-			});
+					next(null, category, threads, count !== params.pgsize);
+				});
+			}
+			read();
 		});
 	};
 
-	exports.threadAndPosts = function (role, threadId, editables, next) {
-		findThread(threadId, function (err, thread) {
+	exports.findThreadAndPosts = function (user, tid, editables, next) {
+		findThread(tid, function (err, thread) {
 			if (err) return next(err);
-			categoryForRead(role, thread.categoryId, function (err, category) {
+			categoryForRead(user, thread.cid, function (err, category) {
 				if (err) return next(err);
-				mongo.updateThreadHit(threadId, function (err) {
+				mongo.updateThreadHit(tid, function (err) {
 					if (err) return next(err);
 					var admin = category.editable;
 					var posts = [];
-					mongo.findPostsByThread(threadId, function (err, post) {
-						if (err) return next(err);
-						if (post) {
-							if (post.visible || admin) {
-								expFileUrls(post);
-								posts.push({
-									id: post._id,
-									writer: post.writer,
-									cdate: post.cdate.getTime(),
-									createdStr: dateTime.format(post.cdate),
-									text: post.text,
-									files: post.files,
-									editable: isEditable(category, post._id, editables)
-								});
+					var cursor = mongo.findPostsByThread(tid);
+					function read() {
+						cursor.nextObject(function (err, post) {
+							if (err) return next(err);
+							if (post) {
+								if (post.visible || admin) {
+									addFileUrls(post);
+									post.cdateStr = dt.format(post.cdate),
+									post.cdate = post.cdate.getTime(),
+									post.editable = isEditable(category, post._id, editables);
+									posts.push(post);
+								}
+								setImmediate(read);
+								return;
 							}
-							return;
-						}
-						next(null, category, thread, posts);
-					});
-				});
-			});
-		});
-	};
-
-	exports.threadAndPost = function (role, threadId, postId, editables, next) {
-		findThread(threadId, function (err, thread) {
-			if (err) return next(err);
-			findPost(thread, postId, function (err, post) {
-				if (err) return next(err);
-				categoryForRead(role, thread.categoryId, function (err, category) {
-					if (err) return next(err);
-					expFileUrls(post);
-					var postX = {
-						id: post._id,
-						writer: post.writer,
-						cdate: post.cdate.getTime(),
-						createdStr: dateTime.format(post.cdate),
-						text: post.text,
-						visible: post.visible,
-						files: post.files,
-						head: isHead(thread, post),
-						editable: isEditable(category, post._id, editables)
+							next(null, category, thread, posts);
+						});
 					}
-					next(null, thread, postX);
+					read();
 				});
 			});
 		});
 	};
 
-//	exports.categoryForUpdate = function (role, categoryId, next) {
-//		categoryForUpdate(role, categoryId, next);
-//	}
+	exports.findThreadAndPost = function (user, tid, pid, editables, next) {
+		findThread(tid, function (err, thread) {
+			if (err) return next(err);
+			findPost(thread, pid, function (err, post) {
+				if (err) return next(err);
+				categoryForRead(user, thread.cid, function (err, category) {
+					if (err) return next(err);
+					addFileUrls(post);
+					post.cdateStr = dt.format(post.cdate);
+					post.cdate = post.cdate.getTime();
+					post.head = isHead(thread, post);
+					post.editable = isEditable(category, post._id, editables)
+					next(null, thread, post);
+				});
+			});
+		});
+	};
 
 	function checkForm(form, head, next) {
 		var fields = [];
@@ -225,8 +213,8 @@ init.add(function () {
 		next();
 	}
 
-	function categoryForUpdate(role, categoryId, next) {
-		var category = role.categories[categoryId];
+	function categoryForUpdate(user, cid, next) {
+		var category = user.categories[cid];
 		if (!category) {
 			return next(error(error.INVALID_CATEGORY));
 		}
@@ -236,8 +224,8 @@ init.add(function () {
 		next(null, category);
 	}
 
-	function categoryForRead(role, categoryId, next) {
-		var category = role.categories[categoryId];
+	function categoryForRead(user, cid, next) {
+		var category = user.categories[cid];
 		if (!category) {
 			return next(error(error.INVALID_CATEGORY));
 		}
@@ -247,16 +235,16 @@ init.add(function () {
 		next(null, category);
 	}
 
-	function checkNewCategory(role, categoryId, head, next) {
+	function checkNewCategory(user, cid, head, next) {
 		if (head) {
-			categoryForUpdate(role, categoryId, next);
+			categoryForUpdate(user, cid, next);
 		} else {
 			next();
 		}
 	}
 
-	function findThread(threadId, next) {
-		mongo.findThread(threadId, function (err, thread) {
+	function findThread(tid, next) {
+		mongo.findThread(tid, function (err, thread) {
 			if (err) {
 				return next(err);
 			}
@@ -267,22 +255,22 @@ init.add(function () {
 		});
 	}
 
-	function findPost(thread, postId, next) {
-		mongo.findPost(postId, function (err, post) {
+	function findPost(thread, pid, next) {
+		mongo.findPost(pid, function (err, post) {
 			if (err) {
 				return next(err);
 			}
-			if (!post || post.threadId !== thread._id) {
+			if (!post || post.tid !== thread._id) {
 				return next(error(error.INVALID_POST));
 			}
 			next(null, post);
 		});
 	}
 
-	function insertThread(threadId, form, next) {
+	function insertThread(tid, form, next) {
 		var thread = {
-			_id : threadId,
-			categoryId: form.categoryId,
+			_id : tid,
+			cid: form.cid,
 			hit: 0,
 			length: 1,
 			cdate: form.now,
@@ -296,10 +284,10 @@ init.add(function () {
 		});
 	}
 
-	function insertPost(postId, thread, category, form, saved, next) {
+	function insertPost(pid, thread, category, form, saved, next) {
 		var post = {
-			_id: postId,
-			threadId: thread._id,
+			_id: pid,
+			tid: thread._id,
 			cdate: form.now,
 			visible: category.editable ? form.visible : true,
 			writer: form.writer,
@@ -345,7 +333,7 @@ init.add(function () {
 
 		function updateThread(next) {
 			if (isHead(thread, post)) {
-				thread.categoryId = form.categoryId;
+				thread.cid = form.cid;
 				thread.title = form.title;
 				thread.writer = form.writer;
 				mongo.updateThread(thread, next);
@@ -355,7 +343,7 @@ init.add(function () {
 		}
 	}
 
-	function expFileUrls(post) {
+	function addFileUrls(post) {
 		if (!post.files) {
 			return;
 		}
@@ -369,8 +357,8 @@ init.add(function () {
 		return thread.cdate.getTime() === post.cdate.getTime();
 	}
 
-	function isEditable(category, postId, editables) {
-		return !!(category.editable || (editables && (editables.indexOf(postId) !== -1)));
+	function isEditable(category, pid, editables) {
+		return !!(category.editable || (editables && (editables.indexOf(pid) !== -1)));
 	}
 
 });

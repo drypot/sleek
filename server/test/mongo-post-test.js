@@ -20,14 +20,14 @@ describe("empty post collection", function () {
 	});
 	it("should be empty", function (next) {
 		mongo.posts.count(function (err, count) {
-			should.not.exist(err);
+			should(!err);
 			count.should.equal(0);
 			next();
 		})
 	});
 	it("should have two indexes", function (next) {
 		mongo.posts.indexes(function (err, index) {
-			should.not.exist(err);
+			should(!err);
 			index.should.be.instanceof(Array);
 			index.should.be.length(2);
 			next();
@@ -45,13 +45,13 @@ describe("post collection", function () {
 	describe("inserting", function () {
 		it("should success", function (next) {
 			var p = {
-				threadId: 1000, cdate: new Date(50), visible: true,
+				tid: 1000, cdate: new Date(50), visible: true,
 				writer: 'snowman', text: 'text'
 			}
 			mongo.insertPost(p, function (err) {
 				should.not.exists(err);
 				mongo.posts.count(function (err, count) {
-					should.not.exist(err);
+					should(!err);
 					count.should.equal(1);
 					next();
 				});
@@ -61,7 +61,7 @@ describe("post collection", function () {
 
 	describe("finding by id", function () {
 		var p = {
-			threadId: 1000, cdate: new Date(50), visible: true,
+			tid: 1000, cdate: new Date(50), visible: true,
 			writer: 'snowman', text: 'text'
 		}
 		it("given empty collection", function (next) {
@@ -73,7 +73,7 @@ describe("post collection", function () {
 		});
 		it("should success", function (next) {
 			mongo.findPost(p._id, function (err, post) {
-				should.not.exist(err);
+				should(!err);
 				post.should.eql(p);
 				next();
 			});
@@ -87,23 +87,23 @@ describe("post collection", function () {
 		it("given posts", function (next) {
 			var rows = [
 				{
-					_id: mongo.getNewPostId(), threadId: 1000, cdate: new Date(10), visible: true,
+					_id: mongo.getNewPostId(), tid: 1000, cdate: new Date(10), visible: true,
 					writer: 'snowman', text: 'cool post 11'
 				},
 				{
-					_id: mongo.getNewPostId(), threadId: 1000, cdate: new Date(20), visible: true,
+					_id: mongo.getNewPostId(), tid: 1000, cdate: new Date(20), visible: true,
 					writer: 'snowman', text: 'cool post 12'
 				},
 				{
-					_id: mongo.getNewPostId(), threadId: 1000, cdate: new Date(30), visible: false,
+					_id: mongo.getNewPostId(), tid: 1000, cdate: new Date(30), visible: false,
 					writer: 'snowman', text: 'cool post 13'
 				},
 				{
-					_id: mongo.getNewPostId(), threadId: 1010, cdate: new Date(10), visible: true,
+					_id: mongo.getNewPostId(), tid: 1010, cdate: new Date(10), visible: true,
 					writer: 'snowman', text: 'cool post 21'
 				},
 				{
-					_id: mongo.getNewPostId(), threadId: 1010, cdate: new Date(20), visible: true,
+					_id: mongo.getNewPostId(), tid: 1010, cdate: new Date(20), visible: true,
 					writer: 'snowman', text: 'cool post 22'
 				}
 			];
@@ -111,46 +111,61 @@ describe("post collection", function () {
 		});
 		it("should success", function (next) {
 			var count = 0;
-			mongo.findPostsByThread(1000, function (err, post) {
-				should.not.exist(err);
-				if (post) {
-					count++;
-					return;
-				}
-				count.should.equal(3);
-				next();
-			});
+			var cursor = mongo.findPostsByThread(1000);
+			function read() {
+				cursor.nextObject(function (err, post) {
+					should(!err);
+					if (post) {
+						count++;
+						setImmediate(read);
+						return;
+					}
+					count.should.equal(3);
+					next();
+				});
+			}
+			read();
 		});
 		it("should success", function (next) {
 			var count = 0;
-			mongo.findPostsByThread(1010, function (err, post) {
-				should.not.exist(err);
-				if (post) {
-					count++;
-					return;
-				}
-				count.should.equal(2);
-				next();
-			});
+			var cursor = mongo.findPostsByThread(1010);
+			function read() {
+				cursor.nextObject(function (err, post) {
+					should(!err);
+					if (post) {
+						count++;
+						setImmediate(read);
+						return;
+					}
+					count.should.equal(2);
+					next();
+				});
+			}
+			read();
 		});
 		it("should return sorted", function (next) {
 			var posts = [];
-			mongo.findPostsByThread(1000, function (err, post) {
-				should.not.exist(err);
-				if (post) {
-					posts.push(post);
-					return;
-				}
-				posts[0].cdate.should.below(posts[1].cdate);
-				posts[1].cdate.should.below(posts[2].cdate);
-				next();
-			});
+			var cursor = mongo.findPostsByThread(1000);
+			function read() {
+				cursor.nextObject(function (err, post) {
+					should(!err);
+					if (post) {
+						posts.push(post);
+						setImmediate(read);
+						return;
+					}
+					posts[0].cdate.should.below(posts[1].cdate);
+					posts[1].cdate.should.below(posts[2].cdate);
+					next();
+				});
+			}
+			read();
 		});
 	});
 
 	describe("updating", function () {
 		var p = {
-			threadId: 1030, cdate: new Date(50), visible: true,
+			tid: 1030, cdate: new Date(50), visible: true,
 			writer: 'snowman', text: 'text'
 		}
 		it("given empty collection", function (next) {
@@ -164,9 +179,9 @@ describe("post collection", function () {
 			p.writer  = "fireman";
 			p.hit = 17;
 			mongo.updatePost(p, function (err) {
-				should.not.exist(err);
+				should(!err);
 				mongo.findPost(p._id, function (err, post) {
-					should.not.exist(err);
+					should(!err);
 					post.should.eql(p);
 					next();
 				});

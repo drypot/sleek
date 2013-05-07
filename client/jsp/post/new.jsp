@@ -15,7 +15,7 @@
 		<div class="input"><form:errors path="*" cssClass="error-summary"/></div>
 
 		<div class="label">분류</div>
-		<div class="input"><form:select path="thread.categoryId" items="${categoryList}" itemLabel="name" itemValue="id"/></div>
+		<div class="input"><form:select path="thread.cid" items="${categoryList}" itemLabel="name" itemValue="id"/></div>
 
 		<div class="label"><form:label path="post.userName" cssErrorClass="error">필명</form:label></div>
 		<div class="input"><form:input path="post.userName" cssClass="tb" maxlength="32"/></div>

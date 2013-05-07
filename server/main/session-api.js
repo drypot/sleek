@@ -1,6 +1,6 @@
 var init = require('../main/init');
 var config = require('../main/config');
-var auth = require('../main/auth');
+var user9 = require('../main/user');
 var express = require('../main/express');
 var error = require('../main/error');
 
@@ -11,14 +11,14 @@ init.add(function () {
 	console.log('session-api:');
 
 	app.get('/api/sessions', function (req, res) {
-		req.role(function (err, role) {
+		req.findUser(function (err, user) {
 			if (err) {
 				return res.jsonErr(err);
 			}
 			res.json({
-				role: {
-					name: role.name,
-					categoriesForMenu: role.categoriesForMenu
+				user: {
+					name: user.name,
+					categoriesForMenu: user.categoriesForMenu
 				},
 				uploadUrl: config.data.uploadUrl
 			});
@@ -26,8 +26,8 @@ init.add(function () {
 	});
 
 	app.post('/api/sessions', function (req, res) {
-		var role = auth.roleByPassword(req.body.password || '');
-		if (!role) {
+		var user = user9.findUserByPassword(req.body.password || '');
+		if (!user) {
 			return res.jsonErr(error(error.INVALID_PASSWORD));
 		}
 		req.session.regenerate(function (err) {
@@ -38,11 +38,11 @@ init.add(function () {
 				res.clearCookie('ph');
 				res.clearCookie('uname');
 			}
-			req.session.roleName = role.name;
+			req.session.userName = user.name;
 			req.session.posts = [];
 			res.json({
-				role: {
-					name: role.name
+				user: {
+					name: user.name
 				}
 			});
 		});
@@ -70,22 +70,22 @@ init.add(function () {
 			res.json(obj);
 		});
 
-		app.get('/api/test/auth/any', function (req, res) {
-			req.role(function (err) {
+		app.get('/api/test/user/any', function (req, res) {
+			req.findUser(function (err) {
 				if (err) return res.jsonErr(err);
 				res.jsonEmpty();
 			})
 		});
 
-		app.get('/api/test/auth/user', function (req, res) {
-			req.role('user', function (err) {
+		app.get('/api/test/user/user', function (req, res) {
+			req.findUser('user', function (err) {
 				if (err) return res.jsonErr(err);
 				res.jsonEmpty();
 			});
 		});
 
-		app.get('/api/test/auth/admin', function (req, res) {
-			req.role('admin', function (err) {
+		app.get('/api/test/user/admin', function (req, res) {
+			req.findUser('admin', function (err) {
 				if (err) return res.jsonErr(err);
 				res.jsonEmpty();
 			});

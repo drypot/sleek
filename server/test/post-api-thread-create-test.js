@@ -1,5 +1,4 @@
 var should = require('should');
-var request = require('superagent').agent();
 
 var init = require('../main/init');
 var config = require('../main/config')({ test: true });
@@ -7,7 +6,7 @@ var mongo = require('../main/mongo')({ dropDatabase: true });
 var es = require('../main/es')({ dropIndex: true });
 var express = require('../main/express');
 var error = require('../main/error');
-var test = require('../main/test')({ request: request });
+var ufix = require('../test/user-fixture');
 
 require('../main/session-api');
 require('../main/post-api');
@@ -22,29 +21,29 @@ before(function () {
 
 describe("creating thread", function () {
 	it("given no session", function (next) {
-		test.logout(next);
+		ufix.logout(next);
 	});
 	it("should fail", function (next) {
-		request.post(test.url + '/api/threads', function (err, res) {
+		express.post('/api/threads', function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next();
 		});
 	});
 	it("given user session", function (next) {
-		test.loginUser(next);
+		ufix.loginUser(next);
 	});
-	it("should fail when categoryId invalid", function (next) {
-		var form = { categoryId: 10100, writer: 'snowman', title: 'title', text: 'text' };
-		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
+	it("should fail when cid invalid", function (next) {
+		var form = { cid: 10100, writer: 'snowman', title: 'title', text: 'text' };
+		express.post('/api/threads').send(form).end(function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.INVALID_CATEGORY);
 			next();
 		});
 	});
 	it("should fail when title empty", function (next) {
-		var form = { categoryId: 101, writer: 'snowman', title: ' ', text: 'text' };
-		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
+		var form = { cid: 101, writer: 'snowman', title: ' ', text: 'text' };
+		express.post('/api/threads').send(form).end(function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.INVALID_DATA);
 			res.body.err.fields.some(function (field) {
@@ -55,8 +54,8 @@ describe("creating thread", function () {
 	});
 	it("should fail when title big", function (next) {
 		var bigTitle = 'big title title title title title title title title title title title title title title title title title title title title title title title title title title title title';
-		var form = { categoryId: 101, writer: 'snowman', text: 'text', title: bigTitle };
-		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
+		var form = { cid: 101, writer: 'snowman', text: 'text', title: bigTitle };
+		express.post('/api/threads').send(form).end(function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.INVALID_DATA);
 			res.body.err.fields.some(function (field) {
@@ -66,8 +65,8 @@ describe("creating thread", function () {
 		});
 	});
 	it("should fail when writer empty", function (next) {
-		var form = { categoryId: 101, writer: ' ', title: 'title', text: 'text' };
-		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
+		var form = { cid: 101, writer: ' ', title: 'title', text: 'text' };
+		express.post('/api/threads').send(form).end(function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.INVALID_DATA);
 			res.body.err.fields.some(function (field) {
@@ -77,8 +76,8 @@ describe("creating thread", function () {
 		});
 	});
 	it("should fail when writer big", function (next) {
-		var form = { categoryId: 101, writer: '123456789012345678901234567890123', title: 'title', text: 'text' };
-		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
+		var form = { cid: 101, writer: '123456789012345678901234567890123', title: 'title', text: 'text' };
+		express.post('/api/threads').send(form).end(function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.INVALID_DATA);
 			res.body.err.fields.some(function (field) {
@@ -88,12 +87,12 @@ describe("creating thread", function () {
 		});
 	});
 	it("should success", function (next) {
-		var form = { categoryId: 101, writer: 'snowman', title: 'title 1', text: 'post11' };
-		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
+		var form = { cid: 101, writer: 'snowman', title: 'title 1', text: 'post11' };
+		express.post('/api/threads').send(form).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
-			res.body.should.have.property('threadId');
-			res.body.should.have.property('postId');
+			res.body.should.have.property('tid');
+			res.body.should.have.property('pid');
 			next();
 		});
 	});
@@ -101,22 +100,22 @@ describe("creating thread", function () {
 
 describe("creating thread in recycle bin", function () {
 	it("given user session", function (next) {
-		test.loginUser(next);
+		ufix.loginUser(next);
 	});
 	it("should fail", function (next) {
-		var form = { categoryId: 40, writer: 'snowman', title: 'title', text: 'text' };
-		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
+		var form = { cid: 40, writer: 'snowman', title: 'title', text: 'text' };
+		express.post('/api/threads').send(form).end(function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.INVALID_CATEGORY);
 			next();
 		});
 	});
 	it("given admin session", function (next) {
-		test.loginAdmin(next);
+		ufix.loginAdmin(next);
 	});
 	it("should success", function (next) {
-		var form = { categoryId: 40, writer: 'snowman', title: 'title in recycle bin', text: 'head text in recycle bin' };
-		request.post(test.url + '/api/threads').send(form).end(function (err, res) {
+		var form = { cid: 40, writer: 'snowman', title: 'title in recycle bin', text: 'head text in recycle bin' };
+		express.post('/api/threads').send(form).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			next();

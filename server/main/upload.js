@@ -8,7 +8,7 @@ var fs2 = require('../main/fs');
 init.add(function (next) {
 
 	exports.tmpFileExists = function (filename) {
-		return fs.existsSync(tmpDir + '/' + filename);
+		return fs.existsSync(exports.tmp + '/' + filename);
 	};
 
 	exports.tmpFiles = function (files) {
@@ -35,7 +35,7 @@ init.add(function (next) {
 			files.forEach(function (file) {
 				var tmpName = path.basename(file.tmpName);
 				try {
-					fs.unlinkSync(tmpDir + '/' + tmpName);
+					fs.unlinkSync(exports.tmp + '/' + tmpName);
 				} catch (err) {
 					if (err.code !== 'ENOENT') throw err;
 				}
@@ -45,88 +45,94 @@ init.add(function (next) {
 
 	// Post File
 
-	exports.postFileDir = function (postId) {
-		return publicDir + '/post/' + Math.floor(postId / 10000) + '/' + postId
+	exports.postFileDir = function (pid) {
+		return exports.pub + '/post/' + Math.floor(pid / 10000) + '/' + pid
 	};
 
-	exports.postFileUrl = function (postId, fname) {
-		return config.data.uploadUrl + '/post/' + Math.floor(postId / 10000) + '/' + postId + '/' + encodeURIComponent(fname);
+	exports.postFileUrl = function (pid, fname) {
+		return config.data.uploadUrl + '/post/' + Math.floor(pid / 10000) + '/' + pid + '/' + encodeURIComponent(fname);
 	}
 
-	exports.postFileExists = function (postId, filename) {
-		return fs.existsSync(exports.postFileDir(postId) + '/' + filename);
+	exports.postFileExists = function (pid, filename) {
+		return fs.existsSync(exports.postFileDir(pid) + '/' + filename);
 	};
 
-	exports.savePostFiles = function (postId, files, next) {
+	exports.savePostFiles = function (pid, files, next) {
 		if (!files || files.length == 0) {
 			return next();
 		}
-		saveTmpFiles(files, [publicDir, 'post', Math.floor(postId / 10000), postId], next);
+		saveTmpFiles(files, [publicDir, 'post', Math.floor(pid / 10000), pid], next);
 	};
 
 	function saveTmpFiles(files, subs, next) {
-		try {
-			var tarDir = fs2.mkdirs(subs);
+		fs2.mkdirs(subs, function (err, tarDir) {
+			if (err) return next(err);
 			var saved = [];
-			for (var i = 0; i < files.length; i++) {
-				var file = files[i];
+			var i = 0;
+			function save() {
+				if (i == files.length) {
+					return next(null, saved);
+				}
+				var file = files[i++];
 				var safeName = fs2.safeFilename(path.basename(file.name));
 				var tmpName = path.basename(file.tmpName);
-				try {
-					fs.renameSync(tmpDir + '/' + tmpName, tarDir + '/' + safeName);
-				} catch (err) {
-					if (err.code !== 'ENOENT') next(err);
-				}
-				saved.push({ name: safeName });
+				fs.rename(exports.tmp + '/' + tmpName, tarDir + '/' + safeName, function (err) {
+					if (err && err.code !== 'ENOENT') return next(err);
+					saved.push({ name: safeName });
+					setImmediate(save);
+				});
 			}
-			next(null, saved);
-		} catch (err) {
-			next(err);
-		}
+			save();
+		});
 	}
 
-	exports.deletePostFiles = function (postId, files, next) {
+	exports.deletePostFiles = function (pid, files, next) {
 		if (!files || files.length == 0) {
 			return next();
 		}
-		deleteFiles(files, exports.postFileDir(postId), next);
+		deleteFiles(files, exports.postFileDir(pid), next);
 	};
 
 	function deleteFiles(files, dir, next) {
-		try {
-			var deleted = [];
-			files.forEach(function (file) {
-				var name = path.basename(file)
-				var p = dir + '/' + name;
-//				console.log('deleting: ' + p);
-				try {
-					fs.unlinkSync(p);
-				} catch (err) {
-					if (err.code !== 'ENOENT') next(err);
-				}
+		var deleted = [];
+		var i = 0;
+		function del() {
+			if (i == files.length) {
+				return next(null, deleted);
+			}
+			var file = files[i++];
+			var name = path.basename(file)
+			var p = dir + '/' + name;
+			fs.unlink(p, function (err) {
+				if (err && err.code !== 'ENOENT') return next(err);
 				deleted.push(name);
+				setImmediate(del);
 			});
-			next(null, deleted);
-		} catch (err) {
-			next(err);
 		}
+		del();
 	}
 
-	var publicDir = config.data.uploadDir + '/public';
-	var tmpDir = config.data.uploadDir + '/tmp';
 
 	console.log('upload: ' + config.data.uploadDir);
 
-	try {
-		fs2.mkdirs([config.data.uploadDir, 'public', 'post']);
-		fs2.mkdirs([config.data.uploadDir, 'tmp']);
+	var pathes = [
+		exports.pub = config.data.uploadDir + '/public',
+		exports.pubPost = config.data.uploadDir + '/public/post',
+		exports.tmp = config.data.uploadDir + '/tmp'
+	];
 
-		fs.readdirSync(tmpDir).forEach(function (filename) {
-			fs.unlinkSync(tmpDir + '/' + filename);
-		});
-		next();
-	} catch (err) {
-		next(err);
+	var i = 0;
+	function mkdir() {
+		if (i == pathes.length) {
+			fs2.emptyDir(exports.tmp, next);
+			return;
+		}
+		var p = pathes[i++];
+		fs2.mkdirs(p, function (err) {
+			if (err) return next(err);
+			setImmediate(mkdir);
+		})
 	}
+	mkdir();
 
 });

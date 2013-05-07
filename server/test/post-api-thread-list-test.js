@@ -1,5 +1,4 @@
 var should = require('should');
-var request = require('superagent').agent();
 
 var init = require('../main/init');
 var config = require('../main/config')({ test: true });
@@ -7,7 +6,7 @@ var mongo = require('../main/mongo')({ dropDatabase: true });
 var es = require('../main/es')({ dropIndex: true });
 var express = require('../main/express');
 var error = require('../main/error');
-var test = require('../main/test')({ request: request });
+var ufix = require('../test/user-fixture');
 
 require('../main/session-api');
 require('../main/post-api');
@@ -22,27 +21,27 @@ before(function () {
 
 describe("listing threads", function () {
 	var samples = [
-		{ categoryId: 100, writer: 'snowman', title: 'title 1', text: 'text 1' },
-		{ categoryId: 100, writer: 'snowman', title: 'title 2', text: 'text 2' },
-		{ categoryId: 100, writer: 'snowman', title: 'title 3', text: 'text 3' },
-		{ categoryId: 100, writer: 'snowman', title: 'title 4', text: 'text 4' },
-		{ categoryId: 300, writer: 'snowman', title: 'title 5', text: 'text 5' },
-		{ categoryId: 300, writer: 'snowman', title: 'title 6', text: 'text 6' },
-		{ categoryId: 400, writer: 'snowman', title: 'title 7', text: 'text 7' }
+		{ cid: 100, writer: 'snowman', title: 'title 1', text: 'text 1' },
+		{ cid: 100, writer: 'snowman', title: 'title 2', text: 'text 2' },
+		{ cid: 100, writer: 'snowman', title: 'title 3', text: 'text 3' },
+		{ cid: 100, writer: 'snowman', title: 'title 4', text: 'text 4' },
+		{ cid: 300, writer: 'snowman', title: 'title 5', text: 'text 5' },
+		{ cid: 300, writer: 'snowman', title: 'title 6', text: 'text 6' },
+		{ cid: 400, writer: 'snowman', title: 'title 7', text: 'text 7' }
 	];
 
 	it("given no session", function (next) {
-		test.logout(next);
+		ufix.logout(next);
 	});
 	it("should fail", function (next) {
-		request.post(test.url + '/api/threads', function (err, res) {
+		express.post('/api/threads', function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next();
 		});
 	});
 	it("given user session", function (next) {
-		test.loginUser(next);
+		ufix.loginUser(next);
 	});
 	it("given sample threads", function (next) {
 		var i = 0;
@@ -50,7 +49,7 @@ describe("listing threads", function () {
 		(function insert() {
 			if (i == len) return next();
 			var item = samples[i++];
-			request.post(test.url + '/api/threads').send(item).end(function (err, res) {
+			express.post('/api/threads').send(item).end(function (err, res) {
 				should(!res.error);
 				setImmediate(insert);
 			});

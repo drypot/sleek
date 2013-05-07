@@ -1,5 +1,4 @@
 var should = require('should');
-var request = require('superagent').agent();
 
 var l = require('../main/l');
 var init = require('../main/init');
@@ -7,7 +6,7 @@ var config = require('../main/config')({ test: true });
 var upload = require('../main/upload');
 var express = require('../main/express');
 var error = require('../main/error');
-var test = require('../main/test')({ request: request });
+var ufix = require('../test/user-fixture');
 
 require('../main/session-api');
 require('../main/upload-api');
@@ -21,7 +20,7 @@ before(function () {
 });
 
 it("given user session", function (next) {
-	test.loginUser(next);
+	ufix.loginUser(next);
 });
 
 describe("uploading none", function () {
@@ -29,7 +28,7 @@ describe("uploading none", function () {
 		request
 			.post(test.url + '/api/upload')
 			.end(function (err, res) {
-				should.not.exist(err);
+				should(!err);
 				should(!res.error);
 				should(!res.body.err);
 				var files = res.body.files;
@@ -45,7 +44,7 @@ describe("uploading one file", function () {
 			.post(test.url + '/api/upload')
 			.attach('file', 'server/test/fixture/dummy.txt')
 			.end(function (err, res) {
-				should.not.exist(err);
+				should(!err);
 				should(!res.error);
 				should(!res.body.err);
 //				console.log(res.body);
@@ -67,7 +66,7 @@ describe("uploading two files", function () {
 			.attach('file', 'server/test/fixture/dummy.txt')
 			.attach('file', 'server/test/fixture/dummy2.txt')
 			.end(function (err, res) {
-				should.not.exist(err);
+				should(!err);
 				should(!res.error);
 				should(!res.body.err);
 //				console.log(res.body);
@@ -96,7 +95,7 @@ describe("deleting file", function () {
 			.attach('file', 'server/test/fixture/dummy2.txt')
 			.attach('file', 'server/test/fixture/dummy3.txt')
 			.end(function (err, res) {
-				should.not.exist(err);
+				should(!err);
 				should(!res.error);
 				should(!res.body.err);
 				files = res.body.files;
@@ -111,7 +110,7 @@ describe("deleting file", function () {
 		delFiles.push(dummy);
 		upload.tmpFileExists(dummy.tmpName).should.be.true;
 		request.del(test.url + '/api/upload').send({ files: delFiles }).end(function (err, res) {
-			should.not.exist(err);
+			should(!err);
 			should(!res.error);
 			should(!res.body.err);
 			upload.tmpFileExists(dummy.tmpName).should.be.false;
@@ -131,7 +130,7 @@ describe("deleting file", function () {
 		upload.tmpFileExists(dummy2.tmpName).should.be.true;
 		upload.tmpFileExists(dummy3.tmpName).should.be.true;
 		request.del(test.url + '/api/upload').send({ files: delFiles }).end(function (err, res) {
-			should.not.exist(err);
+			should(!err);
 			should(!res.error);
 			should(!res.body.err);
 			upload.tmpFileExists(dummy2.tmpName).should.be.false;
@@ -145,7 +144,7 @@ describe("deleting file", function () {
 		delFiles.push(filename);
 		upload.tmpFileExists(filename).should.be.false;
 		request.del(test.url + '/api/upload').send({ files: delFiles }).end(function (err, res) {
-			should.not.exist(err);
+			should(!err);
 			should(!res.error);
 			should(!res.body.err);
 			next();

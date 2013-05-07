@@ -5,7 +5,7 @@ block title
 
 block content
 
-	- var categories = role.categories
+	- var categories = user.categories
 
 	.page-header
 		h2 #{category.name}
@@ -16,7 +16,7 @@ block content
 				for thread in threads
 					tr
 						td.t
-							a(href="/threads/" + thread.id)
+							a(href="/threads/" + thread._id)
 								span #{thread.title}
 								if thread.reply
 									| [!{thread.reply}]
@@ -37,7 +37,7 @@ block content
 				for thread in threads
 					tr
 						td
-							a(href="/threads/" + thread.id)
+							a(href="/threads/" + thread._id)
 								span #{thread.title}
 								if thread.reply
 									| [!{thread.reply}]

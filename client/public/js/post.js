@@ -134,7 +134,7 @@ init.add(function() {
 
 	function sendForm() {
 		var post = {
-			categoryId: $category.val(),
+			cid: $category.val(),
 			writer: $writer.val(),
 			title: $title.val(),
 			text: $text.val()
@@ -158,7 +158,7 @@ init.add(function() {
 			}
 			if (err) return msgBox.error(err);
 			l.post.saveWriter(post.writer);
-			location = '/thread/' + res.body.threadId;
+			location = '/thread/' + res.body.tid;
 		});
 
 		return false;

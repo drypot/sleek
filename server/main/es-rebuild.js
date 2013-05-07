@@ -18,7 +18,7 @@ init.add(function () {
 			threads.nextObject(function (err, thread) {
 				if (err) return next(err);
 				if (thread) {
-					posts = mongo.posts.find({ threadId: thread._id });
+					posts = mongo.posts.find({ tid: thread._id });
 					walkPost(thread);
 					return;
 				}

@@ -40,8 +40,8 @@ init.add(function (next) {
 			mappings: {
 				'post': {
 					properties: {
-						threadId: { type: 'integer', index: 'no', include_in_all: false },
-						categoryId: { type: 'integer', index: 'no', include_in_all: false },
+						tid: { type: 'integer', index: 'no', include_in_all: false },
+						cid: { type: 'integer', index: 'no', include_in_all: false },
 						cdate: { type: 'date', index: 'not_analyzed', include_in_all: false },
 						title: { type: 'string', index: 'no', include_in_all: false },
 						titlei: { type: 'string', index: 'no', include_in_all: true },
@@ -72,8 +72,8 @@ init.add(function (next) {
 		return next();
 
 		var form = {
-			threadId: thread._id,
-			categoryId: thread.categoryId,
+			tid: thread._id,
+			cid: thread.cid,
 			cdate: post.cdate,
 			title: thread.title,
 			titlei: thread.cdate.getTime() === post.cdate.getTime() ? thread.title : '',
@@ -88,10 +88,10 @@ init.add(function (next) {
 		});
 	};
 
-	exports.getPost = function (postId, next) {
+	exports.getPost = function (pid, next) {
 		return next();
 
-		request.get(url + '/post/' + postId, function (err, res) {
+		request.get(url + '/post/' + pid, function (err, res) {
 			if (err) return next(err);
 			if (res.error) return next(res.body);
 			res.body._id = parseInt(res.body._id);

@@ -1,5 +1,4 @@
 var should = require('should');
-var request = require('superagent').agent();
 
 var init = require('../main/init');
 var config = require('../main/config')({ test: true });
@@ -7,7 +6,7 @@ var mongo = require('../main/mongo')({ dropDatabase: true });
 var es = require('../main/es')({ dropIndex: true });
 var express = require('../main/express');
 var error = require('../main/error');
-var test = require('../main/test')({ request: request });
+var ufix = require('../test/user-fixture');
 
 require('../main/session-api');
 require('../main/post-api');
@@ -24,18 +23,18 @@ before(function () {
 describe.skip("searching", function () {
 
 	var docs = [
-		{ categoryId: 100, writer: 'snowman', title: 'title 1', text: 'apple orange banana' },
-		{ categoryId: 100, writer: 'snowman', title: 'title 2', text: 'apple orange pine' },
-		{ categoryId: 100, writer: 'snowman', title: 'title 3', text: '둥글게 네모나게' },
-		{ categoryId: 100, writer: 'santa',   title: 'title 4', text: '둥글게 세모나게' },
-		{ categoryId: 300, writer: 'santa',   title: 'title 5', text: '둥글게 동그랗게' },
-		{ categoryId: 300, writer: 'rudolph', title: 'title 6', text: 'text 6' },
-		{ categoryId:  40, writer: 'admin',   title: 'title 7', text: 'text 7' },
-		{ categoryId:  40, writer: 'admin',   title: 'title 8', text: 'text 8' }
+		{ cid: 100, writer: 'snowman', title: 'title 1', text: 'apple orange banana' },
+		{ cid: 100, writer: 'snowman', title: 'title 2', text: 'apple orange pine' },
+		{ cid: 100, writer: 'snowman', title: 'title 3', text: '둥글게 네모나게' },
+		{ cid: 100, writer: 'santa',   title: 'title 4', text: '둥글게 세모나게' },
+		{ cid: 300, writer: 'santa',   title: 'title 5', text: '둥글게 동그랗게' },
+		{ cid: 300, writer: 'rudolph', title: 'title 6', text: 'text 6' },
+		{ cid:  40, writer: 'admin',   title: 'title 7', text: 'text 7' },
+		{ cid:  40, writer: 'admin',   title: 'title 8', text: 'text 8' }
 	];
 
 	it("given no session", function (next) {
-		test.logout(next);
+		ufix.logout(next);
 	});
 	it("should fail", function (next) {
 		request.get(test.url + '/api/search', function (err, res) {
@@ -45,7 +44,7 @@ describe.skip("searching", function () {
 		});
 	});
 	it("given admin session", function (next) {
-		test.loginAdmin(next);
+		ufix.loginAdmin(next);
 	});
 	it("should success", function (next) {
 		request.get(test.url + '/api/search', function (err, res) {
@@ -65,17 +64,17 @@ describe.skip("searching", function () {
 				return;
 			}
 			var doc = docs[i++];
-			request.post(test.url + '/api/threads').send(doc).end(function (err, res) {
+			express.post('/api/threads').send(doc).end(function (err, res) {
 				should.not.exists(err);
 				should(!res.body.err);
-				doc.postId = res.body.postId;
-				doc.threadId = res.body.threadId;
+				doc.pid = res.body.pid;
+				doc.tid = res.body.tid;
 				setImmediate(insert);
 			});
 		})();
 	});
 	it("given user session", function (next) {
-		test.loginUser(next);
+		ufix.loginUser(next);
 	});
 	describe.skip("user name", function () {
 		it("should success", function (next) {
@@ -142,7 +141,7 @@ describe.skip("searching", function () {
 	});
 	describe.skip("recycle bin", function () {
 		it("given user session", function (next) {
-			test.loginUser(next);
+			ufix.loginUser(next);
 		});
 		it("should return no results", function (next) {
 			request.get(test.url + '/api/search').query({ q: 'admin' }).end(function (err, res) {
@@ -154,7 +153,7 @@ describe.skip("searching", function () {
 			});
 		});
 		it("given admin session", function (next) {
-			test.loginAdmin(next);
+			ufix.loginAdmin(next);
 		});
 		it("should return results", function (next) {
 			request.get(test.url + '/api/search').query({ q: 'admin' }).end(function (err, res) {

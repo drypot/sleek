@@ -33,7 +33,7 @@ html
 		// navbar
 		.navbar
 			.container
-				if role
+				if user
 					button.navbar-toggle(type="button", data-toggle="collapse", data-target=".navbar-responsive-collapse")
 						span.icon-bar
 						span.icon-bar
@@ -49,10 +49,10 @@ html
 					a.navbar-brand(href="/")= siteTitle
 
 		.container
-			if role
+			if user
 				.well.well-small
 					ul.list-inline(style="margin: 5px")
-						for c in role.categoriesForMenu
+						for c in user.categoriesForMenu
 							if c.id === 0
 								li: a(href="/threads") #{c.name}
 							else
