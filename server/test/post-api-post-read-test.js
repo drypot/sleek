@@ -23,46 +23,46 @@ describe("reading post", function () {
 	it("given user session", function (next) {
 		ufix.loginUser(next);
 	});
-	var t1, p11, p12;
-	it("given tid1, p11", function (next) {
+	var tid1, pid1, pid2;
+	it("given tid1, pid1", function (next) {
 		var form = { cid: 101, writer: 'snowman1', title: 'title1', text: 'post11' };
 		express.post('/api/threads').send(form).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
-			t1 = res.body.tid;
-			p11 = res.body.pid;
+			tid1 = res.body.tid;
+			pid1 = res.body.pid;
 			next();
 		});
 	});
-	it("given p12", function (next) {
+	it("given pid2", function (next) {
 		var form = { writer: 'snowman1', text: 'post12' };
-		express.post('/api/threads/' + t1).send(form).end(function (err, res) {
+		express.post('/api/threads/' + tid1).send(form).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
-			p12 = res.body.pid;
+			pid2 = res.body.pid;
 			next();
 		});
 	});
 	it("given admin session", function (next) {
 		ufix.loginAdmin(next);
 	});
-	var t2, p21, p22;
-	it("given tid2, p21 in recycle bin", function (next) {
+	var tid2, pid3, pid4;
+	it("given tid2, pid3 in recycle bin", function (next) {
 		var form = { cid: 40, writer: 'snowman2', title: 'title2', text: 'post21' };
 		express.post('/api/threads').send(form).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
-			t2 = res.body.tid;
-			p21 = res.body.pid;
+			tid2 = res.body.tid;
+			pid3 = res.body.pid;
 			next();
 		});
 	});
-	it("given p22 in recycle bin", function (next) {
+	it("given pid4 in recycle bin", function (next) {
 		var form = { writer: 'snowman2', text: 'post22' };
-		express.post('/api/threads/' + t2).send(form).end(function (err, res) {
+		express.post('/api/threads/' + tid2).send(form).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
-			p22 = res.body.pid;
+			pid4 = res.body.pid;
 			next();
 		});
 	});
@@ -70,7 +70,7 @@ describe("reading post", function () {
 		ufix.logout(next);
 	});
 	it("should fail", function (next) {
-		express.get('/api/threads/' + t1 + '/' + p11, function (err, res) {
+		express.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
 			next();
@@ -80,28 +80,28 @@ describe("reading post", function () {
 		ufix.loginUser(next);
 	});
 	it("should fail with invalid tid", function (next) {
-		express.get('/api/threads/' + 99999 + '/' + p11, function (err, res) {
+		express.get('/api/threads/' + 99999 + '/' + pid1, function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.INVALID_THREAD);
 			next();
 		});
 	});
 	it("should fail with mismatching tid", function (next) {
-		express.get('/api/threads/' + t2 + '/' + p11, function (err, res) {
+		express.get('/api/threads/' + tid2 + '/' + pid1, function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.INVALID_POST);
 			next();
 		});
 	});
 	it("should fail with invalid pid", function (next) {
-		express.get('/api/threads/' + t1 + '/' + 99999, function (err, res) {
+		express.get('/api/threads/' + tid1 + '/' + 99999, function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.INVALID_POST);
 			next();
 		});
 	});
-	it("should success for p11", function (next) {
-		express.get('/api/threads/' + t1 + '/' + p11, function (err, res) {
+	it("should success for pid1", function (next) {
+		express.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.thread.title.should.equal('title1');
@@ -113,8 +113,8 @@ describe("reading post", function () {
 			next();
 		});
 	});
-	it("should success for p12", function (next) {
-		express.get('/api/threads/' + t1 + '/' + p12, function (err, res) {
+	it("should success for pid2", function (next) {
+		express.get('/api/threads/' + tid1 + '/' + pid2, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.post.writer.should.equal('snowman1');
@@ -127,15 +127,15 @@ describe("reading post", function () {
 	it("given user session", function (next) {
 		ufix.loginUser(next);
 	});
-	it("should fail for p21 in recycle bin", function (next) {
-		express.get('/api/threads/' + t2 + '/' + p21, function (err, res) {
+	it("should fail for pid3 in recycle bin", function (next) {
+		express.get('/api/threads/' + tid2 + '/' + pid3, function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.INVALID_CATEGORY);
 			next();
 		});
 	});
-	it("should fail for p22 in recycle bin", function (next) {
-		express.get('/api/threads/' + t2 + '/' + p22, function (err, res) {
+	it("should fail for pid4 in recycle bin", function (next) {
+		express.get('/api/threads/' + tid2 + '/' + pid4, function (err, res) {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.INVALID_CATEGORY);
 			next();
@@ -144,8 +144,8 @@ describe("reading post", function () {
 	it("given admin session", function (next) {
 		ufix.loginAdmin(next);
 	});
-	it("should success for p21 in recycle bin", function (next) {
-		express.get('/api/threads/' + t2 + '/' + p21, function (err, res) {
+	it("should success for pid3 in recycle bin", function (next) {
+		express.get('/api/threads/' + tid2 + '/' + pid3, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.thread.title.should.equal('title2');
@@ -157,8 +157,8 @@ describe("reading post", function () {
 			next();
 		});
 	});
-	it("should success for p22 in recycle bin", function (next) {
-		express.get('/api/threads/' + t2 + '/' + p22, function (err, res) {
+	it("should success for pid4 in recycle bin", function (next) {
+		express.get('/api/threads/' + tid2 + '/' + pid4, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.post.writer.should.equal('snowman2');

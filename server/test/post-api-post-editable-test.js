@@ -23,37 +23,37 @@ describe("post.editable", function () {
 	it("given user session", function (next) {
 		ufix.loginUser(next);
 	});
-	var t1, p11, p12;
-	it("given tid1, p11", function (next) {
+	var tid1, pid1, pid2;
+	it("given tid1, pid1", function (next) {
 		var form = { cid: 101, writer: 'snowman', title: 'title 1', text: 'post1' };
 			express.post('/api/threads').send(form).end(function (err, res) {
 				should(!res.error);
 				should(!res.body.err);
-				t1 = res.body.tid;
-				p11 = res.body.pid;
+				tid1 = res.body.tid;
+				pid1 = res.body.pid;
 				next();
 			}
 		);
 	});
-	it("given p12", function (next) {
+	it("given pid2", function (next) {
 		var form = { writer: 'snowman', text: 'post2' };
-		express.post('/api/threads/' + t1).send(form).end(function (err, res) {
+		express.post('/api/threads/' + tid1).send(form).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
-			p12 = res.body.pid;
+			pid2 = res.body.pid;
 			next();
 		});
 	});
-	it("should be true for p11", function (next) {
-		express.get('/api/threads/' + t1 + '/' + p11, function (err, res) {
+	it("should be true for pid1", function (next) {
+		express.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.post.editable.should.be.true;
 			next();
 		});
 	});
-	it("should be true for p12", function (next) {
-		express.get('/api/threads/' + t1 + '/' + p12, function (err, res) {
+	it("should be true for pid2", function (next) {
+		express.get('/api/threads/' + tid1 + '/' + pid2, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.post.editable.should.be.true;
@@ -63,16 +63,16 @@ describe("post.editable", function () {
 	it("given new user session", function (next) {
 		ufix.loginUser(next);
 	});
-	it("should be false for p11", function (next) {
-		express.get('/api/threads/' + t1 + '/' + p11, function (err, res) {
+	it("should be false for pid1", function (next) {
+		express.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.post.editable.should.be.false;
 			next();
 		});
 	});
-	it("should be false for p12", function (next) {
-		express.get('/api/threads/' + t1 + '/' + p12, function (err, res) {
+	it("should be false for pid2", function (next) {
+		express.get('/api/threads/' + tid1 + '/' + pid2, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.post.editable.should.be.false;
@@ -82,16 +82,16 @@ describe("post.editable", function () {
 	it("given admin session", function (next) {
 		ufix.loginAdmin(next);
 	});
-	it("should be true for p11", function (next) {
-		express.get('/api/threads/' + t1 + '/' + p11, function (err, res) {
+	it("should be true for pid1", function (next) {
+		express.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.post.editable.should.be.true;
 			next();
 		});
 	});
-	it("should be true for p12", function (next) {
-		express.get('/api/threads/' + t1 + '/' + p12, function (err, res) {
+	it("should be true for pid2", function (next) {
+		express.get('/api/threads/' + tid1 + '/' + pid2, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.post.editable.should.be.true;

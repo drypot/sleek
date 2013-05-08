@@ -22,7 +22,7 @@ before(function () {
 	express.listen();
 });
 
-var dummy = 'server/test/fixture/dummy.txt';
+var dummy1 = 'server/test/fixture/dummy1.txt';
 var dummy2 = 'server/test/fixture/dummy2.txt';
 var dummy3 = 'server/test/fixture/dummy3.txt';
 
@@ -32,7 +32,7 @@ function findFile(files, filename) {
 	});
 }
 
-var files, t1, p1;
+var files, tid1, pid1;
 
 describe("creating thread", function () {
 	it("given user session", function (next) {
@@ -44,41 +44,41 @@ describe("creating thread", function () {
 			should(!err);
 			should(!res.error);
 			should(!res.body.err);
-			t1 = res.body.tid;
+			tid1 = res.body.tid;
 			next();
 		});
 	});
 });
 
 describe("saving files", function () {
-	it("given dummy.txt, dummy3.txt", function (next) {
-		express.post('/api/upload').attach('file', dummy).attach('file', dummy2).end(function (err, res) {
+	it("given dummy1.txt, dummy3.txt", function (next) {
+		express.post('/api/upload').attach('file', dummy1).attach('file', dummy2).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			files = res.body.files;
-			findFile(files, 'dummy.txt').should.be.ok;
+			findFile(files, 'dummy1.txt').should.be.ok;
 			findFile(files, 'dummy2.txt').should.be.ok;
 			next();
 		});
 	});
 	it("should success", function (next) {
 		var form = { cid: 101, title: 't', writer: 'w', text: 't', files: files };
-		express.post('/api/threads/' + t1).send(form).end(function (err, res) {
+		express.post('/api/threads/' + tid1).send(form).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
-			p1 = res.body.pid;
-			upload.postFileExists(p1, 'dummy.txt').should.be.true;
-			upload.postFileExists(p1, 'dummy2.txt').should.be.true;
+			pid1 = res.body.pid;
+			upload.postFileExists(pid1, 'dummy1.txt').should.be.true;
+			upload.postFileExists(pid1, 'dummy2.txt').should.be.true;
 			next();
 		});
 	});
 	it("can be confirmed", function (next) {
-		express.get('/api/threads/' + t1 + '/' + p1, function (err, res) {
+		express.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			var files = res.body.post.files;
 			files.should.length(2);
-			files[0].should.property('name', 'dummy.txt');
+			files[0].should.property('name', 'dummy1.txt');
 			files[0].should.property('url')
 			files[1].should.property('name', 'dummy2.txt');
 			files[1].should.property('url')
@@ -89,17 +89,17 @@ describe("saving files", function () {
 
 describe("deleting files", function () {
 	it("should success", function (next) {
-		var form = { writer: 'w', text: 't', delFiles: [ 'dummy.txt' ] };
-		express.put('/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
+		var form = { writer: 'w', text: 't', delFiles: [ 'dummy1.txt' ] };
+		express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
-			upload.postFileExists(p1, 'dummy.txt').should.be.false;
-			upload.postFileExists(p1, 'dummy2.txt').should.be.true;
+			upload.postFileExists(pid1, 'dummy1.txt').should.be.false;
+			upload.postFileExists(pid1, 'dummy2.txt').should.be.true;
 			next();
 		});
 	});
 	it("can be confirmed", function (next) {
-		express.get('/api/threads/' + t1 + '/' + p1, function (err, res) {
+		express.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			var files = res.body.post.files;
@@ -122,16 +122,16 @@ describe("appending files", function () {
 	});
 	it("should success", function (next) {
 		var form = { writer: 'w', text: 't', files: files };
-		express.put('/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
+		express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
-			upload.postFileExists(p1, 'dummy2.txt').should.be.true;
-			upload.postFileExists(p1, 'dummy3.txt').should.be.true;
+			upload.postFileExists(pid1, 'dummy2.txt').should.be.true;
+			upload.postFileExists(pid1, 'dummy3.txt').should.be.true;
 			next();
 		});
 	});
 	it("can be confirmed", function (next) {
-		express.get('/api/threads/' + t1 + '/' + p1, function (err, res) {
+		express.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.post.files.should.length(2);
@@ -143,16 +143,16 @@ describe("appending files", function () {
 describe("deleting again", function () {
 	it("should success", function (next) {
 		var form = { writer: 'w', text: 't', delFiles: [ 'dummy2.txt', 'dummy3.txt' ] };
-		express.put('/api/threads/' + t1 + '/' + p1).send(form).end(function (err, res) {
+		express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
-			upload.postFileExists(p1, 'dummy2.txt').should.be.false;
-			upload.postFileExists(p1, 'dummy3.txt').should.be.false;
+			upload.postFileExists(pid1, 'dummy2.txt').should.be.false;
+			upload.postFileExists(pid1, 'dummy3.txt').should.be.false;
 			next();
 		});
 	});
 	it("can be confirmed", function (next) {
-		express.get('/api/threads/' + t1 + '/' + p1, function (err, res) {
+		express.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			should(!res.body.post.files);
@@ -164,7 +164,7 @@ describe("deleting again", function () {
 describe("saving non-existing file", function () {
 	it("should success", function (next) {
 		var form = { writer: 'w', text: 't', files: [{ name: 'abc.txt', tmpName: 'xxxxxxxx' }] };
-		express.post('/api/threads/' + t1).send(form).end(function (err, res) {
+		express.post('/api/threads/' + tid1).send(form).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			next();
@@ -173,8 +173,8 @@ describe("saving non-existing file", function () {
 });
 
 describe("saving file with invalid name", function () {
-	it("given dummy.txt", function (next) {
-		express.post('/api/upload').attach('file', dummy).end(function (err, res) {
+	it("given dummy1.txt", function (next) {
+		express.post('/api/upload').attach('file', dummy1).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			files = res.body.files;
@@ -184,16 +184,16 @@ describe("saving file with invalid name", function () {
 	it("should success", function (next) {
 		var form = { writer: 'w', text: 't', files: files };
 		files[0].name = './../.../newName.txt';
-		express.post('/api/threads/' + t1).send(form).end(function (err, res) {
+		express.post('/api/threads/' + tid1).send(form).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
-			p1 = res.body.pid;
-			upload.postFileExists(p1, 'newName.txt').should.be.true;
+			pid1 = res.body.pid;
+			upload.postFileExists(pid1, 'newName.txt').should.be.true;
 			next();
 		});
 	});
 	it("can be confirmed", function (next) {
-		express.get('/api/threads/' + t1 + '/' + p1, function (err, res) {
+		express.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			var files = res.body.post.files;
@@ -206,8 +206,8 @@ describe("saving file with invalid name", function () {
 });
 
 describe("saving file with invalid name 2", function () {
-	it("given dummy.txt", function (next) {
-		express.post('/api/upload').attach('file', dummy).end(function (err, res) {
+	it("given dummy1.txt", function (next) {
+		express.post('/api/upload').attach('file', dummy1).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			files = res.body.files;
@@ -217,16 +217,16 @@ describe("saving file with invalid name 2", function () {
 	it("should success", function (next) {
 		var form = { writer: 'w', text: 't', files: files };
 		files[0].name = './../.../mygod#1 그리고 한글.txt';
-		express.post('/api/threads/' + t1).send(form).end(function (err, res) {
+		express.post('/api/threads/' + tid1).send(form).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
-			p1 = res.body.pid;
-			upload.postFileExists(p1, 'mygod#1 그리고 한글.txt').should.be.true;
+			pid1 = res.body.pid;
+			upload.postFileExists(pid1, 'mygod#1 그리고 한글.txt').should.be.true;
 			next();
 		});
 	});
 	it("can be confirmed", function (next) {
-		express.get('/api/threads/' + t1 + '/' + p1, function (err, res) {
+		express.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			var files = res.body.post.files;
@@ -239,8 +239,8 @@ describe("saving file with invalid name 2", function () {
 });
 
 describe("saving file with invalid name 3", function () {
-	it("given dummy.txt", function (next) {
-		express.post('/api/upload').attach('file', dummy).end(function (err, res) {
+	it("given dummy1.txt", function (next) {
+		express.post('/api/upload').attach('file', dummy1).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			files = res.body.files;
@@ -250,16 +250,16 @@ describe("saving file with invalid name 3", function () {
 	it("should success", function (next) {
 		var form = { writer: 'w', text: 't', files: files };
 		files[0].name = './../.../mygod#2 :?<>|.txt';
-		express.post('/api/threads/' + t1).send(form).end(function (err, res) {
+		express.post('/api/threads/' + tid1).send(form).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
-			p1 = res.body.pid;
-			upload.postFileExists(p1, 'mygod#2 _____.txt').should.be.true;
+			pid1 = res.body.pid;
+			upload.postFileExists(pid1, 'mygod#2 _____.txt').should.be.true;
 			next();
 		});
 	});
 	it("can be confirmed", function (next) {
-		express.get('/api/threads/' + t1 + '/' + p1, function (err, res) {
+		express.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.post.files.should.length(1);
