@@ -1,0 +1,57 @@
+extends layout
+
+block title
+	title Edit Post - #{siteTitle}
+
+block content
+
+	script
+		init.add(function () {
+			post.initEditForm();
+		});
+
+	.container
+		.col-lg-12
+			.page-header
+				h2 Edit Post
+
+			form#edit-form(action="/api/threads", method="post", enctype="multipart/form-data")
+				if post.head
+					.form-row
+						select.col-lg-4(name='cid')
+							for c in user.categoriesForNew
+								option(value=c.id, selected=c.id==category.id) #{c.name}
+				.form-row
+					label 필명
+					input.col-lg-4(type='text', name='writer', value=post.writer, maxlength='32')
+				if post.head
+					.form-row
+						label 제목
+						input.col-lg-12(type='text', name='title', value=thread.title, maxlength='128')
+				.form-row
+					label 내용
+					textarea(name='text', rows=13) #{post.text}
+				//-
+					.well.well-small
+						#file-input-holder
+							input(type='file', name='files', multiple='multiple')
+						button#add-file-input.btn.btn-small
+							i.icon-plus
+				//-
+					if post.files
+						.form-row
+							label 삭제할 파일
+							// ...
+
+				if user
+				.form-action
+					button.btn.btn-primary(type='submit', name='send') Send
+					button.btn.disabled.hide(type='button', name='sending')
+
+//
+//								<% if (authService.isAdmin()) { %>
+//						<div class="label">기타<div>
+//						<div class="input"><form:checkbox path="post.visible" label="Visible"/></div>
+//					<% } %>
+//					<div class="submit"><input class="submit" type="submit" value="Submit"/></div>
+//				</form:form>

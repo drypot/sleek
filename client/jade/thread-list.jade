@@ -1,0 +1,69 @@
+extends layout
+
+block title
+	title #{category.name} - #{siteTitle}
+
+block content
+
+	- var categories = user.categories
+
+	.container
+		.col-lg-12
+			.page-header
+				h2 #{category.name}
+
+			table#threads.table.table-hover.hidden-phone
+				tbody
+					for thread in threads
+						tr
+							td.t
+								a(href="/threads/" + thread._id)
+									span #{thread.title}
+									if thread.length > 1
+										| [!{thread.length - 1}]
+							if category.id === 0
+								td
+									a(href="/threads?c=" + thread.category.id) #{categories[thread.category.id].name}
+							td #{thread.writer}
+							td !{thread.hit}
+							td !{thread.udateStr}
+					else
+						tr
+							td.t 표시할 내용이 없습니다.
+							td
+
+
+			table#threads-phone.table.table-hover.visible-phone
+				tbody
+					for thread in threads
+						tr
+							td
+								a(href="/threads/" + thread._id)
+									span #{thread.title}
+									if thread.length > 1
+										| [!{thread.length - 1}]
+								div
+									small #{thread.writer}
+									small !{thread.hit}
+									small !{thread.udateStr}
+									if category.id === 0
+										small
+											a(href="/threads?c=" + thread.category.id) #{categories[thread.category.id].name}
+					else
+						tr
+							td.t 표시할 내용이 없습니다.
+							td
+
+			ul.pager(style='text-align: left;')
+				if locals.prevUrl
+					li
+						a(href=prevUrl) Previous
+				else
+					li.disabled
+						a(href='javascript:void(0)') Previous
+				if locals.nextUrl
+					li
+						a(href=nextUrl) Next
+				else
+					li.disabled
+						a(href='javascript:void(0)') Next

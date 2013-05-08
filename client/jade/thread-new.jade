@@ -1,0 +1,40 @@
+extends layout
+
+block title
+	title New Post - #{siteTitle}
+
+block content
+
+	script
+		init.add(function () {
+			post.initNewForm();
+		});
+
+	.container
+		.col-lg-12
+			.page-header
+				h2 New Post
+
+			form#new-form(action="/api/threads", method="post", enctype="multipart/form-data")
+				.form-row
+					select.col-lg-4(name='cid')
+						for c in user.categoriesForNew
+							option(value=c.id, selected=c.id==cid) #{c.name}
+				.form-row
+					label 필명
+					input.col-lg-4(type='text', name='writer', value='', maxlength='32')
+				.form-row
+					label 제목
+					input.col-lg-12(type='text', name='title', value='', maxlength='128')
+				.form-row
+					label 내용
+					textarea(name='text', rows=13)
+				//
+					.well.well-small
+					input.file(name='files', type='file', multiple='multiple')
+					br
+					button.btn.btn-small
+						i.icon-plus
+				.form-action
+					button.btn.btn-primary(type='submit', name='send') Send
+					button.btn.disabled.hide(type='button', name='sending')

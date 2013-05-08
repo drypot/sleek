@@ -1,0 +1,52 @@
+extends layout
+
+block title
+	title #{thread.title} - #{siteTitle}
+
+block content
+
+	script
+		init.add(function () {
+			post.initThreadAndPosts();
+			post.initReplyForm();
+		});
+
+	.container
+		.col-lg-12
+			.page-header
+				h2 #{thread.title}
+
+			#posts
+				for post in posts
+					.post(id=post.id)
+						h5 #{post.writer}
+							small !{post.createdStr}
+						if post.files
+							.list-unstyled.files
+								for file in post.files
+									.file
+										a(href=file.url, target='_blank') #{file.name}
+						.t
+							pre #{post.text}
+						if post.editable
+							.cmd
+								a.btn(href='/threads/' + thread._id + '/' + post.id + '/edit') Edit
+
+			form#reply-form(action='/api/threads/' + thread._id, method="post", enctype="multipart/form-data")
+				.form-row
+					div
+						label 필명
+					input.col-lg-4(name='writer', type='text', value='', maxlength='32')
+				.form-row
+					div
+						label 내용
+					textarea(name='text', rows=13)
+				//
+					.well.well-small
+					input.file(name='files', type='file', multiple='multiple')
+					br
+					button.btn.btn-small
+						i.icon-plus
+				.form-action
+					button.btn.btn-primary(name='send', type='submit') Send
+					button.btn.disabled.hide(name='sending', type='button') Sending
