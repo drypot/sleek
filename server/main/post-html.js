@@ -22,11 +22,11 @@ init.add(function () {
 //					(thread.getId() == postContext.getParam().getThreadId() ? " tc" : "");
 
 				prevNext(params, last, function (prevUrl, nextUrl) {
-					res.render('threads', {
+					res.render('thread-list', {
 						category: category,
 						threads: threads,
 						prevUrl: prevUrl,
-						nextUrl: nextUrl,
+						nextUrl: nextUrl
 					});
 				});
 			});
@@ -57,15 +57,9 @@ init.add(function () {
 			var tid = parseInt(req.params.tid) || 0;
 			post.findThreadAndPosts(user, tid, req.session.posts, function (err, category, thread, posts) {
 				if (err) return res.renderErr(err);
-				res.render('threads-num', {
-					category: {
-						id: category.id,
-						name: category.name
-					},
-					thread: {
-						id: thread._id,
-						title: thread.title
-					},
+				res.render('thread-view', {
+					category: category,
+					thread: thread,
 					posts: posts
 				});
 			});
@@ -75,32 +69,25 @@ init.add(function () {
 	app.get('/threads/new', function (req, res, next) {
 		req.findUser(function (err, user) {
 			if (err) return res.renderErr(err);
-			res.render('threads-new');
+			var cid = parseInt(req.query.c) || 0;
+			res.render('thread-new', { cid: cid });
 		});
 	});
 
-	app.post('/threads', function (req, res) {
+	app.get('/threads/:tid([0-9]+)/:pid([0-9]+/edit)', function (req, res, next) {
 		req.findUser(function (err, user) {
 			if (err) return res.renderErr(err);
-			var form = post.makeForm(req);
-			post.createThread(user, form, function (err, tid, pid) {
+			var tid = parseInt(req.params.tid) || 0;
+			var pid = parseInt(req.params.pid) || 0;
+			post.findThreadAndPost(user, tid, pid, req.session.posts, function (err, category, thread, post) {
 				if (err) return res.renderErr(err);
-				req.session.posts.push(pid);
-				res.redirect('/threads');
+				res.render('thread-edit', {
+					thread: thread,
+					category: category,
+					post: post
+				});
 			});
 		});
 	});
 
-	app.post('/threads/:tid([0-9]+)', function (req, res) {
-		req.findUser(function (err, user) {
-			if (err) return res.renderErr(err);
-			var form = post.makeForm(req);
-			var tid = form.tid = parseInt(req.params.tid) || 0;
-			post.createReply(user, form, function (err, pid) {
-				if (err) return res.renderErr(err);
-				req.session.posts.push(pid);
-				res.redirect('/threads/' + tid);
-			});
-		});
-	});
 });

@@ -47,7 +47,7 @@ init.add(function () {
 			if (err) return res.jsonErr(err);
 			var tid = parseInt(req.params.tid) || 0;
 			var pid = parseInt(req.params.pid) || 0;
-			post.findThreadAndPost(user, tid, pid, req.session.posts, function (err, thread, post) {
+			post.findThreadAndPost(user, tid, pid, req.session.posts, function (err, category, thread, post) {
 				if (err) return res.jsonErr(err);
 				res.json({
 					thread: {
@@ -55,7 +55,7 @@ init.add(function () {
 						title: thread.title
 					},
 					category: {
-						id: thread.cid
+						id: category.id
 					},
 					post: post
 				});
@@ -95,9 +95,23 @@ init.add(function () {
 	});
 
 	app.put('/api/threads/:tid([0-9]+)/:pid([0-9]+)', function (req, res, next) {
+		updatePost(req, res, next);
+	});
+
+	app.post('/api/threads/:tid([0-9]+)/:pid([0-9]+)', function (req, res, next) {
+		updatePost(req, res, next);
+	});
+
+	function updatePost(req, res, next) {
 		req.findUser(function (err, user) {
 			if (err) return res.jsonErr(err);
 			var form = post.makeForm(req);
+
+//			console.log(req.body);
+//			console.log(form);
+//			res.jsonErro(error(error.INVALID_DATA));
+//			return;
+
 			form.tid = parseInt(req.params.tid) || 0;
 			form.pid = parseInt(req.params.pid) || 0;
 			post.update(user, form, req.session.posts, function (err) {
@@ -105,6 +119,6 @@ init.add(function () {
 				res.json({});
 			});
 		});
-	});
+	}
 
 });

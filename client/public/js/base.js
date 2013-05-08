@@ -36,7 +36,7 @@ var request = superagent;
 
 	window.init.run = function () {
 		console.log('init:');
-		console.log('before init: ' + Object.keys(window));
+		//console.log('before init: ' + Object.keys(window));
 
 		var i = 0;
 		var len = funcs.length;
@@ -45,7 +45,7 @@ var request = superagent;
 			funcs[i]();
 		}
 
-		console.log('after init: ' + Object.keys(window));
+		//console.log('after init: ' + Object.keys(window));
 	};
 
 	init.reset();
@@ -75,7 +75,6 @@ init.add(function () {
 
 	window.$window = $(window);
 	window.$document = $(document);
-	window.$content = $('#content');
 
 	window.url = new URI(location.toString());
 	window.query = url.query(true);

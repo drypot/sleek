@@ -6,19 +6,19 @@ block title
 block content
 	script
 		init.add(function () {
-			session.initLoginPage();
+			session.initLogin();
 		});
 
-	#content
+	#login-sec.container.hide
 		.page-header
 			h2 Login
 
-		form
-			.row
+		form#login-form
+			.form-row
 				label Password
-					input(name='password', type='password')
+				input.col-lg-3(name='password', type='password')
 			.checkbox
 				label Remember
-					input(name='remember', type='checkbox')
-			.submit-group
-				button.btn.btn-primary(name='submit', type='submit') Sign in
+				input(name='remember', type='checkbox')
+			.form-action
+				button.btn.btn-primary(name='submit', type='submit') Login

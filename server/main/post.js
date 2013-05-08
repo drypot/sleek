@@ -154,9 +154,9 @@ init.add(function () {
 							if (post) {
 								if (post.visible || admin) {
 									addFileUrls(post);
+									post.editable = isEditable(category, post._id, editables);
 									post.cdateStr = dt.format(post.cdate),
 									post.cdate = post.cdate.getTime(),
-									post.editable = isEditable(category, post._id, editables);
 									posts.push(post);
 								}
 								setImmediate(read);
@@ -179,11 +179,11 @@ init.add(function () {
 				categoryForRead(user, thread.cid, function (err, category) {
 					if (err) return next(err);
 					addFileUrls(post);
-					post.cdateStr = dt.format(post.cdate);
-					post.cdate = post.cdate.getTime();
 					post.head = isHead(thread, post);
 					post.editable = isEditable(category, post._id, editables)
-					next(null, thread, post);
+					post.cdateStr = dt.format(post.cdate);
+					post.cdate = post.cdate.getTime();
+					next(null, category, thread, post);
 				});
 			});
 		});

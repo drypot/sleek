@@ -3,17 +3,33 @@ body {
 	padding-bottom: 40px;
 }
 
+.container {
+	padding-left: 8px;
+	padding-right: 8px;
+}
+
 .page-header {
 	border: 0;
 	margin-bottom: 10px;
 	//margin-left: 8px;
 }
 
-.submit-group {
+.form-row {
+	margin-bottom:10px;
+	label {
+		display:block;
+	}
+}
+
+.form-action {
 	margin-top: 25px;
 }
 
-.threads {
+.alert {
+	margin-bottom:5px;
+}
+
+#threads {
 	td {
 		white-space: nowrap;
 	}
@@ -25,7 +41,7 @@ body {
 	}
 }
 
-.threads-phone {
+#threads-phone {
 	small {
 		margin-right: 10px;
 	}
@@ -38,9 +54,9 @@ body {
 
 }
 
-.posts {
+#posts {
 	border-bottom: 1px solid #ddd;
-
+	margin-bottom: 20px;
 	.post {
 		border-top: 1px solid #ddd;
 		h5, h4 {

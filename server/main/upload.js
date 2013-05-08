@@ -61,7 +61,7 @@ init.add(function (next) {
 		if (!files || files.length == 0) {
 			return next();
 		}
-		saveTmpFiles(files, [publicDir, 'post', Math.floor(pid / 10000), pid], next);
+		saveTmpFiles(files, [exports.pubPost, Math.floor(pid / 10000), pid], next);
 	};
 
 	function saveTmpFiles(files, subs, next) {

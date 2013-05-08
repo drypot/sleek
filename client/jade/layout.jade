@@ -17,6 +17,7 @@ html
 		script(src="/lib/es5-shim.min.js")
 		script(src="/lib/json2.js")
 		script(src="/lib/jquery.min.js")
+		script(src="/lib/jquery.form.js")
 		//script(src="/lib/jquery.simpleplaceholder.js")
 		script(src="/lib/bootstrap/js/bootstrap.min.js")
 		script(src="/lib/superagent.js")
@@ -41,9 +42,9 @@ html
 					a.navbar-brand(href="/threads")= siteTitle
 					.nav-collapse.collapse.navbar-responsive-collapse
 						form.navbar-form.pull-right
-							input(type="text", style="width:200px", placeholder="Search", disabled)
-							button.btn(onclick="session.logout(); return false;") Logout
-							button.btn.btn-primary(onclick="location='/threads/new?c=!{category.id}'; return false;") New
+							input(type="text", style="width:150px", placeholder="Search", disabled)
+							button#logout-btn.btn Logout
+							button#new-btn.btn.btn-primary New
 
 				else
 					a.navbar-brand(href="/")= siteTitle
@@ -58,7 +59,7 @@ html
 							else
 								li: a(href="/threads?c=" + c.id) #{c.name}
 
-			block content
+		block content
 
 		#error-modal.modal
 			.modal-dialog

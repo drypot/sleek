@@ -4,15 +4,19 @@ init.add(function() {
 	var $title = $modal.find('.modal-title');
 	var $body = $modal.find('.modal-body');
 
-	window.msgBox = function (header, text) {
+	window.showError = function (header, text, next) {
 		$title.empty();
 		$title.append('<h3>' + header + '</h3>');
 		$body.empty();
 		$body.append('<p>' + text + '</p>');
+		$modal.off('hidden');
+		if (next) {
+			$modal.on('hidden', next);
+		}
 		$modal.modal('show');
 	};
 
-	window.msgBox.error = function (err) {
+	window.showError.system = function (err, next) {
 		$title.empty();
 		$title.append('<h3>시스템 오류</h3>');
 		$body.empty();
@@ -20,6 +24,10 @@ init.add(function() {
 		$body.append('<pre>' + err.message + '</pre>');
 		$body.append('<h3>Stack</h3>');
 		$body.append('<pre>' + err.stack + '</pre>');
+		$modal.off('hidden');
+		if (next) {
+			$modal.on('hidden', next);
+		}
 		$modal.modal('show');
 	};
 
@@ -29,16 +37,16 @@ init.add(function () {
 
 	window.alerts = {};
 
-	alerts.clear = function ($content) {
-		$content.find('.alert').remove();
-		$content.find('.has-error').removeClass('has-error');
+	alerts.clear = function ($sec) {
+		$sec.find('.alert').remove();
+		$sec.find('.has-error').removeClass('has-error');
 	};
 
 	alerts.add = function ($control, msg) {
 		var $alert = $('<div>').addClass('alert alert-danger').text(msg);
 		var $group = $control.closest('div');
 		$group.addClass('has-error');
-		$group.before($alert);
+		$control.before($alert);
 	};
 
 });
@@ -46,11 +54,19 @@ init.add(function () {
 
 init.add(function () {
 
-	$('.navbar a[href="/logout"]').click(function () {
+	$('#logout-btn').click(function () {
 		session.logout();
 		return false;
 	});
 
+	$('#new-btn').click(function () {
+		if (query.c) {
+			location='/threads/new?c=' + query.c;
+		} else {
+			location='/threads/new';
+		}
+		return false;
+	});
 });
 
 //

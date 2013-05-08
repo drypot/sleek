@@ -1,49 +1,63 @@
 body {
   padding-bottom: 40px;
 }
+.container {
+  padding-left: 8px;
+  padding-right: 8px;
+}
 .page-header {
   border: 0;
   margin-bottom: 10px;
 }
-.submit-group {
-  margin-top: 25px;
-}
-.threads td {
-  white-space: nowrap;
-}
-.threads td.t {
-  width: 100%;
-}
-.threads span {
-  margin-right: 5px;
-}
-.threads-phone small {
-  margin-right: 10px;
-}
-.threads-phone td {
-  width: 700px;
-}
-.threads-phone span {
-  margin-right: 10px;
-}
-.posts {
-  border-bottom: 1px solid #ddd;
-}
-.posts .post {
-  border-top: 1px solid #ddd;
-}
-.posts .post h5 small,
-.posts .post h4 small {
-  margin-left: 15px;
-}
-.posts .post .files {
+.form-row {
   margin-bottom: 10px;
 }
-.posts .post .t {
+.form-row label {
+  display: block;
+}
+.form-action {
+  margin-top: 25px;
+}
+.alert {
+  margin-bottom: 5px;
+}
+#threads td {
+  white-space: nowrap;
+}
+#threads td.t {
+  width: 100%;
+}
+#threads span {
+  margin-right: 5px;
+}
+#threads-phone small {
+  margin-right: 10px;
+}
+#threads-phone td {
+  width: 700px;
+}
+#threads-phone span {
+  margin-right: 10px;
+}
+#posts {
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 20px;
+}
+#posts .post {
+  border-top: 1px solid #ddd;
+}
+#posts .post h5 small,
+#posts .post h4 small {
+  margin-left: 15px;
+}
+#posts .post .files {
+  margin-bottom: 10px;
+}
+#posts .post .t {
   clear: both;
   margin-bottom: 25px;
 }
-.posts .post .t pre {
+#posts .post .t pre {
   border: 0;
   background-color: white;
   margin: 0px;
@@ -51,9 +65,9 @@ body {
   white-space: pre-wrap;
   word-wrap: break-word;
 }
-.posts .post .t img {
+#posts .post .t img {
   vertical-align: top;
 }
-.posts .post .cmd {
+#posts .post .cmd {
   margin-bottom: 1em;
 }

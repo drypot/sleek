@@ -5,11 +5,11 @@ init.add(function () {
 
 	window.post = {};
 
-	post.initThreadPage = function () {
+	post.initThreadAndPosts = function () {
 
 		return;
 
-		var $posts = $content.find('.posts');
+		var $posts = $('#posts');
 
 		//var imgFile = /.*\.(jpg|jpeg|gif|png)$/i;
 
@@ -93,86 +93,102 @@ init.add(function () {
 //	if (target) $(target).attachScroller()
 //}
 
-})
-
+});
 
 init.add(function() {
+	var $form = $('#reply-form');
+	var $writer = $form.find('[name=writer]');
+	var $send = $form.find('[name=send]');
+	var $sending = $form.find('[name=sending]');
 
-	// New Thread
+	post.initReplyForm = function () {
+		$writer.val(post.savedWriter());
+		$form.ajaxForm({
+			dataType: 'json',
+			beforeSend: function () {
+				alerts.clear($form);
+				$send.addClass('hide');
+				$sending.removeClass('hide');
+			},
+			success: function (body) {
+				var err = body.err;
+				if (err && err.rc === error.INVALID_DATA) {
+					for (var i = 0; i < err.fields.length; i++) {
+						var field = err.fields[i];
+						alerts.add($form.find('[name="' + field.name + '"]'), field.msg);
+					}
+					return;
+				}
+				if (err) {
+					showError.system(body.err);
+					return;
+				}
+				post.saveWriter($writer.val());
+				location = '/threads/' + body.tid;
+			},
+			error: function (xhr, textStatus, errorThrown) {
+				var message = textStatus || errorThrown || 'Unknown Error';
+				showError.system({ message: message });
+			},
+			complete: function () {
+				$send.removeClass('hide');
+				$sending.addClass('hide');
+			}
+		});
+	};
+});
 
-	var $form,
-		$category,
-		$writer,
-		$title,
-		$text,
-		$send,
-		$sending;
+init.add(function() {
+	var $form = $('#new-form');
+	var $category = $form.find('[name=category]');
+	var $writer = $form.find('[name=writer]');
+	var $title = $form.find('[name=title]');
+	var $send = $form.find('[name=send]');
+	var $sending = $form.find('[name=sending]');
 
-	post.initNewThread = function () {
-		$form = $('#new-form');
-		$category = $form.find('[name=category]');
-		$writer = $form.find('[name=writer]');
-		$title = $form.find('[name=title]');
-		$text = $form.find('[name=text]');
-		$send = $form.find('[name=send]');
-		$sending = $form.find('[name=sending]');
-
+	post.initNewForm = function () {
 		if (query.c) {
 			$category.val(query.c);
 		}
-
 		$writer.val(post.savedWriter());
-
 		if ($writer.val()) {
 			$title.focus();
 		} else {
 			$writer.focus();
 		}
-
-		$send.click(sendForm);
-	}
-
-	function sendForm() {
-		var post = {
-			cid: $category.val(),
-			writer: $writer.val(),
-			title: $title.val(),
-			text: $text.val()
-		}
-		alerts.clear($content);
-		showSending();
-		request.post('/api/threads').send(post).end(function (err, res) {
-			showSend();
-			err = err || res.error || res.body.err;
-			if (err.rc && err.rc == error.INVALID_DATA) {
-				for (var i = 0; i < err.fields.length; i++) {
-					var field = err.fields[i];
-					alerts.add($form.find('[name="' + field.name + '"]'))
+		$form.ajaxForm({
+			dataType: 'json',
+			beforeSend: function () {
+				alerts.clear($form);
+				$send.addClass('hide');
+				$sending.removeClass('hide');
+			},
+			success: function (body) {
+				var err = body.err;
+				if (err && err.rc === error.INVALID_DATA) {
+					for (var i = 0; i < err.fields.length; i++) {
+						var field = err.fields[i];
+						alerts.add($form.find('[name="' + field.name + '"]'), field.msg);
+					}
+					return;
 				}
-				_.each(res.body.error, function (error, field) {
-					_.each(error, function (error) {
-						l.form.addAlert(, error);
-					});
-				})
-				return
+				if (err) {
+					showError.system(body.err);
+					return;
+				}
+				post.saveWriter($writer.val());
+				location = '/threads/' + body.tid;
+			},
+			error: function (xhr, textStatus, errorThrown) {
+				var message = textStatus || errorThrown || 'Unknown Error';
+				showError.system({ message: message });
+			},
+			complete: function () {
+				$send.removeClass('hide');
+				$sending.addClass('hide');
 			}
-			if (err) return msgBox.error(err);
-			l.post.saveWriter(post.writer);
-			location = '/thread/' + res.body.tid;
 		});
-
-		return false;
-	}
-
-	function showSend() {
-		$send.show();
-		$sending.hide();
-	}
-
-	function showSending() {
-		$send.hide();
-		$sending.show();
-	}
+	};
 
 	post.saveWriter = function (writer) {
 		localStorage.setItem('writer', writer);
@@ -181,6 +197,11 @@ init.add(function() {
 	post.savedWriter = function () {
 		return localStorage.getItem('writer') || '';
 	}
+
+});
+
+init.add(function() {
+
 
 	// TODO: 파일 첨부
 
