@@ -15,11 +15,11 @@ block content
 			.page-header
 				h2 Edit Post
 
-			form#edit-form(action="/api/threads", method="post", enctype="multipart/form-data")
+			form#edit-form(action='/api/threads/' + thread._id + '/' + post._id, method='post', enctype='multipart/form-data')
 				if post.head
 					.form-row
 						select.col-lg-4(name='cid')
-							for c in user.categoriesForNew
+							for c in user.categoriesOrdered
 								option(value=c.id, selected=c.id==category.id) #{c.name}
 				.form-row
 					label 필명
@@ -50,8 +50,8 @@ block content
 
 //
 //								<% if (authService.isAdmin()) { %>
-//						<div class="label">기타<div>
-//						<div class="input"><form:checkbox path="post.visible" label="Visible"/></div>
+//						<div class='label'>기타<div>
+//						<div class='input'><form:checkbox path='post.visible' label='Visible'/></div>
 //					<% } %>
-//					<div class="submit"><input class="submit" type="submit" value="Submit"/></div>
+//					<div class='submit'><input class='submit' type='submit' value='Submit'/></div>
 //				</form:form>

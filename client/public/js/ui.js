@@ -49,8 +49,30 @@ init.add(function () {
 		$control.before($alert);
 	};
 
+	alerts.fill = function ($form, fields) {
+		for (var i = 0; i < fields.length; i++) {
+			var field = fields[i];
+			alerts.add($form.find('[name="' + field.name + '"]'), field.msg);
+		}
+	}
 });
 
+init.add(function () {
+
+	window.Sender = function ($form) {
+		var $send = $form.find('[name=send]');
+		var $sending = $form.find('[name=sending]');
+		this.beforeSend = function () {
+			$send.addClass('hide');
+			$sending.removeClass('hide');
+		};
+		this.complete = function () {
+			$send.removeClass('hide');
+			$sending.addClass('hide');
+		};
+	};
+
+});
 
 init.add(function () {
 
@@ -60,8 +82,8 @@ init.add(function () {
 	});
 
 	$('#new-btn').click(function () {
-		if (query.c) {
-			location='/threads/new?c=' + query.c;
+		if (url.query.c) {
+			location='/threads/new?c=' + url.query.c;
 		} else {
 			location='/threads/new';
 		}

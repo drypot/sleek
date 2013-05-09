@@ -18,7 +18,7 @@ init.add(function () {
 			res.json({
 				user: {
 					name: user.name,
-					categoriesForMenu: user.categoriesForMenu
+					categoriesOrdered: user.categoriesOrdered
 				},
 				uploadUrl: config.data.uploadUrl
 			});

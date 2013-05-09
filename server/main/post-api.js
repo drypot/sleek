@@ -12,13 +12,23 @@ init.add(function () {
 		req.findUser(function (err, user) {
 			if (err) return res.jsonErr(err);
 			var params = post.makeThreadsParams(req);
-			post.findThreads(user, params, function (err, category, threads, last) {
-				if (err) return res.jsonErr(err);
-				res.json({
-					threads: threads,
-					last: last
+			if (params.cid) {
+				post.findThreadsByCategory(user, params, function (err, category, threads, last) {
+					if (err) return res.jsonErr(err);
+					res.json({
+						threads: threads,
+						last: last
+					});
 				});
-			});
+			} else {
+				post.findThreads(user, params, function (err, threads, last) {
+					if (err) return res.jsonErr(err);
+					res.json({
+						threads: threads,
+						last: last
+					});
+				});
+			}
 		});
 	});
 
@@ -116,7 +126,7 @@ init.add(function () {
 			form.pid = parseInt(req.params.pid) || 0;
 			post.update(user, form, req.session.posts, function (err) {
 				if (err) return res.jsonErr(err);
-				res.json({});
+				res.jsonEmpty();
 			});
 		});
 	}

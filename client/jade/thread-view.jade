@@ -13,12 +13,13 @@ block content
 
 	.container
 		.col-lg-12
+
 			.page-header
 				h2 #{thread.title}
 
 			#posts
 				for post in posts
-					.post(id=post.id)
+					.post(id=post._id)
 						h5 #{post.writer}
 							small !{post.createdStr}
 						if post.files
@@ -30,7 +31,10 @@ block content
 							pre #{post.text}
 						if post.editable
 							.cmd
-								a.btn(href='/threads/' + thread._id + '/' + post.id + '/edit') Edit
+								a.btn.btn-small.btn-default(href='/threads/' + thread._id + '/' + post._id + '/edit') Edit
+
+			.page-header
+				h2 Reply
 
 			form#reply-form(action='/api/threads/' + thread._id, method="post", enctype="multipart/form-data")
 				.form-row

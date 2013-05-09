@@ -56,6 +56,9 @@ init.add(function () {
 
 	app.use(express.errorHandler());
 
+
+	// req, res utilities
+
 	should.not.exist(app.request.findUser);
 	app.request.findUser = function (userName, next) {
 		if (typeof userName === 'function') {
@@ -115,6 +118,7 @@ init.add(function () {
 		log += ' ' + config.data.port;
 		console.log(log);
 	};
+
 
 	// for test
 

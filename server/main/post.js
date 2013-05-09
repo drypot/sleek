@@ -35,7 +35,7 @@ init.add(function () {
 					if (err) return next(err);
 					insertThread(tid, form, function (err, thread) {
 						if (err) return next(err);
-						insertPost(pid, thread, category, form, saved, function (err) {
+						insertPost(pid, thread, user, form, saved, function (err) {
 							if (err) return next(err);
 							next(null, tid, pid);
 						});
@@ -55,7 +55,7 @@ init.add(function () {
 					var pid = mongo.getNewPostId();
 					upload.savePostFiles(pid, form.files, function (err, saved) {
 						if (err) return next(err);
-						insertPost(pid, thread, category, form, saved, function (err) {
+						insertPost(pid, thread, user, form, saved, function (err) {
 							if (err) return next(err);
 							mongo.updateThreadLength(thread._id, form.now, function (err) {
 								if (err) return next(err);
@@ -75,7 +75,7 @@ init.add(function () {
 				if (err) return next(err);
 				categoryForUpdate(user, thread.cid, function (err, category) {
 					if (err) return next(err);
-					if (!isEditable(category, post._id, editables)) {
+					if (!isEditable(user, post._id, editables)) {
 						return next(error(error.NOT_AUTHORIZED));
 					}
 					var head = isHead(thread, post);
@@ -87,7 +87,7 @@ init.add(function () {
 								if (err) return next(err);
 								upload.savePostFiles(post._id, form.files, function (err, saved) {
 									if (err) return next(err);
-									updatePost(thread, post, category, form, deleted, saved, next);
+									updatePost(thread, post, user, form, deleted, saved, next);
 								});
 							});
 						});
@@ -109,6 +109,35 @@ init.add(function () {
 	}
 
 	exports.findThreads = function (user, params, next) {
+		var categories = user.categories;
+		var threads = [];
+		var count = 0;
+		var cursor = mongo.findThreads(params.pg, params.pgsize);
+		function read() {
+			cursor.nextObject(function (err, thread) {
+				if (err) return next(err);
+				if (thread) {
+					count++;
+					var c = categories[thread.cid];
+					if (c) {
+						thread.category = {
+							id: c.id,
+							name: c.name
+						};
+						thread.udateStr = dt.format(thread.udate),
+						thread.udate = thread.udate.getTime(),
+						threads.push(thread);
+					}
+					setImmediate(read);
+					return;
+				}
+				next(null, threads, count !== params.pgsize);
+			});
+		}
+		read();
+	};
+
+	exports.findThreadsByCategory = function (user, params, next) {
 		categoryForRead(user, params.cid, function (err, category) {
 			if (err) return next(err);
 			var categories = user.categories;
@@ -120,14 +149,9 @@ init.add(function () {
 					if (err) return next(err);
 					if (thread) {
 						count++;
-						if (category.id !== 0 || categories[thread.cid]) {
-							thread.category = {
-								id: thread.cid
-							};
-							thread.udateStr = dt.format(thread.udate),
-							thread.udate = thread.udate.getTime(),
-							threads.push(thread);
-						}
+						thread.udateStr = dt.format(thread.udate),
+						thread.udate = thread.udate.getTime(),
+						threads.push(thread);
 						setImmediate(read);
 						return;
 					}
@@ -145,16 +169,15 @@ init.add(function () {
 				if (err) return next(err);
 				mongo.updateThreadHit(tid, function (err) {
 					if (err) return next(err);
-					var admin = category.editable;
 					var posts = [];
 					var cursor = mongo.findPostsByThread(tid);
 					function read() {
 						cursor.nextObject(function (err, post) {
 							if (err) return next(err);
 							if (post) {
-								if (post.visible || admin) {
+								if (post.visible || user.admin) {
 									addFileUrls(post);
-									post.editable = isEditable(category, post._id, editables);
+									post.editable = isEditable(user, post._id, editables);
 									post.cdateStr = dt.format(post.cdate),
 									post.cdate = post.cdate.getTime(),
 									posts.push(post);
@@ -180,7 +203,7 @@ init.add(function () {
 					if (err) return next(err);
 					addFileUrls(post);
 					post.head = isHead(thread, post);
-					post.editable = isEditable(category, post._id, editables)
+					post.editable = isEditable(user, post._id, editables)
 					post.cdateStr = dt.format(post.cdate);
 					post.cdate = post.cdate.getTime();
 					next(null, category, thread, post);
@@ -218,9 +241,6 @@ init.add(function () {
 		if (!category) {
 			return next(error(error.INVALID_CATEGORY));
 		}
-		if (!category.writable) {
-			return next(error(error.NOT_AUTHORIZED));
-		}
 		next(null, category);
 	}
 
@@ -228,9 +248,6 @@ init.add(function () {
 		var category = user.categories[cid];
 		if (!category) {
 			return next(error(error.INVALID_CATEGORY));
-		}
-		if (!category.readable) {
-			return next(error(error.NOT_AUTHORIZED));
 		}
 		next(null, category);
 	}
@@ -284,12 +301,12 @@ init.add(function () {
 		});
 	}
 
-	function insertPost(pid, thread, category, form, saved, next) {
+	function insertPost(pid, thread, user, form, saved, next) {
 		var post = {
 			_id: pid,
 			tid: thread._id,
 			cdate: form.now,
-			visible: category.editable ? form.visible : true,
+			visible: user.admin ? form.visible : true,
 			writer: form.writer,
 			text: form.text
 		};
@@ -302,12 +319,12 @@ init.add(function () {
 		});
 	}
 
-	function updatePost(thread, post, category, form, deleted, saved, next) {
+	function updatePost(thread, post, user, form, deleted, saved, next) {
 		updateThread(function (err) {
 			if (err) return next(err);
 			post.writer = form.writer;
 			post.text = form.text;
-			if (category.editable) {
+			if (user.admin) {
 				post.visible = form.visible;
 			}
 			if (deleted && post.files) {
@@ -357,8 +374,8 @@ init.add(function () {
 		return thread.cdate.getTime() === post.cdate.getTime();
 	}
 
-	function isEditable(category, pid, editables) {
-		return !!(category.editable || (editables && (editables.indexOf(pid) !== -1)));
+	function isEditable(user, pid, editables) {
+		return !!(user.admin || (editables && (editables.indexOf(pid) !== -1)));
 	}
 
 });

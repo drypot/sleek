@@ -120,7 +120,7 @@ describe("session info", function () {
 			should(!res.error);
 			should(!res.body.err);
 			res.body.user.name.should.equal('user');
-			should.exist(res.body.user.categoriesForMenu);
+			should.exist(res.body.user.categoriesOrdered);
 			next();
 		});
 	});
@@ -215,14 +215,14 @@ describe("accessing /test/user/admin", function () {
 	});
 });
 
-describe("user.categoriesForMenu", function () {
+describe("user.categoriesOrdered", function () {
 	var categories;
 	it("given user session", function (next) {
 		ufix.loginUser(next);
 	});
-	it("given categoriesForMenu", function (next) {
+	it("given categoriesOrdered", function (next) {
 		express.get('/api/sessions', function (err, res) {
-			categories = res.body.user.categoriesForMenu;
+			categories = res.body.user.categoriesOrdered;
 			next();
 		});
 	});
@@ -237,8 +237,6 @@ describe("user.categoriesForMenu", function () {
 		var cx = find(100);
 		should.exist(cx);
 		cx.should.property('name');
-		cx.should.property('readable');
-		cx.should.property('writable');
 	});
 	it("should not have category 40", function () {
 		var cx = find(40);
@@ -247,9 +245,9 @@ describe("user.categoriesForMenu", function () {
 	it("given admin session", function (next) {
 		ufix.loginAdmin(next);
 	});
-	it("given categoriesForMenu", function (next) {
+	it("given categoriesOrdered", function (next) {
 		express.get('/api/sessions', function (err, res) {
-			categories = res.body.user.categoriesForMenu;
+			categories = res.body.user.categoriesOrdered;
 			next();
 		});
 	});
@@ -257,8 +255,6 @@ describe("user.categoriesForMenu", function () {
 		var cx = find(100);
 		should.exist(cx);
 		cx.should.property('name');
-		cx.should.property('readable');
-		cx.should.property('writable');
 	});
 	it("should have category 40", function () {
 		var cx = find(40);

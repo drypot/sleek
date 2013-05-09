@@ -47,7 +47,7 @@ init.add(function () {
 			res.body.hits.hits.forEach(function (hit) {
 				var s = hit._source;
 				var category = categories[s.cid];
-				if (category && (s.visible || category.editable)) {
+				if (category && (s.visible || user.admin)) {
 					results.push({
 						pid: hit._id,
 						tid: s.tid,

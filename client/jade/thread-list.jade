@@ -5,8 +5,6 @@ block title
 
 block content
 
-	- var categories = user.categories
-
 	.container
 		.col-lg-12
 			.page-header
@@ -21,9 +19,9 @@ block content
 									span #{thread.title}
 									if thread.length > 1
 										| [!{thread.length - 1}]
-							if category.id === 0
+							if category.id == 0
 								td
-									a(href="/threads?c=" + thread.category.id) #{categories[thread.category.id].name}
+									a(href="/threads?c=" + thread.category.id) #{thread.category.name}
 							td #{thread.writer}
 							td !{thread.hit}
 							td !{thread.udateStr}
@@ -48,7 +46,7 @@ block content
 									small !{thread.udateStr}
 									if category.id === 0
 										small
-											a(href="/threads?c=" + thread.category.id) #{categories[thread.category.id].name}
+											a(href="/threads?c=" + thread.category.id) #{thread.category.name}
 					else
 						tr
 							td.t 표시할 내용이 없습니다.

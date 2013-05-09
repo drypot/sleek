@@ -93,64 +93,17 @@ init.add(function () {
 //	if (target) $(target).attachScroller()
 //}
 
-});
-
-init.add(function() {
-	var $form = $('#reply-form');
-	var $writer = $form.find('[name=writer]');
-	var $send = $form.find('[name=send]');
-	var $sending = $form.find('[name=sending]');
-
-	post.initReplyForm = function () {
-		$writer.val(post.savedWriter());
-		$form.ajaxForm({
-			dataType: 'json',
-			beforeSend: function () {
-				alerts.clear($form);
-				$send.addClass('hide');
-				$sending.removeClass('hide');
-			},
-			success: function (body) {
-				var err = body.err;
-				if (err && err.rc === error.INVALID_DATA) {
-					for (var i = 0; i < err.fields.length; i++) {
-						var field = err.fields[i];
-						alerts.add($form.find('[name="' + field.name + '"]'), field.msg);
-					}
-					return;
-				}
-				if (err) {
-					showError.system(body.err);
-					return;
-				}
-				post.saveWriter($writer.val());
-				location = '/threads/' + body.tid;
-			},
-			error: function (xhr, textStatus, errorThrown) {
-				var message = textStatus || errorThrown || 'Unknown Error';
-				showError.system({ message: message });
-			},
-			complete: function () {
-				$send.removeClass('hide');
-				$sending.addClass('hide');
-			}
-		});
-	};
-});
-
-init.add(function() {
-	var $form = $('#new-form');
-	var $category = $form.find('[name=category]');
-	var $writer = $form.find('[name=writer]');
-	var $title = $form.find('[name=title]');
-	var $send = $form.find('[name=send]');
-	var $sending = $form.find('[name=sending]');
-
 	post.initNewForm = function () {
-		if (query.c) {
-			$category.val(query.c);
+		var $form = $('#new-form');
+		var $category = $form.find('[name=category]');
+		var $writer = $form.find('[name=writer]');
+		var $title = $form.find('[name=title]');
+		var sender = new Sender($form);
+
+		if (url.query.c) {
+			$category.val(url.query.c);
 		}
-		$writer.val(post.savedWriter());
+		restoreWriter($writer);
 		if ($writer.val()) {
 			$title.focus();
 		} else {
@@ -160,42 +113,82 @@ init.add(function() {
 			dataType: 'json',
 			beforeSend: function () {
 				alerts.clear($form);
-				$send.addClass('hide');
-				$sending.removeClass('hide');
+				sender.beforeSend();
 			},
-			success: function (body) {
-				var err = body.err;
-				if (err && err.rc === error.INVALID_DATA) {
-					for (var i = 0; i < err.fields.length; i++) {
-						var field = err.fields[i];
-						alerts.add($form.find('[name="' + field.name + '"]'), field.msg);
-					}
-					return;
-				}
-				if (err) {
-					showError.system(body.err);
-					return;
-				}
-				post.saveWriter($writer.val());
-				location = '/threads/' + body.tid;
-			},
-			error: function (xhr, textStatus, errorThrown) {
-				var message = textStatus || errorThrown || 'Unknown Error';
-				showError.system({ message: message });
-			},
-			complete: function () {
-				$send.removeClass('hide');
-				$sending.addClass('hide');
-			}
+			success: ajaxFormSuccess($form, function () {
+				saveWriter($writer);
+				location = '/threads';
+			}),
+			error: ajaxFormError,
+			complete: sender.complete
 		});
 	};
 
-	post.saveWriter = function (writer) {
-		localStorage.setItem('writer', writer);
+	post.initReplyForm = function () {
+		var $form = $('#reply-form');
+		var $writer = $form.find('[name=writer]');
+		var sender = new Sender($form);
+
+		restoreWriter($writer);
+		$form.ajaxForm({
+			dataType: 'json',
+			beforeSend: function () {
+				alerts.clear($form);
+				sender.beforeSend();
+			},
+			success: ajaxFormSuccess($form, function (body) {
+				saveWriter($writer);
+				location = '/threads/' + body.tid;
+			}),
+			error: ajaxFormError,
+			complete: sender.complete
+		});
+	};
+
+	post.initEditForm = function () {
+		var $form = $('#edit-form');
+		var sender = new Sender($form);
+
+		$form.ajaxForm({
+			dataType: 'json',
+			beforeSend: function () {
+				alerts.clear($form);
+				sender.beforeSend();
+			},
+			success: ajaxFormSuccess($form, function () {
+				location = '/threads/' + url.pathnames[1];
+			}),
+			error: ajaxFormError,
+			complete: sender.complete
+		});
+	};
+
+	function saveWriter($writer) {
+		localStorage.setItem('writer', $writer.val());
 	}
 
-	post.savedWriter = function () {
-		return localStorage.getItem('writer') || '';
+	function restoreWriter($writer) {
+		$writer.val(localStorage.getItem('writer') || '');
+	}
+
+	function ajaxFormSuccess($form, next) {
+		return function (body) {
+			var err = body.err;
+			if (err && err.rc === error.INVALID_DATA) {
+				alerts.fill($form, err.fields);
+				return;
+			}
+			if (err) {
+				showError.system(body.err);
+				return;
+			}
+			next(body);
+		};
+	}
+
+	function ajaxFormError(xhr, textStatus, errorThrown) {
+		var message = textStatus || errorThrown || 'Unknown Error';
+		showError.system({ message: message });
 	}
 
 });
@@ -232,5 +225,12 @@ init.add(function() {
 //		});
 //		ping();
 //	}
+
+
+
+// TODO: 최근글 하일라이트
+//				CharSequence titleCss = "thread" +
+//					(thread.getUdate().getMillis() > authService.getLastVisit().getMillis() ? " tn" : "") +
+//					(thread.getId() == postContext.getParam().getThreadId() ? " tc" : "");
 
 });

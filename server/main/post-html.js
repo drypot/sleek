@@ -13,23 +13,34 @@ init.add(function () {
 		req.findUser(function (err, user) {
 			if (err) return res.renderErr(err);
 			var params = post.makeThreadsParams(req);
-			post.findThreads(user, params, function (err, category, threads, last) {
-				if (err) return res.renderErr(err);
-
-// TODO: 최근글 하일라이트
-//				CharSequence titleCss = "thread" +
-//					(thread.getUdate().getMillis() > authService.getLastVisit().getMillis() ? " tn" : "") +
-//					(thread.getId() == postContext.getParam().getThreadId() ? " tc" : "");
-
-				prevNext(params, last, function (prevUrl, nextUrl) {
-					res.render('thread-list', {
-						category: category,
-						threads: threads,
-						prevUrl: prevUrl,
-						nextUrl: nextUrl
+			if (params.cid) {
+				post.findThreadsByCategory(user, params, function (err, category, threads, last) {
+					if (err) return res.renderErr(err);
+					prevNext(params, last, function (prevUrl, nextUrl) {
+						res.render('thread-list', {
+							category: category,
+							threads: threads,
+							prevUrl: prevUrl,
+							nextUrl: nextUrl
+						});
 					});
 				});
-			});
+			} else {
+				post.findThreads(user, params, function (err, threads, last) {
+					if (err) return res.renderErr(err);
+					prevNext(params, last, function (prevUrl, nextUrl) {
+						res.render('thread-list', {
+							category: {
+								id: 0,
+								name: 'all'
+							},
+							threads: threads,
+							prevUrl: prevUrl,
+							nextUrl: nextUrl
+						});
+					});
+				});
+			}
 		});
 	});
 

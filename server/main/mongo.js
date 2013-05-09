@@ -79,12 +79,12 @@ init.add(function (next) {
 			threads.findOne({ _id: id }, next);
 		};
 
+		exports.findThreads = function (pg, pgsize) {
+			return threads.find({}).sort({ udate: -1 }).skip((Math.abs(pg) - 1) * pgsize).limit(pgsize);
+		};
+
 		exports.findThreadsByCategory = function (cid, pg, pgsize) {
-			var sel = {};
-			if (cid) {
-				sel.cid = cid;
-			}
-			return threads.find(sel).sort({ udate: -1 }).skip((Math.abs(pg) - 1) * pgsize).limit(pgsize);
+			return threads.find({ cid: cid }).sort({ udate: -1 }).skip((Math.abs(pg) - 1) * pgsize).limit(pgsize);
 		};
 
 		threads = exports.threads = db.collection("threads");

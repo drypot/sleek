@@ -8,21 +8,21 @@ before(function (next) {
 	init.run(next);
 });
 
-describe("findUserByName()", function () {
-	it("can find user by name", function () {
+describe("finding user by name", function () {
+	it("should success", function () {
 		user9.findUserByName('user').name.should.equal('user');
 		user9.findUserByName('cheater').name.should.equal('cheater');
 		user9.findUserByName('admin').name.should.equal('admin');
-		should.not.exist(user9.findUserByName('xxx'));
+		should(!user9.findUserByName('xxx'));
 	});
 });
 
-describe("findUserByPassword()", function () {
-	it("can find user by password", function () {
+describe("finding user by password", function () {
+	it("should success", function () {
 		user9.findUserByPassword('1').name.should.equal('user');
 		user9.findUserByPassword('2').name.should.equal('cheater');
 		user9.findUserByPassword('3').name.should.equal('admin');
-		should.not.exist(user9.findUserByPassword('x'));
+		should(!user9.findUserByPassword('x'));
 	})
 });
 
@@ -30,25 +30,44 @@ describe("user", function () {
 	var user;
 	before(function () {
 		user = user9.findUserByName('user');
+		should(user);
 	});
-	it("should have all category", function () {
-		var c = user.categories[0];
-		c.should.ok;
-		c.name.should.equal('all');
-		c.readable.should.ok;
-		c.writable.should.not.ok;
-		c.editable.should.not.ok;
+	it("should not be admin", function () {
+		should(!user.admin);
 	});
-	it("should have freetalk", function () {
+	it("can access freetalk", function () {
 		var c = user.categories[100];
-		c.should.ok;
 		c.name.should.equal('freetalk');
-		c.readable.should.ok;
-		c.writable.should.ok;
-		c.editable.should.not.ok;
 	});
-	it("should not have cheat", function () {
+	it("can not access cheat", function () {
 		var c = user.categories[60];
+		should(!c);
+	});
+	it("can not access recycle bin", function () {
+		var c = user.categories[40];
+		should(!c);
+	});
+});
+
+describe("cheater", function () {
+	var user;
+	before(function () {
+		user = user9.findUserByName('cheater');
+		should(user);
+	});
+	it("should not be admin", function () {
+		should(!user.admin);
+	});
+	it("can access freetalk", function () {
+		var c = user.categories[100];
+		c.name.should.equal('freetalk');
+	});
+	it("can access cheat", function () {
+		var c = user.categories[60];
+		c.name.should.equal('cheat');
+	});
+	it("can not access recycle bin", function () {
+		var c = user.categories[40];
 		should(!c);
 	});
 });
@@ -58,28 +77,19 @@ describe("admin", function () {
 	before(function () {
 		user = user9.findUserByName('admin');
 	});
-	it("should have all category", function () {
-		var c = user.categories[0];
-		c.should.ok;
-		c.name.should.equal('all');
-		c.readable.should.ok;
-		c.writable.should.not.ok;
-		c.editable.should.not.ok;
+	it("should be admin", function () {
+		should(user.admin);
 	});
-	it("should have freetalk", function () {
+	it("can access freetalk", function () {
 		var c = user.categories[100];
-		c.should.ok;
 		c.name.should.equal('freetalk');
-		c.readable.should.ok;
-		c.writable.should.ok;
-		c.editable.should.ok;
 	});
-	it("should have cheat", function () {
+	it("can access cheat", function () {
 		var c = user.categories[60];
-		c.should.ok;
 		c.name.should.equal('cheat');
-		c.readable.should.ok;
-		c.writable.should.ok;
-		c.editable.should.ok;
+	});
+	it("can access recycle bin", function () {
+		var c = user.categories[40];
+		c.name.should.equal('recycle bin');
 	});
 });

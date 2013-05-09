@@ -1,3 +1,13 @@
+
+process.on('uncaughtException', function (err) {
+	console.error('UNCAUGHT EXCEPTION');
+	if (err.stack) {
+		console.error(err.stack);
+	} else {
+		console.log(require('util').inspect(err));
+	}
+});
+
 var funcs;
 
 exports.add = function (func) {
