@@ -79,7 +79,6 @@ init.add(function () {
 
 	var empty = {};
 
-	should.not.exist(app.response.jsonEmpty);
 	app.response.jsonEmpty = function (err) {
 		this.json(empty);
 	}
@@ -87,7 +86,14 @@ init.add(function () {
 	var cut5LinesPattern = /^(?:.*\n){1,5}/m;
 	var emptyMatch = [''];
 
-	should.not.exist(app.response.jsonErr);
+	app.response.safeJson = function (obj) {
+		if (this.req.get('accept').indexOf('json') != -1) {
+			this.json(obj);
+		} else {
+			this.send(JSON.stringify(obj));
+		}
+	};
+
 	app.response.jsonErr = function (err) {
 		var err2 = {};
 		for (var key in err) {
@@ -95,10 +101,9 @@ init.add(function () {
 		}
 		err2.message = err.message;
 		err2.stack = (err.stack.match(cut5LinesPattern) || emptyMatch)[0];
-		this.json({ err: err2 });
+		this.safeJson({ err: err2 });
 	}
 
-	should.not.exist(app.response.renderErr);
 	app.response.renderErr = function (err) {
 		if (err.rc && err.rc == error.NOT_AUTHENTICATED) {
 			this.render('auto-login');

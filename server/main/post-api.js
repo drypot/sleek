@@ -80,7 +80,7 @@ init.add(function () {
 			post.createThread(user, form, function (err, tid, pid) {
 				if (err) return res.jsonErr(err);
 				req.session.posts.push(pid);
-				res.json({
+				res.safeJson({
 					tid: tid,
 					pid: pid
 				});
@@ -96,7 +96,7 @@ init.add(function () {
 			post.createReply(user, form, function (err, pid) {
 				if (err) return res.jsonErr(err);
 				req.session.posts.push(pid);
-				res.json({
+				res.safeJson({
 					tid: tid,
 					pid: pid
 				});
@@ -116,17 +116,11 @@ init.add(function () {
 		req.findUser(function (err, user) {
 			if (err) return res.jsonErr(err);
 			var form = post.makeForm(req);
-
-//			console.log(req.body);
-//			console.log(form);
-//			res.jsonErro(error(error.INVALID_DATA));
-//			return;
-
 			form.tid = parseInt(req.params.tid) || 0;
 			form.pid = parseInt(req.params.pid) || 0;
 			post.update(user, form, req.session.posts, function (err) {
 				if (err) return res.jsonErr(err);
-				res.jsonEmpty();
+				res.safeJson({});
 			});
 		});
 	}
