@@ -38,7 +38,7 @@ init.add(function () {
 				replace: '<span class="media-img"><a href="$1" target="_blank">$1</a></span>'
 			},
 			{	// url
-				pattern: /(https?:\/\/[^ "'>)]+)/g,
+				pattern: /(https?:\/\/[^ "'>)\n\r]+)/g,
 				replace: '<a href="$1" target="_blank">$1</a>'
 			}
 		];
