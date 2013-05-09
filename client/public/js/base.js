@@ -94,26 +94,14 @@ init.add(function () {
 
 init.add(function () {
 
-	window.ping = function () {
+	window.setInterval(function() {
 		request.get('/api/hello').end(function (err, res) {
-			if (err || !res.ok) {
+			if (err || res.error) {
 				console.log('ping: error');
 				return;
 			}
 			console.log('ping:');
 		});
-	};
-
-	window.ping.repeat = function () {
-		window.setInterval(function() {
-			request.get('/api/hello').end(function (err, res) {
-				if (err || !res.ok) {
-					console.log('ping: error');
-					return;
-				}
-				console.log('ping:');
-			});
-		}, 1000 * 60 * 5); // 5 min
-	};
+	}, 1000 * 60 * 5); // 5 min
 
 });
