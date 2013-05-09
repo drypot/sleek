@@ -21,13 +21,13 @@ block content
 				for post in posts
 					.post(id=post._id)
 						h5 #{post.writer}
-							small !{post.createdStr}
+							small !{post.cdateStr}
 						if post.files
-							.list-unstyled.files
+							.files
 								for file in post.files
 									.file
 										a(href=file.url, target='_blank') #{file.name}
-						.t
+						.text
 							pre #{post.text}
 						if post.editable
 							.cmd

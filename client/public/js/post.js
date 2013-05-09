@@ -5,51 +5,81 @@ init.add(function () {
 
 	window.post = {};
 
+	post.initThreadList = function () {
+// TODO: 최근글 하일라이트
+//				CharSequence titleCss = "thread" +
+//					(thread.getUdate().getMillis() > authService.getLastVisit().getMillis() ? " tn" : "") +
+//					(thread.getId() == postContext.getParam().getThreadId() ? " tc" : "");
+
+	}
+
 	post.initThreadAndPosts = function () {
 
-		return;
+		var patterns = [
+			{	// iframe
+				pattern: /(&lt;iframe.+?\/iframe&gt;)/gim,
+				replace: '<span class="media">$1</span>'
+			},
+			{	// object
+				pattern: /(&lt;object.+?\/object&gt;)/gim,
+				replace: '<span class="media">$1</span>'
+			},
+			{	// embed
+				pattern: /((?:&lt;embed.+?&gt;|&lt;\/embed&gt;)+)/gim,
+				replace: '<span class="media">$1</span>'
+			},
+			{
+				// img
+				pattern: /(&lt;img\s.+?&gt;)/gi,
+				replace: '<span class="media">$1</span>'
+			},
+			{	// img url
+				pattern: /(https?:\/\/[^ "'<>\n\r\)]+\.(jpg|jpeg|gif|png))(?=[\n ])/ig,
+				replace: '<span class="media-img"><a href="$1" target="_blank">$1</a></span>'
+			},
+			{	// url
+				pattern: /(https?:\/\/[^ "'>)]+)/g,
+				replace: '<a href="$1" target="_blank">$1</a>'
+			}
+		];
+
+		var $1pat = /\$1/g;
+
+		function tagUp(s, pi) {
+			if (pi == patterns.length) {
+				return s;
+			}
+			var p = patterns[pi];
+			var r = '';
+			var a = 0;
+			var match;
+			while(match = p.pattern.exec(s)) {
+				r += tagUp(s.slice(a, match.index), pi + 1);
+				r += p.replace.replace($1pat, match[1]);
+				a = match.index + match[0].length;
+			}
+			r += tagUp(s.slice(a), pi + 1);
+			return r;
+		}
 
 		var $posts = $('#posts');
 
-		//var imgFile = /.*\.(jpg|jpeg|gif|png)$/i;
-
-		var lineEnd = /(\r\n|\n|\r)/g;
-		var imgUrl = /(^|[^"'=])(https?:\/\/[^ "'<>\n\r\)]+\.(jpg|jpeg|gif|png))[\n ]/ig;
-		var simpleUrl = /(^|[^"'=])(https?:\/\/[^ "'<>\n\r\)]+)/g;
-		var imgTag = /(&lt;img\s.+?&gt;)/gi;
-		var aTag = /(&lt;a\s.+?(\/a|\s\/)&gt;)/gim;
-		var objectTag = /(&lt;object.+?\/object&gt;)/gim;
-		// object tag 안에 있는 embed 를 피하기 위해 임시로 ^ 를 검색 수식 앞에 삽입.
-		var embedTag = /^((?:&lt;embed.+?&gt;|&lt;\/embed&gt;)+)/gim;
-
-		$posts.find('.post .text').each(function () {
-
+		$posts.find('.text pre').each(function () {
+			$(this).html(tagUp($(this).html(), 0));
 		});
 
-		return;
-
-		// ).replace(lineEnd, '<br>')
-//		.replace(imgUrl, '$1<span class="media-img"><a href="$2" target="_blank">$2</a></span>')
-//			.replace(simpleUrl, '$1<a href="$2" target="_blank">$2</a>')
-//			.replace(imgTag, '<span class="media">$1</span>')
-//			.replace(aTag, '<span class="media-a">$1</span>')
-//			.replace(objectTag, '<span class="media">$1</span>')
-//			.replace(embedTag, '<span class="media">$1</span>')
+		function handle() {
+			return $('<button class="media-handle btn btn-mini btn-info">Show</button>');
+		}
 
 		$posts.find('.media-img').after(
-			$('<span class="media-handle">Show</span>').click(function () {
+			handle().click(function () {
 				var $handle = $(this);
-				var $ipt = $handle.prev();
+				var $media = $handle.prev();
 				if ($handle.text() === 'Show') {
 					$handle.after(
 						$('<div class="img"></div>').append(
-							$('img').attr('src', $ipt.children('a').attr('href')).error(function() {
-								var $this = $(this);
-								window.open($this.attr('src'), '_blank');
-								$this.parent().remove();
-								$handle.data('rendered', false);
-								$handle.text('Show');
-							})
+							$('<img>', { src: $media.children('a').attr('href') })
 						)
 					);
 					$handle.text('Hide');
@@ -59,39 +89,109 @@ init.add(function () {
 				}
 			})
 		);
-		$posts.find('.media-a').after(
-			$('<span class="media-handle">Show</span>').click(function () {
-				var $handle = $(this);
-				var $ipt = $handle.prev();
-				window.open($($ipt.text()).attr("href"), "_blank");
-			})
-		);
+
 		$posts.find('.media').after(
-			$('<span class="media-handle">Show</span>').click(function () {
+			handle().click(function () {
 				var $handle = $(this);
-				var $ipt = $handle.prev();
+				var $media = $handle.prev();
 				if ($handle.text() === 'Show') {
-					$handle.data("orgCode", $ipt.text());
-					$ipt.html($ipt.text());
+					$handle.data("org-code", $media.text());
+					$media.html($media.text());
 					$handle.text('Hide');
 				} else {
-					$ipt.text($handle.data("orgCode"));
+					$media.text($handle.data("org-code"));
 					$handle.text('Show');
 				}
 			})
 		);
+	};
+
+
+	// for files
+
+	jQuery.fn.faActivateAttachURL = function() {
+		return $(this).each(function() {
+			var url = $.trim($(this).text())
+			var nameIndex = url.lastIndexOf("/")
+			var baseURL = url.substring(0, nameIndex)
+			var fileName = url.substring(nameIndex + 1)
+			var encodedFileName = encodeURIComponent(fileName)
+			$(this).html(
+				/.*\.(jpg|jpeg|gif|png)$/i.test(fileName) ?
+					'<span class="au-target auurl"><a href="' + baseURL + '/' + encodedFileName + '" target="_blank">' + fileName + '</a></span>'	 :
+					'<a href="' + baseURL + '/' + encodedFileName + '" target="_blank">' + fileName + '</a>'
+			).faAttachGo()
+		})
 	}
 
-	//function initPostViewScroller(lastVisit) {
-//	var target = null;
-//	$(".posts .created").each(function(i) {
-//		if (this.innerHTML > lastVisit) {
-//			target = this;
-//			return false;
-//		}
-//	})
-//	if (target) $(target).attachScroller()
-//}
+
+	/*
+
+		jQuery.fn.attachScroller = function(callback) {
+			var target = this;
+			var y = 0;
+			var ny = 0;
+			var timer = null;
+
+			function scroll() {
+				var scrollTop = document.documentElement.scrollTop + document.body.scrollTop;
+				var dy = y - scrollTop;
+				var ay = Math.max(Math.abs(Math.round(dy * 0.15)), 1) * (dy < 0 ? -1 : 1);
+				clearTimeout(timer);
+				if (Math.abs(dy) > 3 && Math.abs(ny - scrollTop) < 3) {
+					ny = scrollTop + ay;
+					scrollTo(0, ny);
+					timer = setTimeout(scroll, 10);
+				} else {
+					if (callback) callback();
+				}
+			}
+
+			var viewportHeight = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight;
+			y = target.offset().top;
+			y = y - (viewportHeight / 4);
+			y = Math.round(Math.max(y, 0));
+			timer = setTimeout(scroll, 0);
+		}
+
+		function initPostView() {
+			//$(".text").faStripPre();
+			$(".files .file").faActivateAttachURL();
+			$(".text").faActivateURL();
+		}
+
+		function initPostViewScroller(lastVisit) {
+			var target = null;
+			$(".posts .cdate").each(function(i) {
+				if (this.innerHTML > lastVisit) {
+					target = this;
+					return false;
+				}
+			})
+			if (target) $(target).attachScroller()
+		}
+
+
+	*/
+
+	function initInputFile() {
+		var fileCount = 0;
+
+		function addFileInputTag() {
+			fileCount++;
+			$("#file").append("<input type=\"file\" name=\"file\" id=\"file" + fileCount + "\" class=\"file\" multiple=\"multiple\"/><br />");
+
+			if (fileCount >= 32) {
+				$("#addFile").parent("div").hide();
+			}
+		}
+
+		addFileInputTag();
+		$("#addFile").click(function(event) {
+			event.preventDefault();
+			addFileInputTag();
+		});
+	}
 
 	post.initNewForm = function () {
 		var $form = $('#new-form');
@@ -190,47 +290,5 @@ init.add(function () {
 		var message = textStatus || errorThrown || 'Unknown Error';
 		showError.system({ message: message });
 	}
-
-});
-
-init.add(function() {
-
-
-	// TODO: 파일 첨부
-
-//	var fileCount = 0;
-//
-//	function addFileInputTag() {
-//		fileCount++;
-//		$("#file").append("<input type=\"file\" name=\"file\" id=\"file" + fileCount + "\" class=\"file\" multiple=\"multiple\"/><br />");
-//
-//		if (fileCount >= 32) {
-//			$("#addFile").parent("div").hide();
-//		}
-//	}
-//
-//	function initPostForm() {
-//		addFileInputTag();
-//		$("#addFile").click(function(event) {
-//			event.preventDefault();
-//			addFileInputTag();
-//		});
-//		$("#post\\.writer").attachScroller(function() {
-//			var writer = $("#post\\.writer")[0];
-//			if (writer.value.length) {
-//				$("input[type=\"text\"][name!='post.writer'],textarea", writer.form)[0].focus();
-//			} else {
-//				writer.focus();
-//			}
-//		});
-//		ping();
-//	}
-
-
-
-// TODO: 최근글 하일라이트
-//				CharSequence titleCss = "thread" +
-//					(thread.getUdate().getMillis() > authService.getLastVisit().getMillis() ? " tn" : "") +
-//					(thread.getId() == postContext.getParam().getThreadId() ? " tc" : "");
 
 });

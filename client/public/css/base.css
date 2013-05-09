@@ -64,11 +64,11 @@ body {
 #posts .post .files {
   margin-bottom: 10px;
 }
-#posts .post .t {
+#posts .post .text {
   clear: both;
   margin-bottom: 25px;
 }
-#posts .post .t pre {
+#posts .post .text pre {
   border: 0;
   background-color: white;
   margin: 0px;
@@ -76,9 +76,15 @@ body {
   white-space: pre-wrap;
   word-wrap: break-word;
 }
-#posts .post .t img {
+#posts .post .text img {
   vertical-align: top;
 }
 #posts .post .cmd {
   margin-bottom: 1em;
+}
+#posts .post .media-handle {
+  margin-left: 8px;
+}
+#posts .post .media {
+  color: #56C0E0;
 }
