@@ -1,3 +1,4 @@
+var crypto = require('crypto');
 var bcrypt = require('bcrypt');
 
 var init = require('../main/init');
@@ -38,6 +39,15 @@ init.add(function () {
 		for (var uname in users) {
 			var user = users[uname];
 			if (bcrypt.compareSync(password, user.hash)) {
+				return user;
+			}
+		}
+		for (var uname in users) {
+			var user = users[uname];
+			var buf = new Buffer(password, 'ucs2');
+			var hash = crypto.createHash('sha256');
+			hash.update(buf);
+			if (hash.digest('base64') == user.hash) {
 				return user;
 			}
 		}

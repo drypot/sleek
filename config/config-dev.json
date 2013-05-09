@@ -21,10 +21,9 @@
 
 	"categories": [
 		{ "id": 100, "name": "freetalk", "users": ["user", "cheater"] },
+		{ "id": 106, "name": "funny", "users": ["user", "cheater"] },
 		{ "id": 104, "name": "health", "users": ["user", "cheater"] },
 		{ "id": 401, "name": "trade", "users": ["user", "cheater"] },
-		{ "id": 400, "name": "house109", "users": ["user", "cheater"] },
-		{ "id": 300, "name": "house", "users": ["user", "cheater"] },
 
 		{ "id": 102, "name": "blackkid", "users": ["user", "cheater"] },
 		{ "id": 220, "name": "epicure", "users": ["user", "cheater"] },
@@ -50,6 +49,11 @@
 
 		{ "id": 40, "name": "recycle bin", "users": [] },
 		{ "id": 50, "name": "test", "users": [] }
+	],
+
+	"unused": [
+		{ "id": 400, "name": "house109", "users": ["user", "cheater"] },
+		{ "id": 300, "name": "house", "users": ["user", "cheater"] }
 	]
 }
 

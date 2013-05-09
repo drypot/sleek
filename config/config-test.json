@@ -15,7 +15,7 @@
 
 	"users": [
 		{ "name": "user", "hash": "$2a$10$ku7nymS.1CPd8jMttYXZMe4wVWweWr1EqaYst75tzimQh2iAAqvZW" },
-		{ "name": "cheater", "hash": "$2a$10$UujeEPUXiV/ipq9Cl3htK.KrWLKHdxQcM5VFCBoxBV5pdNG3C2Exy" },
+		{ "name": "cheater", "hash": "kT2h+N9vj9R1k4QNUzugRYzJhzmWvzEEYKu0lbNMIyo=", "comment": "sha256 hashed" },
 		{ "name": "admin", "hash": "$2a$10$vIl4m5eO71dCHQmZH7/BxOwLIHZ/9NYASyosTHgtLEO/MRlCATU9S", "admin": true }
 	],
 
