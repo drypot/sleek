@@ -6,11 +6,15 @@ init.add(function () {
 	window.post = {};
 
 	post.initThreadList = function () {
-// TODO: 최근글 하일라이트
-//				CharSequence titleCss = "thread" +
-//					(thread.getUdate().getMillis() > authService.getLastVisit().getMillis() ? " tn" : "") +
-//					(thread.getId() == postContext.getParam().getThreadId() ? " tc" : "");
+		$('.threads .d').each(function () {
+			var $tar = $(this).closest('tr').find('a')
+			var udateStr = $(this).text();
+			if (dt.isNew(udateStr)) {
 
+			} else {
+				$tar.addClass('text-muted');
+			}
+		});
 	}
 
 	post.initThreadAndPosts = function () {
@@ -62,15 +66,15 @@ init.add(function () {
 			return r;
 		}
 
+		function handle() {
+			return $('<button class="media-handle btn btn-mini btn-info">Show</button>');
+		}
+
 		var $posts = $('#posts');
 
 		$posts.find('.text pre').each(function () {
 			$(this).html(tagUp($(this).html(), 0));
 		});
-
-		function handle() {
-			return $('<button class="media-handle btn btn-mini btn-info">Show</button>');
-		}
 
 		$posts.find('.media-img').after(
 			handle().click(function () {
@@ -104,8 +108,24 @@ init.add(function () {
 				}
 			})
 		);
-	};
 
+		var $scrollTarget = (function () {
+			var $target = null;
+			$posts.find(".d").each(function() {
+				var cdateStr = $(this).text();
+				if (dt.isNew(cdateStr)) {
+					$target = $(this);
+					return false;
+				}
+			});
+			return $target;
+		})();
+
+		if ($scrollTarget) {
+			var ey = Math.round(Math.max($scrollTarget.offset().top - ($window.height() / 4), 0));
+			$('body, html').animate({ scrollTop: ey }, 200);
+		}
+	};
 
 	// for files
 
@@ -123,56 +143,6 @@ init.add(function () {
 			).faAttachGo()
 		})
 	}
-
-
-	/*
-
-		jQuery.fn.attachScroller = function(callback) {
-			var target = this;
-			var y = 0;
-			var ny = 0;
-			var timer = null;
-
-			function scroll() {
-				var scrollTop = document.documentElement.scrollTop + document.body.scrollTop;
-				var dy = y - scrollTop;
-				var ay = Math.max(Math.abs(Math.round(dy * 0.15)), 1) * (dy < 0 ? -1 : 1);
-				clearTimeout(timer);
-				if (Math.abs(dy) > 3 && Math.abs(ny - scrollTop) < 3) {
-					ny = scrollTop + ay;
-					scrollTo(0, ny);
-					timer = setTimeout(scroll, 10);
-				} else {
-					if (callback) callback();
-				}
-			}
-
-			var viewportHeight = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight;
-			y = target.offset().top;
-			y = y - (viewportHeight / 4);
-			y = Math.round(Math.max(y, 0));
-			timer = setTimeout(scroll, 0);
-		}
-
-		function initPostView() {
-			//$(".text").faStripPre();
-			$(".files .file").faActivateAttachURL();
-			$(".text").faActivateURL();
-		}
-
-		function initPostViewScroller(lastVisit) {
-			var target = null;
-			$(".posts .cdate").each(function(i) {
-				if (this.innerHTML > lastVisit) {
-					target = this;
-					return false;
-				}
-			})
-			if (target) $(target).attachScroller()
-		}
-
-
-	*/
 
 	function initInputFile() {
 		var fileCount = 0;

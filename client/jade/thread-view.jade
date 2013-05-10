@@ -21,7 +21,7 @@ block content
 				for post in posts
 					.post(id=post._id)
 						h5 #{post.writer}
-							small !{post.cdateStr}
+							small.d !{post.cdateStr}
 						if post.files
 							.files
 								for file in post.files

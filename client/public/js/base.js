@@ -10,6 +10,11 @@ var request = superagent;
 			setItem: function () {},
 			removeItem: function () {}
 		}
+		window.sessionStorage = {
+			getItem: function () {},
+			setItem: function () {},
+			removeItem: function () {}
+		}
 	}
 
 	if (!window.console) {
@@ -30,13 +35,8 @@ var request = superagent;
 		funcs.push(func);
 	};
 
-	window.init.reset = function () {
-		funcs = [];
-	}
-
-	window.init.run = function () {
+	$(function () {
 		console.log('init:');
-		//console.log('before init: ' + Object.keys(window));
 
 		var i = 0;
 		var len = funcs.length;
@@ -44,17 +44,38 @@ var request = superagent;
 		for (i = 0; i < len; i++) {
 			funcs[i]();
 		}
-
-		//console.log('after init: ' + Object.keys(window));
-	};
-
-	init.reset();
-
-	$(function () {
-		init.run();
 	});
 
 })();
+
+init.add(function () {
+
+	window.dt = {};
+
+	function pad(n) {
+		var s = "0" + n;
+		return s.substr(s.length - 2, 2);
+	}
+
+	dt.format = function (d) {
+		return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' +
+			pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+	};
+
+	dt.isNew = function (d) {
+		return d > lastAccess;
+	};
+
+	var now = dt.format(new Date());
+	var lastAccess = sessionStorage.getItem('last-access');
+
+	if (!lastAccess) {
+		lastAccess = localStorage.getItem('last-access') || now;
+		sessionStorage.setItem('last-access', lastAccess);
+	}
+	localStorage.setItem('last-access', now);
+
+});
 
 init.add(function () {
 

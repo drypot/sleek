@@ -44,11 +44,14 @@ body {
 #threads-phone small {
   margin-right: 10px;
 }
-#threads-phone td {
-  width: 700px;
-}
 #threads-phone span {
   margin-right: 10px;
+}
+#threads-phone td {
+  width: 1000px;
+}
+.threads {
+  margin-bottom: 20px;
 }
 #posts {
   border-bottom: 1px solid #ddd;

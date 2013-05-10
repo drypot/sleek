@@ -15,7 +15,7 @@ block content
 			.page-header
 				h2 #{category.name}
 
-			table#threads.table.table-hover.hidden-phone
+			table#threads.threads.table.table-hover.hidden-phone
 				tbody
 					for thread in threads
 						tr
@@ -29,14 +29,14 @@ block content
 									a(href="/threads?c=" + thread.category.id) #{thread.category.name}
 							td #{thread.writer}
 							td !{thread.hit}
-							td !{thread.udateStr}
+							td.d !{thread.udateStr}
 					else
 						tr
 							td.t 표시할 내용이 없습니다.
 							td
 
 
-			table#threads-phone.table.table-hover.visible-phone
+			table#threads-phone.threads.table.table-hover.visible-phone.col-lg-12
 				tbody
 					for thread in threads
 						tr
@@ -48,7 +48,7 @@ block content
 								div
 									small #{thread.writer}
 									small !{thread.hit}
-									small !{thread.udateStr}
+									small.d !{thread.udateStr}
 									if category.id === 0
 										small
 											a(href="/threads?c=" + thread.category.id) #{thread.category.name}
@@ -57,7 +57,7 @@ block content
 							td.t 표시할 내용이 없습니다.
 							td
 
-			ul.pager(style='text-align: left;')
+			ul.pager(style='text-align: left; margin-left:0px;')
 				if locals.prevUrl
 					li
 						a(href=prevUrl) Previous
