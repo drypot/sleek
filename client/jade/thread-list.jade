@@ -20,7 +20,7 @@ block content
 					for thread in threads
 						tr
 							td.t
-								a(href="/threads/" + thread._id)
+								a.text-muted(href="/threads/" + thread._id)
 									span #{thread.title}
 									if thread.length > 1
 										| [!{thread.length - 1}]
@@ -41,7 +41,7 @@ block content
 					for thread in threads
 						tr
 							td
-								a(href="/threads/" + thread._id)
+								a.text-muted(href="/threads/" + thread._id)
 									span #{thread.title}
 									if thread.length > 1
 										| [!{thread.length - 1}]

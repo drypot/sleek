@@ -10,9 +10,7 @@ init.add(function () {
 			var $tar = $(this).closest('tr').find('a')
 			var udateStr = $(this).text();
 			if (dt.isNew(udateStr)) {
-
-			} else {
-				$tar.addClass('text-muted');
+				$tar.removeClass('text-muted');
 			}
 		});
 	}
