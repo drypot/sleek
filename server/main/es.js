@@ -68,7 +68,7 @@ init.add(function (next) {
 		});
 	};
 
-	exports.update = function (thread, post, next) {
+	exports.updatePost = function (thread, post, next) {
 		return next();
 
 		var form = {
@@ -88,7 +88,7 @@ init.add(function (next) {
 		});
 	};
 
-	exports.getPost = function (pid, next) {
+	exports.findPost = function (pid, next) {
 		return next();
 
 		request.get(url + '/post/' + pid, function (err, res) {

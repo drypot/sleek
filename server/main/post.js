@@ -1,9 +1,14 @@
+var fs = require('fs');
+var path = require('path');
+
+var init = require('../main/init');
 var l = require('../main/l');
 var dt = require('../main/dt');
-var init = require('../main/init');
+var fs2 = require('../main/fs');
+var config = require('../main/config');
 var mongo = require('../main/mongo');
-var es = require('../main/es');
 var upload = require('../main/upload');
+var es = require('../main/es');
 var error = require('../main/error');
 
 init.add(function () {
@@ -19,7 +24,7 @@ init.add(function () {
 		form.title = String(body.title || '').trim();
 		form.text = String(body.text || '');
 		form.visible = !!(body.hasOwnProperty('visible') ? body.visible : true);
-		form.files = body.files;
+		form.files = req.files && req.files.file;
 		form.delFiles = body.delFiles;
 		return form;
 	};
@@ -31,7 +36,7 @@ init.add(function () {
 				if (err) return next(err);
 				var tid = mongo.getNewThreadId();
 				var pid = mongo.getNewPostId();
-				upload.savePostFiles(pid, form.files, function (err, saved) {
+				saveFiles(pid, form.files, function (err, saved) {
 					if (err) return next(err);
 					insertThread(tid, form, function (err, thread) {
 						if (err) return next(err);
@@ -53,7 +58,7 @@ init.add(function () {
 				checkForm(form, false, function (err) {
 					if (err) return next(err);
 					var pid = mongo.getNewPostId();
-					upload.savePostFiles(pid, form.files, function (err, saved) {
+					saveFiles(pid, form.files, function (err, saved) {
 						if (err) return next(err);
 						insertPost(pid, thread, user, form, saved, function (err) {
 							if (err) return next(err);
@@ -68,7 +73,7 @@ init.add(function () {
 		});
 	};
 
-	exports.update = function (user, form, editables, next) {
+	exports.updatePost = function (user, form, editables, next) {
 		findThread(form.tid, function (err, thread) {
 			if (err) return next(err);
 			findPost(thread, form.pid, function (err, post) {
@@ -83,9 +88,9 @@ init.add(function () {
 						if (err) return next(err);
 						checkForm(form, head, function (err) {
 							if (err) return next(err);
-							upload.deletePostFiles(post._id, form.delFiles, function (err, deleted) {
+							deleteFiles(post._id, form.delFiles, function (err, deleted) {
 								if (err) return next(err);
-								upload.savePostFiles(post._id, form.files, function (err, saved) {
+								saveFiles(post._id, form.files, function (err, saved) {
 									if (err) return next(err);
 									updatePost(thread, post, user, form, deleted, saved, next);
 								});
@@ -284,6 +289,74 @@ init.add(function () {
 		});
 	}
 
+	exports.filePath = function (pid) {
+		return upload.pubPost + '/' + Math.floor(pid / 10000) + '/' + pid
+	};
+
+	exports.fileUrl = function (pid, fname) {
+		return config.data.uploadUrl + '/post/' + Math.floor(pid / 10000) + '/' + pid + '/' + encodeURIComponent(fname);
+	}
+
+	function addFileUrls(post) {
+		if (!post.files) {
+			return;
+		}
+		for (var i = 0; i < post.files.length; i++) {
+			var file = post.files[i];
+			file.url = exports.fileUrl(post._id, file.name);
+		}
+	}
+
+	function saveFiles (pid, files, next) {
+		if (!files || files.length == 0) {
+			return next();
+		}
+		if (!Array.isArray(files)) {
+			files = [files];
+		}
+		fs2.mkdirs(exports.filePath(pid), function (err, dir) {
+			if (err) return next(err);
+			var saved = [];
+			var i = 0;
+			function save() {
+				if (i == files.length) {
+					return next(null, saved);
+				}
+				var file = files[i++];
+				var safeName = fs2.safeFilename(path.basename(file.name));
+				fs.rename(file.path, dir + '/' + safeName, function (err) {
+					if (err) return next(err);
+					saved.push({ name: safeName });
+					setImmediate(save);
+				});
+			}
+			save();
+		});
+	}
+
+	function deleteFiles(pid, files, next) {
+		if (!files || files.length == 0) {
+			return next();
+		}
+		var dir = exports.filePath(pid);
+		var deleted = [];
+		var i = 0;
+		function del() {
+			if (i == files.length) {
+				return next(null, deleted);
+			}
+			var file = files[i++];
+			var name = path.basename(file);
+			var p = dir + '/' + name;
+			fs.unlink(p, function (err) {
+				if (err && err.code !== 'ENOENT') return next(err);
+				deleted.push(name);
+				setImmediate(del);
+			});
+		}
+		del();
+	}
+
 	function insertThread(tid, form, next) {
 		var thread = {
 			_id : tid,
@@ -315,7 +388,7 @@ init.add(function () {
 		}
 		mongo.insertPost(post, function (err) {
 			if (err) return next(err);
-			es.update(thread, post, next);
+			es.updatePost(thread, post, next);
 		});
 	}
 
@@ -344,7 +417,7 @@ init.add(function () {
 			}
 			mongo.updatePost(post, function (err) {
 				if (err) return next(err);
-				es.update(thread, post, next);
+				es.updatePost(thread, post, next);
 			});
 		});
 
@@ -357,16 +430,6 @@ init.add(function () {
 			} else {
 				next();
 			}
-		}
-	}
-
-	function addFileUrls(post) {
-		if (!post.files) {
-			return;
-		}
-		for (var i = 0; i < post.files.length; i++) {
-			var file = post.files[i];
-			file.url = upload.postFileUrl(post._id, file.name);
 		}
 	}
 

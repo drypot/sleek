@@ -30,7 +30,7 @@ init.add(function () {
 			posts.nextObject(function (err, post) {
 				if (err) return next(err);
 				if (post) {
-					es.update(thread, post, function (err) {
+					es.updatePost(thread, post, function (err) {
 						count++;
 						if (count % 1000 === 0) {
 							process.stdout.write(count + ' ');

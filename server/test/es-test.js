@@ -86,7 +86,7 @@ describe.skip("filling db", function () {
 				return;
 			};
 			var doc = docs[i++];
-			es.update(doc.thread, doc.post, function (err, res) {
+			es.updatePost(doc.thread, doc.post, function (err, res) {
 				should(!err);
 				should(res.statusCode == 201 || res.statusCode == 200);
 				res.body.ok.should.true;
@@ -96,10 +96,10 @@ describe.skip("filling db", function () {
 	});
 });
 
-describe.skip("getPost", function () {
+describe.skip("findPost", function () {
 	it("should success for head", function (next) {
 		var doc0 = docs[0];
-		es.getPost(doc0.post._id, function (err, res) {
+		es.findPost(doc0.post._id, function (err, res) {
 			should(!err);
 			should(!res.error);
 			res.body._id.should.equal(doc0.post._id);
@@ -116,7 +116,7 @@ describe.skip("getPost", function () {
 	});
 	it("should success for reply", function (next) {
 		var doc1 = docs[1];
-		es.getPost(doc1.post._id, function (err, res) {
+		es.findPost(doc1.post._id, function (err, res) {
 			should(!err);
 			should(!res.error);
 			res.body._id.should.equal(doc1.post._id);

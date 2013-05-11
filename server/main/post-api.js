@@ -118,7 +118,7 @@ init.add(function () {
 			var form = post.makeForm(req);
 			form.tid = parseInt(req.params.tid) || 0;
 			form.pid = parseInt(req.params.pid) || 0;
-			post.update(user, form, req.session.posts, function (err) {
+			post.updatePost(user, form, req.session.posts, function (err) {
 				if (err) return res.jsonErr(err);
 				res.safeJson({});
 			});
