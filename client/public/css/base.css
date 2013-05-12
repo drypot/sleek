@@ -65,6 +65,7 @@ body {
   margin-bottom: 25px;
 }
 #posts .post .text pre {
+  font-family: monospace;
   font-size: 14px;
   border: 0;
   background-color: white;
@@ -112,4 +113,7 @@ form p.error {
 }
 form .alert {
   margin-bottom: 5px;
+}
+form textarea {
+  font-family: monospace;
 }
