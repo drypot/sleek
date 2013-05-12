@@ -183,8 +183,10 @@ init.add(function () {
 				saveWriter($writer);
 				location = '/threads';
 			}),
-			error: ajaxFormError,
-			complete: sender.complete
+			error: function () {
+				ajaxFormError();
+				sender.complete();
+			}
 		});
 	};
 
@@ -204,8 +206,10 @@ init.add(function () {
 				saveWriter($writer);
 				location = '/threads/' + body.tid;
 			}),
-			error: ajaxFormError,
-			complete: sender.complete
+			error: function () {
+				ajaxFormError();
+				sender.complete();
+			}
 		});
 	};
 
@@ -222,8 +226,10 @@ init.add(function () {
 			success: ajaxFormSuccess($form, function () {
 				location = '/threads/' + url.pathnames[1];
 			}),
-			error: ajaxFormError,
-			complete: sender.complete
+			error: function () {
+				ajaxFormError();
+				sender.complete();
+			}
 		});
 	};
 
