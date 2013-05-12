@@ -3,7 +3,10 @@ init.add(function () {
 
 	window.session = {};
 
-	var $loginSec;
+	var $loginSec = $('#login-sec');
+	var $password = $loginSec.find('[name=password]');
+	var $remember = $loginSec.find('[name=remember]');
+	var $send = $loginSec.find('[name=send]')
 
 	session.initLogin = function () {
 		trySavedPassword(function (err, success) {
@@ -12,9 +15,9 @@ init.add(function () {
 				location = '/threads';
 				return;
 			}
-			$loginSec = $('#login-sec');
 			$loginSec.removeClass('hide');
-			$loginSec.find('[name=submit]').click(sendLoginForm);
+			$password.focus();
+			$send.click(sendLoginForm);
 		});
 	};
 
@@ -49,8 +52,6 @@ init.add(function () {
 	}
 
 	function sendLoginForm() {
-		var $password = $loginSec.find('[name=password]');
-		var $remember = $loginSec.find('[name=remember]');
 		alerts.clear($loginSec);
 		request.post('/api/sessions').send({ password: $password.val() }).end(function (err, res) {
 			err = err || res.error;

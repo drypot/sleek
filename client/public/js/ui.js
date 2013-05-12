@@ -40,13 +40,14 @@ init.add(function () {
 	alerts.clear = function ($sec) {
 		$sec.find('.alert').remove();
 		$sec.find('.has-error').removeClass('has-error');
+		$sec.find('.text-danger').remove();
 	};
 
 	alerts.add = function ($control, msg) {
-		var $alert = $('<div>').addClass('alert alert-danger').text(msg);
 		var $group = $control.closest('div');
 		$group.addClass('has-error');
-		$control.before($alert);
+		//$control.before($('<div>').addClass('alert alert-danger').text(msg));
+		$group.append($('<p>').addClass('error text-danger').text(msg));
 	};
 
 	alerts.fill = function ($form, fields) {
@@ -55,6 +56,51 @@ init.add(function () {
 			alerts.add($form.find('[name="' + field.name + '"]'), field.msg);
 		}
 	}
+});
+
+init.add(function () {
+
+	window.upload = {};
+
+	var $fileTempl = $('#input-file-templ');
+	var $files = $('form .file-group .files');
+	var $add = $('form .file-group .actions button');
+	var basename = /[^\\]+$/;
+
+	upload.add = function () {
+		if (msie) {
+			$files.append($('<div class="file"><input type="file" name="file"></div>'));
+			return;
+		}
+		var $set = $fileTempl.children(0).clone();
+		var $file = $set.find('input[type="file"]');
+		var $text = $set.find('input[type="text"]');
+		var $btn = $set.find('button');
+		$btn.click(function () {
+			$file.click();
+			return false;
+		});
+		$file.change(function () {
+			var files = $file[0].files;
+			var text;
+			if (files && files.length > 1) {
+				text = files.length + ' files';
+			} else {
+				text = basename.exec($file.val())[0];
+			}
+			$text.val(text);
+		})
+		$files.append($set);
+	}
+
+	if ($files.length) {
+		upload.add();
+		$add.click(function () {
+			upload.add();
+			return false;
+		});
+	}
+
 });
 
 init.add(function () {
@@ -90,40 +136,6 @@ init.add(function () {
 		return false;
 	});
 });
-
-//
-//init.add(function () {
-//
-//	// TODO:
-//
-//	jQuery.fn.attachScroller = function(callback) {
-//		var target = this;
-//		var y = 0;
-//		var ny = 0;
-//		var timer = null;
-//
-//		function scroll() {
-//			var scrollTop = document.documentElement.scrollTop + document.body.scrollTop;
-//			var dy = y - scrollTop;
-//			var ay = Math.max(Math.abs(Math.round(dy * 0.15)), 1) * (dy < 0 ? -1 : 1);
-//			clearTimeout(timer);
-//			if (Math.abs(dy) > 3 && Math.abs(ny - scrollTop) < 3) {
-//				ny = scrollTop + ay;
-//				scrollTo(0, ny);
-//				timer = setTimeout(scroll, 10);
-//			} else {
-//				if (callback) callback();
-//			}
-//		}
-//
-//		var viewportHeight = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight;
-//		y = target.offset().top;
-//		y = y - (viewportHeight / 4);
-//		y = Math.round(Math.max(y, 0));
-//		timer = setTimeout(scroll, 0);
-//	}
-//
-//});
 
 init.add(function () {
 

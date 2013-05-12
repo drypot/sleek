@@ -47,7 +47,7 @@ init.add(function () {
 
 		var $1pat = /\$1/g;
 
-		function tagUp(s, pi) {
+		function tagUpText(s, pi) {
 			if (pi == patterns.length) {
 				return s;
 			}
@@ -56,12 +56,18 @@ init.add(function () {
 			var a = 0;
 			var match;
 			while(match = p.pattern.exec(s)) {
-				r += tagUp(s.slice(a, match.index), pi + 1);
+				r += tagUpText(s.slice(a, match.index), pi + 1);
 				r += p.replace.replace($1pat, match[1]);
 				a = match.index + match[0].length;
 			}
-			r += tagUp(s.slice(a), pi + 1);
+			r += tagUpText(s.slice(a), pi + 1);
 			return r;
+		}
+
+		var imgPattern = /.*\.(jpg|jpeg|gif|png)$/i;
+
+		function tagUpFile(file) {
+			return
 		}
 
 		function handle() {
@@ -71,7 +77,14 @@ init.add(function () {
 		var $posts = $('#posts');
 
 		$posts.find('.text pre').each(function () {
-			$(this).html(tagUp($(this).html(), 0));
+			$(this).html(tagUpText($(this).html(), 0));
+		});
+
+		$posts.find('.file a').each(function () {
+			var $this = $(this);
+			if (imgPattern.test($this.attr('href'))) {
+				$this.wrap('<span class="media-img"></span>');
+			}
 		});
 
 		$posts.find('.media-img').after(
@@ -124,23 +137,6 @@ init.add(function () {
 			$('body, html').animate({ scrollTop: ey }, 200);
 		}
 	};
-
-	// for files
-
-	jQuery.fn.faActivateAttachURL = function() {
-		return $(this).each(function() {
-			var url = $.trim($(this).text())
-			var nameIndex = url.lastIndexOf("/")
-			var baseURL = url.substring(0, nameIndex)
-			var fileName = url.substring(nameIndex + 1)
-			var encodedFileName = encodeURIComponent(fileName)
-			$(this).html(
-				/.*\.(jpg|jpeg|gif|png)$/i.test(fileName) ?
-					'<span class="au-target auurl"><a href="' + baseURL + '/' + encodedFileName + '" target="_blank">' + fileName + '</a></span>'	 :
-					'<a href="' + baseURL + '/' + encodedFileName + '" target="_blank">' + fileName + '</a>'
-			).faAttachGo()
-		})
-	}
 
 	function initInputFile() {
 		var fileCount = 0;

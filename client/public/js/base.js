@@ -23,6 +23,8 @@ var request = superagent;
 		}
 	}
 
+	window.msie = /msie/.test(navigator.userAgent.toLowerCase());
+
 })();
 
 (function () {
@@ -62,18 +64,33 @@ init.add(function () {
 			pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
 	};
 
-	dt.isNew = function (d) {
-		return d > lastAccess;
-	};
+	var key = 'last-access-2';
+	var now = dt.now = new Date();
+	var lastSession, lastSessionStr;
+	var lastAccess;
+	var v;
 
-	var now = dt.format(new Date());
-	var lastAccess = sessionStorage.getItem('last-access');
+	v = localStorage.getItem(key);
+	lastAccess = v ? new Date(v) : now;
 
-	if (!lastAccess) {
-		lastAccess = localStorage.getItem('last-access') || now;
-		sessionStorage.setItem('last-access', lastAccess);
+	v = sessionStorage.getItem(key);
+	if (v) {
+		lastSession = new Date(v);
+		if (now.getTime() - lastAccess.getTime() > 30 * 60 * 1000) {
+			lastSession = undefined;
+		}
 	}
-	localStorage.setItem('last-access', now);
+	if (!lastSession) {
+		lastSession = lastAccess;
+		sessionStorage.setItem(key, lastAccess.toISOString());
+	}
+
+	lastSessionStr = dt.format(lastSession);
+	localStorage.setItem(key, now.toISOString());
+
+	dt.isNew = function (d) {
+		return d > lastSessionStr;
+	};
 
 });
 

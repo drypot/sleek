@@ -38,19 +38,15 @@ block content
 
 			form#reply-form(action='/api/threads/' + thread._id, method="post", enctype="multipart/form-data")
 				.form-row
-					div
-						label 필명
-					input.col-lg-4(name='writer', type='text', value='', maxlength='32')
+					label.control-label 필명
+					input.input-with-feedback.col-lg-4(type='text', name='writer', value='', maxlength='32')
 				.form-row
-					div
-						label 내용
-					textarea(name='text', rows=10)
-				//
-					.well.well-small
-					input.file(name='files', type='file', multiple='multiple')
-					br
-					button.btn.btn-small
-						i.icon-plus
+					label.control-label 내용
+					textarea.input-with-feedback(name='text', rows=10)
+				.form-row.file-group.clearfix
+					.files.col.col-lg-7
+					.actions.col.col-lg-1
+						button.btn.glyphicon.glyphicon-plus
 				.form-action
 					button.btn.btn-primary(name='send', type='submit') Send
 					button.btn.disabled.hide(name='sending', type='button') Sending

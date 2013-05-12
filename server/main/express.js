@@ -88,11 +88,12 @@ init.add(function () {
 
 	app.response.safeJson = function (obj) {
 		// IE9 + ajaxForm + multipart/form-data 사용할 경우 application/json 으로 리턴하면 저장하려든다.
+		//console.log(this.req.headers);
 		var accept = this.req.get('accept');
-		if (!accept /* superagent */ || accept.indexOf('json') != -1) {
-			this.json(obj);
-		} else {
+		if (accept && accept.indexOf('text/html') != -1) {
 			this.send(JSON.stringify(obj));
+		} else {
+			this.json(obj);
 		}
 	};
 

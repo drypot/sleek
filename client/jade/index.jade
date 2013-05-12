@@ -15,10 +15,10 @@ block content
 
 		form#login-form
 			.form-row
-				label Password
-				input.col-lg-3(name='password', type='password')
+				label.control-label Password
+				input.col-lg-3.input-with-feedback(name='password', type='password')
 			.checkbox
 				label Remember
 				input(name='remember', type='checkbox')
 			.form-action
-				button.btn.btn-primary(name='submit', type='submit') Login
+				button.btn.btn-primary(name='send') Login

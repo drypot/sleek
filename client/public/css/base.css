@@ -19,19 +19,6 @@ body {
   padding-left: 0px;
   padding-right: 15px;
 }
-.form-row {
-  margin-bottom: 10px;
-}
-.form-row label {
-  display: block;
-}
-.form-action {
-  margin-top: 25px;
-  margin-bottom: 20px;
-}
-.alert {
-  margin-bottom: 5px;
-}
 #threads td {
   white-space: nowrap;
 }
@@ -67,11 +54,18 @@ body {
 #posts .post .files {
   margin-bottom: 10px;
 }
+#posts .post .files .file {
+  margin-bottom: 3px;
+}
+#posts .post .files .file img {
+  margin-top: 3px;
+}
 #posts .post .text {
   clear: both;
   margin-bottom: 25px;
 }
 #posts .post .text pre {
+  font-size: 14px;
   border: 0;
   background-color: white;
   margin: 0px;
@@ -90,4 +84,32 @@ body {
 }
 #posts .post .media {
   color: #56C0E0;
+}
+form .form-row {
+  margin-bottom: 10px;
+}
+form .form-row label {
+  display: block;
+}
+form .form-action {
+  margin-top: 25px;
+  margin-bottom: 20px;
+}
+form .file-group .col {
+  padding: 0px;
+  margin-right: 5px;
+}
+form .file-group .files .file {
+  margin-bottom: 5px;
+}
+form .file-group .files .file input[type=file] {
+  width: 100%;
+}
+form p.error {
+  display: block;
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+form .alert {
+  margin-bottom: 5px;
 }

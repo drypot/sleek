@@ -22,28 +22,25 @@ block content
 							for c in user.categoriesOrdered
 								option(value=c.id, selected=c.id==category.id) #{c.name}
 				.form-row
-					label 필명
-					input.col-lg-4(type='text', name='writer', value=post.writer, maxlength='32')
+					label.control-label 필명
+					input.input-with-feedback.col-lg-4(type='text', name='writer', value=post.writer, maxlength='32')
 				if post.head
 					.form-row
-						label 제목
-						input.col-lg-12(type='text', name='title', value=thread.title, maxlength='128')
+						label.control-label 제목
+						input.input-with-feedback.col-lg-12(type='text', name='title', value=thread.title, maxlength='128')
 				.form-row
-					label 내용
-					textarea(name='text', rows=13) #{post.text}
-				//-
-					.well.well-small
-						#file-input-holder
-							input(type='file', name='files', multiple='multiple')
-						button#add-file-input.btn.btn-small
-							i.icon-plus
-				//-
-					if post.files
-						.form-row
-							label 삭제할 파일
-							// ...
-
-				if user
+					label.control-label 내용
+					textarea.input-with-feedback(name='text', rows=13) #{post.text}
+				.form-row.file-group.clearfix
+					.files.col.col-lg-7
+					.actions.col.col-lg-1
+						button.btn.glyphicon.glyphicon-plus
+				if post.files
+					.form-row
+						for file in post.files
+							.checkbox
+								label delete #{file.name}
+									input(type='checkbox', name='delFiles', value=file.name)
 				.form-action
 					button.btn.btn-primary(type='submit', name='send') Send
 					button.btn.disabled.hide(type='button', name='sending')
