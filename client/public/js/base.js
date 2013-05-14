@@ -54,9 +54,25 @@ init.add(function () {
 
 	window.dt = {};
 
-	function pad(n) {
-		var s = "0" + n;
-		return s.substr(s.length - 2, 2);
+	function pad(number) {
+		var r = String(number);
+		if ( r.length === 1 ) {
+			r = '0' + r;
+		}
+		return r;
+	}
+
+	if (!Date.prototype.toISOString) {
+		Date.prototype.toISOString = function() {
+			return this.getUTCFullYear()
+				+ '-' + pad( this.getUTCMonth() + 1 )
+				+ '-' + pad( this.getUTCDate() )
+				+ 'T' + pad( this.getUTCHours() )
+				+ ':' + pad( this.getUTCMinutes() )
+				+ ':' + pad( this.getUTCSeconds() )
+				+ '.' + String( (this.getUTCMilliseconds()/1000).toFixed(3) ).slice( 2, 5 )
+				+ 'Z';
+		};
 	}
 
 	dt.format = function (d) {

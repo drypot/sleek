@@ -1,7 +1,10 @@
 
-function pad(n) {
-	var s = "0" + n;
-	return s.substr(s.length - 2, 2);
+function pad(number) {
+	var r = String(number);
+	if ( r.length === 1 ) {
+		r = '0' + r;
+	}
+	return r;
 }
 
 exports.format = function (d) {
