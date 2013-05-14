@@ -33,7 +33,7 @@ describe.skip("searching", function () {
 		{ cid:  40, writer: 'admin',   title: 'title 8', text: 'text 8' }
 	];
 
-	it("given no session", function (next) {
+	it("given logged out", function (next) {
 		ufix.logout(next);
 	});
 	it("should fail", function (next) {

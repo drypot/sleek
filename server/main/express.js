@@ -41,35 +41,45 @@ init.add(function () {
 
 	app.use(express.bodyParser({ uploadDir: upload.tmp }));
 
+	var apiRe = /^\/api\//;
+
 	app.use(function (req, res, next) {
-		res.locals.user = user9.findUserByName(req.session.userName);
-		next();
-	});
-
-	app.use(app.router);
-
-	var apiPath = /^\/api\//;
-	app.all('*', function (req, res, next) {
-		if (apiPath.test(req.path)) {
+		var api = res.locals.api = apiRe.test(req.path);
+		if (api) {
 			// solve IE ajax caching problem.
 			res.set('Cache-Control', 'no-cache');
 		} else {
-			// force web pages cacehd.
+			// force web page cacehd.
 			res.set('Cache-Control', 'private');
 		}
 		next();
 	});
 
+	exports.autoLogin = function (req, res, next) {
+		next();
+	}
+
+	app.use(function (req, res, next) {
+		if (res.locals.user || res.locals.api) return next();
+		exports.autoLogin(req, res, next);
+	});
+
+	app.use(function (req, res, next) {
+		res.locals.user = user9.findUserByName(req.session.uname);
+		next();
+	});
+
+	app.use(app.router);
+
 	app.use(express.errorHandler());
 
 
-	// req, res utilities
+	// request utilities
 
-	should.not.exist(app.request.findUser);
-	app.request.findUser = function (userName, next) {
-		if (typeof userName === 'function') {
-			next = userName;
-			userName = null;
+	app.request.findUser = function (uname, next) {
+		if (typeof uname === 'function') {
+			next = uname;
+			uname = null;
 		}
 		var req = this;
 		var res = this.res;
@@ -77,11 +87,14 @@ init.add(function () {
 		if (!user) {
 			return next(error(error.NOT_AUTHENTICATED));
 		}
-		if (userName && userName !== user.name) {
+		if (uname && uname !== user.name) {
 			return next(error(error.NOT_AUTHORIZED));
 		}
 		next(null, user);
 	};
+
+
+	// response utilities
 
 	var cut5LinesPattern = /^(?:.*\n){1,5}/m;
 	var emptyMatch = [''];
@@ -144,4 +157,7 @@ init.add(function () {
 		})(method)
 	}
 
+	exports.newTestSession = function () {
+		request = require('superagent').agent();
+	}
 });

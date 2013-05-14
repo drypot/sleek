@@ -30,7 +30,7 @@ describe("listing threads", function () {
 		{ cid: 400, writer: 'snowman', title: 'title 7', text: 'text 7' }
 	];
 
-	it("given no session", function (next) {
+	it("given logged out", function (next) {
 		ufix.logout(next);
 	});
 	it("should fail", function (next) {

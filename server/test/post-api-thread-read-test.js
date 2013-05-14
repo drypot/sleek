@@ -20,7 +20,7 @@ before(function () {
 });
 
 describe("reading thread and posts", function () {
-	it("given no session", function (next) {
+	it("given logged out", function (next) {
 		ufix.logout(next);
 	});
 	it("should fail", function (next) {

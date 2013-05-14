@@ -28,16 +28,14 @@ init.add(function () {
 		if (!user) {
 			return res.jsonErr(error(error.INVALID_PASSWORD));
 		}
-		req.session.regenerate(function (err) {
+		if (req.body.remember) {
+			res.cookie('password', req.body.password, {
+				maxAge: 30 * 24 * 60 * 60 * 1000,
+				httpOnly: true
+			});
+		}
+		initSession(req, user, function (err) {
 			if (err) return res.jsonErr(err);
-			if (req.cookies && req.cookies.lv3) {
-				res.clearCookie('lv3');
-				res.clearCookie('lv');
-				res.clearCookie('ph');
-				res.clearCookie('uname');
-			}
-			req.session.userName = user.name;
-			req.session.posts = [];
 			res.json({
 				user: {
 					name: user.name
@@ -46,7 +44,28 @@ init.add(function () {
 		});
 	});
 
+	express.autoLogin = function (req, res, next) {
+		var password = req.cookies.password;
+		if (!password) return next();
+		var user = user9.findUserByPassword(password);
+		if (!user) {
+			res.clearCookie('password');
+			return next();
+		}
+		initSession(req, user, next);
+	};
+
+	function initSession(req, user, next) {
+		req.session.regenerate(function (err) {
+			if (err) return next(err);
+			req.session.uname = user.name;
+			req.session.posts = [];
+			next();
+		});
+	}
+
 	app.del('/api/sessions', function (req, res) {
+		res.clearCookie('password');
 		req.session.destroy();
 		res.json({});
 	});

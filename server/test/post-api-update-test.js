@@ -21,7 +21,7 @@ before(function () {
 
 describe("updating", function () {
 	var tid1, pid1;
-	it("given no session", function (next) {
+	it("given logged out", function (next) {
 		ufix.logout(next);
 	});
 	it("should fail", function (next) {
