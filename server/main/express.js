@@ -60,13 +60,17 @@ init.add(function () {
 	}
 
 	app.use(function (req, res, next) {
-		if (res.locals.user || res.locals.api) return next();
-		exports.autoLogin(req, res, next);
-	});
-
-	app.use(function (req, res, next) {
-		res.locals.user = user9.findUserByName(req.session.uname);
-		next();
+		var uname = req.session.uname;
+		if (uname) {
+			res.locals.user = user9.findUserByName(uname);
+			return next();
+		}
+		if (res.locals.api) return next();
+		exports.autoLogin(req, res, function (err) {
+			if (err) return next(err);
+			res.locals.user = user9.findUserByName(req.session.uname);
+			next();
+		});
 	});
 
 	app.use(app.router);
@@ -122,7 +126,7 @@ init.add(function () {
 
 	app.response.renderErr = function (err) {
 		if (err.rc && err.rc == error.NOT_AUTHENTICATED) {
-			this.render('auto-login');
+			this.redirect('/');
 			return;
 		}
 		var err2 = {};

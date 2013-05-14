@@ -29,8 +29,8 @@ html
 
 	body
 		// navbar
-		.navbar.navbar-static-top
-			.container
+		.container
+			.navbar
 				if user
 					a.navbar-brand(href='/threads') #{siteTitle}
 					.pull-right
@@ -42,16 +42,16 @@ html
 				else
 					a.navbar-brand(href='/') #{siteTitle}
 
-
 		block content
 
 		if user
 			#categories.container
 				hr
-				ul.list-inline(style='margin: 5px')
-					li: a(href='/threads') all
-					for c in user.categoriesOrdered
-						li: a(href='/threads?c=' + c.id) #{c.name}
+				.content
+					ul.list-inline(style='margin: 5px')
+						li: a(href='/threads') all
+						for c in user.categoriesOrdered
+							li: a(href='/threads?c=' + c.id) #{c.name}
 
 		#error-modal.modal
 			.modal-dialog

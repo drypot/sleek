@@ -11,9 +11,9 @@ init.add(function () {
 	app.get('/', function (req, res) {
 		if (res.locals.user) {
 			res.redirect('/threads');
-		} else {
-			res.render('index');
+			return;
 		}
+		res.render('login');
 	});
 
 });

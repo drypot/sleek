@@ -131,7 +131,7 @@ describe("thread collection", function () {
 		});
 		it("should success with cid 0", function (next) {
 			var threads = [];
-			var cursor = mongo.findThreadsByCategory(0, 1, 99);
+			var cursor = mongo.findThreads(1, 99);
 			function read() {
 				cursor.nextObject(function (err, t) {
 					should(!err);
@@ -169,7 +169,7 @@ describe("thread collection", function () {
 		});
 		it("should success when page is 2", function (next) {
 			var threads = [];
-			var cursor = mongo.findThreadsByCategory(0, 2, 3);
+			var cursor = mongo.findThreads(2, 3);
 			function read() {
 				cursor.nextObject(function (err, t) {
 					should(!err);

@@ -4,9 +4,9 @@ body {
 .navbar {
   margin-bottom: 0px;
 }
-.container {
-  padding-left: 8px;
-  padding-right: 8px;
+.content {
+  padding-left: 5px;
+  padding-right: 5px;
 }
 .page-header {
   border: 0;
@@ -14,6 +14,9 @@ body {
 }
 #categories {
   margin-top: 0px;
+}
+#categories hr {
+  margin-bottom: 8px;
 }
 #categories ul li {
   padding-left: 0px;
@@ -36,6 +39,10 @@ body {
 }
 .threads {
   margin-bottom: 20px;
+}
+.pager {
+  text-align: left;
+  margin-left: 0px;
 }
 #posts {
   border-bottom: 1px solid #ddd;

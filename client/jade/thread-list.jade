@@ -11,7 +11,7 @@ block content
 		});
 
 	.container
-		.col-lg-12
+		.content
 			.page-header
 				h2 #{category.name}
 
@@ -58,7 +58,7 @@ block content
 							td.t 표시할 내용이 없습니다.
 							td
 
-			ul.pager(style='text-align: left; margin-left:0px;')
+			ul.pager
 				if locals.prevUrl
 					li
 						a(href=prevUrl) Previous

@@ -168,6 +168,7 @@ init.add(function () {
 	};
 
 	exports.findThreadAndPosts = function (user, tid, editables, next) {
+		console.log(editables);
 		findThread(tid, function (err, thread) {
 			if (err) return next(err);
 			categoryForRead(user, thread.cid, function (err, category) {

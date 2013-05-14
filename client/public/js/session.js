@@ -3,79 +3,36 @@ init.add(function () {
 
 	window.session = {};
 
-	var $loginSec = $('#login-sec');
-	var $password = $loginSec.find('[name=password]');
-	var $remember = $loginSec.find('[name=remember]');
-	var $send = $loginSec.find('[name=send]')
-
 	session.initLogin = function () {
-		trySaved(function (err, success) {
-			if (err) return showError.system(err);
-			if (success) {
+		var $form = $('#login-form');
+		var $password = $form.find('[name=password]');
+		var $remember = $form.find('[name=remember]');
+		var $send = $form.find('[name=send]');
+
+		$password.focus();
+		$send.click(function sendLoginForm() {
+			alerts.clear($form);
+			var form = {
+				password: $password.val(),
+				remember: $remember.prop('checked')
+			};
+			request.post('/api/sessions').send(form).end(function (err, res) {
+				err = err || res.error;
+				if (err) return showError.system(err);
+				if (res.body.err) {
+					alerts.add($password, res.body.err.message);
+					return;
+				}
 				location = '/threads';
-				return;
-			}
-			$loginSec.removeClass('hide');
-			$password.focus();
-			$send.click(sendLoginForm);
+			});
+			return false;
 		});
 	};
-
-	session.initAutoLogin = function () {
-		trySaved(function (err, success) {
-			if (err) {
-				showError.system(err, function () {
-					location = '/';
-				});
-				return
-			}
-			if (success) {
-				location.reload();
-				return;
-			}
-			location = '/';
-		});
-	}
-
-	function trySaved(next) {
-		var pw = localStorage.getItem('password');
-		if (!pw) return next(null, false);
-		console.log('trying saved password,');
-		request.post('/api/sessions').send({ password: pw }).end(function (err, res) {
-			err = err || res.error || res.body.err;
-			if (err) {
-				localStorage.removeItem('password');
-				return next(err, false);
-			}
-			next(null, true);
-		});
-	}
-
-	function sendLoginForm() {
-		alerts.clear($loginSec);
-		request.post('/api/sessions').send({ password: $password.val() }).end(function (err, res) {
-			err = err || res.error;
-			if (err) return showError.system(err);
-			if (res.body.err) {
-				alerts.add($password, res.body.err.message);
-				return;
-			}
-			if ($remember.prop('checked')) {
-				localStorage.setItem('password', $password.val());
-			} else {
-				localStorage.removeItem('password');
-			}
-			location = '/threads';
-		});
-		return false;
-	}
 
 	session.logout = function () {
 		request.del('/api/sessions').end(function (err, res) {
 			err = err || res.error || res.body.err;
 			if (err) return showError.system(err);
-			localStorage.removeItem('password');
-			console.log('logged out');
 			location = '/';
 		});
 	};
