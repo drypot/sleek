@@ -35,21 +35,21 @@ before(function () {
 	app.get('/test/user/any', function (req, res) {
 		req.findUser(function (err) {
 			if (err) return res.jsonErr(err);
-			res.jsonEmpty();
+			res.json({});
 		})
 	});
 
 	app.get('/test/user/user', function (req, res) {
 		req.findUser('user', function (err) {
 			if (err) return res.jsonErr(err);
-			res.jsonEmpty();
+			res.json({});
 		});
 	});
 
 	app.get('/test/user/admin', function (req, res) {
 		req.findUser('admin', function (err) {
 			if (err) return res.jsonErr(err);
-			res.jsonEmpty();
+			res.json({});
 		});
 	});
 

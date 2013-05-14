@@ -21,7 +21,7 @@ block content
 						for c in user.categoriesOrdered
 							option(value=c.id, selected=c.id==cid) #{c.name}
 				.form-row
-					label.control-label 필명
+					label.control-label 이름
 					input.input-with-feedback.col-lg-4(type='text', name='writer', value='', maxlength='32')
 				.form-row
 					label.control-label 제목
@@ -32,7 +32,7 @@ block content
 				.form-row.file-group.clearfix
 					.files.col.col-lg-7
 					.actions.col.col-lg-1
-						button.btn.glyphicon.glyphicon-plus
+						button.btn.btn-default.glyphicon.glyphicon-plus
 				.form-action
 					button.btn.btn-primary(name='send') Send
 					button.btn.btn-default.disabled.hide(name='sending') Sending

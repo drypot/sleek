@@ -9,7 +9,7 @@ init.add(function () {
 	var $send = $loginSec.find('[name=send]')
 
 	session.initLogin = function () {
-		trySavedPassword(function (err, success) {
+		trySaved(function (err, success) {
 			if (err) return showError.system(err);
 			if (success) {
 				location = '/threads';
@@ -22,7 +22,7 @@ init.add(function () {
 	};
 
 	session.initAutoLogin = function () {
-		trySavedPassword(function (err, success) {
+		trySaved(function (err, success) {
 			if (err) {
 				showError.system(err, function () {
 					location = '/';
@@ -37,7 +37,7 @@ init.add(function () {
 		});
 	}
 
-	function trySavedPassword(next) {
+	function trySaved(next) {
 		var pw = localStorage.getItem('password');
 		if (!pw) return next(null, false);
 		console.log('trying saved password,');

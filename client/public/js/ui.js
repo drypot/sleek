@@ -56,6 +56,7 @@ init.add(function () {
 			alerts.add($form.find('[name="' + field.name + '"]'), field.msg);
 		}
 	}
+
 });
 
 init.add(function () {

@@ -66,10 +66,6 @@ init.add(function () {
 
 		var imgPattern = /.*\.(jpg|jpeg|gif|png)$/i;
 
-		function tagUpFile(file) {
-			return
-		}
-
 		function handle() {
 			return $('<button class="media-handle btn btn-mini btn-info">Show</button>');
 		}
@@ -138,25 +134,6 @@ init.add(function () {
 		}
 	};
 
-	function initInputFile() {
-		var fileCount = 0;
-
-		function addFileInputTag() {
-			fileCount++;
-			$("#file").append("<input type=\"file\" name=\"file\" id=\"file" + fileCount + "\" class=\"file\" multiple=\"multiple\"/><br />");
-
-			if (fileCount >= 32) {
-				$("#addFile").parent("div").hide();
-			}
-		}
-
-		addFileInputTag();
-		$("#addFile").click(function(event) {
-			event.preventDefault();
-			addFileInputTag();
-		});
-	}
-
 	post.initNewForm = function () {
 		var $form = $('#new-form');
 		var $category = $form.find('[name=category]');
@@ -179,12 +156,23 @@ init.add(function () {
 				alerts.clear($form);
 				sender.beforeSend();
 			},
-			success: ajaxFormSuccess($form, function () {
+			success: function (body) {
+				if (body.err && body.err.rc === error.INVALID_DATA) {
+					alerts.fill($form, body.err.fields);
+					sender.complete();
+					return;
+				}
+				if (body.err) {
+					showError.system(body.err);
+					sender.complete();
+					return;
+				}
 				saveWriter($writer);
 				location = '/threads';
-			}),
-			error: function () {
-				ajaxFormError();
+			},
+			error: function (xhr, textStatus, errorThrown) {
+				message = textStatus || errorThrown || 'Unknown Error';
+				showError.system({ message: message });
 				sender.complete();
 			}
 		});
@@ -202,12 +190,23 @@ init.add(function () {
 				alerts.clear($form);
 				sender.beforeSend();
 			},
-			success: ajaxFormSuccess($form, function (body) {
+			success: function (body) {
+				if (body.err && body.err.rc === error.INVALID_DATA) {
+					alerts.fill($form, body.err.fields);
+					sender.complete();
+					return;
+				}
+				if (body.err) {
+					showError.system(body.err);
+					sender.complete();
+					return;
+				}
 				saveWriter($writer);
 				location = '/threads/' + body.tid;
-			}),
-			error: function () {
-				ajaxFormError();
+			},
+			error: function (xhr, textStatus, errorThrown) {
+				message = textStatus || errorThrown || 'Unknown Error';
+				showError.system({ message: message });
 				sender.complete();
 			}
 		});
@@ -223,11 +222,22 @@ init.add(function () {
 				alerts.clear($form);
 				sender.beforeSend();
 			},
-			success: ajaxFormSuccess($form, function () {
+			success: function (body) {
+				if (body.err && body.err.rc === error.INVALID_DATA) {
+					alerts.fill($form, body.err.fields);
+					sender.complete();
+					return;
+				}
+				if (body.err) {
+					showError.system(body.err);
+					sender.complete();
+					return;
+				}
 				location = '/threads/' + url.pathnames[1];
-			}),
-			error: function () {
-				ajaxFormError();
+			},
+			error : function (xhr, textStatus, errorThrown) {
+				message = textStatus || errorThrown || 'Unknown Error';
+				showError.system({ message: message });
 				sender.complete();
 			}
 		});
@@ -239,26 +249,6 @@ init.add(function () {
 
 	function restoreWriter($writer) {
 		$writer.val(localStorage.getItem('writer') || '');
-	}
-
-	function ajaxFormSuccess($form, next) {
-		return function (body) {
-			var err = body.err;
-			if (err && err.rc === error.INVALID_DATA) {
-				alerts.fill($form, err.fields);
-				return;
-			}
-			if (err) {
-				showError.system(body.err);
-				return;
-			}
-			next(body);
-		};
-	}
-
-	function ajaxFormError(xhr, textStatus, errorThrown) {
-		var message = textStatus || errorThrown || 'Unknown Error';
-		showError.system({ message: message });
 	}
 
 });

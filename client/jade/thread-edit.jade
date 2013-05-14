@@ -22,7 +22,7 @@ block content
 							for c in user.categoriesOrdered
 								option(value=c.id, selected=c.id==category.id) #{c.name}
 				.form-row
-					label.control-label 필명
+					label.control-label 이름
 					input.input-with-feedback.col-lg-4(type='text', name='writer', value=post.writer, maxlength='32')
 				if post.head
 					.form-row
@@ -34,7 +34,7 @@ block content
 				.form-row.file-group.clearfix
 					.files.col.col-lg-7
 					.actions.col.col-lg-1
-						button.btn.glyphicon.glyphicon-plus
+						button.btn.btn-default.glyphicon.glyphicon-plus
 				if post.files
 					.form-row
 						for file in post.files

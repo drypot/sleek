@@ -12,9 +12,7 @@ init.add(function () {
 
 	app.get('/api/sessions', function (req, res) {
 		req.findUser(function (err, user) {
-			if (err) {
-				return res.jsonErr(err);
-			}
+			if (err) return res.jsonErr(err);
 			res.json({
 				user: {
 					name: user.name,
@@ -50,7 +48,7 @@ init.add(function () {
 
 	app.del('/api/sessions', function (req, res) {
 		req.session.destroy();
-		res.jsonEmpty();
+		res.json({});
 	});
 
 });

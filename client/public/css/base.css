@@ -25,17 +25,14 @@ body {
 #threads td.t {
   width: 100%;
 }
-#threads span {
-  margin-right: 5px;
-}
 #threads-phone small {
-  margin-right: 10px;
-}
-#threads-phone span {
   margin-right: 10px;
 }
 #threads-phone td {
   width: 1000px;
+}
+#threads-phone div.t {
+  margin-bottom: 5px;
 }
 .threads {
   margin-bottom: 20px;

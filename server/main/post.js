@@ -344,15 +344,12 @@ init.add(function () {
 		var dir = exports.filePath(pid);
 		var deleted = [];
 		var i = 0;
-		console.log(files);
 		function del() {
 			if (i == files.length) {
 				return next(null, deleted);
 			}
 			var file = files[i++];
-			console.log(file);
 			var name = path.basename(file);
-			console.log(name);
 			var p = dir + '/' + name;
 			fs.unlink(p, function (err) {
 				if (err && err.code !== 'ENOENT') return next(err);

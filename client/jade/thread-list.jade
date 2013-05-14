@@ -15,7 +15,7 @@ block content
 			.page-header
 				h2 #{category.name}
 
-			table#threads.threads.table.table-hover.hidden-phone
+			table#threads.threads.table.table-hover.hidden-sm
 				tbody
 					for thread in threads
 						tr
@@ -23,7 +23,7 @@ block content
 								a.text-muted(href="/threads/" + thread._id)
 									span #{thread.title}
 									if thread.length > 1
-										| [!{thread.length - 1}]
+										| &nbsp;&nbsp;[!{thread.length - 1}]
 							if category.id == 0
 								td
 									a(href="/threads?c=" + thread.category.id) #{thread.category.name}
@@ -36,15 +36,16 @@ block content
 							td
 
 
-			table#threads-phone.threads.table.table-hover.visible-phone.col-lg-12
+			table#threads-phone.threads.table.table-hover.visible-sm
 				tbody
 					for thread in threads
 						tr
 							td
-								a.text-muted(href="/threads/" + thread._id)
-									span #{thread.title}
-									if thread.length > 1
-										| [!{thread.length - 1}]
+								.t
+									a.text-muted(href="/threads/" + thread._id)
+										span #{thread.title}
+										if thread.length > 1
+											| &nbsp;&nbsp;[!{thread.length - 1}]
 								div
 									small #{thread.writer}
 									small !{thread.hit}
