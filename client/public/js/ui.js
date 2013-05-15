@@ -123,12 +123,12 @@ init.add(function () {
 
 init.add(function () {
 
-	$('#logout-btn').click(function () {
+	$('.navbar .logout-btn').click(function () {
 		session.logout();
 		return false;
 	});
 
-	$('#new-btn').click(function () {
+	$('.navbar .new-btn').click(function () {
 		if (url.query.c) {
 			location='/threads/new?c=' + url.query.c;
 		} else {
