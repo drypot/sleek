@@ -120,4 +120,5 @@ form .alert {
 }
 form textarea {
   font-family: monospace;
+  -webkit-overflow-scrolling: auto;
 }
