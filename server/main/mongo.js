@@ -119,24 +119,43 @@ init.add(function (next) {
 		};
 
 		exports.findPost = function (pid, next) {
-			posts.findOne({ _id: pid }, next);
+			var opt = {
+				fields: { tokens: 0 }
+			};
+			posts.findOne({ _id: pid }, opt, next);
 		};
 
 		exports.findPostsByThread = function (tid) {
-			return posts.find({ tid: tid }).sort({ cdate: 1 });
+			var opt = {
+				fields: { tokens: 0 },
+				sort: { cdate: 1 }
+			};
+			return posts.find({ tid: tid }, opt);
 		};
+
+		exports.searchPosts = function (tokens, pg, pgsize, next) {
+			var opt = {
+				fields: { tokens: 0 },
+				skip: (pg - 1) * pgsize,
+				sort: { cdate: -1 },
+				limit: pgsize
+			};
+			return posts.find({ tokens: { $all: tokens } }, opt);
+		}
 
 		posts = exports.posts = db.collection("posts");
 		posts.ensureIndex({ tid: 1, cdate: 1 }, function (err) {
 			if (err) return next(err);
-			posts.find({}, { _id: 1 }).sort({ _id: -1 }).limit(1).nextObject(function (err, obj) {
+			posts.ensureIndex({ tokens: 1 }, function (err) {
 				if (err) return next(err);
-				pidSeed = obj ? obj._id : 0;
-				console.log('post id seed: ' + pidSeed);
-				next();
+				posts.find({}, { _id: 1 }).sort({ _id: -1 }).limit(1).nextObject(function (err, obj) {
+					if (err) return next(err);
+					pidSeed = obj ? obj._id : 0;
+					console.log('post id seed: ' + pidSeed);
+					next();
+				});
 			});
 		});
 	}
 
 });
-

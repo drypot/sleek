@@ -10,7 +10,7 @@ init.add(function () {
 		var $send = $form.find('[name=send]');
 
 		$password.focus();
-		$send.click(function sendLoginForm() {
+		$send.click(function () {
 			alerts.clear($form);
 			var form = {
 				password: $password.val(),

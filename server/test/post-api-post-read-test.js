@@ -3,7 +3,6 @@ var should = require('should');
 var init = require('../main/init');
 var config = require('../main/config')({ test: true });
 var mongo = require('../main/mongo')({ dropDatabase: true });
-var es = require('../main/es')({ dropIndex: true });
 var express = require('../main/express');
 var error = require('../main/error');
 var ufix = require('../test/user-fixture');

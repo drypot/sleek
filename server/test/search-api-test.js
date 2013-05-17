@@ -3,7 +3,7 @@ var should = require('should');
 var init = require('../main/init');
 var config = require('../main/config')({ test: true });
 var mongo = require('../main/mongo')({ dropDatabase: true });
-var es = require('../main/es')({ dropIndex: true });
+var search = require('../main/search');
 var express = require('../main/express');
 var error = require('../main/error');
 var ufix = require('../test/user-fixture');
@@ -20,7 +20,7 @@ before(function () {
 	express.listen();
 });
 
-describe.skip("searching", function () {
+describe("searching", function () {
 
 	var docs = [
 		{ cid: 100, writer: 'snowman', title: 'title 1', text: 'apple orange banana' },
@@ -50,7 +50,7 @@ describe.skip("searching", function () {
 		express.get('/api/search', function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
-			var r = res.body.results;
+			var r = res.body.posts;
 			r.should.length(0);
 			next();
 		});
@@ -59,10 +59,7 @@ describe.skip("searching", function () {
 		var i = 0;
 		var len = docs.length;
 		(function insert() {
-			if (i == len) {
-				es.flush(next);
-				return;
-			}
+			if (i == len) return next();
 			var doc = docs[i++];
 			express.post('/api/threads').send(doc).end(function (err, res) {
 				should.not.exists(err);
@@ -76,41 +73,41 @@ describe.skip("searching", function () {
 	it("given user session", function (next) {
 		ufix.loginUser(next);
 	});
-	describe.skip("user name", function () {
+	describe("user name", function () {
 		it("should success", function (next) {
 			express.get('/api/search').query({ q: 'snowman' }).end(function (err, res) {
 				should(!res.error);
 				should(!res.body.err);
-				var r = res.body.results;
+				var r = res.body.posts;
 				r.should.length(3);
-				r[0].title.should.equal('title 3');
-				r[1].title.should.equal('title 2');
-				r[2].title.should.equal('title 1');
+				r[0].thread.title.should.equal('title 3');
+				r[1].thread.title.should.equal('title 2');
+				r[2].thread.title.should.equal('title 1');
 				next();
 			});
 		});
 	});
-	describe.skip("title", function () {
+	describe("title", function () {
 		it("should success", function (next) {
 			express.get('/api/search').query({ q: 'title 4' }).end(function (err, res) {
 				should(!res.error);
 				should(!res.body.err);
-				var r = res.body.results;
+				var r = res.body.posts;
 				r.should.length(1);
-				r[0].title.should.equal('title 4');
+				r[0].thread.title.should.equal('title 4');
 				next();
 			});
 		});
 	});
-	describe.skip("text", function () {
+	describe("text", function () {
 		it("should success", function (next) {
 			express.get('/api/search').query({ q: 'apple orange' }).end(function (err, res) {
 				should(!res.error);
 				should(!res.body.err);
-				var r = res.body.results;
+				var r = res.body.posts;
 				r.should.length(2);
-				r[0].title.should.equal('title 2');
-				r[1].title.should.equal('title 1');
+				r[0].thread.title.should.equal('title 2');
+				r[1].thread.title.should.equal('title 1');
 				next();
 			});
 		});
@@ -118,28 +115,28 @@ describe.skip("searching", function () {
 			express.get('/api/search').query({ q: 'apple banana' }).end(function (err, res) {
 				should(!res.error);
 				should(!res.body.err);
-				var r = res.body.results;
+				var r = res.body.posts;
 				r.should.length(1);
-				r[0].title.should.equal('title 1');
+				r[0].thread.title.should.equal('title 1');
 				next();
 			});
 		});
 	});
-	describe.skip("hangul", function () {
+	describe("hangul", function () {
 		it("should success", function (next) {
 			express.get('/api/search').query({ q: '둥글' }).end(function (err, res) {
 				should(!res.error);
 				should(!res.body.err);
-				var r = res.body.results;
+				var r = res.body.posts;
 				r.should.length(3);
-				r[0].title.should.equal('title 5');
-				r[1].title.should.equal('title 4');
-				r[2].title.should.equal('title 3');
+				r[0].thread.title.should.equal('title 5');
+				r[1].thread.title.should.equal('title 4');
+				r[2].thread.title.should.equal('title 3');
 				next();
 			});
 		});
 	});
-	describe.skip("recycle bin", function () {
+	describe("recycle bin", function () {
 		it("given user session", function (next) {
 			ufix.loginUser(next);
 		});
@@ -147,7 +144,7 @@ describe.skip("searching", function () {
 			express.get('/api/search').query({ q: 'admin' }).end(function (err, res) {
 				should(!res.error);
 				should(!res.body.err);
-				var r = res.body.results;
+				var r = res.body.posts;
 				r.should.length(0);
 				next();
 			});
@@ -159,7 +156,7 @@ describe.skip("searching", function () {
 			express.get('/api/search').query({ q: 'admin' }).end(function (err, res) {
 				should(!res.error);
 				should(!res.body.err);
-				var r = res.body.results;
+				var r = res.body.posts;
 				r.should.length(2);
 				next();
 			});

@@ -90,13 +90,23 @@ body {
 #posts .post .media {
   color: #56C0E0;
 }
+#search-results .tx {
+  margin-bottom: 5px;
+  word-break: break-all;
+}
+#search-results .i {
+  margin-bottom: 5px;
+}
+#search-results .i span {
+  margin-right: 10px;
+}
 form .form-row {
   margin-bottom: 10px;
 }
 form .form-row label {
   display: block;
 }
-form .form-action {
+form .form-actions {
   margin-top: 25px;
   margin-bottom: 20px;
 }
@@ -121,4 +131,8 @@ form .alert {
 form textarea {
   font-family: monospace;
   -webkit-overflow-scrolling: auto;
+}
+.btn-mini {
+  padding: 1px 6px;
+  font-size: 11px;
 }

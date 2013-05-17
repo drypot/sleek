@@ -1,14 +1,14 @@
 var fs = require('fs');
 var path = require('path');
 
-var init = require('../main/init');
 var l = require('../main/l');
+var init = require('../main/init');
+var config = require('../main/config');
 var dt = require('../main/dt');
 var fs2 = require('../main/fs');
-var config = require('../main/config');
+var tokenize = require('./tokenizer').tokenize;
 var mongo = require('../main/mongo');
 var upload = require('../main/upload');
-var es = require('../main/es');
 var error = require('../main/error');
 
 init.add(function () {
@@ -389,10 +389,8 @@ init.add(function () {
 		if (saved) {
 			post.files = saved;
 		}
-		mongo.insertPost(post, function (err) {
-			if (err) return next(err);
-			es.updatePost(thread, post, next);
-		});
+		setTokens(thread, post);
+		mongo.insertPost(post, next);
 	}
 
 	function updatePost(thread, post, user, form, deleted, saved, next) {
@@ -418,10 +416,8 @@ init.add(function () {
 					post.files = saved;
 				}
 			}
-			mongo.updatePost(post, function (err) {
-				if (err) return next(err);
-				es.updatePost(thread, post, next);
-			});
+			setTokens(thread, post);
+			mongo.updatePost(post, next);
 		});
 
 		function updateThread(next) {
@@ -442,6 +438,50 @@ init.add(function () {
 
 	function isEditable(user, pid, editables) {
 		return !!(user.admin || (editables && (editables.indexOf(pid) !== -1)));
+	}
+
+	function setTokens (thread, post) {
+		if (isHead(thread, post)) {
+			post.tokens = tokenize(thread.title, post.writer, post.text);
+		} else {
+			post.tokens = tokenize(post.writer, post.text);
+		}
+	}
+
+	exports.rebuildTokens = function (next) {
+		var count = 0;
+		var threads = mongo.threads.find();
+
+		function readThread() {
+			threads.nextObject(function (err, thread) {
+				if (err) return next(err);
+				if (thread) {
+					var posts = mongo.posts.find({ tid: thread._id });
+					function readPost() {
+						posts.nextObject(function (err, post) {
+							if (err) return next(err);
+							if (post) {
+								setTokens(thread, post);
+								mongo.posts.update({ _id: post._id }, { $set: { tokens: post.tokens } }, function (err) {
+									if (err) return next(err);
+									count++;
+									if (count % 1000 === 0) {
+										process.stdout.write(count + ' ');
+									}
+									setImmediate(readPost);
+								});
+								return;
+							}
+							setImmediate(readThread);
+						});
+					}
+					readPost();
+					return;
+				}
+				next();
+			});
+		}
+		readThread();
 	}
 
 });

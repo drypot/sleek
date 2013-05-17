@@ -7,7 +7,6 @@ var fs2 = require('../main/fs');
 var config = require('../main/config')({ test: true });
 var mongo = require('../main/mongo')({ dropDatabase: true });
 var upload = require('../main/upload');
-var es = require('../main/es')({ dropIndex: true });
 var express = require('../main/express');
 var post = require('../main/post');
 var error = require('../main/error');

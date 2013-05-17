@@ -5,6 +5,7 @@ var express = require('../main/express');
 require('../main/post-api');
 require('../main/post-html');
 require('../main/search-api');
+require('../main/search-html');
 require('../main/session-api');
 require('../main/hello-api');
 require('../main/static-html');

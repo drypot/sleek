@@ -4,8 +4,7 @@ var request = require('superagent').agent();
 var init = require('../main/init');
 var config = require('../main/config')({ test: true });
 var mongo = require('../main/mongo')({ dropDatabase: true });
-var es = require('../main/es')({ dropIndex: true });
-var rebuild = require('../main/es-rebuild');
+var post = require('../main/post');
 var express = require('../main/express');
 var error = require('../main/error');
 var ufix = require('../test/user-fixture');
@@ -25,7 +24,7 @@ before(function () {
 var tid1, tid2;
 var pid1, pid2, pid3;
 
-describe.skip("posting", function () {
+describe("posting", function () {
 	it("given user session", function (next) {
 		ufix.loginUser(next);
 	});
@@ -60,20 +59,14 @@ describe.skip("posting", function () {
 	});
 });
 
-describe.skip("flushing", function () {
-	it("should success", function (next) {
-		es.flush(next);
-	});
-});
-
-describe.skip("searching", function () {
+describe("searching", function () {
 	it("should success for pid1", function (next) {
 		express.get('/api/search').query({ q: '첫번째' }).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
-			var r = res.body.results;
+			var r = res.body.posts;
 			r.should.length(1);
-			r[0].pid.should.equal(pid1);
+			r[0]._id.should.equal(pid1);
 			next();
 		});
 	});
@@ -81,9 +74,9 @@ describe.skip("searching", function () {
 		express.get('/api/search').query({ q: '둥글게 네모나게' }).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
-			var r = res.body.results;
+			var r = res.body.posts;
 			r.should.length(1);
-			r[0].pid.should.equal(pid2);
+			r[0]._id.should.equal(pid2);
 			next();
 		});
 	});
@@ -91,32 +84,62 @@ describe.skip("searching", function () {
 		express.get('/api/search').query({ q: '박철수' }).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
-			var r = res.body.results;
+			var r = res.body.posts;
 			r.should.length(1);
-			r[0].pid.should.equal(pid3);
+			r[0]._id.should.equal(pid3);
 			next();
 		});
 	});
 });
 
-describe.skip("dropping es", function () {
+describe("dropping tokens", function () {
 	it("should success", function (next) {
-		es.dropIndex(function (err) {
-			if (err) return next(err);
-			es.setSchema(function (err) {
-				if (err) return next(err);
-				setTimeout(next, 300);
-			});
+		mongo.posts.update({}, { $unset: { tokens: 1 } }, { multi: true }, next);
+	});
+});
+
+describe("searching emtpy tokens", function () {
+	it("should return nothing for pid1", function (next) {
+		express.get('/api/search').query({ q: '첫번째' }).end(function (err, res) {
+			should(!res.error);
+			should(!res.body.err);
+			res.body.posts.should.length(0);
+			next();
+		});
+	});
+	it("should return nothing for pid2", function (next) {
+		express.get('/api/search').query({ q: '둥글게 네모나게' }).end(function (err, res) {
+			should(!res.error);
+			should(!res.body.err);
+			res.body.posts.should.length(0);
+			next();
+		});
+	});
+	it("should return nothing for pid3", function (next) {
+		express.get('/api/search').query({ q: '박철수' }).end(function (err, res) {
+			should(!res.error);
+			should(!res.body.err);
+			var r = res.body.posts;
+			res.body.posts.should.length(0);
+			next();
 		});
 	});
 });
 
-describe.skip("searching emtpy es", function () {
+describe("rebuilding", function () {
+	it("should success", function (next) {
+		post.rebuildTokens(next);
+	});
+});
+
+describe("re-searching", function () {
 	it("should success for pid1", function (next) {
 		express.get('/api/search').query({ q: '첫번째' }).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
-			res.body.results.should.length(0);
+			var r = res.body.posts;
+			r.should.length(1);
+			r[0]._id.should.equal(pid1);
 			next();
 		});
 	});
@@ -124,7 +147,9 @@ describe.skip("searching emtpy es", function () {
 		express.get('/api/search').query({ q: '둥글게 네모나게' }).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
-			res.body.results.should.length(0);
+			var r = res.body.posts;
+			r.should.length(1);
+			r[0]._id.should.equal(pid2);
 			next();
 		});
 	});
@@ -132,55 +157,9 @@ describe.skip("searching emtpy es", function () {
 		express.get('/api/search').query({ q: '박철수' }).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
-			var r = res.body.results;
-			res.body.results.should.length(0);
-			next();
-		});
-	});
-});
-
-describe.skip("rebuilding", function () {
-	it("should success", function (next) {
-		rebuild.rebuild(next);
-	});
-});
-
-describe.skip("flushing", function () {
-	it("should success", function (next) {
-		es.flush(function (err) {
-			setTimeout(next, 1000);
-		});
-	});
-});
-
-describe.skip("re-searching", function () {
-	it("should success for pid1", function (next) {
-		express.get('/api/search').query({ q: '첫번째' }).end(function (err, res) {
-			should(!res.error);
-			should(!res.body.err);
-			var r = res.body.results;
+			var r = res.body.posts;
 			r.should.length(1);
-			r[0].pid.should.equal(pid1);
-			next();
-		});
-	});
-	it("should success for pid2", function (next) {
-		express.get('/api/search').query({ q: '둥글게 네모나게' }).end(function (err, res) {
-			should(!res.error);
-			should(!res.body.err);
-			var r = res.body.results;
-			r.should.length(1);
-			r[0].pid.should.equal(pid2);
-			next();
-		});
-	});
-	it("should success for pid3", function (next) {
-		express.get('/api/search').query({ q: '박철수' }).end(function (err, res) {
-			should(!res.error);
-			should(!res.body.err);
-			var r = res.body.results;
-			r.should.length(1);
-			r[0].pid.should.equal(pid3);
+			r[0]._id.should.equal(pid3);
 			next();
 		});
 	});
