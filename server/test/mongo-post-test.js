@@ -25,11 +25,11 @@ describe("empty post collection", function () {
 			next();
 		})
 	});
-	it("should have two indexes", function (next) {
+	it("should have three indexes", function (next) {
 		mongo.posts.indexes(function (err, index) {
 			should(!err);
 			index.should.be.instanceof(Array);
-			index.should.be.length(2);
+			index.should.be.length(3);
 			next();
 		});
 	});
