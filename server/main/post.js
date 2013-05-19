@@ -22,10 +22,10 @@ init.add(function () {
 		form.cid = parseInt(body.cid) || 0;
 		form.writer  = String(body.writer || '').trim();
 		form.title = String(body.title || '').trim();
-		form.text = String(body.text || '');
-		form.visible = !!(body.hasOwnProperty('visible') ? body.visible : true);
-		form.files = req.files && req.files.file;
-		form.delFiles = body.delFiles;
+		form.text = String(body.text || '').trim();
+		form.visible = body.hasOwnProperty('visible') ? !!body.visible : true;
+		form.files = body.files;
+		form.dfiles = body.dfiles;
 		return form;
 	};
 
@@ -88,7 +88,7 @@ init.add(function () {
 						if (err) return next(err);
 						checkForm(form, head, function (err) {
 							if (err) return next(err);
-							deleteFiles(post._id, form.delFiles, function (err, deleted) {
+							deleteFiles(post._id, form.dfiles, function (err, deleted) {
 								if (err) return next(err);
 								saveFiles(post._id, form.files, function (err, saved) {
 									if (err) return next(err);
@@ -289,8 +289,8 @@ init.add(function () {
 		});
 	}
 
-	exports.filePath = function (pid) {
-		return upload.pubPost + '/' + Math.floor(pid / 10000) + '/' + pid
+	exports.filePath = function (pid, fname) {
+		return upload.pubPost + '/' + Math.floor(pid / 10000) + '/' + pid + (fname ? '/' + fname : '');
 	};
 
 	exports.fileUrl = function (pid, fname) {
@@ -298,66 +298,64 @@ init.add(function () {
 	}
 
 	function addFileUrls(post) {
-		if (!post.files) {
-			return;
-		}
-		for (var i = 0; i < post.files.length; i++) {
-			var file = post.files[i];
-			file.url = exports.fileUrl(post._id, file.name);
+		if (post.files) {
+			for (var i = 0; i < post.files.length; i++) {
+				var file = post.files[i];
+				file.url = exports.fileUrl(post._id, file.name);
+			}
 		}
 	}
 
 	function saveFiles (pid, files, next) {
-		if (!files || files.length == 0) {
-			return next();
-		}
-		if (!Array.isArray(files)) {
-			files = [files];
-		}
-		fs2.mkdirs(exports.filePath(pid), function (err, dir) {
-			if (err) return next(err);
-			var saved = [];
-			var i = 0;
-			function save() {
-				if (i == files.length) {
-					return next(null, saved);
+		if (files) {
+			fs2.makeDirs(exports.filePath(pid), function (err, dir) {
+				if (err) return next(err);
+				var saved = [];
+				var i = 0;
+				function save() {
+					if (i == files.length) {
+						return next(null, saved);
+					}
+					var file = files[i++];
+					var safeName = fs2.safeFilename(path.basename(file.oname));
+					fs.rename(upload.getTmpPath(file.tname), dir + '/' + safeName, function (err) {
+						if (err) {
+							if (err.code !== 'ENOENT') return next(err);
+						} else {
+							saved.push({ name: safeName });
+						}
+						setImmediate(save);
+					});
 				}
-				var file = files[i++];
-				var safeName = fs2.safeFilename(path.basename(file.name));
-				fs.rename(file.path, dir + '/' + safeName, function (err) {
-					if (err) return next(err);
-					saved.push({ name: safeName });
-					setImmediate(save);
-				});
-			}
-			save();
-		});
+				save();
+			});
+			return;
+		}
+		next();
 	}
 
 	function deleteFiles(pid, files, next) {
-		if (!files || files.length == 0) {
-			return next();
-		}
-		if (!Array.isArray(files)) {
-			files = [files];
-		}
-		var dir = exports.filePath(pid);
-		var deleted = [];
-		var i = 0;
-		function del() {
-			if (i == files.length) {
-				return next(null, deleted);
+		if (files) {
+			var dir = exports.filePath(pid);
+			var deleted = [];
+			var i = 0;
+			function del() {
+				if (i == files.length) {
+					return next(null, deleted);
+				}
+				var file = files[i++];
+				var name = path.basename(file);
+				var p = dir + '/' + name;
+				fs.unlink(p, function (err) {
+					if (err && err.code !== 'ENOENT') return next(err);
+					deleted.push(name);
+					setImmediate(del);
+				});
 			}
-			var file = files[i++];
-			var name = path.basename(file);
-			var p = dir + '/' + name;
-			fs.unlink(p, function (err) {
-				if (err && err.code !== 'ENOENT') return next(err);
-				deleted.push(name);
-				setImmediate(del);
-			});
+			del();
+			return;
 		}
-		del();
+		next();
 	}
 
 	function insertThread(tid, form, next) {

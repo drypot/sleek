@@ -9,6 +9,10 @@ init.add(function (next) {
 
 	console.log('upload: ' + config.data.uploadDir);
 
+	exports.getTmpPath = function (fname) {
+		return exports.tmp + '/' + fname;
+	}
+
 	exports.getTmpFiles = function (_files) {
 		var files = [];
 		if (_files) {
@@ -26,8 +30,8 @@ init.add(function (next) {
 	function pushFile(files, file) {
 		if (/*file.size &&*/ file.name) {
 			files.push({
-				orgName: file.name,
-				tmpName: path.basename(file.path)
+				oname: file.name,
+				tname: path.basename(file.path)
 			});
 		}
 	}
@@ -38,7 +42,7 @@ init.add(function (next) {
 			function del() {
 				if (i == files.length) return next();
 				var file = files[i++];
-				fs.unlink(exports.tmp + '/' + path.basename(file.tmpName), function (err) {
+				fs.unlink(exports.getTmpPath(path.basename(file.tname)), function (err) {
 					if (err && err.code !== 'ENOENT') return next(err);
 					setImmediate(del);
 				});

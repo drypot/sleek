@@ -38,20 +38,20 @@ describe("uploading none", function () {
 	});
 });
 
-function find(files, orgName) {
+function find(files, oname) {
 	var file = l.find(files, function (file) {
-		return file.orgName === orgName;
+		return file.oname === oname;
 	});
 	should.exist(file);
 	return file;
 }
 
 function exists(file) {
-	fs.existsSync(upload.tmp + '/' + file.tmpName).should.be.true;
+	fs.existsSync(upload.getTmpPath(file.tname)).should.be.true;
 }
 
-function notExists(file) {
-	fs.existsSync(upload.tmp + '/' + file.tmpName).should.be.false;
+function nexists(file) {
+	fs.existsSync(upload.getTmpPath(file.tname)).should.be.false;
 }
 
 describe("uploading one file", function () {
@@ -122,7 +122,7 @@ describe("deleting file", function () {
 			should(!err);
 			should(!res.error);
 			should(!res.body.err);
-			notExists(dummy);
+			nexists(dummy);
 			next();
 		});
 	});
@@ -138,18 +138,18 @@ describe("deleting file", function () {
 			should(!err);
 			should(!res.error);
 			should(!res.body.err);
-			notExists(dummy2);
-			notExists(dummy3);
+			nexists(dummy2);
+			nexists(dummy3);
 			next();
 		});
 	});
 	it("should success for invalid file", function (next) {
 		var files = [];
 		var file = {
-			orgName: 'non-exist',
-			tmpName: 'xxxxx-non-exist'
+			oname: 'non-exist',
+			tname: 'xxxxx-non-exist'
 		};
-		notExists(file);
+		nexists(file);
 		files.push(file);
 		express.del('/api/upload').send({ files: files }).end(function (err, res) {
 			should(!err);
