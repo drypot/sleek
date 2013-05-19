@@ -13,7 +13,7 @@ init.add(function () {
 		req.findUser(function (err) {
 			if (err) return res.jsonErr(err);
 			res.json({
-				fnames: upload.getFilenames(req.files.file)
+				files: upload.getTmpFiles(req.files.file)
 			});
 		});
 	});
@@ -21,7 +21,7 @@ init.add(function () {
 	app.del('/api/upload', function (req, res) {
 		req.findUser(function (err) {
 			if (err) return res.jsonErr(err);
-			upload.deleteTmpFiles(req.body.fnames, function (err) {
+			upload.deleteTmpFiles(req.body.files, function (err) {
 				if (err) return res.jsonErr(err);
 				res.json({});
 			});

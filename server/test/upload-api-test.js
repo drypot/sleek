@@ -31,27 +31,27 @@ describe("uploading none", function () {
 			should(!err);
 			should(!res.error);
 			should(!res.body.err);
-			should(res.body.fnames);
-			Object.keys(res.body.fnames).should.be.empty;
+			should(res.body.files);
+			Object.keys(res.body.files).should.be.empty;
 			next();
 		});
 	});
 });
 
-function find(fnames, orgName) {
-	var fname = l.find(fnames, function (fname) {
-		return fname.orgName === orgName;
+function find(files, orgName) {
+	var file = l.find(files, function (file) {
+		return file.orgName === orgName;
 	});
-	should.exist(fname);
-	return fname;
+	should.exist(file);
+	return file;
 }
 
-function exists(fname) {
-	fs.existsSync(upload.tmp + '/' + fname.tmpName).should.be.true;
+function exists(file) {
+	fs.existsSync(upload.tmp + '/' + file.tmpName).should.be.true;
 }
 
-function notExists(fname) {
-	fs.existsSync(upload.tmp + '/' + fname.tmpName).should.be.false;
+function notExists(file) {
+	fs.existsSync(upload.tmp + '/' + file.tmpName).should.be.false;
 }
 
 describe("uploading one file", function () {
@@ -61,7 +61,7 @@ describe("uploading one file", function () {
 			should(!err);
 			should(!res.error);
 			should(!res.body.err);
-			exists(find(res.body.fnames, 'dummy1.txt'));
+			exists(find(res.body.files, 'dummy1.txt'));
 			next();
 		});
 	});
@@ -75,8 +75,8 @@ describe("uploading two files", function () {
 			should(!err);
 			should(!res.error);
 			should(!res.body.err);
-			exists(find(res.body.fnames, 'dummy1.txt'));
-			exists(find(res.body.fnames, 'dummy2.txt'));
+			exists(find(res.body.files, 'dummy1.txt'));
+			exists(find(res.body.files, 'dummy2.txt'));
 			next();
 		});
 	});
@@ -92,15 +92,15 @@ describe("uploading two files to html", function () {
 			should(!res.body.err);
 			res.should.be.html;
 			var body = JSON.parse(res.text);
-			exists(find(body.fnames, 'dummy1.txt'));
-			exists(find(body.fnames, 'dummy2.txt'));
+			exists(find(body.files, 'dummy1.txt'));
+			exists(find(body.files, 'dummy2.txt'));
 			next();
 		});
 	});
 });
 
 describe("deleting file", function () {
-	var _fnames;
+	var _files;
 	it("given three uploaded files", function (next) {
 		var f1 = 'server/test/fixture/dummy1.txt';
 		var f2 = 'server/test/fixture/dummy2.txt';
@@ -109,16 +109,16 @@ describe("deleting file", function () {
 			should(!err);
 			should(!res.error);
 			should(!res.body.err);
-			_fnames = res.body.fnames;
+			_files = res.body.files;
 			next();
 		});
 	});
 	it("should success for dummy1.txt", function (next) {
-		var dummy = find(_fnames, 'dummy1.txt');
-		var fnames = [];
+		var dummy = find(_files, 'dummy1.txt');
+		var files = [];
 		exists(dummy);
-		fnames.push(dummy);
-		express.del('/api/upload').send({ fnames: fnames }).end(function (err, res) {
+		files.push(dummy);
+		express.del('/api/upload').send({ files: files }).end(function (err, res) {
 			should(!err);
 			should(!res.error);
 			should(!res.body.err);
@@ -127,14 +127,14 @@ describe("deleting file", function () {
 		});
 	});
 	it("should success for dummy2.txt and dummy3.txt", function (next) {
-		var fnames = [];
-		var dummy2 = find(_fnames, 'dummy2.txt');
-		var dummy3 = find(_fnames, 'dummy3.txt');
+		var files = [];
+		var dummy2 = find(_files, 'dummy2.txt');
+		var dummy3 = find(_files, 'dummy3.txt');
 		exists(dummy2);
 		exists(dummy3);
-		fnames.push(dummy2);
-		fnames.push(dummy3);
-		express.del('/api/upload').send({ fnames: fnames }).end(function (err, res) {
+		files.push(dummy2);
+		files.push(dummy3);
+		express.del('/api/upload').send({ files: files }).end(function (err, res) {
 			should(!err);
 			should(!res.error);
 			should(!res.body.err);
@@ -144,14 +144,14 @@ describe("deleting file", function () {
 		});
 	});
 	it("should success for invalid file", function (next) {
-		var fnames = [];
-		var fname = {
+		var files = [];
+		var file = {
 			orgName: 'non-exist',
 			tmpName: 'xxxxx-non-exist'
 		};
-		notExists(fname);
-		fnames.push(fname);
-		express.del('/api/upload').send({ fnames: fnames }).end(function (err, res) {
+		notExists(file);
+		files.push(file);
+		express.del('/api/upload').send({ files: files }).end(function (err, res) {
 			should(!err);
 			should(!res.error);
 			should(!res.body.err);

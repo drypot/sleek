@@ -9,36 +9,36 @@ init.add(function (next) {
 
 	console.log('upload: ' + config.data.uploadDir);
 
-	exports.getFilenames = function (files) {
-		var filenames = [];
-		if (files) {
-			if (!Array.isArray(files)) {
-				pushName(filenames, files);
+	exports.getTmpFiles = function (_files) {
+		var files = [];
+		if (_files) {
+			if (!Array.isArray(_files)) {
+				pushFile(files, _files);
 			} else {
-				for (var i = 0; i < files.length; i++) {
-					pushName(filenames, files[i]);
+				for (var i = 0; i < _files.length; i++) {
+					pushFile(files, _files[i]);
 				}
 			}
 		}
-		return filenames;
+		return files;
 	};
 
-	function pushName(filenames, file) {
+	function pushFile(files, file) {
 		if (/*file.size &&*/ file.name) {
-			filenames.push({
+			files.push({
 				orgName: file.name,
 				tmpName: path.basename(file.path)
 			});
 		}
 	}
 
-	exports.deleteTmpFiles = function (fnames, next) {
-		if (fnames) {
+	exports.deleteTmpFiles = function (files, next) {
+		if (files) {
 			var i = 0;
 			function del() {
-				if (i == fnames.length) return next();
-				var fname = fnames[i++];
-				fs.unlink(exports.tmp + '/' + path.basename(fname.tmpName), function (err) {
+				if (i == files.length) return next();
+				var file = files[i++];
+				fs.unlink(exports.tmp + '/' + path.basename(file.tmpName), function (err) {
 					if (err && err.code !== 'ENOENT') return next(err);
 					setImmediate(del);
 				});

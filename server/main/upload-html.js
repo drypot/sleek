@@ -13,7 +13,7 @@ init.add(function () {
 		req.findUser(function (err) {
 			if (err) return res.send(JSON.stringify(err));
 			res.send(JSON.stringify({
-				fnames: upload.getFilenames(req.files.file)
+				files: upload.getTmpFiles(req.files.file)
 			}));
 		});
 	});
