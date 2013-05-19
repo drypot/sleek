@@ -11,6 +11,7 @@ var ufix = require('../test/user-fixture');
 
 require('../main/session-api');
 require('../main/upload-api');
+require('../main/upload-html');
 
 before(function (next) {
 	init.run(next);
@@ -76,6 +77,23 @@ describe("uploading two files", function () {
 			should(!res.body.err);
 			exists(find(res.body.fnames, 'dummy1.txt'));
 			exists(find(res.body.fnames, 'dummy2.txt'));
+			next();
+		});
+	});
+});
+
+describe("uploading two files to html", function () {
+	it("should success", function (next) {
+		var f1 = 'server/test/fixture/dummy1.txt';
+		var f2 = 'server/test/fixture/dummy2.txt';
+		express.post('/upload').attach('file', f1).attach('file', f2).end(function (err, res) {
+			should(!err);
+			should(!res.error);
+			should(!res.body.err);
+			res.should.be.html;
+			var body = JSON.parse(res.text);
+			exists(find(body.fnames, 'dummy1.txt'));
+			exists(find(body.fnames, 'dummy2.txt'));
 			next();
 		});
 	});
