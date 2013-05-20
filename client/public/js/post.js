@@ -136,119 +136,53 @@ init.add(function () {
 
 	post.initNewForm = function () {
 		var $form = $('#new-form');
-		var $category = $form.find('[name=category]');
-		var $writer = $form.find('[name=writer]');
-		var $title = $form.find('[name=title]');
-		var sender = new Sender($form);
-
+		formty.initFileGroup($form, 'file');
+		formty.linkControls($form);
 		if (url.query.c) {
-			$category.val(url.query.c);
+			$form.$category.val(url.query.c);
 		}
-		restoreWriter($writer);
-		if ($writer.val()) {
-			$title.focus();
+		$form.$writer.val(localStorage.getItem('writer') || '');
+		if ($form.$writer.val()) {
+			$form.$title.focus();
 		} else {
-			$writer.focus();
+			$form.$writer.focus();
 		}
-		$form.ajaxForm({
-			dataType: 'json',
-			beforeSend: function () {
-				alerts.clear($form);
-				sender.beforeSend();
-			},
-			success: function (body) {
-				if (body.err && body.err.rc === error.INVALID_DATA) {
-					alerts.fill($form, body.err.fields);
-					sender.complete();
-					return;
-				}
-				if (body.err) {
-					showError.system(body.err);
-					sender.complete();
-					return;
-				}
-				saveWriter($writer);
+		$form.$send.click(function () {
+			formty.post('/api/threads', $form, function (err) {
+				if (err) return showError(err);
+				localStorage.setItem('writer', $form.$writer.val());
 				location = '/threads';
-			},
-			error: function (xhr, textStatus, errorThrown) {
-				message = textStatus || errorThrown || 'Unknown Error';
-				showError.system({ message: message });
-				sender.complete();
-			}
+			});
+			return false;
 		});
 	};
 
 	post.initReplyForm = function () {
 		var $form = $('#reply-form');
-		var $writer = $form.find('[name=writer]');
-		var sender = new Sender($form);
-
-		restoreWriter($writer);
-		$form.ajaxForm({
-			dataType: 'json',
-			beforeSend: function () {
-				alerts.clear($form);
-				sender.beforeSend();
-			},
-			success: function (body) {
-				if (body.err && body.err.rc === error.INVALID_DATA) {
-					alerts.fill($form, body.err.fields);
-					sender.complete();
-					return;
-				}
-				if (body.err) {
-					showError.system(body.err);
-					sender.complete();
-					return;
-				}
-				saveWriter($writer);
-				location = '/threads/' + body.tid;
-			},
-			error: function (xhr, textStatus, errorThrown) {
-				message = textStatus || errorThrown || 'Unknown Error';
-				showError.system({ message: message });
-				sender.complete();
-			}
+		formty.initFileGroup($form, 'file');
+		formty.linkControls($form);
+		$form.$writer.val(localStorage.getItem('writer') || '');
+		$form.$send.click(function () {
+			formty.post('/api/threads/' + url.pathnames[1], $form, function (err, res) {
+				if (err) return showError(err);
+				localStorage.setItem('writer', $form.$writer.val());
+				location = '/threads/' + res.body.tid;
+			});
+			return false;
 		});
 	};
 
 	post.initEditForm = function () {
 		var $form = $('#edit-form');
-		var sender = new Sender($form);
-
-		$form.ajaxForm({
-			dataType: 'json',
-			beforeSend: function () {
-				alerts.clear($form);
-				sender.beforeSend();
-			},
-			success: function (body) {
-				if (body.err && body.err.rc === error.INVALID_DATA) {
-					alerts.fill($form, body.err.fields);
-					sender.complete();
-					return;
-				}
-				if (body.err) {
-					showError.system(body.err);
-					sender.complete();
-					return;
-				}
+		formty.initFileGroup($form, 'file');
+		formty.linkControls($form);
+		$form.$send.click(function () {
+			formty.put('/api/threads/' + url.pathnames[1] + '/' + url.pathnames[2], $form, function (err, res) {
+				if (err) return showError(err);
 				location = '/threads/' + url.pathnames[1];
-			},
-			error : function (xhr, textStatus, errorThrown) {
-				message = textStatus || errorThrown || 'Unknown Error';
-				showError.system({ message: message });
-				sender.complete();
-			}
+			});
+			return false;
 		});
 	};
-
-	function saveWriter($writer) {
-		localStorage.setItem('writer', $writer.val());
-	}
-
-	function restoreWriter($writer) {
-		$writer.val(localStorage.getItem('writer') || '');
-	}
 
 });

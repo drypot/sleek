@@ -59,7 +59,7 @@ feature.formdata = window.FormData !== undefined;
 var hasProp = !!$.fn.prop;
 
 // attr2 uses prop when it can but checks the return type for
-// an expected string.  this accounts for the case where a form 
+// an expected string.  this accounts for the case where a form
 // contains inputs with names like "action" or "method"; in those
 // cases "prop" returns the element
 $.fn.attr2 = function() {
@@ -190,7 +190,11 @@ $.fn.ajaxSubmit = function(options) {
 
     // [value] (issue #113), also see comment:
     // https://github.com/malsup/form/commit/588306aedba1de01388032d5f42a60159eea9228#commitcomment-2180219
-    var fileInputs = $('input[type=file]:enabled[value!=""]', this);
+	// drypot
+    var fileInputs = $('input[type=file]', this).filter(function () {
+		console.log($(this).val());
+		return $(this).val()
+	});
 
     var hasFileInputs = fileInputs.length > 0;
     var mp = 'multipart/form-data';
@@ -215,6 +219,7 @@ $.fn.ajaxSubmit = function(options) {
         else {
             jqxhr = fileUploadIframe(a);
         }
+		console.log('using iframe');
     }
     else if ((hasFileInputs || multipart) && fileAPI) {
         jqxhr = fileUploadXhr(a);
@@ -405,7 +410,7 @@ $.fn.ajaxSubmit = function(options) {
 
         var CLIENT_TIMEOUT_ABORT = 1;
         var SERVER_ABORT = 2;
-                
+
         function getDoc(frame) {
             /* it looks like contentWindow or contentDocument do not
              * carry the protocol property in ie8, when running under ssl
@@ -413,9 +418,9 @@ $.fn.ajaxSubmit = function(options) {
              * the protocol is know but not on the other two objects. strange?
              * "Same origin policy" http://en.wikipedia.org/wiki/Same_origin_policy
              */
-            
+
             var doc = null;
-            
+
             // IE8 cascading access check
             try {
                 if (frame.contentWindow) {
@@ -555,7 +560,7 @@ $.fn.ajaxSubmit = function(options) {
             if (xhr.aborted || callbackProcessed) {
                 return;
             }
-            
+
             doc = getDoc(io);
             if(!doc) {
                 log('cannot access response document');

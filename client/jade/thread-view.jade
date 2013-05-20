@@ -36,7 +36,7 @@ block content
 			.page-header
 				h2 Reply
 
-			form#reply-form(action='/api/threads/' + thread._id, method="post", enctype="multipart/form-data")
+			form#reply-form
 				.form-row
 					label.control-label 이름
 					input.input-with-feedback.col-lg-4(type='text', name='writer', value='', maxlength='32')

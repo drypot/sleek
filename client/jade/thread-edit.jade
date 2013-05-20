@@ -15,7 +15,7 @@ block content
 			.page-header
 				h2 Edit Post
 
-			form#edit-form(action='/api/threads/' + thread._id + '/' + post._id, method='post', enctype='multipart/form-data')
+			form#edit-form
 				if post.head
 					.form-row
 						select.col-lg-4(name='cid')
@@ -40,15 +40,13 @@ block content
 						for file in post.files
 							.checkbox
 								label delete #{file.name}
-									input(type='checkbox', name='delFiles', value=file.name)
+									input(type='checkbox', name='dfiles[]', value=file.name)
+				if user.admin
+					.form-row
+						.checkbox
+							label visible
+								input(type='checkbox', name='visible', checked=post.visible)
+
 				.form-actions
 					button.btn.btn-primary(name='send') Send
 					button.btn.btn-default.disabled.hide(name='sending') Sending
-
-//
-//								<% if (authService.isAdmin()) { %>
-//						<div class='label'>기타<div>
-//						<div class='input'><form:checkbox path='post.visible' label='Visible'/></div>
-//					<% } %>
-//					<div class='submit'><input class='submit' type='submit' value='Submit'/></div>
-//				</form:form>

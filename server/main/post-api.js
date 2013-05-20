@@ -105,14 +105,6 @@ init.add(function () {
 	});
 
 	app.put('/api/threads/:tid([0-9]+)/:pid([0-9]+)', function (req, res, next) {
-		updatePost(req, res, next);
-	});
-
-	app.post('/api/threads/:tid([0-9]+)/:pid([0-9]+)', function (req, res, next) {
-		updatePost(req, res, next);
-	});
-
-	function updatePost(req, res, next) {
 		req.findUser(function (err, user) {
 			if (err) return res.jsonErr(err);
 			var form = post.makeForm(req);
@@ -123,6 +115,6 @@ init.add(function () {
 				res.json({});
 			});
 		});
-	}
+	});
 
 });
