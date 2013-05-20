@@ -74,7 +74,8 @@ html
 
 		#file-input-templ.hide
 			.file
-				input.hide(type='file', multiple='multiple')
+				div(style='width: 0px; height: 0px;')
+					input(type='file', multiple='multiple')
 				.input-group
 					input(type='text', disabled)
 					span.input-group-btn
