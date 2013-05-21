@@ -1,5 +1,5 @@
 var init = require('../main/init');
-var user9 = require('../main/user');
+var uesrl = require('../main/user');
 
 init.add(function () {
 
@@ -16,7 +16,7 @@ init.add(function () {
 
 	exports.setLocals = function (req, res, next) {
 		if (req.session.uname) {
-			res.locals.user = user9.findUserByName(req.session.uname);
+			res.locals.user = uesrl.findUserByName(req.session.uname);
 			return next();
 		}
 		if (res.locals.api) {
@@ -36,7 +36,7 @@ init.add(function () {
 		if (!password) {
 			return next();
 		}
-		var user = user9.findUserByPassword(password);
+		var user = uesrl.findUserByPassword(password);
 		if (!user) {
 			res.clearCookie(password);
 			return next();

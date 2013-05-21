@@ -90,7 +90,7 @@ describe("getting session var", function () {
 	});
 });
 
-describe("making authenti session", function () {
+describe("making session", function () {
 	it("should success for user", function (next) {
 		ufix.loginUser(next);
 	});

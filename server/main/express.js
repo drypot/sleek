@@ -148,4 +148,5 @@ init.add(function () {
 	exports.newTestSession = function () {
 		request = require('superagent').agent();
 	}
+
 });

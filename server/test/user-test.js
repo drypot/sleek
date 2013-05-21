@@ -2,7 +2,7 @@ var should = require('should');
 
 var init = require('../main/init');
 var config = require('../main/config')({ test: true });
-var user9 = require('../main/user');
+var uesrl = require('../main/user');
 
 before(function (next) {
 	init.run(next);
@@ -10,26 +10,26 @@ before(function (next) {
 
 describe("finding user by name", function () {
 	it("should success", function () {
-		user9.findUserByName('user').name.should.equal('user');
-		user9.findUserByName('cheater').name.should.equal('cheater');
-		user9.findUserByName('admin').name.should.equal('admin');
-		should(!user9.findUserByName('xxx'));
+		uesrl.findUserByName('user').name.should.equal('user');
+		uesrl.findUserByName('cheater').name.should.equal('cheater');
+		uesrl.findUserByName('admin').name.should.equal('admin');
+		should(!uesrl.findUserByName('xxx'));
 	});
 });
 
 describe("finding user by password", function () {
 	it("should success", function () {
-		user9.findUserByPassword('1').name.should.equal('user');
-		user9.findUserByPassword('2').name.should.equal('cheater');
-		user9.findUserByPassword('3').name.should.equal('admin');
-		should(!user9.findUserByPassword('x'));
+		uesrl.findUserByPassword('1').name.should.equal('user');
+		uesrl.findUserByPassword('2').name.should.equal('cheater');
+		uesrl.findUserByPassword('3').name.should.equal('admin');
+		should(!uesrl.findUserByPassword('x'));
 	})
 });
 
 describe("user", function () {
 	var user;
 	before(function () {
-		user = user9.findUserByName('user');
+		user = uesrl.findUserByName('user');
 		should(user);
 	});
 	it("should not be admin", function () {
@@ -52,7 +52,7 @@ describe("user", function () {
 describe("cheater", function () {
 	var user;
 	before(function () {
-		user = user9.findUserByName('cheater');
+		user = uesrl.findUserByName('cheater');
 		should(user);
 	});
 	it("should not be admin", function () {
@@ -75,7 +75,7 @@ describe("cheater", function () {
 describe("admin", function () {
 	var user;
 	before(function () {
-		user = user9.findUserByName('admin');
+		user = uesrl.findUserByName('admin');
 	});
 	it("should be admin", function () {
 		should(user.admin);

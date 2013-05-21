@@ -1,6 +1,6 @@
 var init = require('../main/init');
 var config = require('../main/config');
-var user9 = require('../main/user');
+var uesrl = require('../main/user');
 var session = require('../main/session');
 var express = require('../main/express');
 var error = require('../main/error');
@@ -25,7 +25,7 @@ init.add(function () {
 	});
 
 	app.post('/api/sessions', function (req, res) {
-		var user = user9.findUserByPassword(req.body.password || '');
+		var user = uesrl.findUserByPassword(req.body.password || '');
 		if (user) {
 			if (req.body.remember) {
 				res.cookie('password', req.body.password, {
