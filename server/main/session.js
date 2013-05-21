@@ -33,19 +33,18 @@ init.add(function () {
 
 	function autoLogin(req, res, next) {
 		var password = req.cookies.password;
-		if (password) {
-			var user = user9.findUserByPassword(password);
-			if (user) {
-				exports.initSession(req, user, function (err) {
-					if (err) return next(err);
-					next(null, user);
-				});
-				return;
-			}
+		if (!password) {
+			return next();
+		}
+		var user = user9.findUserByPassword(password);
+		if (!user) {
 			res.clearCookie(password);
 			return next();
 		}
-		next();
+		exports.initSession(req, user, function (err) {
+			if (err) return next(err);
+			next(null, user);
+		});
 	}
 
 });
