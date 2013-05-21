@@ -30,7 +30,7 @@ html
 		// navbar
 		.container
 			.navbar
-				if user
+				if locals.user
 					button.navbar-toggle(type='button', data-toggle='collapse', data-target='.navbar-responsive-collapse')
 						span.icon-bar
 						span.icon-bar
@@ -53,7 +53,7 @@ html
 
 		block content
 
-		if user
+		if locals.user
 			#categories.container
 				hr
 				.content

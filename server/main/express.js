@@ -4,7 +4,7 @@ var redisStore = require('connect-redis')(express);
 
 var init = require('../main/init');
 var config = require('../main/config');
-var user9 = require('../main/user');
+var session = require('../main/session');
 var upload = require('../main/upload');
 var error = require('../main/error');
 
@@ -55,23 +55,7 @@ init.add(function () {
 		next();
 	});
 
-	exports.autoLogin = function (req, res, next) {
-		next();
-	}
-
-	app.use(function (req, res, next) {
-		var uname = req.session.uname;
-		if (uname) {
-			res.locals.user = user9.findUserByName(uname);
-			return next();
-		}
-		if (res.locals.api) return next();
-		exports.autoLogin(req, res, function (err) {
-			if (err) return next(err);
-			res.locals.user = user9.findUserByName(req.session.uname);
-			next();
-		});
-	});
+	app.use(session.setLocals);
 
 	app.use(app.router);
 

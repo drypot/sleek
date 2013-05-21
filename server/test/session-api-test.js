@@ -298,7 +298,7 @@ describe("accessing /test/user with auto login", function () {
 	});
 });
 
-describe.skip("user.categoriesOrdered", function () {
+describe("user.categoriesOrdered", function () {
 	var categories;
 	it("given user session", function (next) {
 		ufix.loginUser(next);

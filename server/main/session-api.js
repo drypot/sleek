@@ -1,6 +1,7 @@
 var init = require('../main/init');
 var config = require('../main/config');
 var user9 = require('../main/user');
+var session = require('../main/session');
 var express = require('../main/express');
 var error = require('../main/error');
 
@@ -25,44 +26,25 @@ init.add(function () {
 
 	app.post('/api/sessions', function (req, res) {
 		var user = user9.findUserByPassword(req.body.password || '');
-		if (!user) {
-			return res.jsonErr(error(error.INVALID_PASSWORD));
-		}
-		if (req.body.remember) {
-			res.cookie('password', req.body.password, {
-				maxAge: 30 * 24 * 60 * 60 * 1000,
-				httpOnly: true
+		if (user) {
+			if (req.body.remember) {
+				res.cookie('password', req.body.password, {
+					maxAge: 30 * 24 * 60 * 60 * 1000,
+					httpOnly: true
+				});
+			}
+			session.initSession(req, user, function (err) {
+				if (err) return res.jsonErr(err);
+				res.json({
+					user: {
+						name: user.name
+					}
+				});
 			});
+			return;
 		}
-		initSession(req, user, function (err) {
-			if (err) return res.jsonErr(err);
-			res.json({
-				user: {
-					name: user.name
-				}
-			});
-		});
+		res.jsonErr(error(error.INVALID_PASSWORD));
 	});
-
-	express.autoLogin = function (req, res, next) {
-		var password = req.cookies.password;
-		if (!password) return next();
-		var user = user9.findUserByPassword(password);
-		if (!user) {
-			res.clearCookie('password');
-			return next();
-		}
-		initSession(req, user, next);
-	};
-
-	function initSession(req, user, next) {
-		req.session.regenerate(function (err) {
-			if (err) return next(err);
-			req.session.uname = user.name;
-			req.session.posts = [];
-			next();
-		});
-	}
 
 	app.del('/api/sessions', function (req, res) {
 		res.clearCookie('password');
