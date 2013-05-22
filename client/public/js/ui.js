@@ -140,7 +140,7 @@ init.add(function() {
 							formty.hideSending($form);
 							return;
 						}
-						//next(null, res);
+						next(null, res);
 					});
 				});
 			};
