@@ -13,7 +13,7 @@ init.add(function () {
 				$tar.removeClass('text-muted');
 			}
 		});
-	}
+	};
 
 	post.initThreadAndPosts = function () {
 
@@ -135,9 +135,8 @@ init.add(function () {
 	};
 
 	post.initNewForm = function () {
-		var $form = $('#new-form');
+		var $form = formty.getForm('#new-form');
 		formty.initFileGroup($form, 'file');
-		formty.linkControls($form);
 		if (url.query.c) {
 			$form.$category.val(url.query.c);
 		}
@@ -158,9 +157,8 @@ init.add(function () {
 	};
 
 	post.initReplyForm = function () {
-		var $form = $('#reply-form');
+		var $form = formty.getForm('#reply-form');
 		formty.initFileGroup($form, 'file');
-		formty.linkControls($form);
 		$form.$writer.val(localStorage.getItem('writer') || '');
 		$form.$send.click(function () {
 			formty.post('/api/threads/' + url.pathnames[1], $form, function (err, res) {
@@ -173,9 +171,8 @@ init.add(function () {
 	};
 
 	post.initEditForm = function () {
-		var $form = $('#edit-form');
+		var $form = formty.getForm('#edit-form');
 		formty.initFileGroup($form, 'file');
-		formty.linkControls($form);
 		$form.$send.click(function () {
 			formty.put('/api/threads/' + url.pathnames[1] + '/' + url.pathnames[2], $form, function (err, res) {
 				if (err) return showError(err);

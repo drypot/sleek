@@ -4,21 +4,11 @@ init.add(function () {
 	window.session = {};
 
 	session.initLogin = function () {
-		var $form = $('#login-form');
-
-		formty.linkControls($form);
+		var $form = formty.getForm('#login-form');
 		$form.$password.focus();
-
 		$form.$send.click(function () {
-			formty.clearAlerts($form);
-			var form = formty.toObject($form);
-			request.post('/api/sessions').send(form).end(function (err, res) {
-				err = err || res.error;
+			formty.post('/api/sessions', $form, function (err) {
 				if (err) return showError(err);
-				if (res.body.err) {
-					formty.addAlert($form.$password, res.body.err.message);
-					return;
-				}
 				location = '/threads';
 			});
 			return false;

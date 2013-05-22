@@ -4,7 +4,8 @@ init.add(function() {
 
 	var nameRe = /[^\[]+/;
 
-	formty.linkControls = function ($form) {
+	formty.getForm = function (sel) {
+		var $form = $(sel);
 		$form.find('input, textarea, select, button').each(function () {
 			if (this.name) {
 				var name = this.name.match(nameRe)[0];
@@ -128,8 +129,8 @@ init.add(function() {
 						err = err || res.error;
 						if (err) return next(err);
 						if (res.body.err) {
-							if (res.body.err.rc === error.INVALID_DATA) {
-								formty.addAlerts($form, res.body.err.fields);
+							if (res.body.err.rc === error.ERROR_SET) {
+								formty.addAlerts($form, res.body.err.errors);
 								formty.hideSending($form);
 								return;
 							}
@@ -145,13 +146,21 @@ init.add(function() {
 	}
 
 	formty.showSending = function ($form) {
-		$form.find('[name=send]').addClass('hide');
-		$form.find('[name=sending]').removeClass('hide');
+		var $send = $form.find('[name=send]');
+		var $sending = $form.find('[name=sending]');
+		if ($send.length && $sending.length) {
+			$send.addClass('hide');
+			$sending.removeClass('hide');
+		}
 	};
 
 	formty.hideSending = function ($form) {
-		$form.find('[name=send]').removeClass('hide');
-		$form.find('[name=sending]').addClass('hide');
+		var $send = $form.find('[name=send]');
+		var $sending = $form.find('[name=sending]');
+		if ($send.length && $sending.length) {
+			$form.find('[name=send]').removeClass('hide');
+			$form.find('[name=sending]').addClass('hide');
+		}
 	};
 
 	formty.clearAlerts = function ($form) {
@@ -175,7 +184,6 @@ init.add(function() {
 	}
 
 });
-
 
 init.add(function() {
 
