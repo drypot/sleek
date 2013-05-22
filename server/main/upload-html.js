@@ -1,7 +1,6 @@
 var init = require('../main/init');
 var upload = require('../main/upload');
 var express = require('../main/express');
-var error = require('../main/error');
 
 init.add(function () {
 

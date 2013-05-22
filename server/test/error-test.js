@@ -1,6 +1,7 @@
 var should = require('should');
 
 var error = require('../main/error');
+var Errors = error.Errors;
 
 describe("error(number)", function () {
 	it("should success", function () {
@@ -21,14 +22,26 @@ describe("error(string)", function () {
 	})
 });
 
-describe("error(object with rc)", function () {
+describe("error(errors)", function () {
 	it("should success", function () {
-		var obj = { rc: error.INVALID_DATA, opt: 'extra' };
-		var err = error(obj);
-		err.should.have.property('rc');
-		err.message.should.equal(error.msg[error.INVALID_DATA]);
-		err.should.have.property('opt', 'extra')
-		err.should.property('stack');
+		var errors = new Errors();
+		errors.add('email', 'email error');
+		errors.add('password', 'password error');
+		var err = error(errors);
+		err.rc.should.equal(error.ERROR_SET);
+		err.errors[0].name.should.equal('email');
+		err.errors[0].msg.should.equal('email error');
+		err.errors[1].name.should.equal('password');
+		err.errors[1].msg.should.equal('password error');
+	})
+});
+
+describe("error(name, msg)", function () {
+	it("should success", function () {
+		var err = error('email', 'email error');
+		err.rc.should.equal(error.ERROR_SET);
+		err.errors[0].name.should.equal('email');
+		err.errors[0].msg.should.equal('email error');
 	})
 });
 

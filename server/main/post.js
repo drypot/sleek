@@ -218,24 +218,24 @@ init.add(function () {
 	};
 
 	function checkForm(form, head, next) {
-		var fields = [];
+		var errors = new error.Errors();
 
 		if (head) {
 			if (!form.title.length) {
-				fields.push({ name: 'title', msg: error.msg.FILL_TITLE });
+				errors.add('title', error.msg.FILL_TITLE);
 			}
 			if (form.title.length > 128) {
-				fields.push({ name: 'title', msg: error.msg.SHORTEN_TITLE });
+				errors.add('title', error.msg.SHORTEN_TITLE);
 			}
 		}
 		if (!form.writer) {
-			fields.push({ name: 'writer', msg: error.msg.FILL_WRITER });
+			errors.add('writer', error.msg.FILL_WRITER);
 		}
 		if (form.writer.length > 32) {
-			fields.push({ name: 'writer', msg: error.msg.SHORTEN_WRITER });
+			errors.add('writer', error.msg.SHORTEN_WRITER);
 		}
-		if (fields.length) {
-			return next(error({ rc: error.INVALID_DATA, fields: fields }));
+		if (errors.hasErrors()) {
+			return next(error(errors));
 		}
 
 		next();

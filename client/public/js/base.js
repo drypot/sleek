@@ -114,14 +114,15 @@ init.add(function () {
 
 	var error = window.error = {};
 
+	error.ERROR_SET = 10;
+
 	error.NOT_AUTHENTICATED = 101;
 	error.NOT_AUTHORIZED = 102;
-	error.INVALID_PASSWORD = 103;
 
 	error.INVALID_DATA = 201;
 	error.INVALID_CATEGORY = 202;
 	error.INVALID_THREAD = 203;
-	error.INVALID_POST = 204
+	error.INVALID_POST = 204;
 
 });
 

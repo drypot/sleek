@@ -44,8 +44,8 @@ describe("creating thread", function () {
 		var form = { cid: 101, writer: 'snowman', title: ' ', text: 'text' };
 		express.post('/api/threads').send(form).end(function (err, res) {
 			should(!res.error);
-			res.body.err.rc.should.equal(error.INVALID_DATA);
-			res.body.err.fields.some(function (field) {
+			res.body.err.rc.should.equal(error.ERROR_SET);
+			res.body.err.errors.some(function (field) {
 				return field.name === 'title' && field.msg === error.msg.FILL_TITLE;
 			}).should.true;
 			next();
@@ -56,8 +56,8 @@ describe("creating thread", function () {
 		var form = { cid: 101, writer: 'snowman', text: 'text', title: bigTitle };
 		express.post('/api/threads').send(form).end(function (err, res) {
 			should(!res.error);
-			res.body.err.rc.should.equal(error.INVALID_DATA);
-			res.body.err.fields.some(function (field) {
+			res.body.err.rc.should.equal(error.ERROR_SET);
+			res.body.err.errors.some(function (field) {
 				return field.name === 'title' && field.msg === error.msg.SHORTEN_TITLE;
 			}).should.true;
 			next();
@@ -67,8 +67,8 @@ describe("creating thread", function () {
 		var form = { cid: 101, writer: ' ', title: 'title', text: 'text' };
 		express.post('/api/threads').send(form).end(function (err, res) {
 			should(!res.error);
-			res.body.err.rc.should.equal(error.INVALID_DATA);
-			res.body.err.fields.some(function (field) {
+			res.body.err.rc.should.equal(error.ERROR_SET);
+			res.body.err.errors.some(function (field) {
 				return field.name === 'writer' && field.msg === error.msg.FILL_WRITER;
 			}).should.true;
 			next();
@@ -78,8 +78,8 @@ describe("creating thread", function () {
 		var form = { cid: 101, writer: '123456789012345678901234567890123', title: 'title', text: 'text' };
 		express.post('/api/threads').send(form).end(function (err, res) {
 			should(!res.error);
-			res.body.err.rc.should.equal(error.INVALID_DATA);
-			res.body.err.fields.some(function (field) {
+			res.body.err.rc.should.equal(error.ERROR_SET);
+			res.body.err.errors.some(function (field) {
 				return field.name === 'writer' && field.msg === error.msg.SHORTEN_WRITER;
 			}).should.true;;
 			next();

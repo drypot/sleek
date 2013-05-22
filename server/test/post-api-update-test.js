@@ -47,8 +47,8 @@ describe("updating", function () {
 		var form = { cid: 101, writer: 'snowman', title: ' ', text: 'text', visible: true };
 		express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
 			should(!res.error);
-			res.body.err.rc.should.equal(error.INVALID_DATA);
-			res.body.err.fields.some(function (field) {
+			res.body.err.rc.should.equal(error.ERROR_SET);
+			res.body.err.errors.some(function (field) {
 				return field.name === 'title' && field.msg === error.msg.FILL_TITLE;
 			}).should.true;
 			next();
@@ -58,8 +58,8 @@ describe("updating", function () {
 		var form = { cid: 101, writer: ' ', title: 'title', text: 'text', visible: true };
 		express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
 			should(!res.error);
-			res.body.err.rc.should.equal(error.INVALID_DATA);
-			res.body.err.fields.some(function (field) {
+			res.body.err.rc.should.equal(error.ERROR_SET);
+			res.body.err.errors.some(function (field) {
 				return field.name === 'writer' && field.msg === error.msg.FILL_WRITER;
 			}).should.true;
 			next();

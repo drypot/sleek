@@ -61,8 +61,8 @@ describe("creating post/replay", function () {
 		var form = { writer: ' ', text: 'text' };
 		express.post('/api/threads/' + tid1).send(form).end(function (err, res) {
 			should(!res.error);
-			res.body.err.rc.should.equal(error.INVALID_DATA);
-			res.body.err.fields.some(function (field) {
+			res.body.err.rc.should.equal(error.ERROR_SET);
+			res.body.err.errors.some(function (field) {
 				return field.name === 'writer' && field.msg === error.msg.FILL_WRITER;
 			}).should.true;
 			next();
