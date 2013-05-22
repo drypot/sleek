@@ -14,7 +14,7 @@ before(function (next) {
 	});
 });
 
-describe("removeAnything", function () {
+describe("removeDirs", function () {
 	beforeEach(function (next) {
 		fs.mkdir(testdir + '/sub1', 0755, function (err) {
 			fs.mkdir(testdir + '/sub2', 0755, function (err) {
@@ -34,7 +34,7 @@ describe("removeAnything", function () {
 		fs.existsSync(testdir + '/sub1/f1.txt').should.true;
 		fs.existsSync(testdir + '/sub2/f2.txt').should.true;
 		fs.existsSync(testdir + '/sub2/sub3/f3.txt').should.true;
-		fs2.removeAnything(testdir + '/sub2/f2.txt', function (err) {
+		fs2.removeDirs(testdir + '/sub2/f2.txt', function (err) {
 			if (err) return next(err);
 			fs.existsSync(testdir + '/sub1').should.true;
 			fs.existsSync(testdir + '/sub2').should.true;
@@ -52,7 +52,7 @@ describe("removeAnything", function () {
 		fs.existsSync(testdir + '/sub1/f1.txt').should.true;
 		fs.existsSync(testdir + '/sub2/f2.txt').should.true;
 		fs.existsSync(testdir + '/sub2/sub3/f3.txt').should.true;
-		fs2.removeAnything(testdir + '/sub1', function (err) {
+		fs2.removeDirs(testdir + '/sub1', function (err) {
 			if (err) return next(err);
 			fs.existsSync(testdir + '/sub1').should.false;
 			fs.existsSync(testdir + '/sub2').should.true;
@@ -70,7 +70,7 @@ describe("removeAnything", function () {
 		fs.existsSync(testdir + '/sub1/f1.txt').should.true;
 		fs.existsSync(testdir + '/sub2/f2.txt').should.true;
 		fs.existsSync(testdir + '/sub2/sub3/f3.txt').should.true;
-		fs2.removeAnything(testdir + '/sub2', function (err) {
+		fs2.removeDirs(testdir + '/sub2', function (err) {
 			if (err) return next(err);
 			fs.existsSync(testdir + '/sub1').should.true;
 			fs.existsSync(testdir + '/sub2').should.false;
