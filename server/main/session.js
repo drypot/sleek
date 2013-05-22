@@ -22,16 +22,6 @@ init.add(function () {
 		if (res.locals.api) {
 			return next();
 		}
-		autoLogin(req, res, function (err, user) {
-			if (err) return next(err);
-			if (user) {
-				res.locals.user = user;
-			}
-			next();
-		});
-	};
-
-	function autoLogin(req, res, next) {
 		var password = req.cookies.password;
 		if (!password) {
 			return next();
@@ -41,10 +31,8 @@ init.add(function () {
 			res.clearCookie(password);
 			return next();
 		}
-		exports.initSession(req, user, function (err) {
-			if (err) return next(err);
-			next(null, user);
-		});
-	}
+		res.locals.user = user;
+		exports.initSession(req, user, next);
+	};
 
 });
