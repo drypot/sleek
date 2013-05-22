@@ -13,6 +13,22 @@ require('../main/session-api');
 require('../main/upload-api');
 require('../main/upload-html');
 
+function find(files, oname) {
+	var file = l.find(files, function (file) {
+		return file.oname === oname;
+	});
+	should.exist(file);
+	return file;
+}
+
+function exists(file) {
+	fs.existsSync(upload.getTmpPath(file.tname)).should.be.true;
+}
+
+function nexists(file) {
+	fs.existsSync(upload.getTmpPath(file.tname)).should.be.false;
+}
+
 before(function (next) {
 	init.run(next);
 });
@@ -31,28 +47,11 @@ describe("uploading none", function () {
 			should(!err);
 			should(!res.error);
 			should(!res.body.err);
-			should(res.body.files);
-			Object.keys(res.body.files).should.be.empty;
+			res.body.should.eql({});
 			next();
 		});
 	});
 });
-
-function find(files, oname) {
-	var file = l.find(files, function (file) {
-		return file.oname === oname;
-	});
-	should.exist(file);
-	return file;
-}
-
-function exists(file) {
-	fs.existsSync(upload.getTmpPath(file.tname)).should.be.true;
-}
-
-function nexists(file) {
-	fs.existsSync(upload.getTmpPath(file.tname)).should.be.false;
-}
 
 describe("uploading one file", function () {
 	it("should success", function (next) {
@@ -61,7 +60,8 @@ describe("uploading one file", function () {
 			should(!err);
 			should(!res.error);
 			should(!res.body.err);
-			exists(find(res.body.files, 'dummy1.txt'));
+			should(res.body.file);
+			exists(find(res.body.file, 'dummy1.txt'));
 			next();
 		});
 	});
@@ -75,8 +75,8 @@ describe("uploading two files", function () {
 			should(!err);
 			should(!res.error);
 			should(!res.body.err);
-			exists(find(res.body.files, 'dummy1.txt'));
-			exists(find(res.body.files, 'dummy2.txt'));
+			exists(find(res.body.file, 'dummy1.txt'));
+			exists(find(res.body.file, 'dummy2.txt'));
 			next();
 		});
 	});
@@ -92,8 +92,8 @@ describe("uploading two files to html", function () {
 			should(!res.body.err);
 			res.should.be.html;
 			var body = JSON.parse(res.text);
-			exists(find(body.files, 'dummy1.txt'));
-			exists(find(body.files, 'dummy2.txt'));
+			exists(find(body.file, 'dummy1.txt'));
+			exists(find(body.file, 'dummy2.txt'));
 			next();
 		});
 	});
@@ -109,20 +109,20 @@ describe("deleting file", function () {
 			should(!err);
 			should(!res.error);
 			should(!res.body.err);
-			_files = res.body.files;
+			_files = res.body.file;
 			next();
 		});
 	});
 	it("should success for dummy1.txt", function (next) {
-		var dummy = find(_files, 'dummy1.txt');
 		var files = [];
-		exists(dummy);
-		files.push(dummy);
+		var dummy1 = find(_files, 'dummy1.txt');
+		exists(dummy1);
+		files.push(dummy1.tname);
 		express.del('/api/upload').send({ files: files }).end(function (err, res) {
 			should(!err);
 			should(!res.error);
 			should(!res.body.err);
-			nexists(dummy);
+			nexists(dummy1);
 			next();
 		});
 	});
@@ -132,8 +132,8 @@ describe("deleting file", function () {
 		var dummy3 = find(_files, 'dummy3.txt');
 		exists(dummy2);
 		exists(dummy3);
-		files.push(dummy2);
-		files.push(dummy3);
+		files.push(dummy2.tname);
+		files.push(dummy3.tname);
 		express.del('/api/upload').send({ files: files }).end(function (err, res) {
 			should(!err);
 			should(!res.error);
@@ -150,7 +150,7 @@ describe("deleting file", function () {
 			tname: 'xxxxx-non-exist'
 		};
 		nexists(file);
-		files.push(file);
+		files.push(file.tname);
 		express.del('/api/upload').send({ files: files }).end(function (err, res) {
 			should(!err);
 			should(!res.error);
