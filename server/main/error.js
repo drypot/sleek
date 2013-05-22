@@ -67,4 +67,4 @@ msg.FILL_TITLE = '제목을 입력해 주십시오.';
 msg.SHORTEN_TITLE = '제목을 줄여 주십시오.';
 msg.FILL_WRITER = '필명을 입력해 주십시오.';
 msg.SHORTEN_WRITER = '필명을 줄여 주십시오.';
-msg.INVALID_PASSWORD = '비밀번호를 다시 확인해 주십시오.';
+msg.USER_NOT_FOUND = '비밀번호를 다시 확인해 주십시오.';

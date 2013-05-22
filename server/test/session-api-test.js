@@ -102,7 +102,7 @@ describe("making session", function () {
 			should(!res.error);
 			res.body.err.rc.should.equal(error.ERROR_SET);
 			res.body.err.errors[0].name.should.equal('password');
-			res.body.err.errors[0].msg.should.equal(error.msg.INVALID_PASSWORD);
+			res.body.err.errors[0].msg.should.equal(error.msg.USER_NOT_FOUND);
 			next();
 		});
 	});

@@ -28,7 +28,7 @@ init.add(function () {
 	app.post('/api/sessions', function (req, res) {
 		var user = uesrl.findUserByPassword(req.body.password || '');
 		if (!user) {
-			return res.jsonErr(error('password', error.msg.INVALID_PASSWORD));
+			return res.jsonErr(error('password', error.msg.USER_NOT_FOUND));
 		}
 		if (req.body.remember) {
 			res.cookie('password', req.body.password, {
