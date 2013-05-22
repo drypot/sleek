@@ -10,6 +10,10 @@ process.on('uncaughtException', function (err) {
 
 var funcs;
 
+exports.reset = function () {
+	funcs = [];
+}
+
 exports.add = function (func) {
 	if (func.length == 0) {
 		funcs.push(function (next) {
@@ -20,10 +24,6 @@ exports.add = function (func) {
 		funcs.push(func);
 	}
 };
-
-exports.reset = function () {
-	funcs = [];
-}
 
 exports.run = function (next) {
 	console.log('init:');
