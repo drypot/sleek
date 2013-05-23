@@ -7,13 +7,13 @@
     "test": "server/test"
   },
   "dependencies": {
-    "bcrypt": "~0.7.5",
-    "connect-redis": "~1.4.5",
-    "express": "~3.1.1",
-    "mongodb": "~1.2.14",
-    "should": "~1.2.2",
-    "superagent": "~0.14.0",
-    "jade": "~0.29.0"
+    "bcrypt": "0.7.5",
+    "connect-redis": "1.4.5",
+    "express": "3.2.5",
+    "mongodb": "1.2.14",
+    "should": "1.2.2",
+    "superagent": "0.14.0",
+    "jade": "0.29.0"
   },
   "devDependencies": {},
   "scripts": {
