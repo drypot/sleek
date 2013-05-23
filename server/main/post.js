@@ -289,11 +289,11 @@ init.add(function () {
 		});
 	}
 
-	exports.filePath = function (pid, fname) {
+	exports.getFilePath = function (pid, fname) {
 		return upload.pubPost + '/' + Math.floor(pid / 10000) + '/' + pid + (fname ? '/' + fname : '');
 	};
 
-	exports.fileUrl = function (pid, fname) {
+	exports.getFileUrl = function (pid, fname) {
 		return config.data.uploadUrl + '/post/' + Math.floor(pid / 10000) + '/' + pid + '/' + encodeURIComponent(fname);
 	}
 
@@ -301,14 +301,14 @@ init.add(function () {
 		if (post.files) {
 			for (var i = 0; i < post.files.length; i++) {
 				var file = post.files[i];
-				file.url = exports.fileUrl(post._id, file.name);
+				file.url = exports.getFileUrl(post._id, file.name);
 			}
 		}
 	}
 
 	function saveFiles (pid, files, next) {
 		if (files) {
-			fs2.makeDirs(exports.filePath(pid), function (err, dir) {
+			fs2.makeDirs(exports.getFilePath(pid), function (err, dir) {
 				if (err) return next(err);
 				var saved = [];
 				var i = 0;
@@ -336,7 +336,7 @@ init.add(function () {
 
 	function deleteFiles(pid, files, next) {
 		if (files) {
-			var dir = exports.filePath(pid);
+			var dir = exports.getFilePath(pid);
 			var deleted = [];
 			var i = 0;
 			function del() {

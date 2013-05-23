@@ -48,11 +48,11 @@ function find(files, oname) {
 }
 
 function exists(pid, fname) {
-	fs.existsSync(post.filePath(pid, fname)).should.be.true;
+	fs.existsSync(post.getFilePath(pid, fname)).should.be.true;
 }
 
 function notExists(pid, fname) {
-	fs.existsSync(post.filePath(pid, fname)).should.be.false;
+	fs.existsSync(post.getFilePath(pid, fname)).should.be.false;
 }
 
 var files, tid1, pid1;
@@ -75,7 +75,7 @@ describe("creating thread", function () {
 
 describe("saving files", function () {
 	it("given dummy1.txt, dummy2.txt", function (next) {
-		express.post('/api/upload').attach('file', dummy1).attach('file', dummy2).end(function (err, res) {
+		express.post('/api/upload').attach('files', dummy1).attach('files', dummy2).end(function (err, res) {
 			should(!err);
 			should(!res.error);
 			should(!res.body.err);
@@ -137,7 +137,7 @@ describe("deleting files", function () {
 
 describe("appending files", function () {
 	it("given dummy3.txt", function (next) {
-		express.post('/api/upload').attach('file', dummy3).end(function (err, res) {
+		express.post('/api/upload').attach('files', dummy3).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			files = res.body.files;
@@ -200,7 +200,7 @@ describe("saving non-existing file", function () {
 
 describe("saving file with invalid name", function () {
 	it("given dummy1.txt", function (next) {
-		express.post('/api/upload').attach('file', dummy1).end(function (err, res) {
+		express.post('/api/upload').attach('files', dummy1).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			files = res.body.files;
@@ -233,7 +233,7 @@ describe("saving file with invalid name", function () {
 
 describe("saving file with invalid name 2", function () {
 	it("given dummy1.txt", function (next) {
-		express.post('/api/upload').attach('file', dummy1).end(function (err, res) {
+		express.post('/api/upload').attach('files', dummy1).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			files = res.body.files;
@@ -266,7 +266,7 @@ describe("saving file with invalid name 2", function () {
 
 describe("saving file with invalid name 3", function () {
 	it("given dummy1.txt", function (next) {
-		express.post('/api/upload').attach('file', dummy1).end(function (err, res) {
+		express.post('/api/upload').attach('files', dummy1).end(function (err, res) {
 			should(!res.error);
 			should(!res.body.err);
 			files = res.body.files;
