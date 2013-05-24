@@ -1,7 +1,7 @@
 {
 	"siteTitle": "sleek test",
 
-	"port": 8010,
+	"port": 8110,
 	"cookieSecret": "o;iejf832ndvs",
 	"serviceStaticFiles": false,
 
