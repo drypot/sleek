@@ -138,7 +138,7 @@ init.add(function () {
 		var $form = formty.getForm('#new-form');
 		formty.initFileGroup($form, 'files');
 		if (url.query.c) {
-			$form.$category.val(url.query.c);
+			$form.$cid.val(url.query.c);
 		}
 		$form.$writer.val(localStorage.getItem('writer') || '');
 		if ($form.$writer.val()) {
