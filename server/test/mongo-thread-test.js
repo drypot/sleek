@@ -10,7 +10,7 @@ before(function (next) {
 
 describe("db", function () {
 	it("should have databaseName", function () {
-		mongo.db.databaseName.should.equal('sleek-test');
+		mongo.db.databaseName.should.equal(config.data.mongoDb);
 	});
 });
 
