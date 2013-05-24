@@ -59,8 +59,11 @@ init.add(function () {
 
 	app.use(app.router);
 
-	app.use(express.errorHandler());
+	if (config.data.serviceStaticFiles) {
+		app.use(express.static(process.cwd() + '/client/public'));
+	}
 
+	app.use(express.errorHandler());
 
 	// request utilities
 

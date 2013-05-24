@@ -3,13 +3,11 @@
 
 	"port": 8010,
 	"cookieSecret": "o;iejf832ndvs",
+	"serviceStaticFiles": false,
 
 	"uploadUrl": "http://sleekfile:8080",
 	"uploadDir": "upload",
 	"uploadMax": 512,
-
-	"esUrl": "http://localhost:9200",
-	"esIndexName": "sleek",
 
 	"mongoDbName": "sleek",
 

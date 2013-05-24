@@ -8,9 +8,6 @@
 	"uploadDir": "tmp/upload",
 	"uploadMax": 512,
 
-	"esUrl": "http://localhost:9200",
-	"esIndexName": "sleek-test",
-
 	"mongoDbName": "sleek-test",
 
 	"users": [
