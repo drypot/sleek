@@ -77,6 +77,13 @@ init.add(function () {
 		});
 	});
 
+	var postSuffixRe = /^\/post\/(.*)/;
+
+	app.get('/post/*', function (req, res, next) {
+		var tid = parseInt(req.params.tid) || 0;
+		res.redirect('/threads/' + req.url.match(postSuffixRe)[1]);
+	});
+
 	app.get('/threads/new', function (req, res, next) {
 		req.findUser(function (err, user) {
 			if (err) return res.renderErr(err);

@@ -5,7 +5,7 @@
 사용하는 DB 나 주변기술을 자주 바꾸기 때문에 이 코드를 실 서비스에 사용하시는 것은 권장하지 않습니다.
 
 
-# Nginx
+## Nginx
 
 프런트 웹 서버 설정 예
 
@@ -30,7 +30,7 @@
 	}
 
 
-# License
+## License
 
 The MIT License (MIT)
 
