@@ -9,7 +9,9 @@
 	"uploadDir": "upload",
 	"uploadMax": 512,
 
-	"mongoDbName": "sleek",
+	"mongoDb": "sleek",
+	"mongoUser": "",
+	"mongoPassword": "",
 
 	"users": [
 		{ "name": "user", "hash": "$2a$10$ku7nymS.1CPd8jMttYXZMe4wVWweWr1EqaYst75tzimQh2iAAqvZW" },

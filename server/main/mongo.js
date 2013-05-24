@@ -36,8 +36,16 @@ init.add(function (next) {
 		var client = new MongoClient(server);
 		client.open(function (err) {
 			if (err) return next(err);
-			var db = exports.db = client.db(config.data.mongoDbName);
+			var db = exports.db = client.db(config.data.mongoDb);
 			log += ' ' + db.databaseName;
+			if (config.data.mongoUser) {
+				log += ' auth-database';
+				db.authenticate(config.data.mongoUser, config.data.mongoPassword, function(err, res) {
+					if (err) return next(err);
+					next(null, db);
+				});
+				return;
+			}
 			next(null, db);
 		});
 	}
