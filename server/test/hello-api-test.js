@@ -22,22 +22,11 @@ describe("/api/hello", function () {
 			should(!err);
 			should(!res.error);
 			res.should.be.json;
-			res.body.should.equal('hello');
-			next();
-		});
-	});
-});
-
-describe("/api/time", function () {
-	it("should return server time in milliseconds", function (next) {
-		express.get('/api/time', function (err, res) {
-			should(!err);
-			should(!res.error);
-			res.should.be.json;
-			var time = parseInt(res.body || 0);
-			var now = Date.now();
-			should(time <= now);
-			should(time >= now - 100);
+			res.body.name.should.equal(config.data.siteTitle);
+			var stime = parseInt(res.body.time || 0);
+			var ctime = Date.now();
+			should(stime <= ctime);
+			should(stime >= ctime - 100);
 			next();
 		});
 	});
