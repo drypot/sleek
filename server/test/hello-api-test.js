@@ -27,3 +27,18 @@ describe("/api/hello", function () {
 		});
 	});
 });
+
+describe("/api/time", function () {
+	it("should return server time in milliseconds", function (next) {
+		express.get('/api/time', function (err, res) {
+			should(!err);
+			should(!res.error);
+			res.should.be.json;
+			var time = parseInt(res.body || 0);
+			var now = Date.now();
+			should(time <= now);
+			should(time >= now - 100);
+			next();
+		});
+	});
+});

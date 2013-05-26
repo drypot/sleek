@@ -9,4 +9,8 @@ init.add(function () {
 		res.json('hello');
 	});
 
+	express.app.get('/api/time', function (req, res) {
+		res.json(Date.now());
+	});
+
 });
