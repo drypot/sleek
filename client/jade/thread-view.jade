@@ -11,42 +11,42 @@ block content
 			post.initReplyForm();
 		});
 
-	.container
-		.content
+	.side-space
+		.page-header
+			h2 #{thread.title}
 
-			.page-header
-				h2 #{thread.title}
+	.side-space-table
+		.posts
+			for post in posts
+				.post(id=post._id)
+					h5 #{post.writer}
+						small.d !{post.cdateStr}
+					if post.files
+						.files
+							for file in post.files
+								.file
+									a(href=file.url, target='_blank') #{file.name}
+					.text
+						pre #{post.text}
+					if post.editable
+						.cmd
+							a.btn.btn-mini.btn-default(href='/threads/' + thread._id + '/' + post._id + '/edit') Edit
 
-			#posts
-				for post in posts
-					.post(id=post._id)
-						h5 #{post.writer}
-							small.d !{post.cdateStr}
-						if post.files
-							.files
-								for file in post.files
-									.file
-										a(href=file.url, target='_blank') #{file.name}
-						.text
-							pre #{post.text}
-						if post.editable
-							.cmd
-								a.btn.btn-small.btn-default(href='/threads/' + thread._id + '/' + post._id + '/edit') Edit
+	.side-space
+		.page-header
+			h2 Reply
 
-			.page-header
-				h2 Reply
-
-			form#reply-form
-				.form-row
-					label.control-label 이름
-					input.input-with-feedback.col-lg-4(type='text', name='writer', value='', maxlength='32')
-				.form-row
-					label.control-label 내용
-					textarea.input-with-feedback(name='text', rows=10)
-				.form-row.file-group.clearfix
-					.files.col.col-lg-7
-					.actions.col.col-lg-1
-						button.btn.btn-default.glyphicon.glyphicon-plus
-				.form-actions
-					button.btn.btn-primary(name='send') Send
-					button.btn.btn-default.disabled.hide(name='sending') Sending
+		form#form
+			.form-row
+				label.control-label 이름
+				input.input-with-feedback.col-lg-4(type='text', name='writer', value='', maxlength='32')
+			.form-row
+				label.control-label 내용
+				textarea.input-with-feedback(name='text', rows=10)
+			.form-row.file-group.clearfix
+				.files.col.col-lg-7
+				.actions.col.col-lg-1
+					button.btn.btn-default.glyphicon.glyphicon-plus
+			.form-actions
+				button.btn.btn-primary(name='send') Send
+				button.btn.btn-default.disabled.hide(name='sending') Sending

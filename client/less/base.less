@@ -3,35 +3,42 @@ body {
 	padding-bottom: 40px;
 }
 
-.navbar {
-	margin-bottom:0px;
+.side-space {
+	margin-left: 1px;
+	margin-right: 1px;
+	padding-left: 8px;
+	padding-right: 8px;
 }
 
-.content {
-	padding-left:5px;
-	padding-right:5px;
+.side-space-table {
+	margin-left: 1px;
+	margin-right: 1px;
+	padding-left: 0px;
+	padding-right: 0px;
 }
 
 .page-header {
 	border: 0;
-	margin-bottom: 10px;
-	//margin-left: 8px;
 }
 
-#categories {
-	margin-top:0px;
-	hr {
-		margin-bottom: 8px;
-	}
+.footer {
+	margin-top: 45px;
+	border-top: 1px solid #eeeeee;
+	padding-top: 12px;
 	ul {
+		margin: 0px;
 		li {
 			padding-left:0px;
-			padding-right:15px;
+			padding-right:9px;
 		}
 	}
 }
 
-#threads {
+.threads {
+	margin-bottom: 20px;
+}
+
+.threads-lg {
 	td {
 		white-space: nowrap;
 	}
@@ -40,32 +47,25 @@ body {
 	}
 }
 
-#threads-phone {
-	small {
-		margin-right: 10px;
-	}
+.threads-sm {
 	td {
 		width:1000px;
 	}
 	div.t {
 		margin-bottom: 5px;
 	}
+	small {
+		margin-right: 10px;
+	}
 }
 
-.threads {
-	margin-bottom: 20px;
-}
-
-.pager {
-	text-align: left;
-	margin-left:0px;
-}
-
-#posts {
+.posts {
 	border-bottom: 1px solid #ddd;
 	margin-bottom: 20px;
 	.post {
 		border-top: 1px solid #ddd;
+		padding-left: 8px;
+		padding-right: 8px;
 		h5, h4 {
 			small {
 				margin-left: 15px;
@@ -109,8 +109,11 @@ body {
 	}
 }
 
-#search-results {
+.search-results {
 	.t {
+		h4 {
+			margin-top: 2px;
+		}
 	}
 	.tx {
 		margin-bottom: 5px;
@@ -127,11 +130,7 @@ body {
 form {
 	.form-row {
 		margin-bottom:10px;
-		label {
-			display:block;
-		}
 	}
-
 	.form-actions {
 		margin-top: 25px;
 		margin-bottom: 20px;
@@ -164,7 +163,15 @@ form {
 	}
 }
 
+.pager {
+	margin-left: -6px;
+	text-align: left;
+	ul {
+		margin-left:0px;
+	}
+}
+
 .btn-mini {
-	padding: 1px 6px;
+	padding: 1px 6px 2px 6px;
 	font-size: 11px;
 }

@@ -70,7 +70,7 @@ init.add(function () {
 			return $('<button class="media-handle btn btn-mini btn-info">Show</button>');
 		}
 
-		var $posts = $('#posts');
+		var $posts = $('.posts');
 
 		$posts.find('.text pre').each(function () {
 			$(this).html(tagUpText($(this).html(), 0));
@@ -135,7 +135,7 @@ init.add(function () {
 	};
 
 	post.initNewForm = function () {
-		var $form = formty.getForm('#new-form');
+		var $form = formty.getForm('#form');
 		formty.initFileGroup($form, 'files');
 		if (url.query.c) {
 			$form.$cid.val(url.query.c);
@@ -157,7 +157,7 @@ init.add(function () {
 	};
 
 	post.initReplyForm = function () {
-		var $form = formty.getForm('#reply-form');
+		var $form = formty.getForm('#form');
 		formty.initFileGroup($form, 'files');
 		$form.$writer.val(localStorage.getItem('writer') || '');
 		$form.$send.click(function () {
@@ -171,7 +171,7 @@ init.add(function () {
 	};
 
 	post.initEditForm = function () {
-		var $form = formty.getForm('#edit-form');
+		var $form = formty.getForm('#form');
 		formty.initFileGroup($form, 'files');
 		$form.$send.click(function () {
 			formty.put('/api/threads/' + url.pathnames[1] + '/' + url.pathnames[2], $form, function (err, res) {

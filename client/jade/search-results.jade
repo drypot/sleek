@@ -5,39 +5,40 @@ block title
 
 block content
 
-	.container
-		.content
-			.page-header
-				h2 Search: #{query}
+	.side-space
+		.page-header
+			h2 Search: #{query}
 
-			table#search-results.table.table-hover
-				tbody
-					for post in posts
-						tr
-							td
-								.t
-									h4
-										a(href="/threads/" + post.thread._id + '#' + post._id) #{post.thread.title}
-								.tx #{post.text}
-								.i
-									span #{post.category.name}
-									span #{post.writer}
-									span.d !{post.cdateStr}
-					else
-						tr
-							td.t 검색 결과가 없습니다.
-							td
+	.side-space-table
+		table.table.table-hover.search-results
+			tbody
+				for post in posts
+					tr
+						td
+							.t
+								h4
+									a(href="/threads/" + post.thread._id + '#' + post._id) #{post.thread.title}
+							.tx #{post.text}
+							.i
+								span #{post.category.name}
+								span #{post.writer}
+								span.d !{post.cdateStr}
+				else
+					tr
+						td.t 검색 결과가 없습니다.
+						td
 
-			ul.pager
-				if locals.prevUrl
-					li
-						a(href=prevUrl) Previous
-				else
-					li.disabled
-						a(href='javascript:void(0)') Previous
-				if locals.nextUrl
-					li
-						a(href=nextUrl) Next
-				else
-					li.disabled
-						a(href='javascript:void(0)') Next
+	.side-space
+		ul.pager
+			if locals.prevUrl
+				li
+					a(href=prevUrl) Previous
+			else
+				li.disabled
+					a(href='javascript:void(0)') Previous
+			if locals.nextUrl
+				li
+					a(href=nextUrl) Next
+			else
+				li.disabled
+					a(href='javascript:void(0)') Next

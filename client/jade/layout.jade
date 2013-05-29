@@ -26,7 +26,6 @@ html
 		script(src='/js/post.js')
 
 	body
-		// navbar
 		.container
 			.navbar
 				if locals.user
@@ -50,16 +49,15 @@ html
 				else
 					a.navbar-brand(href='/') #{siteTitle}
 
-		block content
+			block content
 
-		if locals.user
-			#categories.container
-				hr
-				.content
-					ul.list-inline(style='margin: 5px')
-						li: a(href='/threads') all
-						for c in user.categoriesOrdered
-							li: a(href='/threads?c=' + c.id) #{c.name}
+			if locals.user
+				.footer
+					.side-space
+						ul.list-inline
+							li: a(href='/threads') all
+							for c in user.categoriesOrdered
+								li: a(href='/threads?c=' + c.id) #{c.name}
 
 		#error-modal.modal
 			.modal-dialog

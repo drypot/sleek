@@ -1,74 +1,78 @@
 body {
   padding-bottom: 40px;
 }
-.navbar {
-  margin-bottom: 0px;
+.side-space {
+  margin-left: 1px;
+  margin-right: 1px;
+  padding-left: 8px;
+  padding-right: 8px;
 }
-.content {
-  padding-left: 5px;
-  padding-right: 5px;
+.side-space-table {
+  margin-left: 1px;
+  margin-right: 1px;
+  padding-left: 0px;
+  padding-right: 0px;
 }
 .page-header {
   border: 0;
-  margin-bottom: 10px;
 }
-#categories {
-  margin-top: 0px;
+.footer {
+  margin-top: 45px;
+  border-top: 1px solid #eeeeee;
+  padding-top: 12px;
 }
-#categories hr {
-  margin-bottom: 8px;
+.footer ul {
+  margin: 0px;
 }
-#categories ul li {
+.footer ul li {
   padding-left: 0px;
-  padding-right: 15px;
-}
-#threads td {
-  white-space: nowrap;
-}
-#threads td.t {
-  width: 100%;
-}
-#threads-phone small {
-  margin-right: 10px;
-}
-#threads-phone td {
-  width: 1000px;
-}
-#threads-phone div.t {
-  margin-bottom: 5px;
+  padding-right: 9px;
 }
 .threads {
   margin-bottom: 20px;
 }
-.pager {
-  text-align: left;
-  margin-left: 0px;
+.threads-lg td {
+  white-space: nowrap;
 }
-#posts {
+.threads-lg td.t {
+  width: 100%;
+}
+.threads-sm td {
+  width: 1000px;
+}
+.threads-sm div.t {
+  margin-bottom: 5px;
+}
+.threads-sm small {
+  margin-right: 10px;
+}
+.posts {
   border-bottom: 1px solid #ddd;
   margin-bottom: 20px;
 }
-#posts .post {
+.posts .post {
   border-top: 1px solid #ddd;
+  padding-left: 8px;
+  padding-right: 8px;
 }
-#posts .post h5 small,
-#posts .post h4 small {
+.posts .post h5 small,
+.posts .post h4 small {
   margin-left: 15px;
 }
-#posts .post .files {
+.posts .post .files {
   margin-bottom: 10px;
 }
-#posts .post .files .file {
+.posts .post .files .file {
   margin-bottom: 3px;
 }
-#posts .post .files .file img {
+.posts .post .files .file img {
   margin-top: 3px;
 }
-#posts .post .text {
+.posts .post .text {
   clear: both;
   margin-bottom: 25px;
 }
-#posts .post .text pre {
+.posts .post .text pre {
   font-family: monospace;
   font-size: 14px;
   border: 0;
@@ -78,33 +82,33 @@ body {
   white-space: pre-wrap;
   word-wrap: break-word;
 }
-#posts .post .text img {
+.posts .post .text img {
   vertical-align: top;
 }
-#posts .post .cmd {
+.posts .post .cmd {
   margin-bottom: 1em;
 }
-#posts .post .media-handle {
+.posts .post .media-handle {
   margin-left: 8px;
 }
-#posts .post .media {
+.posts .post .media {
   color: #56C0E0;
 }
-#search-results .tx {
+.search-results .t h4 {
+  margin-top: 2px;
+}
+.search-results .tx {
   margin-bottom: 5px;
   word-break: break-all;
 }
-#search-results .i {
+.search-results .i {
   margin-bottom: 5px;
 }
-#search-results .i span {
+.search-results .i span {
   margin-right: 10px;
 }
 form .form-row {
   margin-bottom: 10px;
-}
-form .form-row label {
-  display: block;
 }
 form .form-actions {
   margin-top: 25px;
@@ -132,7 +136,14 @@ form textarea {
   font-family: monospace;
   -webkit-overflow-scrolling: auto;
 }
+.pager {
+  margin-left: -6px;
+  text-align: left;
+}
+.pager ul {
+  margin-left: 0px;
+}
 .btn-mini {
-  padding: 1px 6px;
+  padding: 1px 6px 2px 6px;
   font-size: 11px;
 }

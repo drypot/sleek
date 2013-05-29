@@ -9,17 +9,16 @@ block content
 			session.initLogin();
 		});
 
-	.container
-		.content
-			.page-header
-				h2 Login
+	.side-space
+		.page-header
+			h2 Login
 
-			form#login-form
-				.form-row
-					label.control-label Password
-					input.input-with-feedback.col-lg-3(name='password', type='password')
-				.checkbox
-					label Remember
-					input(name='remember', type='checkbox')
-				.form-actions
-					button.btn.btn-primary(name='send') Login
+		form#form
+			.form-row
+				label.control-label Password
+				input.input-with-feedback.col-lg-3(name='password', type='password')
+			.checkbox
+				label Remember
+				input(name='remember', type='checkbox')
+			.form-actions
+				button.btn.btn-primary(name='send') Login
