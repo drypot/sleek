@@ -28,9 +28,6 @@ body {
   padding-left: 0px;
   padding-right: 9px;
 }
-.threads {
-  margin-bottom: 20px;
-}
 .threads-lg td {
   white-space: nowrap;
 }
@@ -140,8 +137,9 @@ form textarea {
   margin-left: -6px;
   text-align: left;
 }
-.pager ul {
-  margin-left: 0px;
+.pagination {
+  margin: 0px;
+  margin-left: -1px;
 }
 .btn-mini {
   padding: 1px 6px 2px 6px;

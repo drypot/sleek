@@ -29,16 +29,4 @@ block content
 						td
 
 	.side-space
-		ul.pager
-			if locals.prevUrl
-				li
-					a(href=prevUrl) Previous
-			else
-				li.disabled
-					a(href='javascript:void(0)') Previous
-			if locals.nextUrl
-				li
-					a(href=nextUrl) Next
-			else
-				li.disabled
-					a(href='javascript:void(0)') Next
+		include pager

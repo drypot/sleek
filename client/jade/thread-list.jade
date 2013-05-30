@@ -15,7 +15,7 @@ block content
 			h2 #{category.name}
 
 	.side-space-table
-		table.threads.threads-lg.table.table-hover.hidden-sm
+		table.table.table-hover.hidden-sm.threads.threads-lg
 			tbody
 				for thread in threads
 					tr
@@ -36,7 +36,7 @@ block content
 						td
 
 
-		table.threads.threads-sm.table.table-hover.visible-sm
+		table.table.table-hover.visible-sm.threads.threads-sm
 			tbody
 				for thread in threads
 					tr
@@ -57,18 +57,5 @@ block content
 					tr
 						td.t 표시할 내용이 없습니다.
 						td
-
 	.side-space
-		ul.pager
-			if locals.prevUrl
-				li
-					a(href=prevUrl) Previous
-			else
-				li.disabled
-					a(href='javascript:void(0)') Previous
-			if locals.nextUrl
-				li
-					a(href=nextUrl) Next
-			else
-				li.disabled
-					a(href='javascript:void(0)') Next
+		include pager
