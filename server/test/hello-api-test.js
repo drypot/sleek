@@ -22,7 +22,7 @@ describe("/api/hello", function () {
 			should(!err);
 			should(!res.error);
 			res.should.be.json;
-			res.body.name.should.equal(config.data.siteTitle);
+			res.body.name.should.equal(config.data.appName);
 			var stime = parseInt(res.body.time || 0);
 			var ctime = Date.now();
 			should(stime <= ctime);

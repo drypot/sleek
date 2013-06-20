@@ -1,11 +1,11 @@
 {
-	"siteTitle": "sleek dev",
+	"uploadUrl": "http://localhost:8001",
 
-	"port": 8010,
+	"appName": "sleek dev",
+	"appPort": 8800,
 	"cookieSecret": "o;iejf832ndvs",
 	"serviceStaticFiles": false,
 
-	"uploadUrl": "http://sleekfile:8080",
 	"uploadDir": "upload",
 	"uploadMax": 512,
 

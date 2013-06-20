@@ -8,7 +8,7 @@ init.add(function () {
 
 	express.app.get('/api/hello', function (req, res) {
 		res.json({
-			name: config.data.siteTitle,
+			name: config.data.appName,
 			time: Date.now()
 		});
 	});

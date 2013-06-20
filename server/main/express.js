@@ -29,7 +29,7 @@ init.add(function () {
 	app.set('views', process.cwd() + '/client/jade'); // view root
 	app.locals.pretty = true;
 
-	app.locals.siteTitle = config.data.siteTitle;
+	app.locals.appName = config.data.appName;
 
 	app.use(express.cookieParser(config.data.cookieSecret));
 
@@ -126,8 +126,8 @@ init.add(function () {
 	}
 
 	exports.listen = function () {
-		app.listen(config.data.port);
-		log += ' ' + config.data.port;
+		app.listen(config.data.appPort);
+		log += ' ' + config.data.appPort;
 		console.log(log);
 	};
 
@@ -135,7 +135,7 @@ init.add(function () {
 	// for test
 
 	var request = require('superagent').agent();
-	var url = 'http://localhost:' + config.data.port;
+	var url = 'http://localhost:' + config.data.appPort;
 	var methods = [ 'post', 'get', 'put', 'del' ];
 
 	for (var i = 0; i < methods.length; i++) {
