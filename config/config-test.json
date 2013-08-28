@@ -2,7 +2,7 @@
 	"uploadUrl": "http://localhost:8001",
 
 	"appName": "sleek test",
-	"appPort": 8801,
+	"appPort": 8001,
 	"cookieSecret": "o;iejf832ndvs",
 	"serviceStaticFiles": false,
 

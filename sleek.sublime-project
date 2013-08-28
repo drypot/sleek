@@ -1,0 +1,39 @@
+{
+	"folders":
+	[
+		{
+			"path": ".",
+			"folder_exclude_patterns": [
+				"*"
+			]
+		},
+		{
+			"path": "bin"
+		},
+		{
+			"path": "config"
+		},
+		{
+			"path": "config-live"
+		},
+		{
+			"path": "doc"
+		},
+		{
+			"path": "client",
+			"folder_exclude_patterns": [
+				"public/lib"
+			]
+		},
+		{
+			"path": "server"
+		},
+
+	],
+	"settings":
+    {
+    },
+    "build_systems":
+    [
+    ]
+}
