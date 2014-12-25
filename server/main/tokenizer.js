@@ -1,4 +1,3 @@
-
 // stop words from lucene
 
 var stops = [
@@ -51,6 +50,7 @@ function tokenizeUnis(source, tokens) {
 			var word = unis[i];
 			var wordLen = word.length;
 			if (wordLen == 1) {
+				tokens[word] = true;
 				continue;
 			}
 			var prev = undefined;
