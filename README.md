@@ -5,6 +5,12 @@
 사용하는 DB 나 주변기술을 자주 바꾸기 때문에 실 서비스에 사용하는 것은 권장하지 않습니다.
 
 
+## Install and Upgrade
+
+* [Install](INSTALL.md)
+* [Upgrade](UPGRADE.md)
+
+
 ## History
 
 2015.03 2 년만에 여기저기 수선.
