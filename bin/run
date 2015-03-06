@@ -1,0 +1,12 @@
+if [ $# -eq 0 ]; then
+  echo 'run [sleek|...] [dev|live]'
+  exit 1
+fi
+
+if [ '$2' = 'live' ]; then
+  NODE_ENV=production
+else
+  NODE_ENV=development
+fi
+
+node modules/app/app.js --config config/$1-$2.json

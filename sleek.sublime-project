@@ -1,39 +1,38 @@
 {
-	"folders":
-	[
-		{
-			"path": ".",
-			"folder_exclude_patterns": [
-				"*"
-			]
-		},
-		{
-			"path": "bin"
-		},
-		{
-			"path": "config"
-		},
-		{
-			"path": "config-live"
-		},
-		{
-			"path": "doc"
-		},
-		{
-			"path": "client",
-			"folder_exclude_patterns": [
-				"public/lib"
-			]
-		},
-		{
-			"path": "server"
-		},
-
-	],
-	"settings":
+  "build_systems":
+  [
+  ],
+  "folders":
+  [
     {
+      "folder_exclude_patterns": [
+        "*"
+      ],
+      "follow_symlinks": true,
+      "path": "."
     },
-    "build_systems":
-    [
-    ]
+    {
+      "follow_symlinks": true,
+      "path": "bin"
+    },
+    {
+      "follow_symlinks": true,
+      "path": "config"
+    },
+    {
+      "folder_exclude_patterns": [
+        "public/modules/bower"
+      ],
+      "follow_symlinks": true,
+      "path": "public"
+    },
+    {
+      "follow_symlinks": true,
+      "path": "modules"
+    },
+
+  ],
+  "settings":
+  {
+  }
 }
