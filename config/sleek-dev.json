@@ -1,59 +1,58 @@
 {
-	"uploadUrl": "http://localhost:8001",
+  "appName": "sleek dev",
+  "appPort": 8000,
+  "cookieSecret": "o;iejf832ndvs",
+  "serviceStaticFiles": false,
 
-	"appName": "sleek dev",
-	"appPort": 8000,
-	"cookieSecret": "o;iejf832ndvs",
-	"serviceStaticFiles": false,
+  "uploadUrl": "http://file.sleek.local:8080",
+  "uploadDir": "upload/sleek",
+  "uploadMax": 512,
 
-	"uploadDir": "upload",
-	"uploadMax": 512,
+  "mongoDb": "sleek",
+  "mongoUser": "",
+  "mongoPassword": "",
 
-	"mongoDb": "sleek",
-	"mongoUser": "",
-	"mongoPassword": "",
+  "users": [
+    { "name": "user", "hash": "$2a$10$ku7nymS.1CPd8jMttYXZMe4wVWweWr1EqaYst75tzimQh2iAAqvZW" },
+    { "name": "cheater", "hash": "$2a$10$UujeEPUXiV/ipq9Cl3htK.KrWLKHdxQcM5VFCBoxBV5pdNG3C2Exy" },
+    { "name": "admin", "hash": "$2a$10$vIl4m5eO71dCHQmZH7/BxOwLIHZ/9NYASyosTHgtLEO/MRlCATU9S", "admin": true }
+  ],
 
-	"users": [
-		{ "name": "user", "hash": "$2a$10$ku7nymS.1CPd8jMttYXZMe4wVWweWr1EqaYst75tzimQh2iAAqvZW" },
-		{ "name": "cheater", "hash": "$2a$10$UujeEPUXiV/ipq9Cl3htK.KrWLKHdxQcM5VFCBoxBV5pdNG3C2Exy" },
-		{ "name": "admin", "hash": "$2a$10$vIl4m5eO71dCHQmZH7/BxOwLIHZ/9NYASyosTHgtLEO/MRlCATU9S", "admin": true }
-	],
+  "categories": [
+    { "id": 100, "name": "freetalk", "users": ["user", "cheater"] },
+    { "id": 106, "name": "funny", "users": ["user", "cheater"] },
+    { "id": 104, "name": "health", "users": ["user", "cheater"] },
+    { "id": 401, "name": "trade", "users": ["user", "cheater"] },
 
-	"categories": [
-		{ "id": 100, "name": "freetalk", "users": ["user", "cheater"] },
-		{ "id": 106, "name": "funny", "users": ["user", "cheater"] },
-		{ "id": 104, "name": "health", "users": ["user", "cheater"] },
-		{ "id": 401, "name": "trade", "users": ["user", "cheater"] },
+    { "id": 102, "name": "blackkid", "users": ["user", "cheater"] },
+    { "id": 220, "name": "epicure", "users": ["user", "cheater"] },
 
-		{ "id": 102, "name": "blackkid", "users": ["user", "cheater"] },
-		{ "id": 220, "name": "epicure", "users": ["user", "cheater"] },
+    { "id": 215, "name": "apple", "users": ["user", "cheater"] },
+    { "id": 909, "name": "google", "users": ["user", "cheater"] },
+    { "id": 200, "name": "microsoft", "users": ["user", "cheater"] },
 
-		{ "id": 215, "name": "apple", "users": ["user", "cheater"] },
-		{ "id": 909, "name": "google", "users": ["user", "cheater"] },
-		{ "id": 200, "name": "microsoft", "users": ["user", "cheater"] },
+    { "id": 210, "name": "linux", "users": ["user", "cheater"] },
+    { "id": 203, "name": "java", "users": ["user", "cheater"] },
+    { "id": 217, "name": "pda", "users": ["user", "cheater"] },
+    { "id": 110, "name": "tool", "users": ["user", "cheater"] },
 
-		{ "id": 210, "name": "linux", "users": ["user", "cheater"] },
-		{ "id": 203, "name": "java", "users": ["user", "cheater"] },
-		{ "id": 217, "name": "pda", "users": ["user", "cheater"] },
-		{ "id": 110, "name": "tool", "users": ["user", "cheater"] },
+    { "id": 120, "name": "game", "users": ["user", "cheater"] },
+    { "id": 130, "name": "music", "users": ["user", "cheater"] },
+    { "id": 140, "name": "movie", "users": ["user", "cheater"] },
+    { "id": 150, "name": "anime", "users": ["user", "cheater"] },
 
-		{ "id": 120, "name": "game", "users": ["user", "cheater"] },
-		{ "id": 130, "name": "music", "users": ["user", "cheater"] },
-		{ "id": 140, "name": "movie", "users": ["user", "cheater"] },
-		{ "id": 150, "name": "anime", "users": ["user", "cheater"] },
+    { "id": 101, "name": "who is it ?", "users": ["user", "cheater"] },
+    { "id": 910, "name": "obituary", "users": ["user", "cheater"] },
 
-		{ "id": 101, "name": "who is it ?", "users": ["user", "cheater"] },
-		{ "id": 910, "name": "obituary", "users": ["user", "cheater"] },
+    { "id": 60, "name": "cheat", "users": ["cheater"] },
 
-		{ "id": 60, "name": "cheat", "users": ["cheater"] },
+    { "id": 40, "name": "recycle bin", "users": [] },
+    { "id": 50, "name": "test", "users": [] }
+  ],
 
-		{ "id": 40, "name": "recycle bin", "users": [] },
-		{ "id": 50, "name": "test", "users": [] }
-	],
-
-	"unused": [
-		{ "id": 400, "name": "house109", "users": ["user", "cheater"] },
-		{ "id": 300, "name": "house", "users": ["user", "cheater"] }
-	]
+  "unused": [
+    { "id": 400, "name": "house109", "users": ["user", "cheater"] },
+    { "id": 300, "name": "house", "users": ["user", "cheater"] }
+  ]
 }
 
