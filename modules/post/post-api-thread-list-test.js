@@ -10,8 +10,8 @@ var ufix = require('../user/user-fixture');
 require('../user/user-auth-api');
 require('../post/post-api');
 
-before(function (next) {
-  init.run(next);
+before(function (done) {
+  init.run(done);
 });
 
 before(function () {
@@ -29,24 +29,24 @@ describe("listing threads", function () {
     { cid: 400, writer: 'snowman', title: 'title 7', text: 'text 7' }
   ];
 
-  it("given logged out", function (next) {
-    ufix.logout(next);
+  it("given logged out", function (done) {
+    ufix.logout(done);
   });
-  it("should fail", function (next) {
+  it("should fail", function (done) {
     express.post('/api/threads', function (err, res) {
       should(!res.error);
       res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
-      next();
+      done();
     });
   });
-  it("given user session", function (next) {
-    ufix.loginUser(next);
+  it("given user session", function (done) {
+    ufix.loginUser(done);
   });
-  it("given sample threads", function (next) {
+  it("given sample threads", function (done) {
     var i = 0;
     var len = samples.length;
     (function insert() {
-      if (i == len) return next();
+      if (i == len) return done();
       var item = samples[i++];
       express.post('/api/threads').send(item).end(function (err, res) {
         should(!res.error);
@@ -54,7 +54,7 @@ describe("listing threads", function () {
       });
     })();
   });
-  it("should success when no op", function (next) {
+  it("should success when no op", function (done) {
     express.get('/api/threads', function (err, res) {
       should(!res.body.err);
       res.body.threads.should.length(7);
@@ -73,26 +73,26 @@ describe("listing threads", function () {
       t.category.id.should.equal(100);
       t.writer.should.equal('snowman');
       t.title.should.equal('title 1');
-      next();
+      done();
     });
   });
-  it("should success with category 0", function (next) {
+  it("should success with category 0", function (done) {
     express.get('/api/threads').query({ c: 0 }).end(function (err, res) {
       should(!res.error);
       should(!res.body.err);
       res.body.threads.should.length(7);
-      next();
+      done();
     });
   });
-  it("should success with category 300", function (next) {
+  it("should success with category 300", function (done) {
     express.get('/api/threads').query({ c: 300 }).end(function (err, res) {
       should(!res.error);
       should(!res.body.err);
       res.body.threads.should.length(2);
-      next();
+      done();
     });
   });
-  it("should success with page 2", function (next) {
+  it("should success with page 2", function (done) {
     express.get('/api/threads').query({ c: 0, pg: 2, ps: 3 }).end(function (err, res) {
       should(!res.error);
       should(!res.body.err);
@@ -100,40 +100,40 @@ describe("listing threads", function () {
       res.body.threads[0].title.should.equal('title 4');
       res.body.threads[1].title.should.equal('title 3');
       res.body.threads[2].title.should.equal('title 2');
-      next();
+      done();
     });
   });
   describe("last", function () {
-    it("should be false with page 1", function (next) {
+    it("should be false with page 1", function (done) {
       express.get('/api/threads').query({ c: 0, pg: 1, ps: 3 }).end(function (err, res) {
         should(!res.error);
         should(!res.body.err);
         res.body.last.should.false;
-        next();
+        done();
       });
     });
-    it("should be false with page 2", function (next) {
+    it("should be false with page 2", function (done) {
       express.get('/api/threads').query({ c: 0, pg: 2, ps: 3 }).end(function (err, res) {
         should(!res.error);
         should(!res.body.err);
         res.body.last.should.false;
-        next();
+        done();
       });
     });
-    it("should be false with page 3", function (next) {
+    it("should be false with page 3", function (done) {
       express.get('/api/threads').query({ c: 0, pg: 3, ps: 3 }).end(function (err, res) {
         should(!res.error);
         should(!res.body.err);
         res.body.last.should.true;
-        next();
+        done();
       });
     });
-    it("should be false with page 4", function (next) {
+    it("should be false with page 4", function (done) {
       express.get('/api/threads').query({ c: 0, pg: 4, ps: 3 }).end(function (err, res) {
         should(!res.error);
         should(!res.body.err);
         res.body.last.should.true;
-        next();
+        done();
       });
     });
   });

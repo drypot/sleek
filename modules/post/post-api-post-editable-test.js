@@ -10,8 +10,8 @@ var ufix = require('../user/user-fixture');
 require('../user/user-auth-api');
 require('../post/post-api');
 
-before(function (next) {
-  init.run(next);
+before(function (done) {
+  init.run(done);
 });
 
 before(function () {
@@ -19,82 +19,82 @@ before(function () {
 });
 
 describe("post.editable", function () {
-  it("given user session", function (next) {
-    ufix.loginUser(next);
+  it("given user session", function (done) {
+    ufix.loginUser(done);
   });
   var tid1, pid1, pid2;
-  it("given tid1, pid1", function (next) {
+  it("given tid1, pid1", function (done) {
     var form = { cid: 101, writer: 'snowman', title: 'title 1', text: 'post1' };
       express.post('/api/threads').send(form).end(function (err, res) {
         should(!res.error);
         should(!res.body.err);
         tid1 = res.body.tid;
         pid1 = res.body.pid;
-        next();
+        done();
       }
     );
   });
-  it("given pid2", function (next) {
+  it("given pid2", function (done) {
     var form = { writer: 'snowman', text: 'post2' };
     express.post('/api/threads/' + tid1).send(form).end(function (err, res) {
       should(!res.error);
       should(!res.body.err);
       pid2 = res.body.pid;
-      next();
+      done();
     });
   });
-  it("should be true for pid1", function (next) {
+  it("should be true for pid1", function (done) {
     express.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
       should(!res.error);
       should(!res.body.err);
       res.body.post.editable.should.be.true;
-      next();
+      done();
     });
   });
-  it("should be true for pid2", function (next) {
+  it("should be true for pid2", function (done) {
     express.get('/api/threads/' + tid1 + '/' + pid2, function (err, res) {
       should(!res.error);
       should(!res.body.err);
       res.body.post.editable.should.be.true;
-      next();
+      done();
     });
   });
-  it("given new user session", function (next) {
-    ufix.loginUser(next);
+  it("given new user session", function (done) {
+    ufix.loginUser(done);
   });
-  it("should be false for pid1", function (next) {
+  it("should be false for pid1", function (done) {
     express.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
       should(!res.error);
       should(!res.body.err);
       res.body.post.editable.should.be.false;
-      next();
+      done();
     });
   });
-  it("should be false for pid2", function (next) {
+  it("should be false for pid2", function (done) {
     express.get('/api/threads/' + tid1 + '/' + pid2, function (err, res) {
       should(!res.error);
       should(!res.body.err);
       res.body.post.editable.should.be.false;
-      next();
+      done();
     });
   });
-  it("given admin session", function (next) {
-    ufix.loginAdmin(next);
+  it("given admin session", function (done) {
+    ufix.loginAdmin(done);
   });
-  it("should be true for pid1", function (next) {
+  it("should be true for pid1", function (done) {
     express.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
       should(!res.error);
       should(!res.body.err);
       res.body.post.editable.should.be.true;
-      next();
+      done();
     });
   });
-  it("should be true for pid2", function (next) {
+  it("should be true for pid2", function (done) {
     express.get('/api/threads/' + tid1 + '/' + pid2, function (err, res) {
       should(!res.error);
       should(!res.body.err);
       res.body.post.editable.should.be.true;
-      next();
+      done();
     });
   });
 

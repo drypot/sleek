@@ -7,32 +7,32 @@ var express = require('../main/express');
 
 init.add(function () {
 
-  exports.logout = function (next) {
+  exports.logout = function (done) {
     express.del('/api/sessions', function (err, res) {
       should(!err);
       should(!res.error);
       should(!res.body.err);
-      next();
+      done();
     });
   }
 
-  exports.loginUser = function (next) {
+  exports.loginUser = function (done) {
     express.post('/api/sessions').send({ password: '1' }).end(function (err, res) {
       should(!err);
       should(!res.error);
       should(!res.body.err);
       res.body.user.name.should.equal('user');
-      next();
+      done();
     });
   }
 
-  exports.loginAdmin = function (next) {
+  exports.loginAdmin = function (done) {
     express.post('/api/sessions').send({ password: '3' }).end(function (err, res) {
       should(!err);
       should(!res.error);
       should(!res.body.err);
       res.body.user.name.should.equal('admin');
-      next();
+      done();
     });
   }
 

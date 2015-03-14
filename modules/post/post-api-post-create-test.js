@@ -10,8 +10,8 @@ var ufix = require('../user/user-fixture');
 require('../user/user-auth-api');
 require('../post/post-api');
 
-before(function (next) {
-  init.run(next);
+before(function (done) {
+  init.run(done);
 });
 
 before(function () {
@@ -19,45 +19,45 @@ before(function () {
 });
 
 describe("creating post/replay", function () {
-  it("given logged out", function (next) {
-    ufix.logout(next);
+  it("given logged out", function (done) {
+    ufix.logout(done);
   });
-  it("should fail", function (next) {
+  it("should fail", function (done) {
     express.post('/api/threads/0', function (err, res) {
       should(!res.error);
       res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
-      next();
+      done();
     });
   });
-  it("given user session", function (next) {
-    ufix.loginUser(next);
+  it("given user session", function (done) {
+    ufix.loginUser(done);
   });
   var tid1;
-  it("given tid1", function (next) {
+  it("given tid1", function (done) {
     var form = { cid: 101, writer: 'snowman', title: 'title 1', text: 'text' };
     express.post('/api/threads').send(form).end(function (err, res) {
       should(!res.error);
       should(!res.body.err);
       tid1 = res.body.tid;
-      next();
+      done();
     });
   });
-  it("should fail with tid 99999", function (next) {
+  it("should fail with tid 99999", function (done) {
     var form = { writer: 'snowman', text: 'text' };
     express.post('/api/threads/99999').send(form).end(function (err, res) {
       should(!res.error);
       res.body.err.rc.should.equal(error.INVALID_THREAD);
-      next();
+      done();
     });
   });
-  it("should fail with tid xxx", function (next) {
+  it("should fail with tid xxx", function (done) {
     var form = { writer: 'snowman', text: 'text' };
     express.post('/api/threads/xxx').send(form).end(function (err, res) {
       res.status.should.equal(404);
-      next();
+      done();
     });
   });
-  it("should fail with writer empty", function (next) {
+  it("should fail with writer empty", function (done) {
     var form = { writer: ' ', text: 'text' };
     express.post('/api/threads/' + tid1).send(form).end(function (err, res) {
       should(!res.error);
@@ -65,53 +65,53 @@ describe("creating post/replay", function () {
       res.body.err.errors.some(function (field) {
         return field.name === 'writer' && field.msg === error.msg.FILL_WRITER;
       }).should.true;
-      next();
+      done();
     });
   });
-  it("should success", function (next) {
+  it("should success", function (done) {
     var form = { writer: 'snowman', text: 'text' };
     express.post('/api/threads/' + tid1).send(form).end(function (err, res) {
       should(!res.body.err);
       res.body.should.have.property('pid');
-      next();
+      done();
     });
   });
 });
 
 describe("creating post/replay in recycle bin", function () {
-  it("given admin session", function (next) {
-    ufix.loginAdmin(next);
+  it("given admin session", function (done) {
+    ufix.loginAdmin(done);
   });
   var tid1;
-  it("given tid2", function (next) {
+  it("given tid2", function (done) {
     var form = { cid: 40, writer: 'snowman', title: 'title in recycle bin', text: 'head text in recycle bin' };
     express.post('/api/threads').send(form).end(function (err, res) {
       should(!res.error);
       should(!res.body.err);
       tid1 = res.body.tid;
-      next();
+      done();
     });
   });
-  it("given user session", function (next) {
-    ufix.loginUser(next);
+  it("given user session", function (done) {
+    ufix.loginUser(done);
   });
-  it("should fail", function (next) {
+  it("should fail", function (done) {
     var form = { writer: 'snowman', text: 'text' };
     express.post('/api/threads/' + tid1).send(form).end(function (err, res) {
       should(!res.error);
       res.body.err.rc.should.equal(error.INVALID_CATEGORY);
-      next();
+      done();
     });
   });
-  it("given admin session", function (next) {
-    ufix.loginAdmin(next);
+  it("given admin session", function (done) {
+    ufix.loginAdmin(done);
   });
-  it("should success", function (next) {
+  it("should success", function (done) {
     var form = { writer: 'snowman', text: 'text' };
     express.post('/api/threads/' + tid1).send(form).end(function (err, res) {
       should(!res.error);
       should(!res.body.err);
-      next();
+      done();
     });
   });
 });

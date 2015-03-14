@@ -10,8 +10,8 @@ var ufix = require('../user/user-fixture');
 require('../user/user-auth-api');
 require('../post/post-api');
 
-before(function (next) {
-  init.run(next);
+before(function (done) {
+  init.run(done);
 });
 
 before(function () {
@@ -20,30 +20,30 @@ before(function () {
 
 describe("updating", function () {
   var tid1, pid1;
-  it("given logged out", function (next) {
-    ufix.logout(next);
+  it("given logged out", function (done) {
+    ufix.logout(done);
   });
-  it("should fail", function (next) {
+  it("should fail", function (done) {
     express.put('/api/threads/0/0', function (err, res) {
       should(!res.error);
       res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
-      next();
+      done();
     });
   });
-  it("given user session", function (next) {
-    ufix.loginUser(next);
+  it("given user session", function (done) {
+    ufix.loginUser(done);
   });
-  it("given p11", function (next) {
+  it("given p11", function (done) {
     var form = { cid: 101, writer: 'snowman', title: 'title', text: 'text' };
     express.post('/api/threads').send(form).end(function (err, res) {
       should(!res.error);
       should(!res.body.err);
       tid1 = res.body.tid;
       pid1 = res.body.pid;
-      next();
+      done();
     });
   });
-  it("should fail when title empty", function (next) {
+  it("should fail when title empty", function (done) {
     var form = { cid: 101, writer: 'snowman', title: ' ', text: 'text', visible: true };
     express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
       should(!res.error);
@@ -51,10 +51,10 @@ describe("updating", function () {
       res.body.err.errors.some(function (field) {
         return field.name === 'title' && field.msg === error.msg.FILL_TITLE;
       }).should.true;
-      next();
+      done();
     });
   });
-  it("should fail when writer empty", function (next) {
+  it("should fail when writer empty", function (done) {
     var form = { cid: 101, writer: ' ', title: 'title', text: 'text', visible: true };
     express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
       should(!res.error);
@@ -62,18 +62,18 @@ describe("updating", function () {
       res.body.err.errors.some(function (field) {
         return field.name === 'writer' && field.msg === error.msg.FILL_WRITER;
       }).should.true;
-      next();
+      done();
     });
   });
-  it("should success when category not changed", function (next) {
+  it("should success when category not changed", function (done) {
     var form = { cid: 101, writer: 'snowman1', title: 'title1', text: 'text1' };
     express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
       should(!res.error);
       should(!res.body.err);
-      next();
+      done();
     });
   });
-  it("can be confirmed", function (next) {
+  it("can be confirmed", function (done) {
     express.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
       should(!res.error);
       should(!res.body.err);
@@ -83,107 +83,107 @@ describe("updating", function () {
       res.body.thread.title.should.equal('title1');
       res.body.post.text.should.equal('text1');
       res.body.post.visible.should.true;
-      next();
+      done();
     });
   });
-  it("should success when category changed", function (next) {
+  it("should success when category changed", function (done) {
     var form = { cid: 102, writer: 'snowman2', title: 'title2', text: 'text2' };
     express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
       should(!res.error);
       should(!res.body.err);
-      next();
+      done();
     });
   });
-  it("can be confirmed", function (next) {
+  it("can be confirmed", function (done) {
     express.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
       should(!res.error);
       should(!res.body.err);
       res.body.category.id.should.equal(102);
-      next();
+      done();
     });
   });
-  it("should success but can not change visible", function (next) {
+  it("should success but can not change visible", function (done) {
     var form = { cid: 102, writer: 'snowman3', title: 'title3', text: 'text3', visible: false };
     express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
       should(!res.error);
       should(!res.body.err);
-      next();
+      done();
     });
   });
-  it("can be confirmed", function (next) {
+  it("can be confirmed", function (done) {
     express.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
       should(!res.error);
       should(!res.body.err);
       res.body.post.visible.should.true;
-      next();
+      done();
     });
   });
-  it("given new user session", function (next) {
-    ufix.loginUser(next);
+  it("given new user session", function (done) {
+    ufix.loginUser(done);
   });
-  it("should fail after reloged", function (next) {
+  it("should fail after reloged", function (done) {
     var form = { cid: 102, writer: 'snowman3', title: 'title3', text: 'text3', visible: false };
     express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
       should(!res.error);
       should(res.body.err);
       res.body.err.rc.should.equal(error.NOT_AUTHORIZED);
-      next();
+      done();
     });
   });
-  it("given admin session", function (next) {
-    ufix.loginAdmin(next);
+  it("given admin session", function (done) {
+    ufix.loginAdmin(done);
   });
-  it("should success and can change visible", function (next) {
+  it("should success and can change visible", function (done) {
     var form = { cid: 102, writer: 'snowman4', title: 'title4', text: 'text4', visible: false };
     express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
       should(!res.error);
       should(!res.body.err);
-      next();
+      done();
     });
   });
-  it("can be confirmed", function (next) {
+  it("can be confirmed", function (done) {
     express.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
       should(!res.error);
       should(!res.body.err);
       res.body.post.visible.should.false;
-      next();
+      done();
     });
   });
 });
 
 describe("updating reply", function () {
   var tid1, pid1, pid2;
-  it("given user session", function (next) {
-    ufix.loginUser(next);
+  it("given user session", function (done) {
+    ufix.loginUser(done);
   });
-  it("given pid1", function (next) {
+  it("given pid1", function (done) {
     var form = { cid: 101, writer: 'snowman', title: 'title', text: 'text' };
     express.post('/api/threads').send(form).end(function (err, res) {
       should(!res.error);
       should(!res.body.err);
       tid1 = res.body.tid;
       pid1 = res.body.pid;
-      next();
+      done();
     });
   });
-  it("given pid2", function (next) {
+  it("given pid2", function (done) {
     var form = { writer: 'snowman', text: 'text' };
     express.post('/api/threads/' + tid1).send(form).end(function (err, res) {
       should(!res.error);
       should(!res.body.err);
       pid2 = res.body.pid;
-      next();
+      done();
     });
   });
-  it("should success except visible field", function (next) {
+  it("should success except visible field", function (done) {
     var form = { writer: 'snowman1', text: 'text1', visible: false };
     express.put('/api/threads/' + tid1 + '/' + pid2).send(form).end(function (err, res) {
       should(!res.error);
       should(!res.body.err);
-      next();
+      done();
     });
   });
-  it("can be confirmed", function (next) {
+  it("can be confirmed", function (done) {
     express.get('/api/threads/' + tid1 + '/' + pid2, function (err, res) {
       should(!res.error);
       should(!res.body.err);
@@ -191,43 +191,43 @@ describe("updating reply", function () {
       res.body.post.writer.should.equal('snowman1');
       res.body.post.text.should.equal('text1');
       res.body.post.visible.should.true;
-      next();
+      done();
     });
   });
 });
 
 describe("updating recycle bin", function () {
   var tid1, pid1;
-  it("given admin session", function (next) {
-    ufix.loginAdmin(next);
+  it("given admin session", function (done) {
+    ufix.loginAdmin(done);
   });
-  it("given p11 in recyle bin", function (next) {
+  it("given p11 in recyle bin", function (done) {
     var form = { cid: 40, writer: 'snowman', title: 'title', text: 'text' };
     express.post('/api/threads').send(form).end(function (err, res) {
       should(!res.error);
       should(!res.body.err);
       tid1 = res.body.tid;
       pid1 = res.body.pid;
-      next();
+      done();
     });
   });
-  it("should success", function (next) {
+  it("should success", function (done) {
     var form = { cid: 40, writer: 'snowman1', title: 'title1', text: 'text1' };
     express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
       should(!res.error);
       should(!res.body.err);
-      next();
+      done();
     });
   });
-  it("given user session", function (next) {
-    ufix.loginUser(next);
+  it("given user session", function (done) {
+    ufix.loginUser(done);
   });
-  it("should fail", function (next) {
+  it("should fail", function (done) {
     var form = { cid: 40, writer: 'snowman1', title: 'title1', text: 'text1' };
     express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
       should(!res.error);
       res.body.err.rc.should.equal(error.INVALID_CATEGORY);
-      next();
+      done();
     });
   });
 });

@@ -7,17 +7,17 @@ var express = require('../main/express');
 
 require('../main/hello-api');
 
-before(function (next) {
-  init.run(next);
+before(function (done) {
+  init.run(done);
 });
 
-before(function(next) {
+before(function(done) {
   express.listen();
-  next();
+  done();
 });
 
 describe("/api/hello", function () {
-  it("should return 'hello'", function (next) {
+  it("should return 'hello'", function (done) {
     express.get('/api/hello', function (err, res) {
       should(!err);
       should(!res.error);
@@ -27,7 +27,7 @@ describe("/api/hello", function () {
       var ctime = Date.now();
       should(stime <= ctime);
       should(stime >= ctime - 100);
-      next();
+      done();
     });
   });
 });

@@ -5,34 +5,34 @@ init.add(function () {
 
   console.log('session:');
 
-  exports.initSession = function (req, user, next) {
+  exports.initSession = function (req, user, done) {
     req.session.regenerate(function (err) {
-      if (err) return next(err);
+      if (err) return done(err);
       req.session.uname = user.name;
       req.session.posts = [];
-      next();
+      done();
     });
   }
 
-  exports.setLocals = function (req, res, next) {
+  exports.setLocals = function (req, res, done) {
     if (req.session.uname) {
       res.locals.user = userb.findUserByName(req.session.uname);
-      return next();
+      return done();
     }
     if (res.locals.api) {
-      return next();
+      return done();
     }
     var password = req.cookies.password;
     if (!password) {
-      return next();
+      return done();
     }
     var user = userb.findUserByPassword(password);
     if (!user) {
       res.clearCookie(password);
-      return next();
+      return done();
     }
     res.locals.user = user;
-    exports.initSession(req, user, next);
+    exports.initSession(req, user, done);
   };
 
 });

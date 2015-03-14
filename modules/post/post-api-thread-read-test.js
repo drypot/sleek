@@ -10,8 +10,8 @@ var ufix = require('../user/user-fixture');
 require('../user/user-auth-api');
 require('../post/post-api');
 
-before(function (next) {
-  init.run(next);
+before(function (done) {
+  init.run(done);
 });
 
 before(function () {
@@ -19,38 +19,38 @@ before(function () {
 });
 
 describe("reading thread and posts", function () {
-  it("given logged out", function (next) {
-    ufix.logout(next);
+  it("given logged out", function (done) {
+    ufix.logout(done);
   });
-  it("should fail", function (next) {
+  it("should fail", function (done) {
     express.get('/api/threads/0', function (err, res) {
       should(!res.error);
       res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
-      next();
+      done();
     });
   });
-  it("given user session", function (next) {
-    ufix.loginUser(next);
+  it("given user session", function (done) {
+    ufix.loginUser(done);
   });
   var tid;
-  it("given thread", function (next) {
+  it("given thread", function (done) {
     var form = { cid: 101, writer: 'snowman', title: 'title', text: 'post1' };
     express.post('/api/threads').send(form).end(function (err, res) {
       should(!res.error);
       should(!res.body.err);
       tid = res.body.tid;
-      next();
+      done();
     });
   });
-  it("given reply", function (next) {
+  it("given reply", function (done) {
     var form = { writer: 'snowman2', text: 'post2' };
     express.post('/api/threads/' + tid).send(form).end(function (err, res) {
       should(!res.error);
       should(!res.body.err);
-      next();
+      done();
     });
   });
-  it("should return 2 posts", function (next) {
+  it("should return 2 posts", function (done) {
     express.get('/api/threads/' + tid, function (err, res) {
       should(!res.error);
       should(!res.body.err);
@@ -62,53 +62,53 @@ describe("reading thread and posts", function () {
       res.body.posts[0].text.should.equal('post1');
       res.body.posts[1].writer.should.equal('snowman2');
       res.body.posts[1].text.should.equal('post2');
-      next();
+      done();
     });
   });
-  it("given another reply", function (next) {
+  it("given another reply", function (done) {
     var form = { writer: 'snowman2', text: 'post3' };
     express.post('/api/threads/' + tid).send(form).end(function (err, res) {
       should(!res.error);
       should(!res.body.err);
-      next();
+      done();
     });
   });
-  it("should return 3 posts", function (next) {
+  it("should return 3 posts", function (done) {
     express.get('/api/threads/' + tid, function (err, res) {
       should(!res.error);
       should(!res.body.err);
       res.body.posts.should.length(3);
-      next();
+      done();
     });
   });
-  it("given admin session", function (next) {
-    ufix.loginAdmin(next);
+  it("given admin session", function (done) {
+    ufix.loginAdmin(done);
   });
-  it("given another invisible reply", function (next) {
+  it("given another invisible reply", function (done) {
     var form = { writer: 'admin', text: 'post4', visible: false };
     express.post('/api/threads/' + tid).send(form).end(function (err, res) {
       should(!res.error);
       should(!res.body.err);
-      next();
+      done();
     });
   });
-  it("should return 4 posts", function (next) {
+  it("should return 4 posts", function (done) {
     express.get('/api/threads/' + tid, function (err, res) {
       should(!res.error);
       should(!res.body.err);
       res.body.posts.should.length(4);
-      next();
+      done();
     });
   });
-  it("given user session", function (next) {
-    ufix.loginUser(next);
+  it("given user session", function (done) {
+    ufix.loginUser(done);
   });
-  it("should return 3 posts", function (next) {
+  it("should return 3 posts", function (done) {
     express.get('/api/threads/' + tid, function (err, res) {
       should(!res.error);
       should(!res.body.err);
       res.body.posts.should.length(3);
-      next();
+      done();
     });
   });
 });

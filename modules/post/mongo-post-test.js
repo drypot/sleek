@@ -4,8 +4,8 @@ var init = require('../base/init');
 var config = require('../base/config')({ path: 'config/sleek-test.json' });
 var mongo = require('../mongo/mongo')({ dropDatabase: true });
 
-before(function (next) {
-  init.run(next);
+before(function (done) {
+  init.run(done);
 });
 
 describe("db", function () {
@@ -18,19 +18,19 @@ describe("empty post collection", function () {
   it("should exist", function () {
     should(mongo.posts);
   });
-  it("should be empty", function (next) {
+  it("should be empty", function (done) {
     mongo.posts.count(function (err, count) {
       should(!err);
       count.should.equal(0);
-      next();
+      done();
     })
   });
-  it("should have three indexes", function (next) {
+  it("should have three indexes", function (done) {
     mongo.posts.indexes(function (err, index) {
       should(!err);
       index.should.be.instanceof(Array);
       index.should.be.length(3);
-      next();
+      done();
     });
   });
   it("can make serialized ids", function () {
@@ -43,7 +43,7 @@ describe("empty post collection", function () {
 describe("post collection", function () {
 
   describe("inserting", function () {
-    it("should success", function (next) {
+    it("should success", function (done) {
       var p = {
         tid: 1000, cdate: new Date(50), visible: true,
         writer: 'snowman', text: 'text'
@@ -53,7 +53,7 @@ describe("post collection", function () {
         mongo.posts.count(function (err, count) {
           should(!err);
           count.should.equal(1);
-          next();
+          done();
         });
       });
     });
@@ -64,27 +64,27 @@ describe("post collection", function () {
       tid: 1000, cdate: new Date(50), visible: true,
       writer: 'snowman', text: 'text'
     }
-    it("given empty collection", function (next) {
-      mongo.posts.remove(next);
+    it("given empty collection", function (done) {
+      mongo.posts.remove(done);
     });
-    it("given p", function (next) {
+    it("given p", function (done) {
       p._id = mongo.getNewPostId();
-      mongo.insertPost(p, next);
+      mongo.insertPost(p, done);
     });
-    it("should success", function (next) {
+    it("should success", function (done) {
       mongo.findPost(p._id, function (err, post) {
         should(!err);
         post.should.eql(p);
-        next();
+        done();
       });
     });
   });
 
   describe("finding by thread", function () {
-    it("given empty collection", function (next) {
-      mongo.posts.remove(next);
+    it("given empty collection", function (done) {
+      mongo.posts.remove(done);
     });
-    it("given posts", function (next) {
+    it("given posts", function (done) {
       var rows = [
         {
           _id: mongo.getNewPostId(), tid: 1000, cdate: new Date(10), visible: true,
@@ -107,9 +107,9 @@ describe("post collection", function () {
           writer: 'snowman', text: 'cool post 22'
         }
       ];
-      mongo.insertPost(rows, next);
+      mongo.insertPost(rows, done);
     });
-    it("should success", function (next) {
+    it("should success", function (done) {
       var count = 0;
       var cursor = mongo.findPostsByThread(1000);
       function read() {
@@ -121,12 +121,12 @@ describe("post collection", function () {
             return;
           }
           count.should.equal(3);
-          next();
+          done();
         });
       }
       read();
     });
-    it("should success", function (next) {
+    it("should success", function (done) {
       var count = 0;
       var cursor = mongo.findPostsByThread(1010);
       function read() {
@@ -138,12 +138,12 @@ describe("post collection", function () {
             return;
           }
           count.should.equal(2);
-          next();
+          done();
         });
       }
       read();
     });
-    it("should return sorted", function (next) {
+    it("should return sorted", function (done) {
       var posts = [];
       var cursor = mongo.findPostsByThread(1000);
       function read() {
@@ -156,7 +156,7 @@ describe("post collection", function () {
           }
           posts[0].cdate.should.below(posts[1].cdate);
           posts[1].cdate.should.below(posts[2].cdate);
-          next();
+          done();
         });
       }
       read();
@@ -168,14 +168,14 @@ describe("post collection", function () {
       tid: 1030, cdate: new Date(50), visible: true,
       writer: 'snowman', text: 'text'
     }
-    it("given empty collection", function (next) {
-      mongo.posts.remove(next);
+    it("given empty collection", function (done) {
+      mongo.posts.remove(done);
     });
-    it("given p", function (next) {
+    it("given p", function (done) {
       p._id = mongo.getNewPostId();
-      mongo.insertPost(p, next);
+      mongo.insertPost(p, done);
     });
-    it("should success", function (next) {
+    it("should success", function (done) {
       p.writer  = "fireman";
       p.hit = 17;
       mongo.updatePost(p, function (err) {
@@ -183,7 +183,7 @@ describe("post collection", function () {
         mongo.findPost(p._id, function (err, post) {
           should(!err);
           post.should.eql(p);
-          next();
+          done();
         });
       });
     });

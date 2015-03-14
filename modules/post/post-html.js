@@ -9,7 +9,7 @@ init.add(function () {
 
   console.log('post-html:');
 
-  app.get('/threads', function (req, res, next) {
+  app.get('/threads', function (req, res, done) {
     req.findUser(function (err, user) {
       if (err) return res.renderErr(err);
       var params = post.makeThreadsParams(req);
@@ -44,7 +44,7 @@ init.add(function () {
     });
   });
 
-  function prevNext(params, last, next) {
+  function prevNext(params, last, done) {
     var prevUrl, nextUrl;
     var url;
     if (params.pg > 1) {
@@ -59,10 +59,10 @@ init.add(function () {
       url.add('pg', params.pg + 1, 1);
       nextUrl = url.toString();
     }
-    next(prevUrl, nextUrl);
+    done(prevUrl, nextUrl);
   }
 
-  app.get('/threads/:tid([0-9]+)', function (req, res, next) {
+  app.get('/threads/:tid([0-9]+)', function (req, res, done) {
     req.findUser(function (err, user) {
       if (err) return res.renderErr(err);
       var tid = parseInt(req.params.tid) || 0;
@@ -79,12 +79,12 @@ init.add(function () {
 
   var postSuffixRe = /^\/post\/(.*)/;
 
-  app.get('/post/*', function (req, res, next) {
+  app.get('/post/*', function (req, res, done) {
     var tid = parseInt(req.params.tid) || 0;
     res.redirect('/threads/' + req.url.match(postSuffixRe)[1]);
   });
 
-  app.get('/threads/new', function (req, res, next) {
+  app.get('/threads/new', function (req, res, done) {
     req.findUser(function (err, user) {
       if (err) return res.renderErr(err);
       var cid = parseInt(req.query.c) || 0;
@@ -92,7 +92,7 @@ init.add(function () {
     });
   });
 
-  app.get('/threads/:tid([0-9]+)/:pid([0-9]+/edit)', function (req, res, next) {
+  app.get('/threads/:tid([0-9]+)/:pid([0-9]+/edit)', function (req, res, done) {
     req.findUser(function (err, user) {
       if (err) return res.renderErr(err);
       var tid = parseInt(req.params.tid) || 0;

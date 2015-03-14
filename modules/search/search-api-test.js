@@ -12,8 +12,8 @@ require('../user/user-auth-api');
 require('../post/post-api');
 require('../search/search-base-api');
 
-before(function (next) {
-  init.run(next);
+before(function (done) {
+  init.run(done);
 });
 
 before(function () {
@@ -33,33 +33,33 @@ describe("searching", function () {
     { cid:  40, writer: 'admin',   title: 'title 8', text: 'text 8' }
   ];
 
-  it("given logged out", function (next) {
-    ufix.logout(next);
+  it("given logged out", function (done) {
+    ufix.logout(done);
   });
-  it("should fail", function (next) {
+  it("should fail", function (done) {
     express.get('/api/search', function (err, res) {
       should(!res.error);
       res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
-      next();
+      done();
     });
   });
-  it("given admin session", function (next) {
-    ufix.loginAdmin(next);
+  it("given admin session", function (done) {
+    ufix.loginAdmin(done);
   });
-  it("should success", function (next) {
+  it("should success", function (done) {
     express.get('/api/search', function (err, res) {
       should(!res.error);
       should(!res.body.err);
       var r = res.body.posts;
       r.should.length(0);
-      next();
+      done();
     });
   });
-  it("given threads", function (next) {
+  it("given threads", function (done) {
     var i = 0;
     var len = docs.length;
     (function insert() {
-      if (i == len) return next();
+      if (i == len) return done();
       var doc = docs[i++];
       express.post('/api/threads').send(doc).end(function (err, res) {
         should.not.exists(err);
@@ -70,11 +70,11 @@ describe("searching", function () {
       });
     })();
   });
-  it("given user session", function (next) {
-    ufix.loginUser(next);
+  it("given user session", function (done) {
+    ufix.loginUser(done);
   });
   describe("user name", function () {
-    it("should success", function (next) {
+    it("should success", function (done) {
       express.get('/api/search').query({ q: 'snowman' }).end(function (err, res) {
         should(!res.error);
         should(!res.body.err);
@@ -83,24 +83,24 @@ describe("searching", function () {
         r[0].thread.title.should.equal('title 3');
         r[1].thread.title.should.equal('title 2');
         r[2].thread.title.should.equal('title 1');
-        next();
+        done();
       });
     });
   });
   describe("title", function () {
-    it("should success", function (next) {
+    it("should success", function (done) {
       express.get('/api/search').query({ q: 'title 4' }).end(function (err, res) {
         should(!res.error);
         should(!res.body.err);
         var r = res.body.posts;
         r.should.length(1);
         r[0].thread.title.should.equal('title 4');
-        next();
+        done();
       });
     });
   });
   describe("text", function () {
-    it("should success", function (next) {
+    it("should success", function (done) {
       express.get('/api/search').query({ q: 'apple orange' }).end(function (err, res) {
         should(!res.error);
         should(!res.body.err);
@@ -108,22 +108,22 @@ describe("searching", function () {
         r.should.length(2);
         r[0].thread.title.should.equal('title 2');
         r[1].thread.title.should.equal('title 1');
-        next();
+        done();
       });
     });
-    it("should success", function (next) {
+    it("should success", function (done) {
       express.get('/api/search').query({ q: 'apple banana' }).end(function (err, res) {
         should(!res.error);
         should(!res.body.err);
         var r = res.body.posts;
         r.should.length(1);
         r[0].thread.title.should.equal('title 1');
-        next();
+        done();
       });
     });
   });
   describe("hangul", function () {
-    it("should success", function (next) {
+    it("should success", function (done) {
       express.get('/api/search').query({ q: '둥글' }).end(function (err, res) {
         should(!res.error);
         should(!res.body.err);
@@ -132,33 +132,33 @@ describe("searching", function () {
         r[0].thread.title.should.equal('title 5');
         r[1].thread.title.should.equal('title 4');
         r[2].thread.title.should.equal('title 3');
-        next();
+        done();
       });
     });
   });
   describe("recycle bin", function () {
-    it("given user session", function (next) {
-      ufix.loginUser(next);
+    it("given user session", function (done) {
+      ufix.loginUser(done);
     });
-    it("should return no results", function (next) {
+    it("should return no results", function (done) {
       express.get('/api/search').query({ q: 'admin' }).end(function (err, res) {
         should(!res.error);
         should(!res.body.err);
         var r = res.body.posts;
         r.should.length(0);
-        next();
+        done();
       });
     });
-    it("given admin session", function (next) {
-      ufix.loginAdmin(next);
+    it("given admin session", function (done) {
+      ufix.loginAdmin(done);
     });
-    it("should return results", function (next) {
+    it("should return results", function (done) {
       express.get('/api/search').query({ q: 'admin' }).end(function (err, res) {
         should(!res.error);
         should(!res.body.err);
         var r = res.body.posts;
         r.should.length(2);
-        next();
+        done();
       });
     });
   });

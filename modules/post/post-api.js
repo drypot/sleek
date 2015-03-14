@@ -52,7 +52,7 @@ init.add(function () {
     });
   });
 
-  app.get('/api/threads/:tid([0-9]+)/:pid([0-9]+)', function (req, res, next) {
+  app.get('/api/threads/:tid([0-9]+)/:pid([0-9]+)', function (req, res, done) {
     req.findUser(function (err, user) {
       if (err) return res.jsonErr(err);
       var tid = parseInt(req.params.tid) || 0;
@@ -104,7 +104,7 @@ init.add(function () {
     });
   });
 
-  app.put('/api/threads/:tid([0-9]+)/:pid([0-9]+)', function (req, res, next) {
+  app.put('/api/threads/:tid([0-9]+)/:pid([0-9]+)', function (req, res, done) {
     req.findUser(function (err, user) {
       if (err) return res.jsonErr(err);
       var form = post.makeForm(req);

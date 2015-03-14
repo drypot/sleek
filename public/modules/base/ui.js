@@ -86,7 +86,7 @@ init.add(function() {
     });
   };
 
-  formty.sendFiles = function ($form, next) {
+  formty.sendFiles = function ($form, done) {
     var files = $('input[type=file]', $form).filter(function () {
       return $(this).val();
     });
@@ -98,19 +98,19 @@ init.add(function() {
         files: files,
         iframe: true,
         success: function(data, textStatus, jqXHR) {
-          next(null, { body: data });
+          done(null, { body: data });
         },
         error:function (jqXHR, textStatus, errorThrown) {
           var err = {
             message: "Uploading Error",
             detail: jqXHR.responseText
           };
-          next(err);
+          done(err);
         }
       });
       return;
     }
-    next(null, { body: {} });
+    done(null, { body: {} });
   };
 
   var methods = [ 'post', 'get', 'put', 'del' ];
@@ -118,18 +118,18 @@ init.add(function() {
   for (var i = 0; i < methods.length; i++) {
     var method = methods[i];
     formty[method] = (function (method) {
-      return function (url, $form, next) {
+      return function (url, $form, done) {
         var form = formty.toObject($form);
         formty.clearAlerts($form);
         formty.showSending($form);
         formty.sendFiles($form, function (err, res) {
-          if (err) return next(err);
+          if (err) return done(err);
           for (var key in res.body) {
             form[key] = res.body[key];
           }
           request[method].call(request, url).send(form).end(function (err, res) {
             err = err || res.error;
-            if (err) return next(err);
+            if (err) return done(err);
             if (res.body.err) {
               if (res.body.err.rc === error.ERROR_SET) {
                 formty.addAlerts($form, res.body.err.errors);
@@ -140,7 +140,7 @@ init.add(function() {
               formty.hideSending($form);
               return;
             }
-            next(null, res);
+            done(null, res);
           });
         });
       };
@@ -193,7 +193,7 @@ init.add(function() {
   var $title = $modal.find('.modal-title');
   var $body = $modal.find('.modal-body');
 
-  window.showError = function (err, next) {
+  window.showError = function (err, done) {
     $title.empty();
     $title.append('<h3>시스템 오류</h3>');
     $body.empty();
@@ -208,8 +208,8 @@ init.add(function() {
       $body.append('<pre>' + err.detail + '</pre>');
     }
     $modal.off('hidden.bs.modal');
-    if (next) {
-      $modal.on('hidden.bs.modal', next);
+    if (done) {
+      $modal.on('hidden.bs.modal', done);
     }
     $modal.modal('show');
   };

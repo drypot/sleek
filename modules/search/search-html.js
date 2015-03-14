@@ -27,7 +27,7 @@ init.add(function () {
     });
   });
 
-  function prevNext(params, last, next) {
+  function prevNext(params, last, done) {
     var prevUrl, nextUrl;
     var url;
     if (params.pg > 1) {
@@ -44,7 +44,7 @@ init.add(function () {
       url.add('pg', params.pg + 1, 1);
       nextUrl = url.toString();
     }
-    next(prevUrl, nextUrl);
+    done(prevUrl, nextUrl);
   }
 
 });

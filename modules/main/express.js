@@ -43,7 +43,7 @@ init.add(function () {
 
   var apiRe = /^\/api\//;
 
-  app.use(function (req, res, next) {
+  app.use(function (req, res, done) {
     var api = res.locals.api = apiRe.test(req.path);
     if (api) {
       // solve IE ajax caching problem.
@@ -52,7 +52,7 @@ init.add(function () {
       // force web page cacehd.
       res.set('Cache-Control', 'private');
     }
-    next();
+    done();
   });
 
   app.use(session.setLocals);
@@ -67,21 +67,21 @@ init.add(function () {
 
   // request utilities
 
-  app.request.findUser = function (uname, next) {
+  app.request.findUser = function (uname, done) {
     if (typeof uname === 'function') {
-      next = uname;
+      done = uname;
       uname = null;
     }
     var req = this;
     var res = this.res;
     var user = res.locals.user;
     if (!user) {
-      return next(error(error.NOT_AUTHENTICATED));
+      return done(error(error.NOT_AUTHENTICATED));
     }
     if (uname && uname !== user.name) {
-      return next(error(error.NOT_AUTHORIZED));
+      return done(error(error.NOT_AUTHORIZED));
     }
-    next(null, user);
+    done(null, user);
   };
 
 

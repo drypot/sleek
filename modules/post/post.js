@@ -29,20 +29,20 @@ init.add(function () {
     return form;
   };
 
-  exports.createThread = function (user, form, next) {
+  exports.createThread = function (user, form, done) {
     categoryForUpdate(user, form.cid, function (err, category) {
-      if (err) return next(err);
+      if (err) return done(err);
       checkForm(form, true, function (err) {
-        if (err) return next(err);
+        if (err) return done(err);
         var tid = mongo.getNewThreadId();
         var pid = mongo.getNewPostId();
         saveFiles(pid, form.files, function (err, saved) {
-          if (err) return next(err);
+          if (err) return done(err);
           insertThread(tid, form, function (err, thread) {
-            if (err) return next(err);
+            if (err) return done(err);
             insertPost(pid, thread, user, form, saved, function (err) {
-              if (err) return next(err);
-              next(null, tid, pid);
+              if (err) return done(err);
+              done(null, tid, pid);
             });
           });
         });
@@ -50,21 +50,21 @@ init.add(function () {
     });
   }
 
-  exports.createReply = function (user, form, next) {
+  exports.createReply = function (user, form, done) {
     findThread(form.tid, function (err, thread) {
-      if (err) return next(err);
+      if (err) return done(err);
       categoryForUpdate(user, thread.cid, function (err, category) {
-        if (err) return next(err);
+        if (err) return done(err);
         checkForm(form, false, function (err) {
-          if (err) return next(err);
+          if (err) return done(err);
           var pid = mongo.getNewPostId();
           saveFiles(pid, form.files, function (err, saved) {
-            if (err) return next(err);
+            if (err) return done(err);
             insertPost(pid, thread, user, form, saved, function (err) {
-              if (err) return next(err);
+              if (err) return done(err);
               mongo.updateThreadLength(thread._id, form.now, function (err) {
-                if (err) return next(err);
-                next(null, pid);
+                if (err) return done(err);
+                done(null, pid);
               });
             });
           });
@@ -73,26 +73,26 @@ init.add(function () {
     });
   };
 
-  exports.updatePost = function (user, form, editables, next) {
+  exports.updatePost = function (user, form, editables, done) {
     findThread(form.tid, function (err, thread) {
-      if (err) return next(err);
+      if (err) return done(err);
       findPost(thread, form.pid, function (err, post) {
-        if (err) return next(err);
+        if (err) return done(err);
         categoryForUpdate(user, thread.cid, function (err, category) {
-          if (err) return next(err);
+          if (err) return done(err);
           if (!isEditable(user, post._id, editables)) {
-            return next(error(error.NOT_AUTHORIZED));
+            return done(error(error.NOT_AUTHORIZED));
           }
           var head = isHead(thread, post);
           checkNewCategory(user, form.cid, head, function (err) {
-            if (err) return next(err);
+            if (err) return done(err);
             checkForm(form, head, function (err) {
-              if (err) return next(err);
+              if (err) return done(err);
               deleteFiles(post._id, form.dfiles, function (err, deleted) {
-                if (err) return next(err);
+                if (err) return done(err);
                 saveFiles(post._id, form.files, function (err, saved) {
-                  if (err) return next(err);
-                  updatePost(thread, post, user, form, deleted, saved, next);
+                  if (err) return done(err);
+                  updatePost(thread, post, user, form, deleted, saved, done);
                 });
               });
             });
@@ -113,14 +113,14 @@ init.add(function () {
     return params;
   }
 
-  exports.findThreads = function (user, params, next) {
+  exports.findThreads = function (user, params, done) {
     var categories = user.categories;
     var threads = [];
     var count = 0;
     var cursor = mongo.findThreads(params.pg, params.pgsize);
     function read() {
       cursor.nextObject(function (err, thread) {
-        if (err) return next(err);
+        if (err) return done(err);
         if (thread) {
           count++;
           var c = categories[thread.cid];
@@ -136,22 +136,22 @@ init.add(function () {
           setImmediate(read);
           return;
         }
-        next(null, threads, count !== params.pgsize);
+        done(null, threads, count !== params.pgsize);
       });
     }
     read();
   };
 
-  exports.findThreadsByCategory = function (user, params, next) {
+  exports.findThreadsByCategory = function (user, params, done) {
     categoryForRead(user, params.cid, function (err, category) {
-      if (err) return next(err);
+      if (err) return done(err);
       var categories = user.categories;
       var threads = [];
       var count = 0;
       var cursor = mongo.findThreadsByCategory(params.cid, params.pg, params.pgsize);
       function read() {
         cursor.nextObject(function (err, thread) {
-          if (err) return next(err);
+          if (err) return done(err);
           if (thread) {
             count++;
             thread.udateStr = dt.format(thread.udate),
@@ -160,25 +160,25 @@ init.add(function () {
             setImmediate(read);
             return;
           }
-          next(null, category, threads, count !== params.pgsize);
+          done(null, category, threads, count !== params.pgsize);
         });
       }
       read();
     });
   };
 
-  exports.findThreadAndPosts = function (user, tid, editables, next) {
+  exports.findThreadAndPosts = function (user, tid, editables, done) {
     findThread(tid, function (err, thread) {
-      if (err) return next(err);
+      if (err) return done(err);
       categoryForRead(user, thread.cid, function (err, category) {
-        if (err) return next(err);
+        if (err) return done(err);
         mongo.updateThreadHit(tid, function (err) {
-          if (err) return next(err);
+          if (err) return done(err);
           var posts = [];
           var cursor = mongo.findPostsByThread(tid);
           function read() {
             cursor.nextObject(function (err, post) {
-              if (err) return next(err);
+              if (err) return done(err);
               if (post) {
                 if (post.visible || user.admin) {
                   addFileUrls(post);
@@ -190,7 +190,7 @@ init.add(function () {
                 setImmediate(read);
                 return;
               }
-              next(null, category, thread, posts);
+              done(null, category, thread, posts);
             });
           }
           read();
@@ -199,25 +199,25 @@ init.add(function () {
     });
   };
 
-  exports.findThreadAndPost = function (user, tid, pid, editables, next) {
+  exports.findThreadAndPost = function (user, tid, pid, editables, done) {
     findThread(tid, function (err, thread) {
-      if (err) return next(err);
+      if (err) return done(err);
       findPost(thread, pid, function (err, post) {
-        if (err) return next(err);
+        if (err) return done(err);
         categoryForRead(user, thread.cid, function (err, category) {
-          if (err) return next(err);
+          if (err) return done(err);
           addFileUrls(post);
           post.head = isHead(thread, post);
           post.editable = isEditable(user, post._id, editables)
           post.cdateStr = dt.format(post.cdate);
           post.cdate = post.cdate.getTime();
-          next(null, category, thread, post);
+          done(null, category, thread, post);
         });
       });
     });
   };
 
-  function checkForm(form, head, next) {
+  function checkForm(form, head, done) {
     var errors = new error.Errors();
 
     if (head) {
@@ -235,57 +235,57 @@ init.add(function () {
       errors.add('writer', error.msg.SHORTEN_WRITER);
     }
     if (errors.hasErrors()) {
-      return next(error(errors));
+      return done(error(errors));
     }
 
-    next();
+    done();
   }
 
-  function categoryForUpdate(user, cid, next) {
+  function categoryForUpdate(user, cid, done) {
     var category = user.categories[cid];
     if (!category) {
-      return next(error(error.INVALID_CATEGORY));
+      return done(error(error.INVALID_CATEGORY));
     }
-    next(null, category);
+    done(null, category);
   }
 
-  function categoryForRead(user, cid, next) {
+  function categoryForRead(user, cid, done) {
     var category = user.categories[cid];
     if (!category) {
-      return next(error(error.INVALID_CATEGORY));
+      return done(error(error.INVALID_CATEGORY));
     }
-    next(null, category);
+    done(null, category);
   }
 
-  function checkNewCategory(user, cid, head, next) {
+  function checkNewCategory(user, cid, head, done) {
     if (head) {
-      categoryForUpdate(user, cid, next);
+      categoryForUpdate(user, cid, done);
     } else {
-      next();
+      done();
     }
   }
 
-  function findThread(tid, next) {
+  function findThread(tid, done) {
     mongo.findThread(tid, function (err, thread) {
       if (err) {
-        return next(err);
+        return done(err);
       }
       if (!thread) {
-        return next(error(error.INVALID_THREAD));
+        return done(error(error.INVALID_THREAD));
       }
-      next(null, thread);
+      done(null, thread);
     });
   }
 
-  function findPost(thread, pid, next) {
+  function findPost(thread, pid, done) {
     mongo.findPost(pid, function (err, post) {
       if (err) {
-        return next(err);
+        return done(err);
       }
       if (!post || post.tid !== thread._id) {
-        return next(error(error.INVALID_POST));
+        return done(error(error.INVALID_POST));
       }
-      next(null, post);
+      done(null, post);
     });
   }
 
@@ -306,21 +306,21 @@ init.add(function () {
     }
   }
 
-  function saveFiles (pid, files, next) {
+  function saveFiles (pid, files, done) {
     if (files) {
       fs2.makeDirs(exports.getFilePath(pid), function (err, dir) {
-        if (err) return next(err);
+        if (err) return done(err);
         var saved = [];
         var i = 0;
         function save() {
           if (i == files.length) {
-            return next(null, saved);
+            return done(null, saved);
           }
           var file = files[i++];
           var safeName = fs2.safeFilename(path.basename(file.oname));
           fs.rename(upload.getTmpPath(file.tname), dir + '/' + safeName, function (err) {
             if (err) {
-              if (err.code !== 'ENOENT') return next(err);
+              if (err.code !== 'ENOENT') return done(err);
             } else {
               saved.push({ name: safeName });
             }
@@ -331,23 +331,23 @@ init.add(function () {
       });
       return;
     }
-    next();
+    done();
   }
 
-  function deleteFiles(pid, files, next) {
+  function deleteFiles(pid, files, done) {
     if (files) {
       var dir = exports.getFilePath(pid);
       var deleted = [];
       var i = 0;
       function del() {
         if (i == files.length) {
-          return next(null, deleted);
+          return done(null, deleted);
         }
         var file = files[i++];
         var name = path.basename(file);
         var p = dir + '/' + name;
         fs.unlink(p, function (err) {
-          if (err && err.code !== 'ENOENT') return next(err);
+          if (err && err.code !== 'ENOENT') return done(err);
           deleted.push(name);
           setImmediate(del);
         });
@@ -355,10 +355,10 @@ init.add(function () {
       del();
       return;
     }
-    next();
+    done();
   }
 
-  function insertThread(tid, form, next) {
+  function insertThread(tid, form, done) {
     var thread = {
       _id : tid,
       cid: form.cid,
@@ -370,12 +370,12 @@ init.add(function () {
       title: form.title
     };
     mongo.insertThread(thread, function (err) {
-      if (err) return next(err);
-      next(null, thread);
+      if (err) return done(err);
+      done(null, thread);
     });
   }
 
-  function insertPost(pid, thread, user, form, saved, next) {
+  function insertPost(pid, thread, user, form, saved, done) {
     var post = {
       _id: pid,
       tid: thread._id,
@@ -388,12 +388,12 @@ init.add(function () {
       post.files = saved;
     }
     setTokens(thread, post);
-    mongo.insertPost(post, next);
+    mongo.insertPost(post, done);
   }
 
-  function updatePost(thread, post, user, form, deleted, saved, next) {
+  function updatePost(thread, post, user, form, deleted, saved, done) {
     updateThread(function (err) {
-      if (err) return next(err);
+      if (err) return done(err);
       post.writer = form.writer;
       post.text = form.text;
       if (user.admin) {
@@ -415,17 +415,17 @@ init.add(function () {
         }
       }
       setTokens(thread, post);
-      mongo.updatePost(post, next);
+      mongo.updatePost(post, done);
     });
 
-    function updateThread(next) {
+    function updateThread(done) {
       if (isHead(thread, post)) {
         thread.cid = form.cid;
         thread.title = form.title;
         thread.writer = form.writer;
-        mongo.updateThread(thread, next);
+        mongo.updateThread(thread, done);
       } else {
-        next();
+        done();
       }
     }
   }
@@ -446,22 +446,22 @@ init.add(function () {
     }
   }
 
-  exports.rebuildTokens = function (next) {
+  exports.rebuildTokens = function (done) {
     var count = 0;
     var threads = mongo.threads.find();
 
     function readThread() {
       threads.nextObject(function (err, thread) {
-        if (err) return next(err);
+        if (err) return done(err);
         if (thread) {
           var posts = mongo.posts.find({ tid: thread._id });
           function readPost() {
             posts.nextObject(function (err, post) {
-              if (err) return next(err);
+              if (err) return done(err);
               if (post) {
                 setTokens(thread, post);
                 mongo.posts.update({ _id: post._id }, { $set: { tokens: post.tokens } }, function (err) {
-                  if (err) return next(err);
+                  if (err) return done(err);
                   count++;
                   if (count % 1000 === 0) {
                     process.stdout.write(count + ' ');
@@ -476,7 +476,7 @@ init.add(function () {
           readPost();
           return;
         }
-        next();
+        done();
       });
     }
     readThread();

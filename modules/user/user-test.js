@@ -4,8 +4,8 @@ var init = require('../base/init');
 var config = require('../base/config')({ path: 'config/sleek-test.json' });
 var userb = require('../user/user-base');
 
-before(function (next) {
-  init.run(next);
+before(function (done) {
+  init.run(done);
 });
 
 describe("finding user by name", function () {

@@ -10,8 +10,8 @@ var ufix = require('../user/user-fixture');
 require('../user/user-auth-api');
 require('../post/post-api');
 
-before(function (next) {
-  init.run(next);
+before(function (done) {
+  init.run(done);
 });
 
 before(function () {
@@ -19,87 +19,87 @@ before(function () {
 });
 
 describe("reading post", function () {
-  it("given user session", function (next) {
-    ufix.loginUser(next);
+  it("given user session", function (done) {
+    ufix.loginUser(done);
   });
   var tid1, pid1, pid2;
-  it("given tid1, pid1", function (next) {
+  it("given tid1, pid1", function (done) {
     var form = { cid: 101, writer: 'snowman1', title: 'title1', text: 'post11' };
     express.post('/api/threads').send(form).end(function (err, res) {
       should(!res.error);
       should(!res.body.err);
       tid1 = res.body.tid;
       pid1 = res.body.pid;
-      next();
+      done();
     });
   });
-  it("given pid2", function (next) {
+  it("given pid2", function (done) {
     var form = { writer: 'snowman1', text: 'post12' };
     express.post('/api/threads/' + tid1).send(form).end(function (err, res) {
       should(!res.error);
       should(!res.body.err);
       pid2 = res.body.pid;
-      next();
+      done();
     });
   });
-  it("given admin session", function (next) {
-    ufix.loginAdmin(next);
+  it("given admin session", function (done) {
+    ufix.loginAdmin(done);
   });
   var tid2, pid3, pid4;
-  it("given tid2, pid3 in recycle bin", function (next) {
+  it("given tid2, pid3 in recycle bin", function (done) {
     var form = { cid: 40, writer: 'snowman2', title: 'title2', text: 'post21' };
     express.post('/api/threads').send(form).end(function (err, res) {
       should(!res.error);
       should(!res.body.err);
       tid2 = res.body.tid;
       pid3 = res.body.pid;
-      next();
+      done();
     });
   });
-  it("given pid4 in recycle bin", function (next) {
+  it("given pid4 in recycle bin", function (done) {
     var form = { writer: 'snowman2', text: 'post22' };
     express.post('/api/threads/' + tid2).send(form).end(function (err, res) {
       should(!res.error);
       should(!res.body.err);
       pid4 = res.body.pid;
-      next();
+      done();
     });
   });
-  it("given logged out", function (next) {
-    ufix.logout(next);
+  it("given logged out", function (done) {
+    ufix.logout(done);
   });
-  it("should fail", function (next) {
+  it("should fail", function (done) {
     express.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
       should(!res.error);
       res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
-      next();
+      done();
     });
   });
-  it("given user session", function (next) {
-    ufix.loginUser(next);
+  it("given user session", function (done) {
+    ufix.loginUser(done);
   });
-  it("should fail with invalid tid", function (next) {
+  it("should fail with invalid tid", function (done) {
     express.get('/api/threads/' + 99999 + '/' + pid1, function (err, res) {
       should(!res.error);
       res.body.err.rc.should.equal(error.INVALID_THREAD);
-      next();
+      done();
     });
   });
-  it("should fail with mismatching tid", function (next) {
+  it("should fail with mismatching tid", function (done) {
     express.get('/api/threads/' + tid2 + '/' + pid1, function (err, res) {
       should(!res.error);
       res.body.err.rc.should.equal(error.INVALID_POST);
-      next();
+      done();
     });
   });
-  it("should fail with invalid pid", function (next) {
+  it("should fail with invalid pid", function (done) {
     express.get('/api/threads/' + tid1 + '/' + 99999, function (err, res) {
       should(!res.error);
       res.body.err.rc.should.equal(error.INVALID_POST);
-      next();
+      done();
     });
   });
-  it("should success for pid1", function (next) {
+  it("should success for pid1", function (done) {
     express.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
       should(!res.error);
       should(!res.body.err);
@@ -109,10 +109,10 @@ describe("reading post", function () {
       res.body.post.text.should.equal('post11');
       res.body.post.head.should.true;
       res.body.post.visible.should.true;
-      next();
+      done();
     });
   });
-  it("should success for pid2", function (next) {
+  it("should success for pid2", function (done) {
     express.get('/api/threads/' + tid1 + '/' + pid2, function (err, res) {
       should(!res.error);
       should(!res.body.err);
@@ -120,30 +120,30 @@ describe("reading post", function () {
       res.body.post.text.should.equal('post12');
       res.body.post.head.should.false;
       res.body.post.visible.should.true;
-      next();
+      done();
     });
   });
-  it("given user session", function (next) {
-    ufix.loginUser(next);
+  it("given user session", function (done) {
+    ufix.loginUser(done);
   });
-  it("should fail for pid3 in recycle bin", function (next) {
+  it("should fail for pid3 in recycle bin", function (done) {
     express.get('/api/threads/' + tid2 + '/' + pid3, function (err, res) {
       should(!res.error);
       res.body.err.rc.should.equal(error.INVALID_CATEGORY);
-      next();
+      done();
     });
   });
-  it("should fail for pid4 in recycle bin", function (next) {
+  it("should fail for pid4 in recycle bin", function (done) {
     express.get('/api/threads/' + tid2 + '/' + pid4, function (err, res) {
       should(!res.error);
       res.body.err.rc.should.equal(error.INVALID_CATEGORY);
-      next();
+      done();
     });
   });
-  it("given admin session", function (next) {
-    ufix.loginAdmin(next);
+  it("given admin session", function (done) {
+    ufix.loginAdmin(done);
   });
-  it("should success for pid3 in recycle bin", function (next) {
+  it("should success for pid3 in recycle bin", function (done) {
     express.get('/api/threads/' + tid2 + '/' + pid3, function (err, res) {
       should(!res.error);
       should(!res.body.err);
@@ -153,10 +153,10 @@ describe("reading post", function () {
       res.body.post.text.should.equal('post21');
       res.body.post.head.should.true;
       res.body.post.visible.should.true;
-      next();
+      done();
     });
   });
-  it("should success for pid4 in recycle bin", function (next) {
+  it("should success for pid4 in recycle bin", function (done) {
     express.get('/api/threads/' + tid2 + '/' + pid4, function (err, res) {
       should(!res.error);
       should(!res.body.err);
@@ -164,7 +164,7 @@ describe("reading post", function () {
       res.body.post.text.should.equal('post22');
       res.body.post.head.should.false;
       res.body.post.visible.should.true;
-      next();
+      done();
     });
   });
 });

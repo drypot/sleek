@@ -95,7 +95,7 @@ init.add(function () {
           );
           $handle.text('Hide');
         } else {
-          $handle.next().remove();
+          $handle.done().remove();
           $handle.text('Show');
         }
       })

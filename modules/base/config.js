@@ -28,19 +28,19 @@ exports = module.exports = function (_opt) {
   return exports;
 };
 
-init.add(function (next) {
+init.add(function (done) {
 
   if (!opt.path) {
-    return next(new Error('specify configuration path.'));
+    return done(new Error('specify configuration path.'));
   }
 
   console.log('config: ' + opt.path);
 
   try {
     exports.data =  JSON.parse(fs.readFileSync(opt.path, 'utf8'));
-    next();
+    done();
   } catch (err) {
-    next(err);
+    done(err);
   }
 
 });

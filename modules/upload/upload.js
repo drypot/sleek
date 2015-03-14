@@ -5,7 +5,7 @@ var init = require('../base/init');
 var config = require('../base/config');
 var fs2 = require('basebase');
 
-init.add(function (next) {
+init.add(function (done) {
 
   console.log('upload: ' + config.data.uploadDir);
 
@@ -40,14 +40,14 @@ init.add(function (next) {
     }
   }
 
-  exports.deleteTmpFiles = function (files, next) {
+  exports.deleteTmpFiles = function (files, done) {
     if (files) {
       var i = 0;
       function del() {
-        if (i == files.length) return next();
+        if (i == files.length) return done();
         var file = files[i++];
         fs.unlink(exports.getTmpPath(path.basename(file)), function (err) {
-          if (err && err.code !== 'ENOENT') return next(err);
+          if (err && err.code !== 'ENOENT') return done(err);
           setImmediate(del);
         });
       }
@@ -64,12 +64,12 @@ init.add(function (next) {
   var i = 0;
   function mkdir() {
     if (i == pathes.length) {
-      fs2.emptyDir(exports.tmp, next);
+      fs2.emptyDir(exports.tmp, done);
       return;
     }
     var p = pathes[i++];
     fs2.makeDirs(p, function (err) {
-      if (err) return next(err);
+      if (err) return done(err);
       setImmediate(mkdir);
     })
   }

@@ -18,7 +18,7 @@ init.add(function () {
     return params;
   }
 
-  exports.searchPost = function (user, params, next) {
+  exports.searchPost = function (user, params, done) {
     var tokens = tokenize(params.query);
     var categories = user.categories;
     var posts = [];
@@ -26,11 +26,11 @@ init.add(function () {
     var cursor = mongo.searchPosts(tokens, params.pg, params.pgsize);
     function read() {
       cursor.nextObject(function (err, post) {
-        if (err) return next(err);
+        if (err) return done(err);
         if (post) {
           count++;
           mongo.findThread(post.tid, function (err, thread) {
-            if (err) return next(err);
+            if (err) return done(err);
             var category = categories[thread.cid];
             if (category && (post.visible || user.admin)) {
               post.thread = {
@@ -50,7 +50,7 @@ init.add(function () {
           });
           return;
         }
-        next(null, posts, count !== params.pgsize);
+        done(null, posts, count !== params.pgsize);
       });
     }
     read();
