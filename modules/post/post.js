@@ -1,15 +1,15 @@
 var fs = require('fs');
 var path = require('path');
 
-var l = require('../main/l');
-var init = require('../main/init');
-var config = require('../main/config');
-var dt = require('../main/dt');
-var fs2 = require('../main/fs');
-var tokenize = require('./tokenizer').tokenize;
-var mongo = require('../main/mongo');
-var upload = require('../main/upload');
-var error = require('../main/error');
+var l = require('../base/util');
+var init = require('../base/init');
+var config = require('../base/config');
+var error = require('../base/error');
+var dt = require('../base/dt');
+var fs2 = require('../base/fs');
+var tokenize = require('../search/tokenizer').tokenize;
+var mongo = require('../mongo/mongo');
+var upload = require('../upload/upload');
 
 init.add(function () {
 

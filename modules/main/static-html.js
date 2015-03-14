@@ -1,6 +1,6 @@
-var init = require('../main/init');
+var init = require('../base/init');
 var express = require('../main/express');
-var mongo = require('../main/mongo');
+var mongo = require('../mongo/mongo');
 
 init.add(function () {
 

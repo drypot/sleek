@@ -1,9 +1,9 @@
 var fs = require('fs');
 var path = require('path');
 
-var init = require('../main/init');
-var config = require('../main/config');
-var fs2 = require('../main/fs');
+var init = require('../base/init');
+var config = require('../base/config');
+var fs2 = require('basebase');
 
 init.add(function (next) {
 

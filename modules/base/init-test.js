@@ -1,6 +1,6 @@
 var should = require('should');
 
-var init = require('../main/init');
+var init = require('../base/init');
 
 describe("normal init function", function () {
 	it("should success", function (next) {

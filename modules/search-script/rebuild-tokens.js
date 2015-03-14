@@ -1,7 +1,7 @@
-var init = require('../main/init');
-var config = require('../main/config')({ parseArgv: true });
-var mongo = require('../main/mongo');
-var post = require('../main/post');
+var init = require('../base/init');
+var config = require('../base/config')({ parseArgv: true });
+var mongo = require('../mongo/mongo');
+var post = require('../post/post-base');
 
 init.run(function (err) {
 	console.log('start rebuilding:');

@@ -1,8 +1,8 @@
 var should = require('should');
 
-var init = require('../main/init');
-var config = require('../main/config')({ test: true });
-var mongo = require('../main/mongo')({ dropDatabase: true });
+var init = require('../base/init');
+var config = require('../base/config')({ path: 'config/sleek-test.json' });
+var mongo = require('../mongo/mongo')({ dropDatabase: true });
 
 before(function (next) {
 	init.run(next);

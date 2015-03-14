@@ -1,20 +1,20 @@
 var should = require('should');
 var fs = require('fs');
 
-var l = require('../main/l');
-var init = require('../main/init');
-var fs2 = require('../main/fs');
-var config = require('../main/config')({ test: true });
-var mongo = require('../main/mongo')({ dropDatabase: true });
-var upload = require('../main/upload');
+var l = require('../base/util');
+var init = require('../base/init');
+var error = require('../base/error');
+var fs2 = require('../base/fs');
+var config = require('../base/config')({ path: 'config/sleek-test.json' });
+var mongo = require('../mongo/mongo')({ dropDatabase: true });
 var express = require('../main/express');
-var post = require('../main/post');
-var error = require('../main/error');
-var ufix = require('../test/user-fixture');
+var upload = require('../upload/upload');
+var post = require('../post/post-base');
+var ufix = require('../user/user-fixture');
 
-require('../main/session-api');
-require('../main/post-api');
-require('../main/upload-api');
+require('../user/user-auth-api');
+require('../post/post-api');
+require('../upload/upload-api');
 
 before(function (next) {
 	fs2.emptyDir('tmp', next);

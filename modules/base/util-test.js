@@ -1,6 +1,6 @@
 var should = require('should');
 
-var l = require('../main/l.js');
+var l = require('../base/util.js');
 
 describe("find", function () {
 	it("should success", function () {

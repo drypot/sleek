@@ -1,6 +1,6 @@
-var init = require('../main/init');
-var config = require('../main/config')({ parseArgv: true });
-var mongo = require('../main/mongo');
+var init = require('../base/init');
+var config = require('../base/config')({ parseArgv: true });
+var mongo = require('../mongo/mongo');
 
 init.run(function (err) {
 	if (err) throw err;

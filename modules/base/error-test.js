@@ -1,6 +1,6 @@
 var should = require('should');
 
-var error = require('../main/error');
+var error = require('../base/error');
 var Errors = error.Errors;
 
 describe("error(number)", function () {

@@ -1,8 +1,8 @@
 var should = require('should');
 
-var init = require('../main/init');
-var config = require('../main/config')({ test: true });
-var uesrl = require('../main/user');
+var init = require('../base/init');
+var config = require('../base/config')({ path: 'config/sleek-test.json' });
+var userb = require('../user/user-base');
 
 before(function (next) {
 	init.run(next);
@@ -10,26 +10,26 @@ before(function (next) {
 
 describe("finding user by name", function () {
 	it("should success", function () {
-		uesrl.findUserByName('user').name.should.equal('user');
-		uesrl.findUserByName('cheater').name.should.equal('cheater');
-		uesrl.findUserByName('admin').name.should.equal('admin');
-		should(!uesrl.findUserByName('xxx'));
+		userb.findUserByName('user').name.should.equal('user');
+		userb.findUserByName('cheater').name.should.equal('cheater');
+		userb.findUserByName('admin').name.should.equal('admin');
+		should(!userb.findUserByName('xxx'));
 	});
 });
 
 describe("finding user by password", function () {
 	it("should success", function () {
-		uesrl.findUserByPassword('1').name.should.equal('user');
-		uesrl.findUserByPassword('2').name.should.equal('cheater');
-		uesrl.findUserByPassword('3').name.should.equal('admin');
-		should(!uesrl.findUserByPassword('x'));
+		userb.findUserByPassword('1').name.should.equal('user');
+		userb.findUserByPassword('2').name.should.equal('cheater');
+		userb.findUserByPassword('3').name.should.equal('admin');
+		should(!userb.findUserByPassword('x'));
 	})
 });
 
 describe("user", function () {
 	var user;
 	before(function () {
-		user = uesrl.findUserByName('user');
+		user = userb.findUserByName('user');
 		should(user);
 	});
 	it("should not be admin", function () {
@@ -52,7 +52,7 @@ describe("user", function () {
 describe("cheater", function () {
 	var user;
 	before(function () {
-		user = uesrl.findUserByName('cheater');
+		user = userb.findUserByName('cheater');
 		should(user);
 	});
 	it("should not be admin", function () {
@@ -75,7 +75,7 @@ describe("cheater", function () {
 describe("admin", function () {
 	var user;
 	before(function () {
-		user = uesrl.findUserByName('admin');
+		user = userb.findUserByName('admin');
 	});
 	it("should be admin", function () {
 		should(user.admin);

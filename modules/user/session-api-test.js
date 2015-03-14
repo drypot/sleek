@@ -1,12 +1,12 @@
 var should = require('should');
 
-var init = require('../main/init');
-var config = require('../main/config')({ test: true });
+var init = require('../base/init');
+var error = require('../base/error');
+var config = require('../base/config')({ path: 'config/sleek-test.json' });
 var express = require('../main/express');
-var error = require('../main/error');
-var ufix = require('../test/user-fixture');
+var ufix = require('../user/user-fixture');
 
-require('../main/session-api');
+require('../user/user-auth-api');
 
 before(function (next) {
 	init.run(next);

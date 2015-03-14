@@ -1,6 +1,6 @@
 var fs = require('fs');
 
-var init = require('../main/init');
+var init = require('../base/init');
 
 var opt = {};
 

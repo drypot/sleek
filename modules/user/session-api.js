@@ -1,9 +1,9 @@
-var init = require('../main/init');
-var config = require('../main/config');
-var uesrl = require('../main/user');
-var session = require('../main/session');
+var init = require('../base/init');
+var config = require('../base/config');
+var error = require('../base/error');
+var userb = require('../user/user-base');
+var session = require('../user/user-auth');
 var express = require('../main/express');
-var error = require('../main/error');
 var Errors = error.Errors;
 
 init.add(function () {
@@ -26,7 +26,7 @@ init.add(function () {
 	});
 
 	app.post('/api/sessions', function (req, res) {
-		var user = uesrl.findUserByPassword(req.body.password || '');
+		var user = userb.findUserByPassword(req.body.password || '');
 		if (!user) {
 			return res.jsonErr(error('password', error.msg.USER_NOT_FOUND));
 		}

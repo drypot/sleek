@@ -1,6 +1,6 @@
-var init = require('../main/init');
+var init = require('../base/init');
 var express = require('../main/express');
-var search = require('../main/search');
+var search = require('../search/search-base');
 var UrlMaker = require('../main/UrlMaker');
 
 init.add(function () {

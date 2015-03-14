@@ -1,7 +1,7 @@
 var should = require('should');
 
-var init = require('../main/init');
-var config = require('../main/config');
+var init = require('../base/init');
+var config = require('../base/config');
 
 describe("config with invalid path", function () {
 	it("should fail", function (next) {

@@ -1,8 +1,8 @@
 var should = require('should');
 
-var init = require('../main/init');
-var config = require('../main/config');
-var error = require('../main/error');
+var init = require('../base/init');
+var config = require('../base/config');
+var error = require('../base/error');
 var express = require('../main/express');
 
 init.add(function () {

@@ -2,11 +2,11 @@ var should = require('should');
 var express = require('express');
 var redisStore = require('connect-redis')(express);
 
-var init = require('../main/init');
-var config = require('../main/config');
-var session = require('../main/session');
-var upload = require('../main/upload');
-var error = require('../main/error');
+var init = require('../base/init');
+var error = require('../base/error');
+var config = require('../base/config');
+var session = require('../user/user-auth');
+var upload = require('../upload/upload');
 
 var opt = {};
 

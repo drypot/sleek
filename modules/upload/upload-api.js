@@ -1,6 +1,6 @@
-var init = require('../main/init');
-var upload = require('../main/upload');
+var init = require('../base/init');
 var express = require('../main/express');
+var upload = require('../upload/upload');
 
 init.add(function () {
 

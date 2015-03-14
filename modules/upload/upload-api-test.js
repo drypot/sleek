@@ -1,17 +1,17 @@
 var should = require('should');
 var fs = require('fs');
 
-var l = require('../main/l');
-var init = require('../main/init');
-var config = require('../main/config')({ test: true });
-var upload = require('../main/upload');
+var l = require('../base/util');
+var init = require('../base/init');
+var error = require('../base/error');
+var config = require('../base/config')({ path: 'config/sleek-test.json' });
 var express = require('../main/express');
-var error = require('../main/error');
-var ufix = require('../test/user-fixture');
+var upload = require('../upload/uploading');
+var ufix = require('../user/user-fixture');
 
-require('../main/session-api');
-require('../main/upload-api');
-require('../main/upload-html');
+require('../user/user-auth-api');
+require('../upload/upload-api');
+require('../upload/upload-html');
 
 function find(files, oname) {
 	var file = l.find(files, function (file) {

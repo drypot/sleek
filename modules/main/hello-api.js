@@ -1,5 +1,5 @@
-var init = require('../main/init');
-var config = require('../main/config');
+var init = require('../base/init');
+var config = require('../base/config');
 var express = require('../main/express');
 
 init.add(function () {
