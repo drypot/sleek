@@ -1,51 +1,45 @@
 var should = require('should');
 var express = require('express');
-var redisStore = require('connect-redis')(express);
+var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser');
+var session = require('express-session');
+var redisStore = require('connect-redis')(session);
+var multipart = require('connect-multiparty');
+var errorHandler = require('errorhandler');
 
 var init = require('../base/init');
 var error = require('../base/error');
 var config = require('../base/config');
-var session = require('../user/user-auth');
-var upload = require('../upload/upload');
 
-var opt = {};
-
-exports = module.exports = function (_opt) {
-  for(var p in _opt) {
-    opt[p] = _opt[p];
-  }
-  return exports;
-};
+var app;
 
 init.add(function () {
+  app = exports.app = express();
 
-  var app = exports.app = express();
-  var log = 'express:';
+  // Set Middlewares
 
   app.disable('x-powered-by');
+  app.locals.pretty = true;
+  app.locals.appName = config.appName;
 
   app.engine('jade', require('jade').renderFile);
-  app.set('view engine', 'jade'); // default view engine
-  app.set('views', process.cwd() + '/client/jade'); // view root
-  app.locals.pretty = true;
+  app.set('view engine', 'jade');
+  app.set('views', 'modules');
 
-  app.locals.appName = config.data.appName;
-
-  app.use(express.cookieParser(config.data.cookieSecret));
-
-  app.use(express.session({ store: new redisStore({ ttl: 1800 /* 단위: 초. 30 분 */ }) }));
-  log += ' redis';
-
-//  app.use(express.session());
-//  log += ' memory';
-
-  app.use(express.bodyParser({ uploadDir: upload.tmp }));
-
-  var apiRe = /^\/api\//;
+  app.use(cookieParser());
+  app.use(session({ 
+    store: new redisStore({ ttl: 1800 /* 단위: 초. 30 분 */ }), 
+    resave: false,
+    saveUninitialized: false,
+    secret: config.cookieSecret
+  }));
+  app.use(bodyParser.urlencoded({ extended: false }));
+  app.use(bodyParser.json());
+  app.use(multipart({ uploadDir: config.uploadDir + '/tmp' }));
 
   app.use(function (req, res, done) {
-    var api = res.locals.api = apiRe.test(req.path);
-    if (api) {
+    res.locals.query = req.query;
+    if (res.locals.api = /^\/api\//.test(req.path)) {
       // solve IE ajax caching problem.
       res.set('Cache-Control', 'no-cache');
     } else {
@@ -55,101 +49,62 @@ init.add(function () {
     done();
   });
 
-  app.use(session.setLocals);
-
-  app.use(app.router);
-
-  if (config.data.serviceStaticFiles) {
-    app.use(express.static(process.cwd() + '/client/public'));
+  if (exports.restoreLocalsUser) {
+    app.use(exports.restoreLocalsUser);
   }
 
-  app.use(express.errorHandler());
+  app.get('/api/hello', function (req, res) {
+    res.json({
+      name: config.appName,
+      time: Date.now()
+    });
+  });
 
-  // request utilities
-
-  app.request.findUser = function (uname, done) {
-    if (typeof uname === 'function') {
-      done = uname;
-      uname = null;
-    }
-    var req = this;
-    var res = this.res;
-    var user = res.locals.user;
-    if (!user) {
-      return done(error(error.NOT_AUTHENTICATED));
-    }
-    if (uname && uname !== user.name) {
-      return done(error(error.NOT_AUTHORIZED));
-    }
-    done(null, user);
-  };
-
-
-  // response utilities
-
-  var cut5LinesPattern = /^(?:.*\n){1,5}/m;
-  var emptyMatch = [''];
-
-//  app.response.safeJson = function (obj) {
-//    // IE9 + ajaxForm + multipart/form-data 사용할 경우 application/json 으로 리턴하면 저장하려든다.
-//    //console.log(this.req.headers);
-//    var accept = this.req.get('accept');
-//    if (accept && accept.indexOf('text/html') != -1) {
-//      this.send(JSON.stringify(obj));
-//    } else {
-//      this.json(obj);
-//    }
-//  };
-
-  app.response.jsonErr = function (err) {
-    var err2 = {};
-    for (var key in err) {
-      err2[key] = err[key];
-    }
-    err2.message = err.message;
-    err2.stack = (err.stack.match(cut5LinesPattern) || emptyMatch)[0];
-    this.json({ err: err2 });
-  }
-
-  app.response.renderErr = function (err) {
-    if (err.rc && err.rc == error.NOT_AUTHENTICATED) {
-      this.redirect('/');
-      return;
-    }
-    var err2 = {};
-    for (var key in err) {
-      err2[key] = err[key];
-    }
-    err2.message = err.message;
-    err2.stack = err.stack;
-    this.render('error', { err: err2 });
-  }
-
-  exports.listen = function () {
-    app.listen(config.data.appPort);
-    log += ' ' + config.data.appPort;
-    console.log(log);
-  };
-
-
-  // for test
-
-  var request = require('superagent').agent();
-  var url = 'http://localhost:' + config.data.appPort;
-  var methods = [ 'post', 'get', 'put', 'del' ];
-
-  for (var i = 0; i < methods.length; i++) {
-    var method = methods[i];
-    exports[method] = (function (method) {
-      return function () {
-        arguments[0] = url + arguments[0];
-        return request[method].apply(request, arguments);
-      }
-    })(method)
-  }
-
-  exports.newTestSession = function () {
-    request = require('superagent').agent();
-  }
+  app.get('/error', function (req, res) {
+    var err = new Error('Error Sample Page');
+    err.code = 999;
+    res.render('main/error', {
+      err: err
+    });
+  });
 
 });
+
+init.addTail(function () {
+  app.use(errorHandler());
+  app.listen(config.appPort);
+  console.log('express: listening ' + config.appPort);
+});
+
+// Error Util
+
+var emptyMatch = [''];
+
+should.not.exist(express.response.jsonErr);
+express.response.jsonErr = function (_err) {
+  var res = this;
+  var err = {};
+  for (var key in _err) {
+    err[key] = _err[key];
+  }
+  err.message = _err.message;
+  err.stack = (_err.stack.match(/^(?:.*\n){1,6}/m) || emptyMatch)[0];
+  res.json({ err: err });
+};
+
+should.not.exist(express.response.renderErr);
+express.response.renderErr = function (_err) {
+  var res = this;
+  if (_err.code && _err.code == error.NOT_AUTHENTICATED.code) {
+    res.redirect('/users/login');
+    return;
+  }
+  var err = {};
+  for (var key in _err) {
+    err[key] = _err[key];
+  }
+  err.message = _err.message;
+  err.stack = (_err.stack.match(/^(?:.*\n){1,6}/m) || emptyMatch)[0].replace(/Error:.+\n/, '');
+  res.render('main/error', { err: err });
+};
+

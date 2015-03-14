@@ -8,6 +8,14 @@ init.add(function () {
 
   console.log('post-api:');
 
+  app.get('/', function (req, res) {
+    if (res.locals.user) {
+      res.redirect('/threads');
+      return;
+    }
+    res.render('login');
+  });
+
   app.get('/api/threads', function (req, res) {
     req.findUser(function (err, user) {
       if (err) return res.jsonErr(err);

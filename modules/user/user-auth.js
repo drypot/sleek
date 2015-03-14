@@ -5,6 +5,8 @@ init.add(function () {
 
   console.log('session:');
 
+
+
   exports.initSession = function (req, user, done) {
     req.session.regenerate(function (err) {
       if (err) return done(err);
@@ -36,3 +38,24 @@ init.add(function () {
   };
 
 });
+
+exports.getUser = function (res, done) {
+   app.request.findUser = function (uname, done) {
+    if (typeof uname === 'function') {
+      done = uname;
+      uname = null;
+    }
+    var req = this;
+    var res = this.res;
+    var user = res.locals.user;
+    if (!user) {
+      return done(error(error.NOT_AUTHENTICATED));
+    }
+    if (uname && uname !== user.name) {
+      return done(error(error.NOT_AUTHORIZED));
+    }
+    done(null, user);
+  };
+
+
+}
