@@ -3,6 +3,7 @@ var path = require('path');
 
 var util2 = require('../base/util');
 var init = require('../base/init');
+var error = require('../base/error');
 var config = require('../base/config');
 var error = require('../base/error');
 var dt = require('../base/dt');
@@ -13,7 +14,16 @@ var upload = require('../upload/upload');
 
 init.add(function () {
 
-  console.log('post:');
+// msg[exports.INVALID_CATEGORY] = '정상적인 카테고리가 아닙니다.';
+// msg[exports.INVALID_THREAD] = '정상적인 글줄이 아닙니다.';
+// msg[exports.INVALID_POST] = '정상적인 글이 아닙니다.';
+
+// msg.FILL_TITLE = '제목을 입력해 주십시오.';
+// msg.SHORTEN_TITLE = '제목을 줄여 주십시오.';
+// msg.FILL_WRITER = '필명을 입력해 주십시오.';
+// msg.SHORTEN_WRITER = '필명을 줄여 주십시오.';
+// msg.USER_NOT_FOUND = '비밀번호를 다시 확인해 주십시오.';
+
 
   exports.makeForm = function (req) {
     var body = req.body;

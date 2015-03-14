@@ -3,25 +3,9 @@ var fs = require('fs');
 var init = require('../base/init');
 
 var opt = {};
+var argv = [];
 
 exports = module.exports = function (_opt) {
-  if (_opt.reset) {
-    opt = {};
-    delete exports.data;
-  }
-  if (_opt.parseArgv) {
-    for (var i = 2; i < process.argv.length; i++) {
-      var arg = process.argv[i];
-      if (arg.indexOf('--') === 0) {
-        //
-      } else {
-        _opt.path = arg;
-      }
-    }
-  }
-  if (_opt.test) {
-    _opt.path = 'config/config-test.json';
-  }
   for(var p in _opt) {
     opt[p] = _opt[p];
   }
@@ -29,18 +13,29 @@ exports = module.exports = function (_opt) {
 };
 
 init.add(function (done) {
+  var path = opt.path || undefined;
 
-  if (!opt.path) {
-    return done(new Error('specify configuration path.'));
+  var i = 2;
+  while(i < process.argv.length) {
+    var arg = process.argv[i++];
+    if (arg == '--config') {
+      path = process.argv[i++];
+    } else {
+      argv.push(arg);
+    }
   }
 
-  console.log('config: ' + opt.path);
+  if (!path) {
+    return done(new Error('specify configuration path'));
+  }
 
-  try {
-    exports.data =  JSON.parse(fs.readFileSync(opt.path, 'utf8'));
+  console.log('config: ' + path);
+  fs.readFile(path, 'utf8', function (err, data) {
+    if (err) return done(err);
+    var _config = JSON.parse(data);
+    for(var p in _config) {
+      exports[p] = _config[p];
+    }
     done();
-  } catch (err) {
-    done(err);
-  }
-
+  });
 });

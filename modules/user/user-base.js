@@ -2,11 +2,13 @@ var crypto = require('crypto');
 var bcrypt = require('bcrypt');
 
 var init = require('../base/init');
+var error = require('../base/error');
 var config = require('../base/config');
 
 init.add(function () {
 
-  console.log('user:');
+  error.define('NOT_AUTHENTICATED', '먼저 로그인해 주십시오.');
+  error.define('NOT_AUTHORIZED', '사용 권한이 없습니다.');
 
   var users = {};
 

@@ -1,70 +1,61 @@
+var should = require('should');
 
-exports = module.exports = function (arg, arg2) {
-  var err, key;
-  if (arg instanceof Errors) {
-    err = new Error(msg[exports.ERROR_SET]);
-    err.rc = exports.ERROR_SET;
-    err.errors = arg.errors;
+var init = require('../base/init');
+
+exports = module.exports = function (ec /* error const */) {
+  var err;
+  if (Array.isArray(ec)) {
+    err = new Error(exports.INVALID_FORM.message);
+    err.code = exports.INVALID_FORM.code;
+    err.errors = ec;
     return err;
   }
-  if (arg2) {
-    err = new Error(msg[exports.ERROR_SET]);
-    err.rc = exports.ERROR_SET;
-    err.errors = [{ name: arg, msg: arg2 }];
+  if (ec.field) {
+    err = new Error(exports.INVALID_FORM.message);
+    err.code = exports.INVALID_FORM.code;
+    err.errors = [ec];
     return err;
   }
-  if (typeof arg === 'number') {
-    err = new Error(msg[arg]);
-    err.rc = arg;
-    return err;
-  }
-  if (typeof arg === 'string') {
-    err = new Error(arg);
+  if (ec.code) {
+    err = new Error(ec.message);
+    err.code = ec.code;
     return err;
   }
   err = new Error('unknown error');
-  for (key in arg) {
-    err[key] = arg[key];
+  for (var p in ec) {
+    err[p] = ec[p];
   }
   return err;
 };
 
-var Errors = exports.Errors = function () {
-  this.errors = [];
+init.add(function () {
+  exports.define('INVALID_DATA', '비정상적인 값이 입력되었습니다.');
+  exports.define('INVALID_FORM', '*');
+});
+
+exports.define = function (code, msg, field) {
+  should.not.exist(exports[code]);
+  var ec = exports[code] = {
+    code: code,
+    message: msg
+  };
+  if (field) {
+    ec.field = field;
+  }
 };
 
-Errors.prototype.add = function (name, msg) {
-  this.errors.push({ name: name, msg: msg });
-};
-
-Errors.prototype.hasErrors = function () {
-  return this.errors.length > 0;
-};
-
-exports.ERROR_SET = 10;
-
-exports.NOT_AUTHENTICATED = 101;
-exports.NOT_AUTHORIZED = 102;
-
-exports.INVALID_DATA = 201;
-exports.INVALID_CATEGORY = 202;
-exports.INVALID_THREAD = 203;
-exports.INVALID_POST = 204;
-
-var msg = exports.msg = {};
-
-msg[exports.ERROR_SET] = '*';
-
-msg[exports.NOT_AUTHENTICATED] = '먼저 로그인해 주십시오.';
-msg[exports.NOT_AUTHORIZED] = '사용 권한이 없습니다.';
-
-msg[exports.INVALID_DATA] = '비정상적인 값이 입력되었습니다.';
-msg[exports.INVALID_CATEGORY] = '정상적인 카테고리가 아닙니다.';
-msg[exports.INVALID_THREAD] = '정상적인 글줄이 아닙니다.';
-msg[exports.INVALID_POST] = '정상적인 글이 아닙니다.';
-
-msg.FILL_TITLE = '제목을 입력해 주십시오.';
-msg.SHORTEN_TITLE = '제목을 줄여 주십시오.';
-msg.FILL_WRITER = '필명을 입력해 주십시오.';
-msg.SHORTEN_WRITER = '필명을 줄여 주십시오.';
-msg.USER_NOT_FOUND = '비밀번호를 다시 확인해 주십시오.';
+exports.find = function (err, ec) {
+  if (err.code == exports.INVALID_FORM.code) {
+    for (var i = 0; i < err.errors.length; i++) {
+      var e = err.errors[i];
+      if (e.code == ec.code && e.field == ec.field && e.message == ec.message) {
+        return true;
+      }
+    }
+  } else {
+    if (err.code == ec.code && err.message == ec.message) {
+      return true;
+    }
+  }
+  return false;
+}
