@@ -2,169 +2,169 @@ var request = superagent;
 
 (function () {
 
-	// for IE 7
+  // for IE 7
 
-	if (!window.localStorage) {
-		window.localStorage = {
-			getItem: function () {},
-			setItem: function () {},
-			removeItem: function () {}
-		}
-		window.sessionStorage = {
-			getItem: function () {},
-			setItem: function () {},
-			removeItem: function () {}
-		}
-	}
+  if (!window.localStorage) {
+    window.localStorage = {
+      getItem: function () {},
+      setItem: function () {},
+      removeItem: function () {}
+    }
+    window.sessionStorage = {
+      getItem: function () {},
+      setItem: function () {},
+      removeItem: function () {}
+    }
+  }
 
-	if (!window.console) {
-		window.console = {
-			log: function () {}
-		}
-	}
+  if (!window.console) {
+    window.console = {
+      log: function () {}
+    }
+  }
 
-	window.msie = /msie/.test(navigator.userAgent.toLowerCase());
+  window.msie = /msie/.test(navigator.userAgent.toLowerCase());
 
 })();
 
 (function () {
 
-	window.init = {};
+  window.init = {};
 
-	var funcs = [];
+  var funcs = [];
 
-	window.init.add = function (func) {
-		funcs.push(func);
-	};
+  window.init.add = function (func) {
+    funcs.push(func);
+  };
 
-	$(function () {
-		console.log('init:');
+  $(function () {
+    console.log('init:');
 
-		var i = 0;
-		var len = funcs.length;
+    var i = 0;
+    var len = funcs.length;
 
-		for (i = 0; i < len; i++) {
-			funcs[i]();
-		}
-	});
+    for (i = 0; i < len; i++) {
+      funcs[i]();
+    }
+  });
 
 })();
 
 init.add(function () {
 
-	window.dt = {};
+  window.dt = {};
 
-	function pad(number) {
-		var r = String(number);
-		if ( r.length === 1 ) {
-			r = '0' + r;
-		}
-		return r;
-	}
+  function pad(number) {
+    var r = String(number);
+    if ( r.length === 1 ) {
+      r = '0' + r;
+    }
+    return r;
+  }
 
-	if (!Date.prototype.toISOString) {
-		Date.prototype.toISOString = function() {
-			return this.getUTCFullYear()
-				+ '-' + pad( this.getUTCMonth() + 1 )
-				+ '-' + pad( this.getUTCDate() )
-				+ 'T' + pad( this.getUTCHours() )
-				+ ':' + pad( this.getUTCMinutes() )
-				+ ':' + pad( this.getUTCSeconds() )
-				+ '.' + String( (this.getUTCMilliseconds()/1000).toFixed(3) ).slice( 2, 5 )
-				+ 'Z';
-		};
-	}
+  if (!Date.prototype.toISOString) {
+    Date.prototype.toISOString = function() {
+      return this.getUTCFullYear()
+        + '-' + pad( this.getUTCMonth() + 1 )
+        + '-' + pad( this.getUTCDate() )
+        + 'T' + pad( this.getUTCHours() )
+        + ':' + pad( this.getUTCMinutes() )
+        + ':' + pad( this.getUTCSeconds() )
+        + '.' + String( (this.getUTCMilliseconds()/1000).toFixed(3) ).slice( 2, 5 )
+        + 'Z';
+    };
+  }
 
-	dt.format = function (d) {
-		return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' +
-			pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
-	};
+  dt.format = function (d) {
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' +
+      pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+  };
 
-	var key = 'last-access-2';
-	var now = dt.now = new Date();
-	var lastSession, lastSessionStr;
-	var lastAccess;
-	var v;
+  var key = 'last-access-2';
+  var now = dt.now = new Date();
+  var lastSession, lastSessionStr;
+  var lastAccess;
+  var v;
 
-	v = localStorage.getItem(key);
-	lastAccess = v ? new Date(v) : now;
+  v = localStorage.getItem(key);
+  lastAccess = v ? new Date(v) : now;
 
-	v = sessionStorage.getItem(key);
-	if (v) {
-		lastSession = new Date(v);
-		if (now.getTime() - lastAccess.getTime() > 30 * 60 * 1000) {
-			lastSession = undefined;
-		}
-	}
-	if (!lastSession) {
-		lastSession = lastAccess;
-		sessionStorage.setItem(key, lastAccess.toISOString());
-	}
+  v = sessionStorage.getItem(key);
+  if (v) {
+    lastSession = new Date(v);
+    if (now.getTime() - lastAccess.getTime() > 30 * 60 * 1000) {
+      lastSession = undefined;
+    }
+  }
+  if (!lastSession) {
+    lastSession = lastAccess;
+    sessionStorage.setItem(key, lastAccess.toISOString());
+  }
 
-	lastSessionStr = dt.format(lastSession);
-	localStorage.setItem(key, now.toISOString());
+  lastSessionStr = dt.format(lastSession);
+  localStorage.setItem(key, now.toISOString());
 
-	dt.isNew = function (d) {
-		return d > lastSessionStr;
-	};
-
-});
-
-init.add(function () {
-
-	var error = window.error = {};
-
-	error.ERROR_SET = 10;
-
-	error.NOT_AUTHENTICATED = 101;
-	error.NOT_AUTHORIZED = 102;
-
-	error.INVALID_DATA = 201;
-	error.INVALID_CATEGORY = 202;
-	error.INVALID_THREAD = 203;
-	error.INVALID_POST = 204;
+  dt.isNew = function (d) {
+    return d > lastSessionStr;
+  };
 
 });
 
 init.add(function () {
 
-	window.$window = $(window);
-	window.$document = $(document);
+  var error = window.error = {};
 
-	window.url = {};
-	window.url.pathnames = window.location.pathname.slice(1).split('/');
-	window.url.query = (function () {
-		var plusRe = /\+/g;
-		var paramRe = /([^&=]+)=?([^&]*)/g;
-		var search = window.location.search.slice(1);
-		var query = {};
-		var match;
-		while (match = paramRe.exec(search)) {
-			query[match[1]] = decodeURIComponent(match[2].replace(plusRe, " "));
-		}
-		return query;
-	})();
+  error.ERROR_SET = 10;
+
+  error.NOT_AUTHENTICATED = 101;
+  error.NOT_AUTHORIZED = 102;
+
+  error.INVALID_DATA = 201;
+  error.INVALID_CATEGORY = 202;
+  error.INVALID_THREAD = 203;
+  error.INVALID_POST = 204;
 
 });
 
 init.add(function () {
 
-	var ping;
+  window.$window = $(window);
+  window.$document = $(document);
 
-	$('textarea').on('focus', function () {
-		if (!ping) {
-			ping = true;
-			console.log('ping: start');
-			window.setInterval(function() {
-				request.get('/api/hello').end(function (err, res) {
-					if (err || res.error) {
-						console.log('ping: error');
-						return;
-					}
-					console.log('ping');
-				});
-			}, 1000 * 60 * 5); // 5 min
-		}
-	})
+  window.url = {};
+  window.url.pathnames = window.location.pathname.slice(1).split('/');
+  window.url.query = (function () {
+    var plusRe = /\+/g;
+    var paramRe = /([^&=]+)=?([^&]*)/g;
+    var search = window.location.search.slice(1);
+    var query = {};
+    var match;
+    while (match = paramRe.exec(search)) {
+      query[match[1]] = decodeURIComponent(match[2].replace(plusRe, " "));
+    }
+    return query;
+  })();
+
+});
+
+init.add(function () {
+
+  var ping;
+
+  $('textarea').on('focus', function () {
+    if (!ping) {
+      ping = true;
+      console.log('ping: start');
+      window.setInterval(function() {
+        request.get('/api/hello').end(function (err, res) {
+          if (err || res.error) {
+            console.log('ping: error');
+            return;
+          }
+          console.log('ping');
+        });
+      }, 1000 * 60 * 5); // 5 min
+    }
+  })
 
 });

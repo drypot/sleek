@@ -1,44 +1,44 @@
 
 exports = module.exports = function (arg, arg2) {
-	var err, key;
-	if (arg instanceof Errors) {
-		err = new Error(msg[exports.ERROR_SET]);
-		err.rc = exports.ERROR_SET;
-		err.errors = arg.errors;
-		return err;
-	}
-	if (arg2) {
-		err = new Error(msg[exports.ERROR_SET]);
-		err.rc = exports.ERROR_SET;
-		err.errors = [{ name: arg, msg: arg2 }];
-		return err;
-	}
-	if (typeof arg === 'number') {
-		err = new Error(msg[arg]);
-		err.rc = arg;
-		return err;
-	}
-	if (typeof arg === 'string') {
-		err = new Error(arg);
-		return err;
-	}
-	err = new Error('unknown error');
-	for (key in arg) {
-		err[key] = arg[key];
-	}
-	return err;
+  var err, key;
+  if (arg instanceof Errors) {
+    err = new Error(msg[exports.ERROR_SET]);
+    err.rc = exports.ERROR_SET;
+    err.errors = arg.errors;
+    return err;
+  }
+  if (arg2) {
+    err = new Error(msg[exports.ERROR_SET]);
+    err.rc = exports.ERROR_SET;
+    err.errors = [{ name: arg, msg: arg2 }];
+    return err;
+  }
+  if (typeof arg === 'number') {
+    err = new Error(msg[arg]);
+    err.rc = arg;
+    return err;
+  }
+  if (typeof arg === 'string') {
+    err = new Error(arg);
+    return err;
+  }
+  err = new Error('unknown error');
+  for (key in arg) {
+    err[key] = arg[key];
+  }
+  return err;
 };
 
 var Errors = exports.Errors = function () {
-	this.errors = [];
+  this.errors = [];
 };
 
 Errors.prototype.add = function (name, msg) {
-	this.errors.push({ name: name, msg: msg });
+  this.errors.push({ name: name, msg: msg });
 };
 
 Errors.prototype.hasErrors = function () {
-	return this.errors.length > 0;
+  return this.errors.length > 0;
 };
 
 exports.ERROR_SET = 10;

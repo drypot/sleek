@@ -4,13 +4,13 @@ var express = require('../main/express');
 
 init.add(function () {
 
-	console.log('hello-api:');
+  console.log('hello-api:');
 
-	express.app.get('/api/hello', function (req, res) {
-		res.json({
-			name: config.data.appName,
-			time: Date.now()
-		});
-	});
+  express.app.get('/api/hello', function (req, res) {
+    res.json({
+      name: config.data.appName,
+      time: Date.now()
+    });
+  });
 
 });

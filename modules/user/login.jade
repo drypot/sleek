@@ -1,24 +1,24 @@
 extends layout
 
 block title
-	title #{appName}
+  title #{appName}
 
 block content
-	script
-		init.add(function () {
-			session.initLogin();
-		});
+  script
+    init.add(function () {
+      session.initLogin();
+    });
 
-	.side-space
-		.page-header
-			h2 Login
+  .side-space
+    .page-header
+      h2 Login
 
-		form#form
-			.form-row
-				label.control-label Password
-				input.input-with-feedback.col-lg-3(name='password', type='password')
-			.checkbox
-				label Remember
-				input(name='remember', type='checkbox')
-			.form-actions
-				button.btn.btn-primary(name='send') Login
+    form#form
+      .form-row
+        label.control-label Password
+        input.input-with-feedback.col-lg-3(name='password', type='password')
+      .checkbox
+        label Remember
+        input(name='remember', type='checkbox')
+      .form-actions
+        button.btn.btn-primary(name='send') Login

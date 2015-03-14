@@ -4,16 +4,16 @@ var mongo = require('../mongo/mongo');
 
 init.add(function () {
 
-	console.log('static-html:');
+  console.log('static-html:');
 
-	var app = express.app;
+  var app = express.app;
 
-	app.get('/', function (req, res) {
-		if (res.locals.user) {
-			res.redirect('/threads');
-			return;
-		}
-		res.render('login');
-	});
+  app.get('/', function (req, res) {
+    if (res.locals.user) {
+      res.redirect('/threads');
+      return;
+    }
+    res.render('login');
+  });
 
 });
