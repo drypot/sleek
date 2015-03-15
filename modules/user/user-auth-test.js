@@ -3,7 +3,7 @@ var should = require('should');
 var init = require('../base/init');
 var error = require('../base/error');
 var config = require('../base/config')({ path: 'config/sleek-test.json' });
-var express = require('../main/express');
+var express2 = require('../main/express');
 var ufix = require('../user/user-fixture');
 
 require('../user/user-auth-api');
@@ -14,7 +14,7 @@ before(function (done) {
 
 before(function () {
 
-  var app = express.app;
+  var app = express2.app;
 
   app.put('/test/session', function (req, res) {
     for (var key in req.body) {
@@ -64,14 +64,14 @@ before(function () {
 describe("getting session var", function () {
   it("given session var", function (done) {
     express.put('/test/session').send({ book: 'book217', price: 112 }).end(function (err, res) {
-      should(!res.error);
+      res.error.should.false;
       res.body.should.equal('ok');
       done();
     });
   });
   it("should success", function (done) {
     express.get('/test/session').send([ 'book', 'price' ]).end(function (err, res) {
-      should(!res.error);
+      res.error.should.false;
       res.body.should.have.property('book', 'book217');
       res.body.should.have.property('price', 112);
       done();
@@ -82,7 +82,7 @@ describe("getting session var", function () {
   });
   it("should fail", function (done) {
     express.get('/test/session').send([ 'book', 'price' ]).end(function (err, res) {
-      should(!res.error);
+      res.error.should.false;
       res.body.should.not.have.property('book');
       res.body.should.not.have.property('price');
       done();
@@ -99,7 +99,7 @@ describe("making session", function () {
   });
   it("should fail with wrong password", function (done) {
     express.post('/api/sessions').send({ password: 'xxx' }).end(function (err, res) {
-      should(!res.error);
+      res.error.should.false;
       res.body.err.rc.should.equal(error.ERROR_SET);
       res.body.err.errors[0].name.should.equal('password');
       res.body.err.errors[0].msg.should.equal(error.msg.USER_NOT_FOUND);
@@ -114,7 +114,7 @@ describe("getting session info", function () {
   });
   it("should fail", function (done) {
     express.get('/api/sessions', function (err, res) {
-      should(!res.error);
+      res.error.should.false;
       res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
       done();
     });
@@ -124,10 +124,10 @@ describe("getting session info", function () {
   });
   it("should success", function (done) {
     express.get('/api/sessions', function (err, res) {
-      should(!res.error);
-      should(!res.body.err);
+      res.error.should.false;
+      should.not.exist(res.body.err);
       res.body.user.name.should.equal('user');
-      should.exist(res.body.user.categoriesOrdered);
+      should.exist(res.body.user.categories);
       done();
     });
   });
@@ -139,7 +139,7 @@ describe("accessing /test/any", function () {
   });
   it("should fail", function (done) {
     express.get('/test/any', function (err, res) {
-      should(!res.error);
+      res.error.should.false;
       res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
       done();
     });
@@ -149,8 +149,8 @@ describe("accessing /test/any", function () {
   });
   it("should success", function (done) {
     express.get('/test/any', function (err, res) {
-      should(!res.error);
-      should(!res.body.err);
+      res.error.should.false;
+      should.not.exist(res.body.err);
       done();
     });
   });
@@ -159,7 +159,7 @@ describe("accessing /test/any", function () {
   });
   it("should fail", function (done) {
     express.get('/test/any', function (err, res) {
-      should(!res.error);
+      res.error.should.false;
       res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
       done();
     });
@@ -172,7 +172,7 @@ describe("accessing /test/user", function () {
   });
   it("should fail", function (done) {
     express.get('/test/user', function (err, res) {
-      should(!res.error);
+      res.error.should.false;
       res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
       done();
     });
@@ -182,8 +182,8 @@ describe("accessing /test/user", function () {
   });
   it("should success", function (done) {
     express.get('/test/user', function (err, res) {
-      should(!res.error);
-      should(!res.body.err);
+      res.error.should.false;
+      should.not.exist(res.body.err);
       done();
     });
   });
@@ -195,7 +195,7 @@ describe("accessing /test/admin", function () {
   });
   it("should fail", function (done) {
     express.get('/test/admin', function (err, res) {
-      should(!res.error);
+      res.error.should.false;
       res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
       done();
     });
@@ -205,7 +205,7 @@ describe("accessing /test/admin", function () {
   });
   it("should fail", function (done) {
     express.get('/test/admin', function (err, res) {
-      should(!res.error);
+      res.error.should.false;
       res.body.err.rc.should.equal(error.NOT_AUTHORIZED);
       done();
     });
@@ -215,8 +215,8 @@ describe("accessing /test/admin", function () {
   });
   it("should success", function (done) {
     express.get('/test/admin', function (err, res) {
-      should(!res.error);
-      should(!res.body.err);
+      res.error.should.false;
+      should.not.exist(res.body.err);
       done();
     });
   });
@@ -229,22 +229,22 @@ describe("accessing /test/user with auto login", function () {
   });
   it("should fail", function (done) {
     express.get('/test/user').end(function (err, res) {
-      should(res.body.err);
+      should.exist(res.body.err);
       done();
     });
   });
   it("given user session", function (done) {
     express.post('/api/sessions').send({ password: '1' }).end(function (err, res) {
-      should(!err);
-      should(!res.error);
-      should(!res.body.err);
+      should.not.exist(err);
+      res.error.should.false;
+      should.not.exist(res.body.err);
       res.body.user.name.should.equal('user');
       done();
     });
   });
   it("should success", function (done) {
     express.get('/test/user').end(function (err, res) {
-      should(!res.body.err);
+      should.not.exist(res.body.err);
       done();
     })
   });
@@ -254,38 +254,38 @@ describe("accessing /test/user with auto login", function () {
   });
   it("should fail", function (done) {
     express.get('/test/user').end(function (err, res) {
-      should(res.body.err);
+      should.exist(res.body.err);
       done();
     })
   });
   it("given user session with auto login", function (done) {
     express.post('/api/sessions').send({ password: '1', remember: true }).end(function (err, res) {
-      should(!err);
-      should(!res.error);
-      should(!res.body.err);
+      should.not.exist(err);
+      res.error.should.false;
+      should.not.exist(res.body.err);
       res.body.user.name.should.equal('user');
       done();
     });
   });
   it("should success", function (done) {
     express.get('/test/user').end(function (err, res) {
-      should(!err);
-      should(!res.error);
-      should(!res.body.err);
+      should.not.exist(err);
+      res.error.should.false;
+      should.not.exist(res.body.err);
       done();
     });
   });
   it("given new session", function (done) {
     express.del('/test/del-session').end(function (err, res) {
-      should(!err);
-      should(!res.error);
-      should(!res.body.err);
+      should.not.exist(err);
+      res.error.should.false;
+      should.not.exist(res.body.err);
       done();
     });
   });
   it("should success", function (done) {
     express.get('/test/user').end(function (err, res) {
-      should(!res.body.err);
+      should.not.exist(res.body.err);
       done();
     })
   });
@@ -294,20 +294,20 @@ describe("accessing /test/user with auto login", function () {
   });
   it("should fail", function (done) {
     express.get('/test/user').end(function (err, res) {
-      should(res.body.err);
+      should.exist(res.body.err);
       done();
     })
   });
 });
 
-describe("user.categoriesOrdered", function () {
+describe("user.categories", function () {
   var categories;
   it("given user session", function (done) {
     ufix.loginUser(done);
   });
-  it("given categoriesOrdered", function (done) {
+  it("given categories", function (done) {
     express.get('/api/sessions', function (err, res) {
-      categories = res.body.user.categoriesOrdered;
+      categories = res.body.user.categories;
       done();
     });
   });
@@ -330,9 +330,9 @@ describe("user.categoriesOrdered", function () {
   it("given admin session", function (done) {
     ufix.loginAdmin(done);
   });
-  it("given categoriesOrdered", function (done) {
+  it("given categories", function (done) {
     express.get('/api/sessions', function (err, res) {
-      categories = res.body.user.categoriesOrdered;
+      categories = res.body.user.categories;
       done();
     });
   });

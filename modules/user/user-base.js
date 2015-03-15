@@ -5,55 +5,51 @@ var init = require('../base/init');
 var error = require('../base/error');
 var config = require('../base/config');
 
-init.add(function () {
+var users = {};
 
+init.add(function () {
   error.define('NOT_AUTHENTICATED', '먼저 로그인해 주십시오.');
   error.define('NOT_AUTHORIZED', '사용 권한이 없습니다.');
+  error.define('USER_NOT_FOUND', '사용자를 찾을 수 없습니다.');
+});
 
-  var users = {};
-
-  config.data.users.forEach(function (user0) {
-    var user = {
-      name: user0.name,
-      hash: user0.hash,
-      admin: user0.admin ? true : false,
-      categories: {},
-      categoriesOrdered : []
+init.add(function () {
+  config.users.forEach(function (_user) {
+    var user = users[_user.name] = {
+      name: _user.name,
+      hash: _user.hash,
+      admin: _user.admin ? true : false,
+      categories : [],
+      categoryIndex: []
     };
-    users[user.name] = user;
-    config.data.categories.forEach(function (category0) {
-      var category = {
-        id: category0.id,
-        name: category0.name
-      };
-      if (user.admin || category0.users.indexOf(user.name) != -1) {
-        user.categories[category.id] = category;
-        user.categoriesOrdered.push(category);
+    config.categories.forEach(function (category) {
+      if (user.admin || category.users.indexOf(user.name) != -1) {
+        user.categories.push(category);
+        user.categoryIndex[category.id] = category;
       }
     });
   });
-
-  exports.findUserByName = function (uname) {
-    return users[uname];
-  };
-
-  exports.findUserByPassword = function (password) {
-    for (var uname in users) {
-      var user = users[uname];
-      if (bcrypt.compareSync(password, user.hash)) {
-        return user;
-      }
-    }
-    for (var uname in users) {
-      var user = users[uname];
-      var buf = new Buffer(password, 'ucs2');
-      var hash = crypto.createHash('sha256');
-      hash.update(buf);
-      if (hash.digest('base64') == user.hash) {
-        return user;
-      }
-    }
-    return null;
-  };
-
 });
+
+exports.findUserByName = function (uname) {
+  return users[uname];
+};
+
+exports.findUserByPassword = function (password) {
+  for (var uname in users) {
+    var user = users[uname];
+    if (bcrypt.compareSync(password, user.hash)) {
+      return user;
+    }
+  }
+  for (var uname in users) {
+    var user = users[uname];
+    var buf = new Buffer(password, 'ucs2');
+    var hash = crypto.createHash('sha256');
+    hash.update(buf);
+    if (hash.digest('base64') == user.hash) {
+      return user;
+    }
+  }
+  return null;
+};

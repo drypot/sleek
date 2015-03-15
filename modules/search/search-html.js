@@ -1,11 +1,11 @@
 var init = require('../base/init');
-var express = require('../main/express');
+var express2 = require('../main/express');
 var search = require('../search/search-base');
 var UrlMaker = require('../main/UrlMaker');
 
 init.add(function () {
 
-  var app = express.app;
+  var app = express2.app;
 
   console.log('search-html:');
 

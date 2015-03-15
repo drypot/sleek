@@ -20,7 +20,7 @@ init.add(function () {
 
   exports.searchPost = function (user, params, done) {
     var tokens = tokenize(params.query);
-    var categories = user.categories;
+    var categoryIndex = user.categoryIndex;
     var posts = [];
     var count = 0;
     var cursor = mongo.searchPosts(tokens, params.pg, params.pgsize);
@@ -31,7 +31,7 @@ init.add(function () {
           count++;
           mongo.findThread(post.tid, function (err, thread) {
             if (err) return done(err);
-            var category = categories[thread.cid];
+            var category = categoryIndex[thread.cid];
             if (category && (post.visible || user.admin)) {
               post.thread = {
                 _id: thread._id,

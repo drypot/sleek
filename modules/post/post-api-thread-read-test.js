@@ -4,7 +4,7 @@ var init = require('../base/init');
 var error = require('../base/error');
 var config = require('../base/config')({ path: 'config/sleek-test.json' });
 var mongo = require('../mongo/mongo')({ dropDatabase: true });
-var express = require('../main/express');
+var express2 = require('../main/express');
 var ufix = require('../user/user-fixture');
 
 require('../user/user-auth-api');
@@ -24,7 +24,7 @@ describe("reading thread and posts", function () {
   });
   it("should fail", function (done) {
     express.get('/api/threads/0', function (err, res) {
-      should(!res.error);
+      res.error.should.false;
       res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
       done();
     });
@@ -36,8 +36,8 @@ describe("reading thread and posts", function () {
   it("given thread", function (done) {
     var form = { cid: 101, writer: 'snowman', title: 'title', text: 'post1' };
     express.post('/api/threads').send(form).end(function (err, res) {
-      should(!res.error);
-      should(!res.body.err);
+      res.error.should.false;
+      should.not.exist(res.body.err);
       tid = res.body.tid;
       done();
     });
@@ -45,15 +45,15 @@ describe("reading thread and posts", function () {
   it("given reply", function (done) {
     var form = { writer: 'snowman2', text: 'post2' };
     express.post('/api/threads/' + tid).send(form).end(function (err, res) {
-      should(!res.error);
-      should(!res.body.err);
+      res.error.should.false;
+      should.not.exist(res.body.err);
       done();
     });
   });
   it("should return 2 posts", function (done) {
     express.get('/api/threads/' + tid, function (err, res) {
-      should(!res.error);
-      should(!res.body.err);
+      res.error.should.false;
+      should.not.exist(res.body.err);
       res.body.thread._id.should.equal(tid);
       res.body.thread.title.should.equal('title');
       res.body.category.id.should.equal(101);
@@ -68,15 +68,15 @@ describe("reading thread and posts", function () {
   it("given another reply", function (done) {
     var form = { writer: 'snowman2', text: 'post3' };
     express.post('/api/threads/' + tid).send(form).end(function (err, res) {
-      should(!res.error);
-      should(!res.body.err);
+      res.error.should.false;
+      should.not.exist(res.body.err);
       done();
     });
   });
   it("should return 3 posts", function (done) {
     express.get('/api/threads/' + tid, function (err, res) {
-      should(!res.error);
-      should(!res.body.err);
+      res.error.should.false;
+      should.not.exist(res.body.err);
       res.body.posts.should.length(3);
       done();
     });
@@ -87,15 +87,15 @@ describe("reading thread and posts", function () {
   it("given another invisible reply", function (done) {
     var form = { writer: 'admin', text: 'post4', visible: false };
     express.post('/api/threads/' + tid).send(form).end(function (err, res) {
-      should(!res.error);
-      should(!res.body.err);
+      res.error.should.false;
+      should.not.exist(res.body.err);
       done();
     });
   });
   it("should return 4 posts", function (done) {
     express.get('/api/threads/' + tid, function (err, res) {
-      should(!res.error);
-      should(!res.body.err);
+      res.error.should.false;
+      should.not.exist(res.body.err);
       res.body.posts.should.length(4);
       done();
     });
@@ -105,8 +105,8 @@ describe("reading thread and posts", function () {
   });
   it("should return 3 posts", function (done) {
     express.get('/api/threads/' + tid, function (err, res) {
-      should(!res.error);
-      should(!res.body.err);
+      res.error.should.false;
+      should.not.exist(res.body.err);
       res.body.posts.should.length(3);
       done();
     });

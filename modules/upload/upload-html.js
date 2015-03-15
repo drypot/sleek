@@ -1,10 +1,10 @@
 var init = require('../base/init');
-var express = require('../main/express');
+var express2 = require('../main/express');
 var upload = require('../upload/upload');
 
 init.add(function () {
 
-  var app = express.app;
+  var app = express2.app;
 
   console.log('upload-html:');
 

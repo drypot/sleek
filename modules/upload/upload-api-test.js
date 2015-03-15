@@ -5,7 +5,7 @@ var l = require('../base/util');
 var init = require('../base/init');
 var error = require('../base/error');
 var config = require('../base/config')({ path: 'config/sleek-test.json' });
-var express = require('../main/express');
+var express2 = require('../main/express');
 var upload = require('../upload/uploading');
 var ufix = require('../user/user-fixture');
 
@@ -44,9 +44,9 @@ it("given user session", function (done) {
 describe("uploading none", function () {
   it("should success", function (done) {
     express.post('/api/upload').end(function (err, res) {
-      should(!err);
-      should(!res.error);
-      should(!res.body.err);
+      should.not.exist(err);
+      res.error.should.false;
+      should.not.exist(res.body.err);
       res.body.should.eql({});
       done();
     });
@@ -57,10 +57,10 @@ describe("uploading one file", function () {
   it("should success", function (done) {
     var f1 = 'server/test/fixture/dummy1.txt';
     express.post('/api/upload').attach('file', f1).end(function (err, res) {
-      should(!err);
-      should(!res.error);
-      should(!res.body.err);
-      should(res.body.file);
+      should.not.exist(err);
+      res.error.should.false;
+      should.not.exist(res.body.err);
+      should.exist(res.body.file);
       exists(find(res.body.file, 'dummy1.txt'));
       done();
     });
@@ -72,9 +72,9 @@ describe("uploading two files", function () {
     var f1 = 'server/test/fixture/dummy1.txt';
     var f2 = 'server/test/fixture/dummy2.txt';
     express.post('/api/upload').attach('file', f1).attach('file', f2).end(function (err, res) {
-      should(!err);
-      should(!res.error);
-      should(!res.body.err);
+      should.not.exist(err);
+      res.error.should.false;
+      should.not.exist(res.body.err);
       exists(find(res.body.file, 'dummy1.txt'));
       exists(find(res.body.file, 'dummy2.txt'));
       done();
@@ -87,9 +87,9 @@ describe("uploading two files to html", function () {
     var f1 = 'server/test/fixture/dummy1.txt';
     var f2 = 'server/test/fixture/dummy2.txt';
     express.post('/upload').attach('file', f1).attach('file', f2).end(function (err, res) {
-      should(!err);
-      should(!res.error);
-      should(!res.body.err);
+      should.not.exist(err);
+      res.error.should.false;
+      should.not.exist(res.body.err);
       res.should.be.html;
       var body = JSON.parse(res.text);
       exists(find(body.file, 'dummy1.txt'));
@@ -106,9 +106,9 @@ describe("deleting file", function () {
     var f2 = 'server/test/fixture/dummy2.txt';
     var f3 = 'server/test/fixture/dummy3.txt';
     express.post('/api/upload').attach('file', f1).attach('file', f2).attach('file', f3).end(function (err, res) {
-      should(!err);
-      should(!res.error);
-      should(!res.body.err);
+      should.not.exist(err);
+      res.error.should.false;
+      should.not.exist(res.body.err);
       _files = res.body.file;
       done();
     });
@@ -119,9 +119,9 @@ describe("deleting file", function () {
     exists(dummy1);
     files.push(dummy1.tname);
     express.del('/api/upload').send({ files: files }).end(function (err, res) {
-      should(!err);
-      should(!res.error);
-      should(!res.body.err);
+      should.not.exist(err);
+      res.error.should.false;
+      should.not.exist(res.body.err);
       nexists(dummy1);
       done();
     });
@@ -135,9 +135,9 @@ describe("deleting file", function () {
     files.push(dummy2.tname);
     files.push(dummy3.tname);
     express.del('/api/upload').send({ files: files }).end(function (err, res) {
-      should(!err);
-      should(!res.error);
-      should(!res.body.err);
+      should.not.exist(err);
+      res.error.should.false;
+      should.not.exist(res.body.err);
       nexists(dummy2);
       nexists(dummy3);
       done();
@@ -152,9 +152,9 @@ describe("deleting file", function () {
     nexists(file);
     files.push(file.tname);
     express.del('/api/upload').send({ files: files }).end(function (err, res) {
-      should(!err);
-      should(!res.error);
-      should(!res.body.err);
+      should.not.exist(err);
+      res.error.should.false;
+      should.not.exist(res.body.err);
       done();
     });
   });

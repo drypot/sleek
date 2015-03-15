@@ -21,7 +21,6 @@ init.add(function () {
 // msg.SHORTEN_TITLE = '제목을 줄여 주십시오.';
 // msg.FILL_WRITER = '필명을 입력해 주십시오.';
 // msg.SHORTEN_WRITER = '필명을 줄여 주십시오.';
-// msg.USER_NOT_FOUND = '비밀번호를 다시 확인해 주십시오.';
 });
 
 init.add(function (done) {
@@ -234,7 +233,7 @@ init.add(function () {
   }
 
   exports.findThreads = function (user, params, done) {
-    var categories = user.categories;
+    var categoryIndex = user.categoryIndex;
     var threads = [];
     var count = 0;
     var cursor = mongo.findThreads(params.pg, params.pgsize);
@@ -243,7 +242,7 @@ init.add(function () {
         if (err) return done(err);
         if (thread) {
           count++;
-          var c = categories[thread.cid];
+          var c = categoryIndex[thread.cid];
           if (c) {
             thread.category = {
               id: c.id,
@@ -265,7 +264,7 @@ init.add(function () {
   exports.findThreadsByCategory = function (user, params, done) {
     categoryForRead(user, params.cid, function (err, category) {
       if (err) return done(err);
-      var categories = user.categories;
+      var categoryIndex = user.categoryIndex;
       var threads = [];
       var count = 0;
       var cursor = mongo.findThreadsByCategory(params.cid, params.pg, params.pgsize);
@@ -362,7 +361,7 @@ init.add(function () {
   }
 
   function categoryForUpdate(user, cid, done) {
-    var category = user.categories[cid];
+    var category = user.categoryIndex[cid];
     if (!category) {
       return done(error(error.INVALID_CATEGORY));
     }
@@ -370,7 +369,7 @@ init.add(function () {
   }
 
   function categoryForRead(user, cid, done) {
-    var category = user.categories[cid];
+    var category = user.categoryIndex[cid];
     if (!category) {
       return done(error(error.INVALID_CATEGORY));
     }
@@ -414,7 +413,7 @@ init.add(function () {
   };
 
   exports.getFileUrl = function (pid, fname) {
-    return config.data.uploadUrl + '/post/' + Math.floor(pid / 10000) + '/' + pid + '/' + encodeURIComponent(fname);
+    return config.uploadUrl + '/post/' + Math.floor(pid / 10000) + '/' + pid + '/' + encodeURIComponent(fname);
   }
 
   function addFileUrls(post) {

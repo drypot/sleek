@@ -1,11 +1,11 @@
 var init = require('../base/init');
 var post = require('../post/post-base');
-var express = require('../main/express');
+var express2 = require('../main/express');
 var UrlMaker = require('../main/UrlMaker');
 
 init.add(function () {
 
-  var app = express.app;
+  var app = express2.app;
 
   console.log('post-html:');
 

@@ -13,7 +13,7 @@ describe("find", function () {
     var item = util2.find([ 1, 2, 3], function (item) {
       return item === 4;
     });
-    should(item === null);
+    (item === null).should.true;
   });
 });
 

@@ -56,7 +56,7 @@ html
           .side-space
             ul.list-inline
               li: a(href="/threads") all
-              for c in user.categoriesOrdered
+              for c in user.categories
                 li: a(href="/threads?c=" + c.id) #{c.name}
 
     #error-modal.modal

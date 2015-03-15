@@ -7,7 +7,7 @@ var fs2 = require('basebase');
 
 init.add(function (done) {
 
-  console.log('upload: ' + config.data.uploadDir);
+  console.log('upload: ' + config.uploadDir);
 
   exports.getTmpPath = function (fname) {
     return exports.tmp + '/' + fname;
@@ -56,9 +56,9 @@ init.add(function (done) {
   }
 
   var pathes = [
-    exports.tmp = config.data.uploadDir + '/tmp',
-    exports.pub = config.data.uploadDir + '/public',
-    exports.pubPost = config.data.uploadDir + '/public/post'
+    exports.tmp = config.uploadDir + '/tmp',
+    exports.pub = config.uploadDir + '/public',
+    exports.pubPost = config.uploadDir + '/public/post'
   ];
 
   var i = 0;

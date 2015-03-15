@@ -13,7 +13,7 @@ describe("finding user by name", function () {
     userb.findUserByName('user').name.should.equal('user');
     userb.findUserByName('cheater').name.should.equal('cheater');
     userb.findUserByName('admin').name.should.equal('admin');
-    should(!userb.findUserByName('xxx'));
+    should.not.exist(userb.findUserByName('xxx'));
   });
 });
 
@@ -22,74 +22,74 @@ describe("finding user by password", function () {
     userb.findUserByPassword('1').name.should.equal('user');
     userb.findUserByPassword('2').name.should.equal('cheater');
     userb.findUserByPassword('3').name.should.equal('admin');
-    should(!userb.findUserByPassword('x'));
+    should.not.exist(userb.findUserByPassword('x'));
   })
 });
 
 describe("user", function () {
   var user;
-  before(function () {
+  it("given user", function () {
     user = userb.findUserByName('user');
-    should(user);
+    should.exist(user);
   });
   it("should not be admin", function () {
-    should(!user.admin);
+    user.admin.should.false;
   });
   it("can access freetalk", function () {
-    var c = user.categories[100];
+    var c = user.categoryIndex[100];
     c.name.should.equal('freetalk');
   });
   it("can not access cheat", function () {
-    var c = user.categories[60];
-    should(!c);
+    var c = user.categoryIndex[60];
+    should.not.exist(c);
   });
   it("can not access recycle bin", function () {
-    var c = user.categories[40];
-    should(!c);
+    var c = user.categoryIndex[40];
+    should.not.exist(c);
   });
 });
 
 describe("cheater", function () {
   var user;
-  before(function () {
+  it("given cheater", function () {
     user = userb.findUserByName('cheater');
-    should(user);
+    should.exist(user);
   });
   it("should not be admin", function () {
-    should(!user.admin);
+    user.admin.should.false;
   });
   it("can access freetalk", function () {
-    var c = user.categories[100];
+    var c = user.categoryIndex[100];
     c.name.should.equal('freetalk');
   });
   it("can access cheat", function () {
-    var c = user.categories[60];
+    var c = user.categoryIndex[60];
     c.name.should.equal('cheat');
   });
   it("can not access recycle bin", function () {
-    var c = user.categories[40];
-    should(!c);
+    var c = user.categoryIndex[40];
+    should.not.exist(c);
   });
 });
 
 describe("admin", function () {
   var user;
-  before(function () {
+  it("given admin", function () {
     user = userb.findUserByName('admin');
   });
   it("should be admin", function () {
-    should(user.admin);
+    user.admin.should.true;
   });
   it("can access freetalk", function () {
-    var c = user.categories[100];
+    var c = user.categoryIndex[100];
     c.name.should.equal('freetalk');
   });
   it("can access cheat", function () {
-    var c = user.categories[60];
+    var c = user.categoryIndex[60];
     c.name.should.equal('cheat');
   });
   it("can access recycle bin", function () {
-    var c = user.categories[40];
+    var c = user.categoryIndex[40];
     c.name.should.equal('recycle bin');
   });
 });

@@ -1,20 +1,14 @@
 var init = require('../base/init');
 var post = require('../post/post-base');
-var express = require('../main/express');
+var express2 = require('../main/express');
 
 init.add(function () {
 
-  var app = express.app;
+  var app = express2.app;
 
   console.log('post-api:');
 
-  app.get('/', function (req, res) {
-    if (res.locals.user) {
-      res.redirect('/threads');
-      return;
-    }
-    res.render('login');
-  });
+
 
   app.get('/api/threads', function (req, res) {
     req.findUser(function (err, user) {
