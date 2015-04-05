@@ -1,4 +1,6 @@
-var should = require('should');
+var chai = require('chai');
+var expect = chai.expect;
+chai.config.includeStack = true;
 
 var init = require('../base/init');
 
@@ -13,9 +15,9 @@ describe("sync init function", function () {
       a.push(7);
     });
     init.run(function () {
-      a.should.length(2);
-      a[0].should.equal(3);
-      a[1].should.equal(7);
+      expect(a).length(2);
+      expect(a[0]).equal(3);
+      expect(a[1]).equal(7);
       done();
     });
   });
@@ -34,9 +36,9 @@ describe("async init function", function () {
       done();
     });
     init.run(function () {
-      a.should.length(2);
-      a[0].should.equal(33);
-      a[1].should.equal(77);
+      expect(a).length(2);
+      expect(a[0]).equal(33);
+      expect(a[1]).equal(77);
       done();
     });
   });
@@ -58,9 +60,9 @@ describe("sync throw", function () {
       }
     });
     init.run(function (err) {
-      a.should.length(1);
-      a[0].should.equal(3);
-      should.exists(err);
+      expect(a).length(1);
+      expect(a[0]).equal(3);
+      expect(err).exist;
       done();
     });
   });
@@ -78,9 +80,9 @@ describe("async throw", function () {
       done(new Error('critical'));
     });
     init.run(function (err) {
-      a.should.length(1);
-      a[0].should.equal(33);
-      should.exists(err);
+      expect(a).length(1);
+      expect(a[0]).equal(33);
+      expect(err).exist;
       done();
     });
   });
@@ -93,17 +95,17 @@ describe("tail function", function () {
     init.add(function () {
       a.push(3);
     });
-    init.addTail(function () {
+    init.tail(function () {
       a.push(10);
     });
     init.add(function () {
       a.push(7);
     });
     init.run(function () {
-      a.should.length(3);
-      a[0].should.equal(3);
-      a[1].should.equal(7);
-      a[2].should.equal(10);
+      expect(a).length(3);
+      expect(a[0]).equal(3);
+      expect(a[1]).equal(7);
+      expect(a[2]).equal(10);
       done();
     });
   });

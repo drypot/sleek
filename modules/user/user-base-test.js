@@ -1,7 +1,7 @@
 var should = require('should');
 
 var init = require('../base/init');
-var config = require('../base/config')({ path: 'config/sleek-test.json' });
+var config = require('../base/config')({ path: 'config/test.json' });
 var userb = require('../user/user-base');
 
 before(function (done) {

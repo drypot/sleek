@@ -1,4 +1,6 @@
-var should = require('should');
+var chai = require('chai');
+var expect = chai.expect;
+chai.config.includeStack = true;
 
 var init = require('../base/init');
 var config = require('../base/config');
@@ -6,8 +8,8 @@ var config = require('../base/config');
 describe("config with invalid path", function () {
   it("should fail", function (done) {
     init.run(function (err) {
-      should.exist(err);
-      err.message.should.equal('specify configuration path');
+      expect(err).exist;
+      expect(err.message).equal('specify configuration path');
       done();
     });
   });

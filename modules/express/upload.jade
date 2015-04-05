@@ -1,0 +1,56 @@
+extends ../layout/layout
+
+block title
+  title Upload Test - #{appName}
+
+block content
+
+  .section.page-title
+    h1 Upload Test
+
+  script.
+    $(function() {
+      var $form = formty.getForm('form.main');
+      formty.initFileFieldAdder($form);
+      $form.$send.click(function () {
+        console.log('post start');
+        
+        // request.del('/api/echo-upload?abc=123').object({ def: 566 })/*.form($form)*/.end(function (err, res) {
+        //   console.log('post done');
+        //   console.log(err);
+        //   console.log(res.body);
+        //   console.log(res.body.query);
+        //   console.log(res.body.body);
+        //   console.log(res.body.files);
+        // });
+
+        formty.post('/api/echo-upload', $form, { extra1: '1234' }, function (err, res) {
+          console.log('post done');
+          console.log(err);
+          console.log(res.body);
+          console.log(res.body.query);
+          console.log(res.body.body);
+          console.log(res.body.files);
+        });
+
+        return false;
+      });
+    });
+
+  .section
+    form.main
+      .sub-section
+        .form-group
+          label Image
+          .panel.panel-default
+            .panel-body
+              .file-inputs
+                input(type='file', name='files', multiple='multiple')
+                input(type='file', name='files', multiple='multiple')
+                input(type='file', name='files', multiple='multiple')
+                .adder
+        .form-group
+          label Comment
+          textarea.form-control(name='comment', rows=7)
+      .sub-section
+        button.btn.btn-primary(name='send', data-loading-text='Sending') Send

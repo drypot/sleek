@@ -413,7 +413,7 @@ init.add(function () {
   };
 
   exports.getFileUrl = function (pid, fname) {
-    return config.uploadUrl + '/post/' + Math.floor(pid / 10000) + '/' + pid + '/' + encodeURIComponent(fname);
+    return config.uploadSite + '/post/' + Math.floor(pid / 10000) + '/' + pid + '/' + encodeURIComponent(fname);
   }
 
   function addFileUrls(post) {

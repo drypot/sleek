@@ -1,4 +1,4 @@
-init.add(function() {
+$(function() {
 
   window.formty = {};
 
@@ -187,7 +187,7 @@ init.add(function() {
 
 });
 
-init.add(function() {
+$(function() {
 
   var $modal = $('#error-modal');
   var $title = $modal.find('.modal-title');
@@ -216,7 +216,7 @@ init.add(function() {
 
 });
 
-init.add(function () {
+$(function () {
 
   $('.navbar .logout-btn').click(function () {
     session.logout();

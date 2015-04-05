@@ -35,7 +35,7 @@ init.add(function () {
           name: user.name,
           categories: user.categories
         },
-        uploadUrl: config.uploadUrl
+        uploadSite: config.uploadSite
       });
     });
   });

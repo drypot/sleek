@@ -1,57 +1,38 @@
-var request = superagent;
+if (!window.console) {
+  window.console = {
+    log: function () {}
+  }
+}
 
-(function () {
+$(function () {
+  window.error = {};
 
-  // for IE 7
-
-  if (!window.localStorage) {
-    window.localStorage = {
-      getItem: function () {},
-      setItem: function () {},
-      removeItem: function () {}
-    }
-    window.sessionStorage = {
-      getItem: function () {},
-      setItem: function () {},
-      removeItem: function () {}
+  function define(code, msg) {
+    error[code] = {
+      code: code,
+      message: msg
     }
   }
 
-  if (!window.console) {
-    window.console = {
-      log: function () {}
-    }
-  }
+  define('INVALID_DATA', '비정상적인 값이 입력되었습니다.');
+  define('INVALID_FORM', '*');
 
-  window.msie = /msie/.test(navigator.userAgent.toLowerCase());
+  define('NOT_AUTHENTICATED', '먼저 로그인해 주십시오.');
+  define('NOT_AUTHORIZED', '사용 권한이 없습니다.');
 
-})();
+  // TODO: 아래 에러 코드 Mig.
+  error.ERROR_SET = 10;
 
-(function () {
+  error.NOT_AUTHENTICATED = 101;
+  error.NOT_AUTHORIZED = 102;
 
-  window.init = {};
+  error.INVALID_DATA = 201;
+  error.INVALID_CATEGORY = 202;
+  error.INVALID_THREAD = 203;
+  error.INVALID_POST = 204;
+});
 
-  var funcs = [];
-
-  window.init.add = function (func) {
-    funcs.push(func);
-  };
-
-  $(function () {
-    console.log('init:');
-
-    var i = 0;
-    var len = funcs.length;
-
-    for (i = 0; i < len; i++) {
-      funcs[i]();
-    }
-  });
-
-})();
-
-init.add(function () {
-
+$(function () {
   window.dt = {};
 
   function pad(number) {
@@ -107,47 +88,28 @@ init.add(function () {
   dt.isNew = function (d) {
     return d > lastSessionStr;
   };
-
 });
 
-init.add(function () {
-
-  var error = window.error = {};
-
-  error.ERROR_SET = 10;
-
-  error.NOT_AUTHENTICATED = 101;
-  error.NOT_AUTHORIZED = 102;
-
-  error.INVALID_DATA = 201;
-  error.INVALID_CATEGORY = 202;
-  error.INVALID_THREAD = 203;
-  error.INVALID_POST = 204;
-
-});
-
-init.add(function () {
-
-  window.$window = $(window);
+$(function () {
+window.$window = $(window);
   window.$document = $(document);
 
   window.url = {};
   window.url.pathnames = window.location.pathname.slice(1).split('/');
   window.url.query = (function () {
-    var plusRe = /\+/g;
-    var paramRe = /([^&=]+)=?([^&]*)/g;
+    var plusx = /\+/g;
+    var paramx = /([^&=]+)=?([^&]*)/g;
     var search = window.location.search.slice(1);
     var query = {};
     var match;
-    while (match = paramRe.exec(search)) {
-      query[match[1]] = decodeURIComponent(match[2].replace(plusRe, " "));
+    while (match = paramx.exec(search)) {
+      query[match[1]] = decodeURIComponent(match[2].replace(plusx, ' '));
     }
     return query;
   })();
-
 });
 
-init.add(function () {
+$(function () {
 
   var ping;
 
