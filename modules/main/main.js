@@ -1,8 +1,8 @@
 var init = require('../base/init');
 var config = require('../base/config');
-var express2 = require('../main/express');
+var exp = require('../main/express');
 
-require('../user/user-auth');
+require('../user/user-base');
 require('../post/post-api');
 require('../post/post-base-html');
 require('../search/search-base-api');

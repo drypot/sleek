@@ -1,11 +1,14 @@
-var should = require('should');
+var chai = require('chai');
+var expect = chai.expect;
+chai.use(require('chai-http'));
+chai.config.includeStack = true;
 
 var init = require('../base/init');
 var error = require('../base/error');
 var config = require('../base/config')({ path: 'config/test.json' });
 var mongo = require('../mongo/mongo')({ dropDatabase: true });
-var express2 = require('../main/express');
-var ufix = require('../user/user-fixture');
+var exp = require('../main/express');
+var userf = require('../user/user-fixture');
 
 require('../user/user-auth-api');
 require('../post/post-api');
@@ -20,23 +23,23 @@ before(function () {
 
 describe("reading thread and posts", function () {
   it("given logged out", function (done) {
-    ufix.logout(done);
+    userf.logout(done);
   });
   it("should fail", function (done) {
-    express.get('/api/threads/0', function (err, res) {
-      res.error.should.false;
+    local.get('/api/threads/0', function (err, res) {
+      expect(err).not.exist;
       res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
       done();
     });
   });
   it("given user session", function (done) {
-    ufix.loginUser(done);
+    userf.login('user', done);
   });
   var tid;
   it("given thread", function (done) {
     var form = { cid: 101, writer: 'snowman', title: 'title', text: 'post1' };
-    express.post('/api/threads').send(form).end(function (err, res) {
-      res.error.should.false;
+    local.post('/api/threads').send(form).end(function (err, res) {
+      expect(err).not.exist;
       should.not.exist(res.body.err);
       tid = res.body.tid;
       done();
@@ -44,15 +47,15 @@ describe("reading thread and posts", function () {
   });
   it("given reply", function (done) {
     var form = { writer: 'snowman2', text: 'post2' };
-    express.post('/api/threads/' + tid).send(form).end(function (err, res) {
-      res.error.should.false;
+    local.post('/api/threads/' + tid).send(form).end(function (err, res) {
+      expect(err).not.exist;
       should.not.exist(res.body.err);
       done();
     });
   });
   it("should return 2 posts", function (done) {
-    express.get('/api/threads/' + tid, function (err, res) {
-      res.error.should.false;
+    local.get('/api/threads/' + tid, function (err, res) {
+      expect(err).not.exist;
       should.not.exist(res.body.err);
       res.body.thread._id.should.equal(tid);
       res.body.thread.title.should.equal('title');
@@ -67,45 +70,45 @@ describe("reading thread and posts", function () {
   });
   it("given another reply", function (done) {
     var form = { writer: 'snowman2', text: 'post3' };
-    express.post('/api/threads/' + tid).send(form).end(function (err, res) {
-      res.error.should.false;
+    local.post('/api/threads/' + tid).send(form).end(function (err, res) {
+      expect(err).not.exist;
       should.not.exist(res.body.err);
       done();
     });
   });
   it("should return 3 posts", function (done) {
-    express.get('/api/threads/' + tid, function (err, res) {
-      res.error.should.false;
+    local.get('/api/threads/' + tid, function (err, res) {
+      expect(err).not.exist;
       should.not.exist(res.body.err);
       res.body.posts.should.length(3);
       done();
     });
   });
   it("given admin session", function (done) {
-    ufix.loginAdmin(done);
+    userf.login('admin', done);
   });
   it("given another invisible reply", function (done) {
     var form = { writer: 'admin', text: 'post4', visible: false };
-    express.post('/api/threads/' + tid).send(form).end(function (err, res) {
-      res.error.should.false;
+    local.post('/api/threads/' + tid).send(form).end(function (err, res) {
+      expect(err).not.exist;
       should.not.exist(res.body.err);
       done();
     });
   });
   it("should return 4 posts", function (done) {
-    express.get('/api/threads/' + tid, function (err, res) {
-      res.error.should.false;
+    local.get('/api/threads/' + tid, function (err, res) {
+      expect(err).not.exist;
       should.not.exist(res.body.err);
       res.body.posts.should.length(4);
       done();
     });
   });
   it("given user session", function (done) {
-    ufix.loginUser(done);
+    userf.login('user', done);
   });
   it("should return 3 posts", function (done) {
-    express.get('/api/threads/' + tid, function (err, res) {
-      res.error.should.false;
+    local.get('/api/threads/' + tid, function (err, res) {
+      expect(err).not.exist;
       should.not.exist(res.body.err);
       res.body.posts.should.length(3);
       done();

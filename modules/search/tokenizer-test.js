@@ -1,4 +1,6 @@
-var should = require('should');
+var chai = require('chai');
+var expect = chai.expect;
+chai.config.includeStack = true;
 
 var tokenize = require('../main/tokenizer').tokenize;
 

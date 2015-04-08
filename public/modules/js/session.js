@@ -7,7 +7,7 @@ $(function () {
     var $form = formty.getForm('#form');
     $form.$password.focus();
     $form.$send.click(function () {
-      formty.post('/api/sessions', $form, function (err) {
+      formty.post('/api/users/login', $form, function (err) {
         if (err) return showError(err);
         location = '/threads';
       });
@@ -16,7 +16,7 @@ $(function () {
   };
 
   session.logout = function () {
-    request.del('/api/sessions').end(function (err, res) {
+    request.del('/api/users/login').end(function (err, res) {
       err = err || res.error || res.body.err;
       if (err) return showError(err);
       location = '/';

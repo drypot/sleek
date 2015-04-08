@@ -1,95 +1,292 @@
-var should = require('should');
+var chai = require('chai');
+var expect = chai.expect;
+chai.use(require('chai-http'));
+chai.config.includeStack = true;
 
 var init = require('../base/init');
+var error = require('../base/error');
 var config = require('../base/config')({ path: 'config/test.json' });
+var exp = require('../express/express');
 var userb = require('../user/user-base');
+var userf = require('../user/user-fixture');
+var local = require('../express/local');
 
 before(function (done) {
   init.run(done);
 });
 
-describe("finding user by name", function () {
-  it("should success", function () {
-    userb.findUserByName('user').name.should.equal('user');
-    userb.findUserByName('cheater').name.should.equal('cheater');
-    userb.findUserByName('admin').name.should.equal('admin');
-    should.not.exist(userb.findUserByName('xxx'));
+before(function () {
+  exp.core.get('/api/test/user', function (req, res, done) {
+    userb.checkUser(res, function (err, user) {
+      if (err) return done(err);
+      res.json({});
+    });
+  });
+
+  exp.core.get('/api/test/admin', function (req, res, done) {
+    userb.checkAdmin(res, function (err, user) {
+      if (err) return done(err);
+      res.json({});
+    });
   });
 });
 
-describe("finding user by password", function () {
-  it("should success", function () {
-    userb.findUserByPassword('1').name.should.equal('user');
-    userb.findUserByPassword('2').name.should.equal('cheater');
-    userb.findUserByPassword('3').name.should.equal('admin');
-    should.not.exist(userb.findUserByPassword('x'));
-  })
+describe("login", function () {
+  it("session should be clear", function (done) {
+    local.get('/api/users/login').end(function (err, res) {
+      expect(err).not.exist;
+      expect(res.body.err).exist;
+      expect(error.find(res.body.err, error.NOT_AUTHENTICATED)).true;
+      done();
+    });
+  });
+  it("user should success", function (done) {
+    userf.login('user', done);
+  });
+  it("session should be filled", function (done) {
+    local.get('/api/users/login').end(function (err, res) {
+      expect(err).not.exist;
+      expect(res.body.err).not.exist;
+      expect(res.body.user.name).equal('user');
+      done();
+    });
+  });
+  it("logout should success", function (done) {
+    userf.logout(function (err, res) {
+      expect(err).not.exist;
+      expect(res.body.err).not.exist;
+      done();
+    })
+  });
+  it("session should be clear", function (done) {
+    local.get('/api/users/login').end(function (err, res) {
+      expect(err).not.exist;
+      expect(res.body.err).exist;
+      expect(error.find(res.body.err, error.NOT_AUTHENTICATED)).true;
+      done();
+    });
+  });
+  it("admin should success", function (done) {
+    userf.login('admin', done);
+  });
+  it("session should be filled", function (done) {
+    local.get('/api/users/login').end(function (err, res) {
+      expect(err).not.exist;
+      expect(res.body.err).not.exist;
+      expect(res.body.user.name).equal('admin');
+      done();
+    });
+  });
+  it("wrong password should fail", function (done) {
+    local.post('/api/users/login').send({ password: 'xxx' }).end(function (err, res) {
+      expect(err).not.exist;
+      expect(res.body.err).exist;
+      expect(error.find(res.body.err, error.USER_NOT_FOUND)).true;
+      done();
+    });
+  });  
 });
 
-describe("user", function () {
+describe("categories", function () {
   var user;
-  it("given user", function () {
-    user = userb.findUserByName('user');
-    should.exist(user);
+  function findc(id) {
+    for (var i = 0; i < user.categories.length; i++) {
+      var c = user.categories[i];
+      if (c.id === id) return c;
+    }
+    return null;
+  }
+  it("given user", function (done) {
+    userf.login('user', function (err, res) {
+      user = res.body.user;
+      done();
+    });
   });
-  it("should not be admin", function () {
-    user.admin.should.false;
+  it("user should not be admin", function () {
+    expect(user.admin).false;
   });
-  it("can access freetalk", function () {
-    var c = user.categoryIndex[100];
-    c.name.should.equal('freetalk');
+  it("user can access freetalk", function () {
+    expect(findc(100).name).equal('freetalk');
   });
   it("can not access cheat", function () {
-    var c = user.categoryIndex[60];
-    should.not.exist(c);
+    expect(findc(60)).not.exist;
   });
   it("can not access recycle bin", function () {
-    var c = user.categoryIndex[40];
-    should.not.exist(c);
+    expect(findc(40)).not.exist;
   });
-});
 
-describe("cheater", function () {
-  var user;
-  it("given cheater", function () {
-    user = userb.findUserByName('cheater');
-    should.exist(user);
+  it("given cheater", function (done) {
+    userf.login('cheater', function (err, res) {
+      user = res.body.user;
+      done();
+    });
   });
   it("should not be admin", function () {
-    user.admin.should.false;
+    expect(user.admin).false;
   });
   it("can access freetalk", function () {
-    var c = user.categoryIndex[100];
-    c.name.should.equal('freetalk');
+    expect(findc(100).name).equal('freetalk');
   });
   it("can access cheat", function () {
-    var c = user.categoryIndex[60];
-    c.name.should.equal('cheat');
+    expect(findc(60).name).equal('cheat');
   });
   it("can not access recycle bin", function () {
-    var c = user.categoryIndex[40];
-    should.not.exist(c);
+    expect(findc(40)).not.exist;
+  });
+
+  it("given admin", function (done) {
+    userf.login('admin', function (err, res) {
+      user = res.body.user;
+      done();
+    });
+  });
+  it("should be admin", function () {
+    expect(user.admin).true;
+  });
+  it("can access freetalk", function () {
+    expect(findc(100).name).equal('freetalk');
+  });
+  it("can access cheat", function () {
+    expect(findc(60).name).equal('cheat');
+  });
+  it("can access recycle bin", function () {
+    expect(findc(40).name).equal('recycle bin');
   });
 });
 
-describe("admin", function () {
-  var user;
-  it("given admin", function () {
-    user = userb.findUserByName('admin');
+describe("login info", function () {
+  it("given logged out", function (done) {
+    userf.logout(done);
   });
-  it("should be admin", function () {
-    user.admin.should.true;
+  it("should fail", function (done) {
+    local.get('/api/users/login', function (err, res) {
+      expect(err).not.exist;
+      expect(error.find(res.body.err, error.NOT_AUTHENTICATED)).true;
+      done();
+    });
   });
-  it("can access freetalk", function () {
-    var c = user.categoryIndex[100];
-    c.name.should.equal('freetalk');
+  it("given login", function (done) {
+    userf.login('user', done);
   });
-  it("can access cheat", function () {
-    var c = user.categoryIndex[60];
-    c.name.should.equal('cheat');
+  it("should success", function (done) {
+    local.get('/api/users/login', function (err, res) {
+      expect(err).not.exist;
+      expect(res.body.err).not.exist;
+      expect(res.body.user.name).equal('user');
+      expect(res.body.user.categories).exist;
+      done();
+    });
   });
-  it("can access recycle bin", function () {
-    var c = user.categoryIndex[40];
-    c.name.should.equal('recycle bin');
+});
+
+describe("accessing user resource", function () {
+  it("given logged out", function (done) {
+    userf.logout(done);
+  });
+  it("should fail", function (done) {
+    local.get('/api/test/user', function (err, res) {
+      expect(err).not.exist;
+      expect(error.find(res.body.err, error.NOT_AUTHENTICATED)).true;
+      done();
+    });
+  });
+  it("given user session", function (done) {
+    userf.login('user', done);
+  });
+  it("should success", function (done) {
+    local.get('/api/test/user', function (err, res) {
+      expect(err).not.exist;
+      expect(res.body.err).not.exist;
+      done();
+    });
+  });
+  it("given logged out", function (done) {
+    userf.logout(done);
+  });
+  it("should fail", function (done) {
+    local.get('/api/test/user', function (err, res) {
+      expect(err).not.exist;
+      expect(error.find(res.body.err, error.NOT_AUTHENTICATED)).true;
+      done();
+    });
+  });
+});
+
+describe("accessing admin resource", function () {
+  it("given logged out", function (done) {
+    userf.logout(done);
+  });
+  it("should fail", function (done) {
+    local.get('/api/test/admin', function (err, res) {
+      expect(err).not.exist;
+      expect(error.find(res.body.err, error.NOT_AUTHENTICATED)).true;
+      done();
+    });
+  });
+  it("given user session", function (done) {
+    userf.login('user', done);
+  });
+  it("should fail", function (done) {
+    local.get('/api/test/admin', function (err, res) {
+      expect(err).not.exist;
+      expect(error.find(res.body.err, error.NOT_AUTHORIZED)).true;
+      done();
+    });
+  });
+  it("given admin session", function (done) {
+    userf.login('admin', done);
+  });
+  it("should success", function (done) {
+    local.get('/api/test/admin', function (err, res) {
+      expect(err).not.exist;
+      expect(res.body.err).not.exist;
+      done();
+    });
+  });
+});
+
+describe("auto login", function () {
+  it("given new (cookie clean) agent", function () {
+    local.newAgent();
+  });
+  it("access should fail", function (done) {
+    local.get('/api/test/user').end(function (err, res) {
+      expect(err).not.exist;
+      expect(res.body.err).exist;
+      done();
+    });
+  });
+  it("given login with auto login", function (done) {
+    userf.login('user', true, done);    
+  });
+  it("access should success", function (done) {
+    local.get('/api/test/user').end(function (err, res) {
+      expect(err).not.exist;
+      expect(res.body.err).not.exist;
+      done();
+    });
+  });
+  it("given new session", function (done) {
+    local.post('/api/test/destroy-session').end(function (err, res) {
+      expect(err).not.exist;
+      expect(res.body.err).not.exist;
+      done();
+    });
+  });
+  it("access should success", function (done) {
+    local.get('/api/test/user').end(function (err, res) {
+      expect(res.body.err).not.exist;
+      done();
+    })
+  });
+  it("given logged out", function (done) {
+    userf.logout(done);
+  });
+  it("access should fail", function (done) {
+    local.get('/api/test/user').end(function (err, res) {
+      expect(err).not.exist;
+      expect(res.body.err).exist;
+      done();
+    })
   });
 });

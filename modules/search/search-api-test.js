@@ -1,12 +1,15 @@
-var should = require('should');
+var chai = require('chai');
+var expect = chai.expect;
+chai.use(require('chai-http'));
+chai.config.includeStack = true;
 
 var init = require('../base/init');
 var error = require('../base/error');
 var config = require('../base/config')({ path: 'config/test.json' });
 var mongo = require('../mongo/mongo')({ dropDatabase: true });
 var search = require('../search/search-base');
-var express2 = require('../main/express');
-var ufix = require('../user/user-fixture');
+var exp = require('../main/express');
+var userf = require('../user/user-fixture');
 
 require('../user/user-auth-api');
 require('../post/post-api');
@@ -34,21 +37,21 @@ describe("searching", function () {
   ];
 
   it("given logged out", function (done) {
-    ufix.logout(done);
+    userf.logout(done);
   });
   it("should fail", function (done) {
-    express.get('/api/search', function (err, res) {
-      res.error.should.false;
+    local.get('/api/search', function (err, res) {
+      expect(err).not.exist;
       res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
       done();
     });
   });
   it("given admin session", function (done) {
-    ufix.loginAdmin(done);
+    userf.login('admin', done);
   });
   it("should success", function (done) {
-    express.get('/api/search', function (err, res) {
-      res.error.should.false;
+    local.get('/api/search', function (err, res) {
+      expect(err).not.exist;
       should.not.exist(res.body.err);
       var r = res.body.posts;
       r.should.length(0);
@@ -61,7 +64,7 @@ describe("searching", function () {
     (function insert() {
       if (i == len) return done();
       var doc = docs[i++];
-      express.post('/api/threads').send(doc).end(function (err, res) {
+      local.post('/api/threads').send(doc).end(function (err, res) {
         should.not.exists(err);
         should.not.exist(res.body.err);
         doc.pid = res.body.pid;
@@ -71,12 +74,12 @@ describe("searching", function () {
     })();
   });
   it("given user session", function (done) {
-    ufix.loginUser(done);
+    userf.login('user', done);
   });
   describe("user name", function () {
     it("should success", function (done) {
-      express.get('/api/search').query({ q: 'snowman' }).end(function (err, res) {
-        res.error.should.false;
+      local.get('/api/search').query({ q: 'snowman' }).end(function (err, res) {
+        expect(err).not.exist;
         should.not.exist(res.body.err);
         var r = res.body.posts;
         r.should.length(3);
@@ -89,8 +92,8 @@ describe("searching", function () {
   });
   describe("title", function () {
     it("should success", function (done) {
-      express.get('/api/search').query({ q: 'title 4' }).end(function (err, res) {
-        res.error.should.false;
+      local.get('/api/search').query({ q: 'title 4' }).end(function (err, res) {
+        expect(err).not.exist;
         should.not.exist(res.body.err);
         var r = res.body.posts;
         r.should.length(1);
@@ -101,8 +104,8 @@ describe("searching", function () {
   });
   describe("text", function () {
     it("should success", function (done) {
-      express.get('/api/search').query({ q: 'apple orange' }).end(function (err, res) {
-        res.error.should.false;
+      local.get('/api/search').query({ q: 'apple orange' }).end(function (err, res) {
+        expect(err).not.exist;
         should.not.exist(res.body.err);
         var r = res.body.posts;
         r.should.length(2);
@@ -112,8 +115,8 @@ describe("searching", function () {
       });
     });
     it("should success", function (done) {
-      express.get('/api/search').query({ q: 'apple banana' }).end(function (err, res) {
-        res.error.should.false;
+      local.get('/api/search').query({ q: 'apple banana' }).end(function (err, res) {
+        expect(err).not.exist;
         should.not.exist(res.body.err);
         var r = res.body.posts;
         r.should.length(1);
@@ -124,8 +127,8 @@ describe("searching", function () {
   });
   describe("hangul", function () {
     it("should success", function (done) {
-      express.get('/api/search').query({ q: '둥글' }).end(function (err, res) {
-        res.error.should.false;
+      local.get('/api/search').query({ q: '둥글' }).end(function (err, res) {
+        expect(err).not.exist;
         should.not.exist(res.body.err);
         var r = res.body.posts;
         r.should.length(3);
@@ -138,11 +141,11 @@ describe("searching", function () {
   });
   describe("recycle bin", function () {
     it("given user session", function (done) {
-      ufix.loginUser(done);
+      userf.login('user', done);
     });
     it("should return no results", function (done) {
-      express.get('/api/search').query({ q: 'admin' }).end(function (err, res) {
-        res.error.should.false;
+      local.get('/api/search').query({ q: 'admin' }).end(function (err, res) {
+        expect(err).not.exist;
         should.not.exist(res.body.err);
         var r = res.body.posts;
         r.should.length(0);
@@ -150,11 +153,11 @@ describe("searching", function () {
       });
     });
     it("given admin session", function (done) {
-      ufix.loginAdmin(done);
+      userf.login('admin', done);
     });
     it("should return results", function (done) {
-      express.get('/api/search').query({ q: 'admin' }).end(function (err, res) {
-        res.error.should.false;
+      local.get('/api/search').query({ q: 'admin' }).end(function (err, res) {
+        expect(err).not.exist;
         should.not.exist(res.body.err);
         var r = res.body.posts;
         r.should.length(2);

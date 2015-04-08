@@ -1,26 +1,34 @@
 var util = require('util');
-
-var funcs = [];
-var tails = [];
+var init = exports;
 
 process.on('uncaughtException', function (err) {
   console.error(err.stack);
 });
 
-exports.reset = function () {
+/*
+  async 한 모듈 초기화를 위한 유틸리티.
+  가능한 async 한 부분에만 사용하고
+  일반적인 정의들은 init.add 밖의 모듈 스코프에 두는 것이 부작용이 적다.
+  일반 펑션을 init.add 안에 두면 init.add 간 펑션 사용에 문제가 발생.
+*/
+
+var funcs = [];
+var tails = [];
+
+init.reset = function () {
   funcs = [];
   tails = [];
 }
 
-exports.add = function (func) {
+init.add = function (func) {
   funcs.push(func);
 };
 
-exports.tail = function (func) {
+init.tail = function (func) {
   tails.unshift(func);
 };
 
-exports.run = function (done) {
+init.run = function (done) {
   var i = 0;
 
   done = done || function (err) {

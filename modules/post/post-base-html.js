@@ -1,16 +1,21 @@
 var init = require('../base/init');
 var post = require('../post/post-base');
-var express2 = require('../main/express');
+var exp = require('../main/express');
 var UrlMaker = require('../main/UrlMaker');
 
 init.add(function () {
+  
+  exp.core.get('/', function (req, res, done) {
+      // 이거 삭제하고 checkUser 해서 done error
+    if (res.locals.user) {
+      res.redirect('/threads');
+    } else {
 
-  var app = express2.app;
+    }
+  });
 
-  console.log('post-html:');
-
-  app.get('/threads', function (req, res, done) {
-    req.findUser(function (err, user) {
+  exp.core.get('/threads', function (req, res, done) {
+    userb.checkUser(res, function (err, user) {
       if (err) return res.renderErr(err);
       var params = post.makeThreadsParams(req);
       if (params.cid) {
@@ -62,8 +67,8 @@ init.add(function () {
     done(prevUrl, nextUrl);
   }
 
-  app.get('/threads/:tid([0-9]+)', function (req, res, done) {
-    req.findUser(function (err, user) {
+  exp.core.get('/threads/:tid([0-9]+)', function (req, res, done) {
+    userb.checkUser(res, function (err, user) {
       if (err) return res.renderErr(err);
       var tid = parseInt(req.params.tid) || 0;
       post.findThreadAndPosts(user, tid, req.session.posts, function (err, category, thread, posts) {
@@ -79,21 +84,21 @@ init.add(function () {
 
   var postSuffixRe = /^\/post\/(.*)/;
 
-  app.get('/post/*', function (req, res, done) {
+  exp.core.get('/post/*', function (req, res, done) {
     var tid = parseInt(req.params.tid) || 0;
     res.redirect('/threads/' + req.url.match(postSuffixRe)[1]);
   });
 
-  app.get('/threads/new', function (req, res, done) {
-    req.findUser(function (err, user) {
+  exp.core.get('/threads/new', function (req, res, done) {
+    userb.checkUser(res, function (err, user) {
       if (err) return res.renderErr(err);
       var cid = parseInt(req.query.c) || 0;
       res.render('thread-new', { cid: cid });
     });
   });
 
-  app.get('/threads/:tid([0-9]+)/:pid([0-9]+/edit)', function (req, res, done) {
-    req.findUser(function (err, user) {
+  exp.core.get('/threads/:tid([0-9]+)/:pid([0-9]+/edit)', function (req, res, done) {
+    userb.checkUser(res, function (err, user) {
       if (err) return res.renderErr(err);
       var tid = parseInt(req.params.tid) || 0;
       var pid = parseInt(req.params.pid) || 0;

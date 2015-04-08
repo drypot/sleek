@@ -1,19 +1,14 @@
 var init = require('../base/init');
-var express2 = require('../main/express');
+var exp = require('../main/express');
 var search = require('../search/search-base');
 
 init.add(function () {
-
-  var app = express2.app;
-
-  console.log('search-api:');
-
-  app.get('/api/search', function (req, res) {
-    req.findUser(function (err, user) {
-      if (err) return res.jsonErr(err);
+  exp.core.get('/api/search', function (req, res, done) {
+    userb.checkUser(res, function (err, user) {
+      if (err) return done(err);
       var params = search.makeParams(req);
       search.searchPost(user, params, function (err, posts, last) {
-        if (err) return res.jsonErr(err);
+        if (err) return done(err);
         res.json({
           posts: posts,
           last: last
@@ -21,5 +16,4 @@ init.add(function () {
       });
     });
   });
-
 });

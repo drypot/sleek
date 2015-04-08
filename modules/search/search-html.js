@@ -1,16 +1,11 @@
 var init = require('../base/init');
-var express2 = require('../main/express');
+var exp = require('../main/express');
 var search = require('../search/search-base');
 var UrlMaker = require('../main/UrlMaker');
 
 init.add(function () {
-
-  var app = express2.app;
-
-  console.log('search-html:');
-
-  app.get('/search', function (req, res) {
-    req.findUser(function (err, user) {
+  exp.core.get('/search', function (req, res, done) {
+    userb.checkUser(res, function (err, user) {
       if (err) return res.renderErr(err);
       var params = search.makeParams(req);
       search.searchPost(user, params, function (err, posts, last) {
@@ -46,5 +41,4 @@ init.add(function () {
     }
     done(prevUrl, nextUrl);
   }
-
 });

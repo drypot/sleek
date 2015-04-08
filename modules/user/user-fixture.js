@@ -1,35 +1,27 @@
-var should = require('should');
+var expect = require('chai').expect;
 
 var init = require('../base/init');
-var local = require('../main/local');
+var local = require('../express/local');
+var userf = exports;
 
-init.add(function () {
-  exports.logout = function (done) {
-    local.del('/api/sessions', function (err, res) {
-      should.not.exist(err);
-      res.error.should.false;
-      should.not.exist(res.body.err);
-      done();
-    });
+userf.login = function (name, remember, done) {
+  if (typeof remember == 'function') {
+    done = remember;
+    remember = false;
   }
+  var password = { user: '1', cheater: '2', admin: '3' }[name];
+  local.post('/api/users/login').send({ password: password, remember: remember }).end(function (err, res) {
+    expect(err).not.exist;
+    expect(res.body.err).not.exist;
+    expect(res.body.user.name).equal(name);
+    done(err, res);
+  });
+}
 
-  exports.loginUser = function (done) {
-    local.post('/api/sessions').send({ password: '1' }).end(function (err, res) {
-      should.not.exist(err);
-      res.error.should.false;
-      should.not.exist(res.body.err);
-      res.body.user.name.should.equal('user');
-      done();
-    });
-  }
-
-  exports.loginAdmin = function (done) {
-    local.post('/api/sessions').send({ password: '3' }).end(function (err, res) {
-      should.not.exist(err);
-      res.error.should.false;
-      should.not.exist(res.body.err);
-      res.body.user.name.should.equal('admin');
-      done();
-    });
-  }
-});
+userf.logout = function (done) {
+  local.post('/api/users/logout', function (err, res) {
+    expect(err).not.exist;
+    expect(res.body.err).not.exist;
+    done(err, res);
+  });
+}
