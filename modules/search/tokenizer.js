@@ -1,3 +1,4 @@
+var tokenizer = exports;
 
 // stop words from lucene
 
@@ -12,57 +13,53 @@ var stops = [
   'www'
 ];
 
+var engx = /\w+/g
+var unix = /[\u0100-\uffff]+/g
 
-exports.tokenize = function () {
+tokenizer.tokenize = function () {
   var tokens = [];
-
   var len = arguments.length;
   for (var i = 0; i < len; i++) {
-    tokenizeEngs(arguments[i], tokens);
-    tokenizeUnis(arguments[i], tokens);
+    tokenizeEng(arguments[i]);
+    tokenizeUni(arguments[i]);
   }
-
   return Object.keys(tokens);
-};
 
-var engPattern = /\w+/g
-
-function tokenizeEngs(source, tokens) {
-  var engs = source.match(engPattern);
-  if (engs) {
-    var len = engs.length;
-    for(var i = 0; i < len; i++) {
-      var word = engs[i].toLowerCase();
-      if (~stops.indexOf(word)) {
-        continue;
-      }
-      tokens[word] = true;
-    }
-  }
-}
-
-var uniPattern = /[\u0100-\uffff]+/g
-
-function tokenizeUnis(source, tokens) {
-  var unis = source.match(uniPattern);
-  if (unis) {
-    var len = unis.length;
-    for (var i = 0; i < len; i++) {
-      var word = unis[i];
-      var wordLen = word.length;
-      if (wordLen == 1) {
-        continue;
-      }
-      var prev = undefined;
-      for (var j = 0; j < wordLen; j++) {
-        var ch = word[j]
-        if (!prev) {
-          prev = ch;
+  function tokenizeEng(source) {
+    var engs = source.match(engx);
+    if (engs) {
+      var len = engs.length;
+      for(var i = 0; i < len; i++) {
+        var word = engs[i].toLowerCase();
+        if (~stops.indexOf(word)) {
           continue;
         }
-        tokens[prev + ch] = true;
-        prev = ch;
+        tokens[word] = true;
       }
     }
   }
-}
+
+  function tokenizeUni(source) {
+    var unis = source.match(unix);
+    if (unis) {
+      var len = unis.length;
+      for (var i = 0; i < len; i++) {
+        var word = unis[i];
+        var wordLen = word.length;
+        if (wordLen == 1) {
+          continue;
+        }
+        var prev = undefined;
+        for (var j = 0; j < wordLen; j++) {
+          var ch = word[j]
+          if (!prev) {
+            prev = ch;
+            continue;
+          }
+          tokens[prev + ch] = true;
+          prev = ch;
+        }
+      }
+    }
+  }
+};

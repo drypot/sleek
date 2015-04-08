@@ -2,51 +2,51 @@ var chai = require('chai');
 var expect = chai.expect;
 chai.config.includeStack = true;
 
-var tokenize = require('../main/tokenizer').tokenize;
+var tokenize = require('../search/tokenizer').tokenize;
 
 describe("tokenizer", function () {
   it("can parse emtpy", function () {
-    tokenize('').should.have.length(0);
+    expect(tokenize('')).length(0);
   });
-  it("can pass space", function () {
-    tokenize(' \t\n').should.have.length(0);
+  it("can parse space", function () {
+    expect(tokenize(' \t\n')).length(0);
   });
   it("can parse numbers", function () {
-    tokenize('1').should.have.length(1).include('1');
-    tokenize('12').should.have.length(1).include('12');
-    tokenize('123').should.have.length(1).include('123');
-    tokenize('1 2').should.have.length(2).include('1').include('2');
-    tokenize('12 345').should.have.length(2).include('12').include('345');
+    expect(tokenize('1')).length(1).include('1');
+    expect(tokenize('12')).length(1).include('12');
+    expect(tokenize('123')).length(1).include('123');
+    expect(tokenize('1 2')).length(2).include('1').include('2');
+    expect(tokenize('12 345')).length(2).include('12').include('345');
   });
   it("can parse latins", function () {
-    tokenize('x').should.have.length(1).include('x');
-    tokenize('x abc').should.have.length(2).include('x').include('abc');
+    expect(tokenize('x')).length(1).include('x');
+    expect(tokenize('x abc')).length(2).include('x').include('abc');
   });
   it("can skip latin dupes", function () {
-    tokenize('abc def abc').should.have.length(2).include('abc').include('def');
+    expect(tokenize('abc def abc')).length(2).include('abc').include('def');
   });
   it("should ignore case", function () {
-    tokenize('abc AbC dEf').should.have.length(2).include('abc').include('def');
+    expect(tokenize('abc AbC dEf')).length(2).include('abc').include('def');
   });
   it("can parse latins with numbers", function () {
-    tokenize('abc123').should.have.length(1).include('abc123');
+    expect(tokenize('abc123')).length(1).include('abc123');
   });
-  it("can pass punctuations", function () {
-    tokenize('abc!').should.have.length(1).include('abc');
-    tokenize('hello, world.').should.have.length(2).include('hello').include('world');
+  it("can parse punctuations", function () {
+    expect(tokenize('abc!')).length(1).include('abc');
+    expect(tokenize('hello, world.')).length(2).include('hello').include('world');
   });
-  it("can pass stop words", function () {
-    tokenize('what a beautiful world it is!').should.have.length(3).include('what').include('beautiful').include('world');
+  it("can parse stop words", function () {
+    expect(tokenize('what a beautiful world it is!')).length(3).include('what').include('beautiful').include('world');
   });
   it("can parse multiple arguments", function () {
-    tokenize('abc 123', 'def 123').should.have.length(3).include('abc').include('def').include('123')
+    expect(tokenize('abc 123', 'def 123')).length(3).include('abc').include('def').include('123')
   });
   it("can parse hangul", function () {
-    tokenize('한').should.have.length(0);
-    tokenize('한글').should.have.length(1).include('한글');
-    tokenize('한글나').should.have.length(2).include('한글').include('글나');
-    tokenize('한글나라').should.have.length(3).include('한글').include('글나').include('나라');
-    tokenize('누나하고 나하고').should.have.length(3).include('누나').include('나하').include('하고');
+    expect(tokenize('한')).length(0);
+    expect(tokenize('한글')).length(1).include('한글');
+    expect(tokenize('한글나')).length(2).include('한글').include('글나');
+    expect(tokenize('한글나라')).length(3).include('한글').include('글나').include('나라');
+    expect(tokenize('누나하고 나하고')).length(3).include('누나').include('나하').include('하고');
   });
 
 });
