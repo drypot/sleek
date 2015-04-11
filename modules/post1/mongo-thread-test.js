@@ -1,34 +1,31 @@
-var chai = require('chai');
-var expect = chai.expect;
-chai.use(require('chai-http'));
-chai.config.includeStack = true;
+var expect = require('../base/chai').expect;
 
 var init = require('../base/init');
 var config = require('../base/config')({ path: 'config/test.json' });
-var mongo = require('../mongo/mongo')({ dropDatabase: true });
+var mongop = require('../mongo/mongo')({ dropDatabase: true });
 
 before(function (done) {
   init.run(done);
 });
 
-describe("db", function () {
-  it("should have databaseName", function () {
+describe('db', function () {
+  it('should have databaseName', function () {
     mongo.db.databaseName.should.equal(config.mongoDb);
   });
 });
 
-describe("empty thread collection", function () {
-  it("should exist", function () {
+describe('empty thread collection', function () {
+  it('should exist', function () {
     should.exist(mongo.threads);
   });
-  it("should be empty", function (done) {
+  it('should be empty', function (done) {
     mongo.threads.count(function (err, count) {
       should.not.exist(err);
       count.should.equal(0);
       done();
     })
   });
-  it("should have three index", function (done) {
+  it('should have three index', function (done) {
     mongo.threads.indexes(function (err, indexes) {
       should.not.exist(err);
       indexes.should.be.instanceof(Array);
@@ -36,17 +33,17 @@ describe("empty thread collection", function () {
       done();
     });
   });
-  it("can make serialized ids", function () {
+  it('can make serialized ids', function () {
     var id1 = mongo.getNewThreadId();
     var id2 = mongo.getNewThreadId();
     (id1 < id2).should.true;
   });
 });
 
-describe("thread collection", function () {
+describe('thread collection', function () {
 
-  describe("inserting", function () {
-    it("should success", function (done) {
+  describe('inserting', function () {
+    it('should success', function (done) {
       var t = {
         cid: 100, hit: 10, length: 5, cdate: new Date(10), udate: new Date(10),
         writer: 'snowman', title: 'title'
@@ -62,19 +59,19 @@ describe("thread collection", function () {
     });
   });
 
-  describe("finding by id", function () {
+  describe('finding by id', function () {
     var t = {
       cid: 100, hit: 10, length: 5, cdate: new Date(10), udate: new Date(10),
       writer: 'snowman', title: 'title'
     };
-    it("given empty collection", function (done) {
+    it('given empty collection', function (done) {
       mongo.threads.remove(done);
     });
-    it("given thread", function (done) {
+    it('given thread', function (done) {
       t._id = mongo.getNewThreadId();
       mongo.insertThread(t, done);
     });
-    it("should success", function (done) {
+    it('should success', function (done) {
       mongo.findThread(t._id, function (err, _t) {
         should.not.exist(err);
         _t.should.eql(t);
@@ -83,11 +80,11 @@ describe("thread collection", function () {
     });
   });
 
-  describe("finding by category", function () {
-    it("given empty collection", function (done) {
+  describe('finding by category', function () {
+    it('given empty collection', function (done) {
       mongo.threads.remove(done);
     });
-    it("given threads", function (done) {
+    it('given threads', function (done) {
       var rows = [
         {
           _id: mongo.getNewThreadId(), cid: 101, hit: 10, length: 5, cdate: new Date(10), udate: new Date(10),
@@ -132,7 +129,7 @@ describe("thread collection", function () {
       ];
       mongo.insertThread(rows, done);
     });
-    it("should success with cid 0", function (done) {
+    it('should success with cid 0', function (done) {
       var threads = [];
       var cursor = mongo.findThreads(1, 99);
       function read() {
@@ -153,7 +150,7 @@ describe("thread collection", function () {
       }
       read();
     });
-    it("should success when cid is 101", function (done) {
+    it('should success when cid is 101', function (done) {
       var threads = [];
       var cursor = mongo.findThreadsByCategory(101, 1, 99);
       function read() {
@@ -170,7 +167,7 @@ describe("thread collection", function () {
       }
       read();
     });
-    it("should success when page is 2", function (done) {
+    it('should success when page is 2', function (done) {
       var threads = [];
       var cursor = mongo.findThreads(2, 3);
       function read() {
@@ -192,19 +189,19 @@ describe("thread collection", function () {
     });
   });
 
-  describe("updating", function () {
+  describe('updating', function () {
     var t = {
       cid: 100, hit: 10, length: 5, cdate: new Date(10), udate: new Date(10),
       writer: 'snowman', title: 'title'
     };
-    it("given empty collection", function (done) {
+    it('given empty collection', function (done) {
       mongo.threads.remove(done);
     });
-    it("given thread", function (done) {
+    it('given thread', function (done) {
       t._id = mongo.getNewThreadId();
       mongo.insertThread(t, done);
     });
-    it("should success", function (done) {
+    it('should success', function (done) {
       t.writer  = 'oejfivoxkd';
       t.title = 'jfioejfasjdfiosjie'
       t.hit = 29384;
@@ -219,19 +216,19 @@ describe("thread collection", function () {
     });
   });
 
-  describe("increasing hit", function () {
+  describe('increasing hit', function () {
     var t = {
       cid: 100, hit: 10, length: 5, cdate: new Date(10), udate: new Date(10),
       writer: 'snowman', title: 'title'
     };
-    it("given empty collection", function (done) {
+    it('given empty collection', function (done) {
       mongo.threads.remove(done);
     });
-    it("given thread", function (done) {
+    it('given thread', function (done) {
       t._id = mongo.getNewThreadId();
       mongo.insertThread(t, done);
     });
-    it("should success", function (done) {
+    it('should success', function (done) {
       mongo.updateThreadHit(t._id, function (err) {
         should.not.exist(err);
         mongo.findThread(t._id, function (err, thread) {
@@ -243,19 +240,19 @@ describe("thread collection", function () {
     });
   });
 
-  describe("updating lenth & udate", function () {
+  describe('updating lenth & udate', function () {
     var t = {
       cid: 100, hit: 10, length: 5, cdate: new Date(10), udate: new Date(10),
       writer: 'snowman', title: 'title'
     };
-    it("given empty collection", function (done) {
+    it('given empty collection', function (done) {
       mongo.threads.remove(done);
     });
-    it("given thread", function (done) {
+    it('given thread', function (done) {
       t._id = mongo.getNewThreadId();
       mongo.insertThread(t, done);
     });
-    it("should success", function (done) {
+    it('should success', function (done) {
       var now = new Date();
       mongo.updateThreadLength(t._id, now, function (err) {
         should.not.exist(err);

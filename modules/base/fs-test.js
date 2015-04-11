@@ -1,6 +1,4 @@
-var chai = require('chai');
-var expect = chai.expect;
-chai.config.includeStack = true;
+var expect = require('../base/chai').expect;
 
 var fs = require('fs');
 
@@ -17,7 +15,7 @@ before(function (done) {
   });
 });
 
-describe("removeDirs", function () {
+describe('removeDir', function () {
   beforeEach(function (done) {
     fs.mkdir(testdir + '/sub1', 0755, function (err) {
       fs.mkdir(testdir + '/sub2', 0755, function (err) {
@@ -30,63 +28,63 @@ describe("removeDirs", function () {
       });
     });
   });
-  it("can remove one file", function (done) {
-    expect(fs.existsSync(testdir + '/sub1')).true;
-    expect(fs.existsSync(testdir + '/sub2')).true;
-    expect(fs.existsSync(testdir + '/sub2/sub3')).true;
-    expect(fs.existsSync(testdir + '/sub1/f1.txt')).true;
-    expect(fs.existsSync(testdir + '/sub2/f2.txt')).true;
-    expect(fs.existsSync(testdir + '/sub2/sub3/f3.txt')).true;
-    fsp.removeDirs(testdir + '/sub2/f2.txt', function (err) {
+  it('can remove one file', function (done) {
+    expect(testdir + '/sub1').pathExist;
+    expect(testdir + '/sub2').pathExist;
+    expect(testdir + '/sub2/sub3').pathExist;
+    expect(testdir + '/sub1/f1.txt').pathExist;
+    expect(testdir + '/sub2/f2.txt').pathExist;
+    expect(testdir + '/sub2/sub3/f3.txt').pathExist;
+    fsp.removeDir(testdir + '/sub2/f2.txt', function (err) {
       if (err) return done(err);
-      expect(fs.existsSync(testdir + '/sub1')).true;
-      expect(fs.existsSync(testdir + '/sub2')).true;
-      expect(fs.existsSync(testdir + '/sub2/sub3')).true;
-      expect(fs.existsSync(testdir + '/sub1/f1.txt')).true;
-      expect(fs.existsSync(testdir + '/sub2/f2.txt')).false;
-      expect(fs.existsSync(testdir + '/sub2/sub3/f3.txt')).true;
+      expect(testdir + '/sub1').pathExist;
+      expect(testdir + '/sub2').pathExist;
+      expect(testdir + '/sub2/sub3').pathExist;
+      expect(testdir + '/sub1/f1.txt').pathExist;
+      expect(testdir + '/sub2/f2.txt').not.pathExist;
+      expect(testdir + '/sub2/sub3/f3.txt').pathExist;
       done();
     })
   });
-  it("can remove one dir", function (done) {
-    expect(fs.existsSync(testdir + '/sub1')).true;
-    expect(fs.existsSync(testdir + '/sub2')).true;
-    expect(fs.existsSync(testdir + '/sub2/sub3')).true;
-    expect(fs.existsSync(testdir + '/sub1/f1.txt')).true;
-    expect(fs.existsSync(testdir + '/sub2/f2.txt')).true;
-    expect(fs.existsSync(testdir + '/sub2/sub3/f3.txt')).true;
-    fsp.removeDirs(testdir + '/sub1', function (err) {
+  it('can remove one dir', function (done) {
+    expect(testdir + '/sub1').pathExist;
+    expect(testdir + '/sub2').pathExist;
+    expect(testdir + '/sub2/sub3').pathExist;
+    expect(testdir + '/sub1/f1.txt').pathExist;
+    expect(testdir + '/sub2/f2.txt').pathExist;
+    expect(testdir + '/sub2/sub3/f3.txt').pathExist;
+    fsp.removeDir(testdir + '/sub1', function (err) {
       if (err) return done(err);
-      expect(fs.existsSync(testdir + '/sub1')).false;
-      expect(fs.existsSync(testdir + '/sub2')).true;
-      expect(fs.existsSync(testdir + '/sub2/sub3')).true;
-      expect(fs.existsSync(testdir + '/sub1/f1.txt')).false;
-      expect(fs.existsSync(testdir + '/sub2/f2.txt')).true;
-      expect(fs.existsSync(testdir + '/sub2/sub3/f3.txt')).true;
+      expect(testdir + '/sub1').not.pathExist;
+      expect(testdir + '/sub2').pathExist;
+      expect(testdir + '/sub2/sub3').pathExist;
+      expect(testdir + '/sub1/f1.txt').not.pathExist;
+      expect(testdir + '/sub2/f2.txt').pathExist;
+      expect(testdir + '/sub2/sub3/f3.txt').pathExist;
       done();
     })
   });
-  it("can remove recursive", function (done) {
-    expect(fs.existsSync(testdir + '/sub1')).true;
-    expect(fs.existsSync(testdir + '/sub2')).true;
-    expect(fs.existsSync(testdir + '/sub2/sub3')).true;
-    expect(fs.existsSync(testdir + '/sub1/f1.txt')).true;
-    expect(fs.existsSync(testdir + '/sub2/f2.txt')).true;
-    expect(fs.existsSync(testdir + '/sub2/sub3/f3.txt')).true;
-    fsp.removeDirs(testdir + '/sub2', function (err) {
+  it('can remove recursive', function (done) {
+    expect(testdir + '/sub1').pathExist;
+    expect(testdir + '/sub2').pathExist;
+    expect(testdir + '/sub2/sub3').pathExist;
+    expect(testdir + '/sub1/f1.txt').pathExist;
+    expect(testdir + '/sub2/f2.txt').pathExist;
+    expect(testdir + '/sub2/sub3/f3.txt').pathExist;
+    fsp.removeDir(testdir + '/sub2', function (err) {
       if (err) return done(err);
-      expect(fs.existsSync(testdir + '/sub1')).true;
-      expect(fs.existsSync(testdir + '/sub2')).false;
-      expect(fs.existsSync(testdir + '/sub2/sub3')).false;
-      expect(fs.existsSync(testdir + '/sub1/f1.txt')).true;
-      expect(fs.existsSync(testdir + '/sub2/f2.txt')).false;
-      expect(fs.existsSync(testdir + '/sub2/sub3/f3.txt')).false;
+      expect(testdir + '/sub1').pathExist;
+      expect(testdir + '/sub2').not.pathExist;
+      expect(testdir + '/sub2/sub3').not.pathExist;
+      expect(testdir + '/sub1/f1.txt').pathExist;
+      expect(testdir + '/sub2/f2.txt').not.pathExist;
+      expect(testdir + '/sub2/sub3/f3.txt').not.pathExist;
       done();
     })
   });
 });
 
-describe("emtpyDir", function () {
+describe('emtpyDir', function () {
   before(function (done) {
     fs.mkdir(testdir + '/sub1', 0755, function (err) {
       fs.mkdir(testdir + '/sub2', 0755, function (err) {
@@ -99,7 +97,7 @@ describe("emtpyDir", function () {
       });
     });
   });
-  it("should success", function (done) {
+  it('should success', function (done) {
     fsp.emptyDir(testdir, function (err) {
       if (err) return done(err);
       fs.readdir(testdir, function (err, files) {
@@ -111,69 +109,42 @@ describe("emtpyDir", function () {
   });
 });
 
-describe("makeDirs", function () {
+describe('makeDir', function () {
   before(function (done) {
     fsp.emptyDir(testdir, done);
   });
-  it("can make dir", function (done) {
-    expect(fs.existsSync(testdir + '/sub1')).be.false;
-    fsp.makeDirs(testdir, 'sub1', function (err, dir) {
+  it('can make dir', function (done) {
+    expect(testdir + '/sub1').not.pathExist;
+    fsp.makeDir(testdir + '/sub1', function (err, dir) {
       expect(err).not.exist;
       expect(dir).equal(testdir + '/sub1');
-      expect(fs.existsSync(testdir + '/sub1')).be.true;
+      expect(testdir + '/sub1').pathExist;
       done();
     });
   });
-  it("can make dir in existing dir", function (done) {
-    expect(fs.existsSync(testdir + '/sub1/sub2')).be.false;
-    fsp.makeDirs(testdir, 'sub1', 'sub2', function (err, dir) {
+  it('can make dir in existing dir', function (done) {
+    expect(testdir + '/sub1/sub2/sub3').not.pathExist;
+    fsp.makeDir(testdir + '/sub1/sub2/sub3', function (err, dir) {
       expect(err).not.exist;
-      expect(dir).equal(testdir + '/sub1/sub2');
-      expect(fs.existsSync(testdir + '/sub1/sub2')).be.true;
-      done();
-    });
-  });
-  it("can make dirs with array ", function (done) {
-    expect(fs.existsSync(testdir + '/ary1/ary2/ary3')).be.false;
-    fsp.makeDirs(testdir, [ 'ary1', 'ary2', 'ary3' ], function (err, dir) {
-      expect(err).not.exist;
-      expect(dir).equal(testdir + '/ary1/ary2/ary3');
-      expect(fs.existsSync(testdir + '/ary1/ary2/ary3')).be.true;
-      done();
-    });
-  });
-  it("can make dirs with string ", function (done) {
-    expect(fs.existsSync(testdir + '/str1/str2/str3')).be.false;
-    fsp.makeDirs(testdir, 'str1/str2/str3', function (err, dir) {
-      expect(err).not.exist;
-      expect(dir).equal(testdir + '/str1/str2/str3');
-      expect(fs.existsSync(testdir + '/str1/str2/str3')).be.true;
-      done();
-    });
-  });
-  it("can make dirs with string and array ", function (done) {
-    expect(fs.existsSync(testdir + '/c1/c2/c3/c4/c5')).be.false;
-    fsp.makeDirs(testdir, 'c1', [ 'c2', 'c3' ], 'c4/c5', function (err, dir) {
-      expect(err).not.exist;
-      expect(dir).equal(testdir + '/c1/c2/c3/c4/c5');
-      expect(fs.existsSync(testdir + '/c1/c2/c3/c4/c5')).be.true;
+      expect(dir).equal(testdir + '/sub1/sub2/sub3');
+      expect(testdir + '/sub1/sub2/sub3').pathExist;
       done();
     });
   });
 });
 
-describe("safeFilename", function () {
-  it("should success", function () {
+describe('safeFilename', function () {
+  it('should success', function () {
     var table = [
-      [ "`", "`" ], [ "~", "~" ],
-      [ "!", "!" ], [ "@", "@" ], [ "#", "#" ], [ "$", "$" ], [ "%", "%" ],
-      [ "^", "^" ], [ "&", "&" ], [ "*", "_" ], [ "(", "(" ], [ ")", ")" ],
-      [ "-", "-" ], [ "_", "_" ], [ "=", "=" ], [ "+", "+" ],
-      [ "[", "[" ], [ "[", "[" ], [ "]", "]" ], [ "]", "]" ], [ "\\", "_" ], [ "|", "_" ],
-      [ ";", ";" ], [ ":", "_" ], [ "'", "'" ], [ "\"", "_" ],
-      [ ",", "," ], [ "<", "_" ], [ ".", "." ], [ ">", "_" ], [ "/", "_" ], [ "?", "_" ],
-      [ "aaa\tbbb", "aaa_bbb" ],
-      [ "abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890", "abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890" ],
+      [ '`', '`' ], [ '~', '~' ],
+      [ '!', '!' ], [ '@', '@' ], [ '#', '#' ], [ '$', '$' ], [ '%', '%' ],
+      [ '^', '^' ], [ '&', '&' ], [ '*', '_' ], [ '(', '(' ], [ ')', ')' ],
+      [ '-', '-' ], [ '_', '_' ], [ '=', '=' ], [ '+', '+' ],
+      [ '[', '[' ], [ '[', '[' ], [ ']', ']' ], [ ']', ']' ], [ '\\', '_' ], [ '|', '_' ],
+      [ ';', ';' ], [ ':', '_' ], [ "'", "'" ], [ '"', '_' ],
+      [ ',', ',' ], [ '<', '_' ], [ '.', '.' ], [ '>', '_' ], [ '/', '_' ], [ '?', '_' ],
+      [ 'aaa\tbbb', 'aaa_bbb' ],
+      [ 'abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890', 'abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890' ],
       [ "이상한 '한글' 이름을 가진 파일", "이상한 '한글' 이름을 가진 파일" ]
     ];
     table.forEach(function (pair) {
@@ -185,8 +156,8 @@ describe("safeFilename", function () {
   });
 });
 
-describe("makeDeepPath", function () {
-  it("should success", function () {
+describe('makeDeepPath', function () {
+  it('should success', function () {
     expect(fsp.makeDeepPath(1, 3)).equal('0/0/1');
     expect(fsp.makeDeepPath(999, 3)).equal('0/0/999');
     expect(fsp.makeDeepPath(1000, 3)).equal('0/1/0');

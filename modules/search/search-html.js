@@ -1,7 +1,7 @@
 var init = require('../base/init');
-var exp = require('../main/express');
+var utilp = require('../base/util');
+var exp = require('../express/express');
 var search = require('../search/search-base');
-var UrlMaker = require('../main/UrlMaker');
 
 init.add(function () {
   exp.core.get('/search', function (req, res, done) {

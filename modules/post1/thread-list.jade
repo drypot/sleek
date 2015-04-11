@@ -20,13 +20,13 @@ block content
         for thread in threads
           tr
             td.t
-              a.text-muted(href="/threads/" + thread._id)
+              a.text-muted(href='/threads/' + thread._id)
                 span #{thread.title}
                 if thread.length > 1
                   | &nbsp;&nbsp;[!{thread.length - 1}]
             if category.id == 0
               td
-                a(href="/threads?c=" + thread.category.id) #{thread.category.name}
+                a(href='/threads?c=' + thread.category.id) #{thread.category.name}
             td #{thread.writer}
             td !{thread.hit}
             td.d !{thread.udateStr}
@@ -42,7 +42,7 @@ block content
           tr
             td
               .t
-                a.text-muted(href="/threads/" + thread._id)
+                a.text-muted(href='/threads/' + thread._id)
                   span #{thread.title}
                   if thread.length > 1
                     | &nbsp;&nbsp;[!{thread.length - 1}]
@@ -52,7 +52,7 @@ block content
                 small.d !{thread.udateStr}
                 if category.id === 0
                   small
-                    a(href="/threads?c=" + thread.category.id) #{thread.category.name}
+                    a(href='/threads?c=' + thread.category.id) #{thread.category.name}
         else
           tr
             td.t 표시할 내용이 없습니다.

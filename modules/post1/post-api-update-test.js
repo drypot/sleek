@@ -1,42 +1,36 @@
-var chai = require('chai');
-var expect = chai.expect;
-chai.use(require('chai-http'));
-chai.config.includeStack = true;
+var expect = require('../base/chai').expect;
 
 var init = require('../base/init');
 var error = require('../base/error');
 var config = require('../base/config')({ path: 'config/test.json' });
-var mongo = require('../mongo/mongo')({ dropDatabase: true });
-var exp = require('../main/express');
+var mongop = require('../mongo/mongo')({ dropDatabase: true });
+var exp = require('../express/express');
+var userb = require('../user/user-base');
 var userf = require('../user/user-fixture');
+var local = require('../express/local');
 
-require('../user/user-auth-api');
 require('../post/post-api');
 
 before(function (done) {
   init.run(done);
 });
 
-before(function () {
-  express.listen();
-});
-
-describe("updating", function () {
+describe('updating', function () {
   var tid1, pid1;
-  it("given logged out", function (done) {
+  it('given logged out', function (done) {
     userf.logout(done);
   });
-  it("should fail", function (done) {
+  it('should fail', function (done) {
     express.put('/api/threads/0/0', function (err, res) {
       expect(err).not.exist;
       res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
       done();
     });
   });
-  it("given user session", function (done) {
+  it('given user session', function (done) {
     userf.login('user', done);
   });
-  it("given p11", function (done) {
+  it('given p11', function (done) {
     var form = { cid: 101, writer: 'snowman', title: 'title', text: 'text' };
     local.post('/api/threads').send(form).end(function (err, res) {
       expect(err).not.exist;
@@ -46,7 +40,7 @@ describe("updating", function () {
       done();
     });
   });
-  it("should fail when title empty", function (done) {
+  it('should fail when title empty', function (done) {
     var form = { cid: 101, writer: 'snowman', title: ' ', text: 'text', visible: true };
     express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
       expect(err).not.exist;
@@ -57,7 +51,7 @@ describe("updating", function () {
       done();
     });
   });
-  it("should fail when writer empty", function (done) {
+  it('should fail when writer empty', function (done) {
     var form = { cid: 101, writer: ' ', title: 'title', text: 'text', visible: true };
     express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
       expect(err).not.exist;
@@ -68,7 +62,7 @@ describe("updating", function () {
       done();
     });
   });
-  it("should success when category not changed", function (done) {
+  it('should success when category not changed', function (done) {
     var form = { cid: 101, writer: 'snowman1', title: 'title1', text: 'text1' };
     express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
       expect(err).not.exist;
@@ -76,7 +70,7 @@ describe("updating", function () {
       done();
     });
   });
-  it("can be confirmed", function (done) {
+  it('can be confirmed', function (done) {
     local.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);
@@ -89,7 +83,7 @@ describe("updating", function () {
       done();
     });
   });
-  it("should success when category changed", function (done) {
+  it('should success when category changed', function (done) {
     var form = { cid: 102, writer: 'snowman2', title: 'title2', text: 'text2' };
     express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
       expect(err).not.exist;
@@ -97,7 +91,7 @@ describe("updating", function () {
       done();
     });
   });
-  it("can be confirmed", function (done) {
+  it('can be confirmed', function (done) {
     local.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);
@@ -105,7 +99,7 @@ describe("updating", function () {
       done();
     });
   });
-  it("should success but can not change visible", function (done) {
+  it('should success but can not change visible', function (done) {
     var form = { cid: 102, writer: 'snowman3', title: 'title3', text: 'text3', visible: false };
     express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
       expect(err).not.exist;
@@ -113,7 +107,7 @@ describe("updating", function () {
       done();
     });
   });
-  it("can be confirmed", function (done) {
+  it('can be confirmed', function (done) {
     local.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);
@@ -121,10 +115,10 @@ describe("updating", function () {
       done();
     });
   });
-  it("given new user session", function (done) {
+  it('given new user session', function (done) {
     userf.login('user', done);
   });
-  it("should fail after reloged", function (done) {
+  it('should fail after reloged', function (done) {
     var form = { cid: 102, writer: 'snowman3', title: 'title3', text: 'text3', visible: false };
     express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
       expect(err).not.exist;
@@ -133,10 +127,10 @@ describe("updating", function () {
       done();
     });
   });
-  it("given admin session", function (done) {
+  it('given admin session', function (done) {
     userf.login('admin', done);
   });
-  it("should success and can change visible", function (done) {
+  it('should success and can change visible', function (done) {
     var form = { cid: 102, writer: 'snowman4', title: 'title4', text: 'text4', visible: false };
     express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
       expect(err).not.exist;
@@ -144,7 +138,7 @@ describe("updating", function () {
       done();
     });
   });
-  it("can be confirmed", function (done) {
+  it('can be confirmed', function (done) {
     local.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);
@@ -154,12 +148,12 @@ describe("updating", function () {
   });
 });
 
-describe("updating reply", function () {
+describe('updating reply', function () {
   var tid1, pid1, pid2;
-  it("given user session", function (done) {
+  it('given user session', function (done) {
     userf.login('user', done);
   });
-  it("given pid1", function (done) {
+  it('given pid1', function (done) {
     var form = { cid: 101, writer: 'snowman', title: 'title', text: 'text' };
     local.post('/api/threads').send(form).end(function (err, res) {
       expect(err).not.exist;
@@ -169,7 +163,7 @@ describe("updating reply", function () {
       done();
     });
   });
-  it("given pid2", function (done) {
+  it('given pid2', function (done) {
     var form = { writer: 'snowman', text: 'text' };
     local.post('/api/threads/' + tid1).send(form).end(function (err, res) {
       expect(err).not.exist;
@@ -178,7 +172,7 @@ describe("updating reply", function () {
       done();
     });
   });
-  it("should success except visible field", function (done) {
+  it('should success except visible field', function (done) {
     var form = { writer: 'snowman1', text: 'text1', visible: false };
     express.put('/api/threads/' + tid1 + '/' + pid2).send(form).end(function (err, res) {
       expect(err).not.exist;
@@ -186,7 +180,7 @@ describe("updating reply", function () {
       done();
     });
   });
-  it("can be confirmed", function (done) {
+  it('can be confirmed', function (done) {
     local.get('/api/threads/' + tid1 + '/' + pid2, function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);
@@ -199,12 +193,12 @@ describe("updating reply", function () {
   });
 });
 
-describe("updating recycle bin", function () {
+describe('updating recycle bin', function () {
   var tid1, pid1;
-  it("given admin session", function (done) {
+  it('given admin session', function (done) {
     userf.login('admin', done);
   });
-  it("given p11 in recyle bin", function (done) {
+  it('given p11 in recyle bin', function (done) {
     var form = { cid: 40, writer: 'snowman', title: 'title', text: 'text' };
     local.post('/api/threads').send(form).end(function (err, res) {
       expect(err).not.exist;
@@ -214,7 +208,7 @@ describe("updating recycle bin", function () {
       done();
     });
   });
-  it("should success", function (done) {
+  it('should success', function (done) {
     var form = { cid: 40, writer: 'snowman1', title: 'title1', text: 'text1' };
     express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
       expect(err).not.exist;
@@ -222,10 +216,10 @@ describe("updating recycle bin", function () {
       done();
     });
   });
-  it("given user session", function (done) {
+  it('given user session', function (done) {
     userf.login('user', done);
   });
-  it("should fail", function (done) {
+  it('should fail', function (done) {
     var form = { cid: 40, writer: 'snowman1', title: 'title1', text: 'text1' };
     express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
       expect(err).not.exist;

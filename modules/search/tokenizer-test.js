@@ -1,47 +1,45 @@
-var chai = require('chai');
-var expect = chai.expect;
-chai.config.includeStack = true;
+var expect = require('../base/chai').expect;
 
 var tokenize = require('../search/tokenizer').tokenize;
 
-describe("tokenizer", function () {
-  it("can parse emtpy", function () {
+describe('tokenizer', function () {
+  it('can parse emtpy', function () {
     expect(tokenize('')).length(0);
   });
-  it("can parse space", function () {
+  it('can parse space', function () {
     expect(tokenize(' \t\n')).length(0);
   });
-  it("can parse numbers", function () {
+  it('can parse numbers', function () {
     expect(tokenize('1')).length(1).include('1');
     expect(tokenize('12')).length(1).include('12');
     expect(tokenize('123')).length(1).include('123');
     expect(tokenize('1 2')).length(2).include('1').include('2');
     expect(tokenize('12 345')).length(2).include('12').include('345');
   });
-  it("can parse latins", function () {
+  it('can parse latins', function () {
     expect(tokenize('x')).length(1).include('x');
     expect(tokenize('x abc')).length(2).include('x').include('abc');
   });
-  it("can skip latin dupes", function () {
+  it('can skip latin dupes', function () {
     expect(tokenize('abc def abc')).length(2).include('abc').include('def');
   });
-  it("should ignore case", function () {
+  it('should ignore case', function () {
     expect(tokenize('abc AbC dEf')).length(2).include('abc').include('def');
   });
-  it("can parse latins with numbers", function () {
+  it('can parse latins with numbers', function () {
     expect(tokenize('abc123')).length(1).include('abc123');
   });
-  it("can parse punctuations", function () {
+  it('can parse punctuations', function () {
     expect(tokenize('abc!')).length(1).include('abc');
     expect(tokenize('hello, world.')).length(2).include('hello').include('world');
   });
-  it("can parse stop words", function () {
+  it('can parse stop words', function () {
     expect(tokenize('what a beautiful world it is!')).length(3).include('what').include('beautiful').include('world');
   });
-  it("can parse multiple arguments", function () {
+  it('can parse multiple arguments', function () {
     expect(tokenize('abc 123', 'def 123')).length(3).include('abc').include('def').include('123')
   });
-  it("can parse hangul", function () {
+  it('can parse hangul', function () {
     expect(tokenize('한')).length(0);
     expect(tokenize('한글')).length(1).include('한글');
     expect(tokenize('한글나')).length(2).include('한글').include('글나');

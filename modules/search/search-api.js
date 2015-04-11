@@ -1,5 +1,5 @@
 var init = require('../base/init');
-var exp = require('../main/express');
+var exp = require('../express/express');
 var search = require('../search/search-base');
 
 init.add(function () {

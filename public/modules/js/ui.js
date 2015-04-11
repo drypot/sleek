@@ -102,7 +102,7 @@ $(function() {
         },
         error:function (jqXHR, textStatus, errorThrown) {
           var err = {
-            message: "Uploading Error",
+            message: 'Uploading Error',
             detail: jqXHR.responseText
           };
           done(err);

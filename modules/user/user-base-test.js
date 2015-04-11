@@ -1,7 +1,4 @@
-var chai = require('chai');
-var expect = chai.expect;
-chai.use(require('chai-http'));
-chai.config.includeStack = true;
+var expect = require('../base/chai').expect;
 
 var init = require('../base/init');
 var error = require('../base/error');
@@ -31,8 +28,8 @@ before(function () {
   });
 });
 
-describe("login", function () {
-  it("session should be clear", function (done) {
+describe('login', function () {
+  it('session should be clear', function (done) {
     local.get('/api/users/login').end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).exist;
@@ -40,10 +37,10 @@ describe("login", function () {
       done();
     });
   });
-  it("user should success", function (done) {
+  it('user should success', function (done) {
     userf.login('user', done);
   });
-  it("session should be filled", function (done) {
+  it('session should be filled', function (done) {
     local.get('/api/users/login').end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
@@ -51,14 +48,14 @@ describe("login", function () {
       done();
     });
   });
-  it("logout should success", function (done) {
+  it('logout should success', function (done) {
     userf.logout(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       done();
     })
   });
-  it("session should be clear", function (done) {
+  it('session should be clear', function (done) {
     local.get('/api/users/login').end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).exist;
@@ -66,10 +63,10 @@ describe("login", function () {
       done();
     });
   });
-  it("admin should success", function (done) {
+  it('admin should success', function (done) {
     userf.login('admin', done);
   });
-  it("session should be filled", function (done) {
+  it('session should be filled', function (done) {
     local.get('/api/users/login').end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
@@ -77,7 +74,7 @@ describe("login", function () {
       done();
     });
   });
-  it("wrong password should fail", function (done) {
+  it('wrong password should fail', function (done) {
     local.post('/api/users/login').send({ password: 'xxx' }).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).exist;
@@ -87,7 +84,7 @@ describe("login", function () {
   });  
 });
 
-describe("categories", function () {
+describe('categories', function () {
   var user;
   function findc(id) {
     for (var i = 0; i < user.categories.length; i++) {
@@ -96,79 +93,79 @@ describe("categories", function () {
     }
     return null;
   }
-  it("given user", function (done) {
+  it('given user', function (done) {
     userf.login('user', function (err, res) {
       user = res.body.user;
       done();
     });
   });
-  it("user should not be admin", function () {
+  it('user should not be admin', function () {
     expect(user.admin).false;
   });
-  it("user can access freetalk", function () {
+  it('user can access freetalk', function () {
     expect(findc(100).name).equal('freetalk');
   });
-  it("can not access cheat", function () {
+  it('can not access cheat', function () {
     expect(findc(60)).not.exist;
   });
-  it("can not access recycle bin", function () {
+  it('can not access recycle bin', function () {
     expect(findc(40)).not.exist;
   });
 
-  it("given cheater", function (done) {
+  it('given cheater', function (done) {
     userf.login('cheater', function (err, res) {
       user = res.body.user;
       done();
     });
   });
-  it("should not be admin", function () {
+  it('should not be admin', function () {
     expect(user.admin).false;
   });
-  it("can access freetalk", function () {
+  it('can access freetalk', function () {
     expect(findc(100).name).equal('freetalk');
   });
-  it("can access cheat", function () {
+  it('can access cheat', function () {
     expect(findc(60).name).equal('cheat');
   });
-  it("can not access recycle bin", function () {
+  it('can not access recycle bin', function () {
     expect(findc(40)).not.exist;
   });
 
-  it("given admin", function (done) {
+  it('given admin', function (done) {
     userf.login('admin', function (err, res) {
       user = res.body.user;
       done();
     });
   });
-  it("should be admin", function () {
+  it('should be admin', function () {
     expect(user.admin).true;
   });
-  it("can access freetalk", function () {
+  it('can access freetalk', function () {
     expect(findc(100).name).equal('freetalk');
   });
-  it("can access cheat", function () {
+  it('can access cheat', function () {
     expect(findc(60).name).equal('cheat');
   });
-  it("can access recycle bin", function () {
+  it('can access recycle bin', function () {
     expect(findc(40).name).equal('recycle bin');
   });
 });
 
-describe("login info", function () {
-  it("given logged out", function (done) {
+describe('login info', function () {
+  it('given logged out', function (done) {
     userf.logout(done);
   });
-  it("should fail", function (done) {
+  it('should fail', function (done) {
     local.get('/api/users/login', function (err, res) {
       expect(err).not.exist;
       expect(error.find(res.body.err, error.NOT_AUTHENTICATED)).true;
       done();
     });
   });
-  it("given login", function (done) {
+  it('given login', function (done) {
     userf.login('user', done);
   });
-  it("should success", function (done) {
+  it('should success', function (done) {
     local.get('/api/users/login', function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
@@ -179,31 +176,31 @@ describe("login info", function () {
   });
 });
 
-describe("accessing user resource", function () {
-  it("given logged out", function (done) {
+describe('accessing user resource', function () {
+  it('given logged out', function (done) {
     userf.logout(done);
   });
-  it("should fail", function (done) {
+  it('should fail', function (done) {
     local.get('/api/test/user', function (err, res) {
       expect(err).not.exist;
       expect(error.find(res.body.err, error.NOT_AUTHENTICATED)).true;
       done();
     });
   });
-  it("given user session", function (done) {
+  it('given user session', function (done) {
     userf.login('user', done);
   });
-  it("should success", function (done) {
+  it('should success', function (done) {
     local.get('/api/test/user', function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       done();
     });
   });
-  it("given logged out", function (done) {
+  it('given logged out', function (done) {
     userf.logout(done);
   });
-  it("should fail", function (done) {
+  it('should fail', function (done) {
     local.get('/api/test/user', function (err, res) {
       expect(err).not.exist;
       expect(error.find(res.body.err, error.NOT_AUTHENTICATED)).true;
@@ -212,31 +209,31 @@ describe("accessing user resource", function () {
   });
 });
 
-describe("accessing admin resource", function () {
-  it("given logged out", function (done) {
+describe('accessing admin resource', function () {
+  it('given logged out', function (done) {
     userf.logout(done);
   });
-  it("should fail", function (done) {
+  it('should fail', function (done) {
     local.get('/api/test/admin', function (err, res) {
       expect(err).not.exist;
       expect(error.find(res.body.err, error.NOT_AUTHENTICATED)).true;
       done();
     });
   });
-  it("given user session", function (done) {
+  it('given user session', function (done) {
     userf.login('user', done);
   });
-  it("should fail", function (done) {
+  it('should fail', function (done) {
     local.get('/api/test/admin', function (err, res) {
       expect(err).not.exist;
       expect(error.find(res.body.err, error.NOT_AUTHORIZED)).true;
       done();
     });
   });
-  it("given admin session", function (done) {
+  it('given admin session', function (done) {
     userf.login('admin', done);
   });
-  it("should success", function (done) {
+  it('should success', function (done) {
     local.get('/api/test/admin', function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
@@ -245,44 +242,44 @@ describe("accessing admin resource", function () {
   });
 });
 
-describe("auto login", function () {
-  it("given new (cookie clean) agent", function () {
+describe('auto login', function () {
+  it('given new (cookie clean) agent', function () {
     local.newAgent();
   });
-  it("access should fail", function (done) {
+  it('access should fail', function (done) {
     local.get('/api/test/user').end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).exist;
       done();
     });
   });
-  it("given login with auto login", function (done) {
+  it('given login with auto login', function (done) {
     userf.login('user', true, done);    
   });
-  it("access should success", function (done) {
+  it('access should success', function (done) {
     local.get('/api/test/user').end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       done();
     });
   });
-  it("given new session", function (done) {
+  it('given new session', function (done) {
     local.post('/api/test/destroy-session').end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       done();
     });
   });
-  it("access should success", function (done) {
+  it('access should success', function (done) {
     local.get('/api/test/user').end(function (err, res) {
       expect(res.body.err).not.exist;
       done();
     })
   });
-  it("given logged out", function (done) {
+  it('given logged out', function (done) {
     userf.logout(done);
   });
-  it("access should fail", function (done) {
+  it('access should fail', function (done) {
     local.get('/api/test/user').end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).exist;

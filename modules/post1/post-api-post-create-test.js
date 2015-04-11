@@ -1,42 +1,36 @@
-var chai = require('chai');
-var expect = chai.expect;
-chai.use(require('chai-http'));
-chai.config.includeStack = true;
+var expect = require('../base/chai').expect;
 
 var init = require('../base/init');
 var error = require('../base/error');
 var config = require('../base/config')({ path: 'config/test.json' });
-var mongo = require('../mongo/mongo')({ dropDatabase: true });
-var exp = require('../main/express');
+var mongop = require('../mongo/mongo')({ dropDatabase: true });
+var exp = require('../express/express');
+var userb = require('../user/user-base');
 var userf = require('../user/user-fixture');
+var local = require('../express/local');
 
-require('../user/user-auth-api');
 require('../post/post-api');
 
 before(function (done) {
   init.run(done);
 });
 
-before(function () {
-  express.listen();
-});
-
-describe("creating post/replay", function () {
-  it("given logged out", function (done) {
+describe('creating post/replay', function () {
+  it('given logged out', function (done) {
     userf.logout(done);
   });
-  it("should fail", function (done) {
+  it('should fail', function (done) {
     local.post('/api/threads/0', function (err, res) {
       expect(err).not.exist;
       res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
       done();
     });
   });
-  it("given user session", function (done) {
+  it('given user session', function (done) {
     userf.login('user', done);
   });
   var tid1;
-  it("given tid1", function (done) {
+  it('given tid1', function (done) {
     var form = { cid: 101, writer: 'snowman', title: 'title 1', text: 'text' };
     local.post('/api/threads').send(form).end(function (err, res) {
       expect(err).not.exist;
@@ -45,7 +39,7 @@ describe("creating post/replay", function () {
       done();
     });
   });
-  it("should fail with tid 99999", function (done) {
+  it('should fail with tid 99999', function (done) {
     var form = { writer: 'snowman', text: 'text' };
     local.post('/api/threads/99999').send(form).end(function (err, res) {
       expect(err).not.exist;
@@ -53,14 +47,14 @@ describe("creating post/replay", function () {
       done();
     });
   });
-  it("should fail with tid xxx", function (done) {
+  it('should fail with tid xxx', function (done) {
     var form = { writer: 'snowman', text: 'text' };
     local.post('/api/threads/xxx').send(form).end(function (err, res) {
       res.status.should.equal(404);
       done();
     });
   });
-  it("should fail with writer empty", function (done) {
+  it('should fail with writer empty', function (done) {
     var form = { writer: ' ', text: 'text' };
     local.post('/api/threads/' + tid1).send(form).end(function (err, res) {
       expect(err).not.exist;
@@ -71,7 +65,7 @@ describe("creating post/replay", function () {
       done();
     });
   });
-  it("should success", function (done) {
+  it('should success', function (done) {
     var form = { writer: 'snowman', text: 'text' };
     local.post('/api/threads/' + tid1).send(form).end(function (err, res) {
       should.not.exist(res.body.err);
@@ -81,12 +75,12 @@ describe("creating post/replay", function () {
   });
 });
 
-describe("creating post/replay in recycle bin", function () {
-  it("given admin session", function (done) {
+describe('creating post/replay in recycle bin', function () {
+  it('given admin session', function (done) {
     userf.login('admin', done);
   });
   var tid1;
-  it("given tid2", function (done) {
+  it('given tid2', function (done) {
     var form = { cid: 40, writer: 'snowman', title: 'title in recycle bin', text: 'head text in recycle bin' };
     local.post('/api/threads').send(form).end(function (err, res) {
       expect(err).not.exist;
@@ -95,10 +89,10 @@ describe("creating post/replay in recycle bin", function () {
       done();
     });
   });
-  it("given user session", function (done) {
+  it('given user session', function (done) {
     userf.login('user', done);
   });
-  it("should fail", function (done) {
+  it('should fail', function (done) {
     var form = { writer: 'snowman', text: 'text' };
     local.post('/api/threads/' + tid1).send(form).end(function (err, res) {
       expect(err).not.exist;
@@ -106,10 +100,10 @@ describe("creating post/replay in recycle bin", function () {
       done();
     });
   });
-  it("given admin session", function (done) {
+  it('given admin session', function (done) {
     userf.login('admin', done);
   });
-  it("should success", function (done) {
+  it('should success', function (done) {
     var form = { writer: 'snowman', text: 'text' };
     local.post('/api/threads/' + tid1).send(form).end(function (err, res) {
       expect(err).not.exist;

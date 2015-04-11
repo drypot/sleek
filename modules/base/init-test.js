@@ -1,11 +1,9 @@
-var chai = require('chai');
-var expect = chai.expect;
-chai.config.includeStack = true;
+var expect = require('../base/chai').expect;
 
 var init = require('../base/init');
 
-describe("sync init function", function () {
-  it("should success", function (done) {
+describe('sync init function', function () {
+  it('should success', function (done) {
     var a = [];
     init.reset();
     init.add(function () {
@@ -23,8 +21,8 @@ describe("sync init function", function () {
   });
 });
 
-describe("async init function", function () {
-  it("should success", function (done) {
+describe('async init function', function () {
+  it('should success', function (done) {
     var a = [];
     init.reset();
     init.add(function (done) {
@@ -44,8 +42,8 @@ describe("async init function", function () {
   });
 });
 
-describe("sync throw", function () {
-  it("should success", function (done) {
+describe('sync throw', function () {
+  it('should success', function (done) {
     var a = [];
     init.reset();
     init.add(function () {
@@ -68,8 +66,8 @@ describe("sync throw", function () {
   });
 });
 
-describe("async throw", function () {
-  it("should success", function (done) {
+describe('async throw', function () {
+  it('should success', function (done) {
     var a = [];
     init.reset();
     init.add(function (done) {
@@ -88,8 +86,8 @@ describe("async throw", function () {
   });
 });
 
-describe("tail function", function () {
-  it("should success", function (done) {
+describe('tail function', function () {
+  it('should success', function (done) {
     var a = [];
     init.reset();
     init.add(function () {

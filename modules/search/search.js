@@ -1,7 +1,7 @@
 var init = require('../base/init');
-var dt = require('../base/dt');
+var utilp = require('../base/util');
 var tokenize = require('../search/tokenizer').tokenize;
-var mongo = require('../mongo/mongo');
+var mongop = require('../mongo/mongo');
 
 init.add(function () {
 

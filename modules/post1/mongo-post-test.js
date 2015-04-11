@@ -1,34 +1,17 @@
-var chai = require('chai');
-var expect = chai.expect;
-chai.use(require('chai-http'));
-chai.config.includeStack = true;
 
-var init = require('../base/init');
-var config = require('../base/config')({ path: 'config/test.json' });
-var mongo = require('../mongo/mongo')({ dropDatabase: true });
 
-before(function (done) {
-  init.run(done);
-});
-
-describe("db", function () {
-  it("should have databaseName", function () {
-    mongo.db.databaseName.should.equal(config.mongoDb);
-  });
-});
-
-describe("empty post collection", function () {
-  it("should exist", function () {
+describe('empty post collection', function () {
+  it('should exist', function () {
     should.exist(mongo.posts);
   });
-  it("should be empty", function (done) {
+  it('should be empty', function (done) {
     mongo.posts.count(function (err, count) {
       should.not.exist(err);
       count.should.equal(0);
       done();
     })
   });
-  it("should have three indexes", function (done) {
+  it('should have three indexes', function (done) {
     mongo.posts.indexes(function (err, index) {
       should.not.exist(err);
       index.should.be.instanceof(Array);
@@ -36,17 +19,17 @@ describe("empty post collection", function () {
       done();
     });
   });
-  it("can make serialized ids", function () {
+  it('can make serialized ids', function () {
     var id1 = mongo.getNewPostId();
     var id2 = mongo.getNewPostId();
     (id1 < id2).should.true;
   });
 });
 
-describe("post collection", function () {
+describe('post collection', function () {
 
-  describe("inserting", function () {
-    it("should success", function (done) {
+  describe('inserting', function () {
+    it('should success', function (done) {
       var p = {
         tid: 1000, cdate: new Date(50), visible: true,
         writer: 'snowman', text: 'text'
@@ -62,19 +45,19 @@ describe("post collection", function () {
     });
   });
 
-  describe("finding by id", function () {
+  describe('finding by id', function () {
     var p = {
       tid: 1000, cdate: new Date(50), visible: true,
       writer: 'snowman', text: 'text'
     }
-    it("given empty collection", function (done) {
+    it('given empty collection', function (done) {
       mongo.posts.remove(done);
     });
-    it("given p", function (done) {
+    it('given p', function (done) {
       p._id = mongo.getNewPostId();
       mongo.insertPost(p, done);
     });
-    it("should success", function (done) {
+    it('should success', function (done) {
       mongo.findPost(p._id, function (err, post) {
         should.not.exist(err);
         post.should.eql(p);
@@ -83,11 +66,11 @@ describe("post collection", function () {
     });
   });
 
-  describe("finding by thread", function () {
-    it("given empty collection", function (done) {
+  describe('finding by thread', function () {
+    it('given empty collection', function (done) {
       mongo.posts.remove(done);
     });
-    it("given posts", function (done) {
+    it('given posts', function (done) {
       var rows = [
         {
           _id: mongo.getNewPostId(), tid: 1000, cdate: new Date(10), visible: true,
@@ -112,7 +95,7 @@ describe("post collection", function () {
       ];
       mongo.insertPost(rows, done);
     });
-    it("should success", function (done) {
+    it('should success', function (done) {
       var count = 0;
       var cursor = mongo.findPostsByThread(1000);
       function read() {
@@ -129,7 +112,7 @@ describe("post collection", function () {
       }
       read();
     });
-    it("should success", function (done) {
+    it('should success', function (done) {
       var count = 0;
       var cursor = mongo.findPostsByThread(1010);
       function read() {
@@ -146,7 +129,7 @@ describe("post collection", function () {
       }
       read();
     });
-    it("should return sorted", function (done) {
+    it('should return sorted', function (done) {
       var posts = [];
       var cursor = mongo.findPostsByThread(1000);
       function read() {
@@ -166,20 +149,20 @@ describe("post collection", function () {
     });
   });
 
-  describe("updating", function () {
+  describe('updating', function () {
     var p = {
       tid: 1030, cdate: new Date(50), visible: true,
       writer: 'snowman', text: 'text'
     }
-    it("given empty collection", function (done) {
+    it('given empty collection', function (done) {
       mongo.posts.remove(done);
     });
-    it("given p", function (done) {
+    it('given p', function (done) {
       p._id = mongo.getNewPostId();
       mongo.insertPost(p, done);
     });
-    it("should success", function (done) {
-      p.writer  = "fireman";
+    it('should success', function (done) {
+      p.writer  = 'fireman';
       p.hit = 17;
       mongo.updatePost(p, function (err) {
         should.not.exist(err);

@@ -1,15 +1,15 @@
-var should = require('should');
-var request = require('superagent').agent();
+var expect = require('../base/chai').expect;
 
 var init = require('../base/init');
 var error = require('../base/error');
 var config = require('../base/config')({ path: 'config/test.json' });
-var mongo = require('../mongo/mongo')({ dropDatabase: true });
-var exp = require('../main/express');
+var mongop = require('../mongo/mongo')({ dropDatabase: true });
+var exp = require('../express/express');
 var post = require('../post/post-base');
+var userb = require('../user/user-base');
 var userf = require('../user/user-fixture');
+var local = require('../express/local');
 
-require('../user/user-auth-api');
 require('../post/post-api');
 require('../search/search-base-api');
 
@@ -17,18 +17,14 @@ before(function (done) {
   init.run(done);
 });
 
-before(function () {
-  express.listen();
-});
-
 var tid1, tid2;
 var pid1, pid2, pid3;
 
-describe("posting", function () {
-  it("given user session", function (done) {
+describe('posting', function () {
+  it('given user session', function (done) {
     userf.login('user', done);
   });
-  it("should success for tid1, pid1", function (done) {
+  it('should success for tid1, pid1', function (done) {
     var form = { cid: 101, writer: 'snowman', title: '첫번째 글줄', text: 'apple pine banana' };
     local.post('/api/threads').send(form).end(function (err, res) {
       expect(err).not.exist;
@@ -38,7 +34,7 @@ describe("posting", function () {
       done();
     });
   });
-  it("should success for pid2", function (done) {
+  it('should success for pid2', function (done) {
     var form = { writer: '김순이', text: '둥글게 네모나게 붉게 파랗게' };
     local.post('/api/threads/' + tid1).send(form).end(function (err, res) {
       expect(err).not.exist;
@@ -47,7 +43,7 @@ describe("posting", function () {
       done();
     });
   });
-  it("should success for tid2, pid3", function (done) {
+  it('should success for tid2, pid3', function (done) {
     var form = { cid: 101, writer: '박철수', title: '두번째 글줄', text: '붉은 벽돌길을 걷다보면' };
     local.post('/api/threads').send(form).end(function (err, res) {
       expect(err).not.exist;
@@ -59,8 +55,8 @@ describe("posting", function () {
   });
 });
 
-describe("searching", function () {
-  it("should success for pid1", function (done) {
+describe('searching', function () {
+  it('should success for pid1', function (done) {
     local.get('/api/search').query({ q: '첫번째' }).end(function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);
@@ -70,7 +66,7 @@ describe("searching", function () {
       done();
     });
   });
-  it("should success for pid2", function (done) {
+  it('should success for pid2', function (done) {
     local.get('/api/search').query({ q: '둥글게 네모나게' }).end(function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);
@@ -80,7 +76,7 @@ describe("searching", function () {
       done();
     });
   });
-  it("should success for pid3", function (done) {
+  it('should success for pid3', function (done) {
     local.get('/api/search').query({ q: '박철수' }).end(function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);
@@ -92,14 +88,14 @@ describe("searching", function () {
   });
 });
 
-describe("dropping tokens", function () {
-  it("should success", function (done) {
+describe('dropping tokens', function () {
+  it('should success', function (done) {
     mongo.posts.update({}, { $unset: { tokens: 1 } }, { multi: true }, done);
   });
 });
 
-describe("searching emtpy tokens", function () {
-  it("should return nothing for pid1", function (done) {
+describe('searching emtpy tokens', function () {
+  it('should return nothing for pid1', function (done) {
     local.get('/api/search').query({ q: '첫번째' }).end(function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);
@@ -107,7 +103,7 @@ describe("searching emtpy tokens", function () {
       done();
     });
   });
-  it("should return nothing for pid2", function (done) {
+  it('should return nothing for pid2', function (done) {
     local.get('/api/search').query({ q: '둥글게 네모나게' }).end(function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);
@@ -115,7 +111,7 @@ describe("searching emtpy tokens", function () {
       done();
     });
   });
-  it("should return nothing for pid3", function (done) {
+  it('should return nothing for pid3', function (done) {
     local.get('/api/search').query({ q: '박철수' }).end(function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);
@@ -126,14 +122,14 @@ describe("searching emtpy tokens", function () {
   });
 });
 
-describe("rebuilding", function () {
-  it("should success", function (done) {
+describe('rebuilding', function () {
+  it('should success', function (done) {
     post.rebuildTokens(done);
   });
 });
 
-describe("re-searching", function () {
-  it("should success for pid1", function (done) {
+describe('re-searching', function () {
+  it('should success for pid1', function (done) {
     local.get('/api/search').query({ q: '첫번째' }).end(function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);
@@ -143,7 +139,7 @@ describe("re-searching", function () {
       done();
     });
   });
-  it("should success for pid2", function (done) {
+  it('should success for pid2', function (done) {
     local.get('/api/search').query({ q: '둥글게 네모나게' }).end(function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);
@@ -153,7 +149,7 @@ describe("re-searching", function () {
       done();
     });
   });
-  it("should success for pid3", function (done) {
+  it('should success for pid3', function (done) {
     local.get('/api/search').query({ q: '박철수' }).end(function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);

@@ -8,7 +8,7 @@
   "uploadDir": "upload/sleek-test",
   "uploadMax": 512,
 
-  "mongoDb": "sleek-test",
+  "mongodb": "sleek-test",
   "mongoUser": "",
   "mongoPassword": "",
 

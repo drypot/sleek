@@ -106,11 +106,11 @@ $(function () {
         var $handle = $(this);
         var $media = $handle.prev();
         if ($handle.text() === 'Show') {
-          $handle.data("org-code", $media.text());
+          $handle.data('org-code', $media.text());
           $media.html($media.text());
           $handle.text('Hide');
         } else {
-          $media.text($handle.data("org-code"));
+          $media.text($handle.data('org-code'));
           $handle.text('Show');
         }
       })
@@ -118,7 +118,7 @@ $(function () {
 
     var $scrollTarget = (function () {
       var $target = null;
-      $posts.find(".d").each(function() {
+      $posts.find('.d').each(function() {
         var cdateStr = $(this).text();
         if (dt.isNew(cdateStr)) {
           $target = $(this);

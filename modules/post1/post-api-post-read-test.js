@@ -1,32 +1,26 @@
-var chai = require('chai');
-var expect = chai.expect;
-chai.use(require('chai-http'));
-chai.config.includeStack = true;
+var expect = require('../base/chai').expect;
 
 var init = require('../base/init');
 var error = require('../base/error');
 var config = require('../base/config')({ path: 'config/test.json' });
-var mongo = require('../mongo/mongo')({ dropDatabase: true });
-var exp = require('../main/express');
+var mongop = require('../mongo/mongo')({ dropDatabase: true });
+var exp = require('../express/express');
+var userb = require('../user/user-base');
 var userf = require('../user/user-fixture');
+var local = require('../express/local');
 
-require('../user/user-auth-api');
 require('../post/post-api');
 
 before(function (done) {
   init.run(done);
 });
 
-before(function () {
-  express.listen();
-});
-
-describe("reading post", function () {
-  it("given user session", function (done) {
+describe('reading post', function () {
+  it('given user session', function (done) {
     userf.login('user', done);
   });
   var tid1, pid1, pid2;
-  it("given tid1, pid1", function (done) {
+  it('given tid1, pid1', function (done) {
     var form = { cid: 101, writer: 'snowman1', title: 'title1', text: 'post11' };
     local.post('/api/threads').send(form).end(function (err, res) {
       expect(err).not.exist;
@@ -36,7 +30,7 @@ describe("reading post", function () {
       done();
     });
   });
-  it("given pid2", function (done) {
+  it('given pid2', function (done) {
     var form = { writer: 'snowman1', text: 'post12' };
     local.post('/api/threads/' + tid1).send(form).end(function (err, res) {
       expect(err).not.exist;
@@ -45,11 +39,11 @@ describe("reading post", function () {
       done();
     });
   });
-  it("given admin session", function (done) {
+  it('given admin session', function (done) {
     userf.login('admin', done);
   });
   var tid2, pid3, pid4;
-  it("given tid2, pid3 in recycle bin", function (done) {
+  it('given tid2, pid3 in recycle bin', function (done) {
     var form = { cid: 40, writer: 'snowman2', title: 'title2', text: 'post21' };
     local.post('/api/threads').send(form).end(function (err, res) {
       expect(err).not.exist;
@@ -59,7 +53,7 @@ describe("reading post", function () {
       done();
     });
   });
-  it("given pid4 in recycle bin", function (done) {
+  it('given pid4 in recycle bin', function (done) {
     var form = { writer: 'snowman2', text: 'post22' };
     local.post('/api/threads/' + tid2).send(form).end(function (err, res) {
       expect(err).not.exist;
@@ -68,41 +62,41 @@ describe("reading post", function () {
       done();
     });
   });
-  it("given logged out", function (done) {
+  it('given logged out', function (done) {
     userf.logout(done);
   });
-  it("should fail", function (done) {
+  it('should fail', function (done) {
     local.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
       expect(err).not.exist;
       res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
       done();
     });
   });
-  it("given user session", function (done) {
+  it('given user session', function (done) {
     userf.login('user', done);
   });
-  it("should fail with invalid tid", function (done) {
+  it('should fail with invalid tid', function (done) {
     local.get('/api/threads/' + 99999 + '/' + pid1, function (err, res) {
       expect(err).not.exist;
       res.body.err.rc.should.equal(error.INVALID_THREAD);
       done();
     });
   });
-  it("should fail with mismatching tid", function (done) {
+  it('should fail with mismatching tid', function (done) {
     local.get('/api/threads/' + tid2 + '/' + pid1, function (err, res) {
       expect(err).not.exist;
       res.body.err.rc.should.equal(error.INVALID_POST);
       done();
     });
   });
-  it("should fail with invalid pid", function (done) {
+  it('should fail with invalid pid', function (done) {
     local.get('/api/threads/' + tid1 + '/' + 99999, function (err, res) {
       expect(err).not.exist;
       res.body.err.rc.should.equal(error.INVALID_POST);
       done();
     });
   });
-  it("should success for pid1", function (done) {
+  it('should success for pid1', function (done) {
     local.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);
@@ -115,7 +109,7 @@ describe("reading post", function () {
       done();
     });
   });
-  it("should success for pid2", function (done) {
+  it('should success for pid2', function (done) {
     local.get('/api/threads/' + tid1 + '/' + pid2, function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);
@@ -126,27 +120,27 @@ describe("reading post", function () {
       done();
     });
   });
-  it("given user session", function (done) {
+  it('given user session', function (done) {
     userf.login('user', done);
   });
-  it("should fail for pid3 in recycle bin", function (done) {
+  it('should fail for pid3 in recycle bin', function (done) {
     local.get('/api/threads/' + tid2 + '/' + pid3, function (err, res) {
       expect(err).not.exist;
       res.body.err.rc.should.equal(error.INVALID_CATEGORY);
       done();
     });
   });
-  it("should fail for pid4 in recycle bin", function (done) {
+  it('should fail for pid4 in recycle bin', function (done) {
     local.get('/api/threads/' + tid2 + '/' + pid4, function (err, res) {
       expect(err).not.exist;
       res.body.err.rc.should.equal(error.INVALID_CATEGORY);
       done();
     });
   });
-  it("given admin session", function (done) {
+  it('given admin session', function (done) {
     userf.login('admin', done);
   });
-  it("should success for pid3 in recycle bin", function (done) {
+  it('should success for pid3 in recycle bin', function (done) {
     local.get('/api/threads/' + tid2 + '/' + pid3, function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);
@@ -159,7 +153,7 @@ describe("reading post", function () {
       done();
     });
   });
-  it("should success for pid4 in recycle bin", function (done) {
+  it('should success for pid4 in recycle bin', function (done) {
     local.get('/api/threads/' + tid2 + '/' + pid4, function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);

@@ -1,6 +1,6 @@
 var init = require('../base/init');
 var config = require('../base/config');
-var mongo = require('../mongo/mongo');
+var mongop = require('../mongo/mongo');
 var postb = require('../post/post-base');
 
 init.run(function (err) {

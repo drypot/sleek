@@ -13,7 +13,7 @@ var tmpDir;
 init.add(function (done) {
   console.log('upload: ' + config.uploadDir);
   tmpDir = config.uploadDir + '/tmp';
-  fsp.makeDirs(tmpDir, function (err) {
+  fsp.makeDir(tmpDir, function (err) {
     if (err) return done(err);
     fsp.emptyDir(tmpDir, done);
   });
@@ -95,7 +95,6 @@ upload.handler = function (inner) {
           return;
         }
         var path = paths[i++];
-        //console.log("deleting: " + path);
         fs.unlink(path, function (err) {
           setImmediate(unlink);
         });

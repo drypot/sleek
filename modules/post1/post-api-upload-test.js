@@ -1,35 +1,29 @@
-var chai = require('chai');
-var expect = chai.expect;
-chai.use(require('chai-http'));
-chai.config.includeStack = true;
+var expect = require('../base/chai').expect;
 
 var fs = require('fs');
 
-var l = require('../base/util');
 var init = require('../base/init');
 var error = require('../base/error');
-var fs2 = require('../base/fs');
+var utilp = require('../base/util');
+var fsp = require('../base/fs');
 var config = require('../base/config')({ path: 'config/test.json' });
-var mongo = require('../mongo/mongo')({ dropDatabase: true });
-var exp = require('../main/express');
-var upload = require('../upload/upload');
+var mongop = require('../mongo/mongo')({ dropDatabase: true });
+var exp = require('../express/express');
+var upload = require('../express/upload');
 var post = require('../post/post-base');
+var userb = require('../user/user-base');
 var userf = require('../user/user-fixture');
+var local = require('../express/local');
 
-require('../user/user-auth-api');
 require('../post/post-api');
 require('../upload/upload-api');
 
 before(function (done) {
-  fs2.emptyDir('tmp', done);
+  fsp.emptyDir('tmp', done);
 });
 
 before(function (done) {
   init.run(done);
-});
-
-before(function () {
-  express.listen();
 });
 
 var dummy1 = 'server/test/fixture/dummy1.txt';
@@ -44,7 +38,7 @@ require('superagent').Request.prototype.fields = function (obj) {
 }
 
 function find(files, oname) {
-  var file = l.find(files, function (file) {
+  var file = utilp.find(files, function (file) {
     return file.oname === oname;
   });
   should.exist(file);
@@ -61,11 +55,11 @@ function notExists(pid, fname) {
 
 var files, tid1, pid1;
 
-describe("creating thread", function () {
-  it("given user session", function (done) {
+describe('creating thread', function () {
+  it('given user session', function (done) {
     userf.login('user', done);
   });
-  it("should success", function (done) {
+  it('should success', function (done) {
     var form = { cid: 101, title: 't', writer: 'w', text: 't' };
     local.post('/api/threads').send(form).end(function (err, res) {
       should.not.exist(err);
@@ -77,8 +71,8 @@ describe("creating thread", function () {
   });
 });
 
-describe("saving files", function () {
-  it("given dummy1.txt, dummy2.txt", function (done) {
+describe('saving files', function () {
+  it('given dummy1.txt, dummy2.txt', function (done) {
     local.post('/api/upload').attach('files', dummy1).attach('files', dummy2).end(function (err, res) {
       should.not.exist(err);
       expect(err).not.exist;
@@ -89,7 +83,7 @@ describe("saving files", function () {
       done();
     });
   });
-  it("should success", function (done) {
+  it('should success', function (done) {
     var form = { cid: 101, title: 't', writer: 'w', text: 't', files: files };
     local.post('/api/threads/' + tid1).send(form).end(function (err, res) {
       expect(err).not.exist;
@@ -100,7 +94,7 @@ describe("saving files", function () {
       done();
     });
   });
-  it("can be confirmed", function (done) {
+  it('can be confirmed', function (done) {
     local.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);
@@ -115,8 +109,8 @@ describe("saving files", function () {
   });
 });
 
-describe("deleting files", function () {
-  it("should success", function (done) {
+describe('deleting files', function () {
+  it('should success', function (done) {
     var form = { writer: 'w', text: 't', dfiles: [ 'dummy1.txt' ] };
     express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
       expect(err).not.exist;
@@ -126,7 +120,7 @@ describe("deleting files", function () {
       done();
     });
   });
-  it("can be confirmed", function (done) {
+  it('can be confirmed', function (done) {
     local.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);
@@ -139,8 +133,8 @@ describe("deleting files", function () {
   });
 });
 
-describe("appending files", function () {
-  it("given dummy3.txt", function (done) {
+describe('appending files', function () {
+  it('given dummy3.txt', function (done) {
     local.post('/api/upload').attach('files', dummy3).end(function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);
@@ -148,7 +142,7 @@ describe("appending files", function () {
       done();
     });
   });
-  it("should success", function (done) {
+  it('should success', function (done) {
     var form = { writer: 'w', text: 't', files: files };
     express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
       expect(err).not.exist;
@@ -158,7 +152,7 @@ describe("appending files", function () {
       done();
     });
   });
-  it("can be confirmed", function (done) {
+  it('can be confirmed', function (done) {
     local.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);
@@ -168,8 +162,8 @@ describe("appending files", function () {
   });
 });
 
-describe("deleting again", function () {
-  it("should success", function (done) {
+describe('deleting again', function () {
+  it('should success', function (done) {
     var form = { writer: 'w', text: 't', dfiles: [ 'dummy2.txt', 'dummy3.txt' ] };
     exists(pid1, 'dummy2.txt');
     exists(pid1, 'dummy3.txt');
@@ -181,7 +175,7 @@ describe("deleting again", function () {
       done();
     });
   });
-  it("can be confirmed", function (done) {
+  it('can be confirmed', function (done) {
     local.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);
@@ -191,8 +185,8 @@ describe("deleting again", function () {
   });
 });
 
-describe("saving non-existing file", function () {
-  it("should success", function (done) {
+describe('saving non-existing file', function () {
+  it('should success', function (done) {
     var form = { writer: 'w', text: 't', files: [{ oname: 'abc.txt', tname: 'xxxxxxxx' }] };
     local.post('/api/threads/' + tid1).send(form).end(function (err, res) {
       expect(err).not.exist;
@@ -202,8 +196,8 @@ describe("saving non-existing file", function () {
   });
 });
 
-describe("saving file with invalid name", function () {
-  it("given dummy1.txt", function (done) {
+describe('saving file with invalid name', function () {
+  it('given dummy1.txt', function (done) {
     local.post('/api/upload').attach('files', dummy1).end(function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);
@@ -211,7 +205,7 @@ describe("saving file with invalid name", function () {
       done();
     });
   });
-  it("should success", function (done) {
+  it('should success', function (done) {
     var form = { writer: 'w', text: 't', files: files };
     files[0].oname = './../.../newName.txt';
     local.post('/api/threads/' + tid1).send(form).end(function (err, res) {
@@ -222,7 +216,7 @@ describe("saving file with invalid name", function () {
       done();
     });
   });
-  it("can be confirmed", function (done) {
+  it('can be confirmed', function (done) {
     local.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);
@@ -235,8 +229,8 @@ describe("saving file with invalid name", function () {
   });
 });
 
-describe("saving file with invalid name 2", function () {
-  it("given dummy1.txt", function (done) {
+describe('saving file with invalid name 2', function () {
+  it('given dummy1.txt', function (done) {
     local.post('/api/upload').attach('files', dummy1).end(function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);
@@ -244,7 +238,7 @@ describe("saving file with invalid name 2", function () {
       done();
     });
   });
-  it("should success", function (done) {
+  it('should success', function (done) {
     var form = { writer: 'w', text: 't', files: files };
     files[0].oname = './../.../mygod#1 그리고 한글.txt';
     local.post('/api/threads/' + tid1).send(form).end(function (err, res) {
@@ -255,7 +249,7 @@ describe("saving file with invalid name 2", function () {
       done();
     });
   });
-  it("can be confirmed", function (done) {
+  it('can be confirmed', function (done) {
     local.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);
@@ -268,8 +262,8 @@ describe("saving file with invalid name 2", function () {
   });
 });
 
-describe("saving file with invalid name 3", function () {
-  it("given dummy1.txt", function (done) {
+describe('saving file with invalid name 3', function () {
+  it('given dummy1.txt', function (done) {
     local.post('/api/upload').attach('files', dummy1).end(function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);
@@ -277,7 +271,7 @@ describe("saving file with invalid name 3", function () {
       done();
     });
   });
-  it("should success", function (done) {
+  it('should success', function (done) {
     var form = { writer: 'w', text: 't', files: files };
     files[0].oname = './../.../mygod#2 :?<>|.txt';
     local.post('/api/threads/' + tid1).send(form).end(function (err, res) {
@@ -288,7 +282,7 @@ describe("saving file with invalid name 3", function () {
       done();
     });
   });
-  it("can be confirmed", function (done) {
+  it('can be confirmed', function (done) {
     local.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);

@@ -12,34 +12,33 @@ var mongop = exports = module.exports = function (_opt) {
   return mongop;
 };
 
+// db
+
 init.add(function (done) {
-  var server = new mongo.Server('localhost', 27017, { auto_reconnect: true } );
-  var client = new mongo.MongoClient(server);
-  client.open(function (err) {
-    mongop.db = client.db(config.mongodb);
+  mongo.MongoClient.connect('mongodb://localhost:27017/' + config.mongodb, function(err, db) {
+    if (err) return done(err);
+    mongop.db = db;
     console.log('mongo: ' + mongop.db.databaseName);
     if (config.mongoUser) {
-      return mongop.db.authenticate(config.mongoUser, config.mongoPassword, function(err, res) {
-        if (err) return done(err);
-        done();
-      });
-    }
-    done();
+      mongop.db.authenticate(config.mongoUser, config.mongoPassword, done);
+    } else {
+      done();
+    }    
   });
 });
 
 init.add(function (done) {
   if (opt.dropDatabase) {
-    return mongop.db.dropDatabase(function (err) {
-      if (err) return done(err);
-      console.log('mongo: dropped db');
-      done() 
-    });
+    console.log('mongo: dropping db');
+    mongop.db.dropDatabase(done);
+  } else {
+    done();
   }
-  done();
 });
 
 mongop.ObjectID = mongo.ObjectID;
+
+// utilities
 
 // _id 를 숫자로 쓰는 컬렉션만 페이징할 수 있다.
 
@@ -139,4 +138,11 @@ mongop.forEach = function (col, doit, done) {
       }
     });
   })();
+};
+
+mongop.getLastId = function (col, done) {
+  var opt = { fields: { _id: 1 }, sort: { _id: -1 }, limit: 1 };
+  col.find({}, opt).nextObject(function (err, obj) {
+    done(err, obj ? obj._id : 0);
+  });
 };

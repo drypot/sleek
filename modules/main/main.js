@@ -1,6 +1,6 @@
 var init = require('../base/init');
 var config = require('../base/config');
-var exp = require('../main/express');
+var exp = require('../express/express');
 
 require('../user/user-base');
 require('../post/post-api');
