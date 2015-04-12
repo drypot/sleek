@@ -14,31 +14,6 @@ describe('db', function () {
   });
 });
 
-describe('empty thread collection', function () {
-  it('should exist', function () {
-    should.exist(mongo.threads);
-  });
-  it('should be empty', function (done) {
-    mongo.threads.count(function (err, count) {
-      should.not.exist(err);
-      count.should.equal(0);
-      done();
-    })
-  });
-  it('should have three index', function (done) {
-    mongo.threads.indexes(function (err, indexes) {
-      should.not.exist(err);
-      indexes.should.be.instanceof(Array);
-      indexes.should.be.length(3);
-      done();
-    });
-  });
-  it('can make serialized ids', function () {
-    var id1 = mongo.getNewThreadId();
-    var id2 = mongo.getNewThreadId();
-    (id1 < id2).should.true;
-  });
-});
 
 describe('thread collection', function () {
 
@@ -51,7 +26,7 @@ describe('thread collection', function () {
       mongo.insertThread(t, function (err) {
         should.not.exists(err);
         mongo.threads.count(function (err, count) {
-          should.not.exist(err);
+          expect(err).not.exist;
           count.should.equal(1);
           done();
         });
@@ -73,7 +48,7 @@ describe('thread collection', function () {
     });
     it('should success', function (done) {
       mongo.findThread(t._id, function (err, _t) {
-        should.not.exist(err);
+        expect(err).not.exist;
         _t.should.eql(t);
         done();
       });
@@ -134,7 +109,7 @@ describe('thread collection', function () {
       var cursor = mongo.findThreads(1, 99);
       function read() {
         cursor.nextObject(function (err, t) {
-          should.not.exist(err);
+          expect(err).not.exist;
           if (t) {
             threads.push(t);
             setImmediate(read);
@@ -155,7 +130,7 @@ describe('thread collection', function () {
       var cursor = mongo.findThreadsByCategory(101, 1, 99);
       function read() {
         cursor.nextObject(function (err, t) {
-          should.not.exist(err);
+          expect(err).not.exist;
           if (t) {
             threads.push(t);
             setImmediate(read);
@@ -172,7 +147,7 @@ describe('thread collection', function () {
       var cursor = mongo.findThreads(2, 3);
       function read() {
         cursor.nextObject(function (err, t) {
-          should.not.exist(err);
+          expect(err).not.exist;
           if (t) {
             threads.push(t);
             setImmediate(read);
@@ -206,9 +181,9 @@ describe('thread collection', function () {
       t.title = 'jfioejfasjdfiosjie'
       t.hit = 29384;
       mongo.updateThread(t, function (err) {
-        should.not.exist(err);
+        expect(err).not.exist;
         mongo.findThread(t._id, function (err, thread) {
-          should.not.exist(err);
+          expect(err).not.exist;
           thread.should.eql(t);
           done();
         });
@@ -230,9 +205,9 @@ describe('thread collection', function () {
     });
     it('should success', function (done) {
       mongo.updateThreadHit(t._id, function (err) {
-        should.not.exist(err);
+        expect(err).not.exist;
         mongo.findThread(t._id, function (err, thread) {
-          should.not.exist(err);
+          expect(err).not.exist;
           thread.hit.should.equal(11);
           done();
         });
@@ -255,9 +230,9 @@ describe('thread collection', function () {
     it('should success', function (done) {
       var now = new Date();
       mongo.updateThreadLength(t._id, now, function (err) {
-        should.not.exist(err);
+        expect(err).not.exist;
         mongo.findThread(t._id, function (err, thread) {
-          should.not.exist(err);
+          expect(err).not.exist;
           t.udate = now;
           t.length = 6;
           thread.should.eql(t);

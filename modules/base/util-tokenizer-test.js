@@ -1,6 +1,6 @@
 var expect = require('../base/chai').expect;
 
-var tokenize = require('../search/tokenizer').tokenize;
+var tokenize = require('../base/util').tokenize;
 
 describe('tokenizer', function () {
   it('can parse emtpy', function () {

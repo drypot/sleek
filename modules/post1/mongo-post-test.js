@@ -1,30 +1,6 @@
 
 
-describe('empty post collection', function () {
-  it('should exist', function () {
-    should.exist(mongo.posts);
-  });
-  it('should be empty', function (done) {
-    mongo.posts.count(function (err, count) {
-      should.not.exist(err);
-      count.should.equal(0);
-      done();
-    })
-  });
-  it('should have three indexes', function (done) {
-    mongo.posts.indexes(function (err, index) {
-      should.not.exist(err);
-      index.should.be.instanceof(Array);
-      index.should.be.length(3);
-      done();
-    });
-  });
-  it('can make serialized ids', function () {
-    var id1 = mongo.getNewPostId();
-    var id2 = mongo.getNewPostId();
-    (id1 < id2).should.true;
-  });
-});
+
 
 describe('post collection', function () {
 
@@ -37,7 +13,7 @@ describe('post collection', function () {
       mongo.insertPost(p, function (err) {
         should.not.exists(err);
         mongo.posts.count(function (err, count) {
-          should.not.exist(err);
+          expect(err).not.exist;
           count.should.equal(1);
           done();
         });
@@ -59,7 +35,7 @@ describe('post collection', function () {
     });
     it('should success', function (done) {
       mongo.findPost(p._id, function (err, post) {
-        should.not.exist(err);
+        expect(err).not.exist;
         post.should.eql(p);
         done();
       });
@@ -100,7 +76,7 @@ describe('post collection', function () {
       var cursor = mongo.findPostsByThread(1000);
       function read() {
         cursor.nextObject(function (err, post) {
-          should.not.exist(err);
+          expect(err).not.exist;
           if (post) {
             count++;
             setImmediate(read);
@@ -117,7 +93,7 @@ describe('post collection', function () {
       var cursor = mongo.findPostsByThread(1010);
       function read() {
         cursor.nextObject(function (err, post) {
-          should.not.exist(err);
+          expect(err).not.exist;
           if (post) {
             count++;
             setImmediate(read);
@@ -134,7 +110,7 @@ describe('post collection', function () {
       var cursor = mongo.findPostsByThread(1000);
       function read() {
         cursor.nextObject(function (err, post) {
-          should.not.exist(err);
+          expect(err).not.exist;
           if (post) {
             posts.push(post);
             setImmediate(read);
@@ -165,9 +141,9 @@ describe('post collection', function () {
       p.writer  = 'fireman';
       p.hit = 17;
       mongo.updatePost(p, function (err) {
-        should.not.exist(err);
+        expect(err).not.exist;
         mongo.findPost(p._id, function (err, post) {
-          should.not.exist(err);
+          expect(err).not.exist;
           post.should.eql(p);
           done();
         });

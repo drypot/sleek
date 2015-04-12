@@ -46,11 +46,11 @@ function find(files, oname) {
 }
 
 function exists(pid, fname) {
-  fs.existsSync(post.getFilePath(pid, fname)).should.be.true;
+  fs.existsSync(post.getFilePath(pid, fname)).should.true;
 }
 
 function notExists(pid, fname) {
-  fs.existsSync(post.getFilePath(pid, fname)).should.be.false;
+  fs.existsSync(post.getFilePath(pid, fname)).should.false;
 }
 
 var files, tid1, pid1;
@@ -62,7 +62,7 @@ describe('creating thread', function () {
   it('should success', function (done) {
     var form = { cid: 101, title: 't', writer: 'w', text: 't' };
     local.post('/api/threads').send(form).end(function (err, res) {
-      should.not.exist(err);
+      expect(err).not.exist;
       expect(err).not.exist;
       should.not.exist(res.body.err);
       tid1 = res.body.tid;
@@ -74,7 +74,7 @@ describe('creating thread', function () {
 describe('saving files', function () {
   it('given dummy1.txt, dummy2.txt', function (done) {
     local.post('/api/upload').attach('files', dummy1).attach('files', dummy2).end(function (err, res) {
-      should.not.exist(err);
+      expect(err).not.exist;
       expect(err).not.exist;
       should.not.exist(res.body.err);
       files = res.body.files;

@@ -44,7 +44,7 @@ describe('post.editable', function () {
     local.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);
-      res.body.post.editable.should.be.true;
+      res.body.post.editable.should.true;
       done();
     });
   });
@@ -52,7 +52,7 @@ describe('post.editable', function () {
     local.get('/api/threads/' + tid1 + '/' + pid2, function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);
-      res.body.post.editable.should.be.true;
+      res.body.post.editable.should.true;
       done();
     });
   });
@@ -63,7 +63,7 @@ describe('post.editable', function () {
     local.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);
-      res.body.post.editable.should.be.false;
+      res.body.post.editable.should.false;
       done();
     });
   });
@@ -71,7 +71,7 @@ describe('post.editable', function () {
     local.get('/api/threads/' + tid1 + '/' + pid2, function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);
-      res.body.post.editable.should.be.false;
+      res.body.post.editable.should.false;
       done();
     });
   });
@@ -82,7 +82,7 @@ describe('post.editable', function () {
     local.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);
-      res.body.post.editable.should.be.true;
+      res.body.post.editable.should.true;
       done();
     });
   });
@@ -90,7 +90,7 @@ describe('post.editable', function () {
     local.get('/api/threads/' + tid1 + '/' + pid2, function (err, res) {
       expect(err).not.exist;
       should.not.exist(res.body.err);
-      res.body.post.editable.should.be.true;
+      res.body.post.editable.should.true;
       done();
     });
   });

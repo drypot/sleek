@@ -1,13 +1,9 @@
-var fs = require('fs');
-var path = require('path');
-
 var init = require('../base/init');
 var error = require('../base/error');
 var config = require('../base/config');
-var utilp = require('../base/util');
 var fsp = require('../base/fs');
-var tokenize = require('../search/tokenizer').tokenize;
 var mongop = require('../mongo/mongo');
+var userb = require('../user/user-base');
 var postb = exports;
 
 error.define('INVALID_CATEGORY', '정상적인 카테고리가 아닙니다.');
@@ -96,4 +92,33 @@ init.add(function (done) {
     done();
   });
 });
+
+// category
+
+init.add(function () {
+  for (var name in userb.users) {
+    var user = userb.users[name];
+    user.categories = []; // Array 와 Object 는 용도별로 확실히 구분해 쓴다.
+    user.categoryIndex = {};
+    config.categories.forEach(function (category) {
+      if (user.admin || ~category.users.indexOf(user.name)) {
+        user.categories.push(category);
+        user.categoryIndex[category.id] = category;
+      }
+    });
+  }
+});
+
+postb.checkCategory = function (user, cid, done) {
+  if (!cid === null) {
+    done();
+  } else {
+    var category = user.categoryIndex[cid];
+    if (!category) {
+      done(error(error.INVALID_CATEGORY));
+    } else {
+      done(null, category);
+    }
+  }
+}
 

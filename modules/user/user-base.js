@@ -13,39 +13,24 @@ error.define('USER_NOT_FOUND', '사용자를 찾을 수 없습니다.');
 
 // users table
 
-var users = {};
+var users = userb.users = {};
 
 init.add(function () {
-  config.users.forEach(function (_user) {
-    var user = users[_user.name] = {
-      name: _user.name,
-      hash: _user.hash,
-      admin: !!_user.admin,   
-      categories : [],
-      categoryIndex: []
-    };
-    config.categories.forEach(function (category) {
-      if (user.admin || ~category.users.indexOf(user.name)) {
-        user.categories.push(category);
-        user.categoryIndex[category.id] = category;
-      }
-    });
+  config.users.forEach(function (user) {
+    user.admin = !!user.admin;
+    users[user.name] = user;
   });
 });
 
-function findByName(uname) {
-  return users[uname];
-};
-
 function findByPassword(password) {
-  for (var uname in users) {
-    var user = users[uname];
+  for (var name in users) {
+    var user = users[name];
     if (bcrypt.compareSync(password, user.hash)) {
       return user;
     }
   }
-  for (var uname in users) {
-    var user = users[uname];
+  for (var name in users) {
+    var user = users[name];
     var buf = new Buffer(password, 'ucs2');
     var hash = crypto.createHash('sha256');
     hash.update(buf);
@@ -71,6 +56,8 @@ exp.core.post('/api/users/login', function (req, res, done) {
     });
   });
 });
+
+// used for login test.
 
 exp.core.get('/api/users/login', function (req, res, done) {
   userb.checkUser(res, function (err, user) {
@@ -110,7 +97,7 @@ exp.redirectToLogin = function (err, req, res, done) {
 
 function autoLogin(req, res, done) {
   if (req.session.uname) {
-    res.locals.user = findByName(req.session.uname);
+    res.locals.user = users[req.session.uname];
     return done();
   } 
   var password = req.cookies.password;
