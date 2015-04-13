@@ -1,5 +1,3 @@
-var expect = require('../base/chai').expect;
-
 var init = require('../base/init');
 var error = require('../base/error');
 var config = require('../base/config')({ path: 'config/test.json' });
@@ -9,6 +7,7 @@ var exp = require('../express/express');
 var userb = require('../user/user-base');
 var userf = require('../user/user-fixture');
 var local = require('../express/local');
+var expect = require('../base/assert').expect
 
 require('../post/post-api');
 require('../search/search-base-api');
@@ -46,7 +45,7 @@ describe('searching', function () {
   it('should success', function (done) {
     local.get('/api/search', function (err, res) {
       expect(err).not.exist;
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       var r = res.body.posts;
       r.should.length(0);
       done();
@@ -60,7 +59,7 @@ describe('searching', function () {
       var doc = docs[i++];
       local.post('/api/threads').send(doc).end(function (err, res) {
         should.not.exists(err);
-        should.not.exist(res.body.err);
+        expect(res.body.err).not.exist;
         doc.pid = res.body.pid;
         doc.tid = res.body.tid;
         setImmediate(insert);
@@ -74,7 +73,7 @@ describe('searching', function () {
     it('should success', function (done) {
       local.get('/api/search').query({ q: 'snowman' }).end(function (err, res) {
         expect(err).not.exist;
-        should.not.exist(res.body.err);
+        expect(res.body.err).not.exist;
         var r = res.body.posts;
         r.should.length(3);
         r[0].thread.title.should.equal('title 3');
@@ -88,7 +87,7 @@ describe('searching', function () {
     it('should success', function (done) {
       local.get('/api/search').query({ q: 'title 4' }).end(function (err, res) {
         expect(err).not.exist;
-        should.not.exist(res.body.err);
+        expect(res.body.err).not.exist;
         var r = res.body.posts;
         r.should.length(1);
         r[0].thread.title.should.equal('title 4');
@@ -100,7 +99,7 @@ describe('searching', function () {
     it('should success', function (done) {
       local.get('/api/search').query({ q: 'apple orange' }).end(function (err, res) {
         expect(err).not.exist;
-        should.not.exist(res.body.err);
+        expect(res.body.err).not.exist;
         var r = res.body.posts;
         r.should.length(2);
         r[0].thread.title.should.equal('title 2');
@@ -111,7 +110,7 @@ describe('searching', function () {
     it('should success', function (done) {
       local.get('/api/search').query({ q: 'apple banana' }).end(function (err, res) {
         expect(err).not.exist;
-        should.not.exist(res.body.err);
+        expect(res.body.err).not.exist;
         var r = res.body.posts;
         r.should.length(1);
         r[0].thread.title.should.equal('title 1');
@@ -123,7 +122,7 @@ describe('searching', function () {
     it('should success', function (done) {
       local.get('/api/search').query({ q: '둥글' }).end(function (err, res) {
         expect(err).not.exist;
-        should.not.exist(res.body.err);
+        expect(res.body.err).not.exist;
         var r = res.body.posts;
         r.should.length(3);
         r[0].thread.title.should.equal('title 5');
@@ -140,7 +139,7 @@ describe('searching', function () {
     it('should return no results', function (done) {
       local.get('/api/search').query({ q: 'admin' }).end(function (err, res) {
         expect(err).not.exist;
-        should.not.exist(res.body.err);
+        expect(res.body.err).not.exist;
         var r = res.body.posts;
         r.should.length(0);
         done();
@@ -152,7 +151,7 @@ describe('searching', function () {
     it('should return results', function (done) {
       local.get('/api/search').query({ q: 'admin' }).end(function (err, res) {
         expect(err).not.exist;
-        should.not.exist(res.body.err);
+        expect(res.body.err).not.exist;
         var r = res.body.posts;
         r.should.length(2);
         done();

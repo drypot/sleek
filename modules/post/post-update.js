@@ -2,7 +2,7 @@
 exp.core.put('/api/threads/:tid([0-9]+)/:pid([0-9]+)', function (req, res, done) {
   userb.checkUser(res, function (err, user) {
     if (err) return done(err);
-    var form = post.makeForm(req);
+    var form = postc.getForm(req);
     form.tid = parseInt(req.params.tid) || 0;
     form.pid = parseInt(req.params.pid) || 0;
     post.updatePost(user, form, req.session.posts, function (err) {
@@ -14,11 +14,11 @@ exp.core.put('/api/threads/:tid([0-9]+)/:pid([0-9]+)', function (req, res, done)
 
 exp.core.get('/threads/:tid([0-9]+)/:pid([0-9]+/edit)', function (req, res, done) {
   userb.checkUser(res, function (err, user) {
-    if (err) return res.renderErr(err);
+    if (err) return done(err);
     var tid = parseInt(req.params.tid) || 0;
     var pid = parseInt(req.params.pid) || 0;
     post.findThreadAndPost(user, tid, pid, req.session.posts, function (err, category, thread, post) {
-      if (err) return res.renderErr(err);
+      if (err) return done(err);
       res.render('thread-edit', {
         thread: thread,
         category: category,
@@ -41,7 +41,7 @@ exports.updatePost = function (user, form, editables, done) {
     if (err) return done(err);
     findPost(thread, form.pid, function (err, post) {
       if (err) return done(err);
-      categoryForUpdate(user, thread.cid, function (err, category) {
+      checkCategory(user, thread.cid, function (err, category) {
         if (err) return done(err);
         if (!isEditable(user, post._id, editables)) {
           return done(error(error.NOT_AUTHORIZED));

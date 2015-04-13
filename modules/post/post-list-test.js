@@ -1,5 +1,3 @@
-var expect = require('../base/chai').expect;
-
 var init = require('../base/init');
 var error = require('../base/error');
 var config = require('../base/config')({ path: 'config/test.json' });
@@ -8,6 +6,7 @@ var exp = require('../express/express');
 var userb = require('../user/user-base');
 var userf = require('../user/user-fixture');
 var local = require('../express/local');
+var expect = require('../base/assert').expect
 
 require('../post/post-api');
 
@@ -53,12 +52,12 @@ describe('listing threads', function () {
   });
   it('should success when no op', function (done) {
     local.get('/api/threads', function (err, res) {
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       res.body.threads.should.length(7);
 
       var t;
       t = res.body.threads[0];
-      t.should.have.property('_id');
+      t.should.property('_id');
       t.category.id.should.equal(400);
       t.writer.should.equal('snowman');
       t.title.should.equal('title 7');
@@ -66,7 +65,7 @@ describe('listing threads', function () {
       t.length.should.equal(1);
 
       t = res.body.threads[6];
-      t.should.have.property('_id');
+      t.should.property('_id');
       t.category.id.should.equal(100);
       t.writer.should.equal('snowman');
       t.title.should.equal('title 1');
@@ -76,7 +75,7 @@ describe('listing threads', function () {
   it('should success with category 0', function (done) {
     local.get('/api/threads').query({ c: 0 }).end(function (err, res) {
       expect(err).not.exist;
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       res.body.threads.should.length(7);
       done();
     });
@@ -84,7 +83,7 @@ describe('listing threads', function () {
   it('should success with category 300', function (done) {
     local.get('/api/threads').query({ c: 300 }).end(function (err, res) {
       expect(err).not.exist;
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       res.body.threads.should.length(2);
       done();
     });
@@ -92,7 +91,7 @@ describe('listing threads', function () {
   it('should success with page 2', function (done) {
     local.get('/api/threads').query({ c: 0, pg: 2, ps: 3 }).end(function (err, res) {
       expect(err).not.exist;
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       res.body.threads.should.length(3);
       res.body.threads[0].title.should.equal('title 4');
       res.body.threads[1].title.should.equal('title 3');
@@ -104,7 +103,7 @@ describe('listing threads', function () {
     it('should be false with page 1', function (done) {
       local.get('/api/threads').query({ c: 0, pg: 1, ps: 3 }).end(function (err, res) {
         expect(err).not.exist;
-        should.not.exist(res.body.err);
+        expect(res.body.err).not.exist;
         res.body.last.should.false;
         done();
       });
@@ -112,7 +111,7 @@ describe('listing threads', function () {
     it('should be false with page 2', function (done) {
       local.get('/api/threads').query({ c: 0, pg: 2, ps: 3 }).end(function (err, res) {
         expect(err).not.exist;
-        should.not.exist(res.body.err);
+        expect(res.body.err).not.exist;
         res.body.last.should.false;
         done();
       });
@@ -120,7 +119,7 @@ describe('listing threads', function () {
     it('should be false with page 3', function (done) {
       local.get('/api/threads').query({ c: 0, pg: 3, ps: 3 }).end(function (err, res) {
         expect(err).not.exist;
-        should.not.exist(res.body.err);
+        expect(res.body.err).not.exist;
         res.body.last.should.true;
         done();
       });
@@ -128,7 +127,7 @@ describe('listing threads', function () {
     it('should be false with page 4', function (done) {
       local.get('/api/threads').query({ c: 0, pg: 4, ps: 3 }).end(function (err, res) {
         expect(err).not.exist;
-        should.not.exist(res.body.err);
+        expect(res.body.err).not.exist;
         res.body.last.should.true;
         done();
       });

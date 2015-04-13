@@ -1,5 +1,3 @@
-var expect = require('../base/chai').expect;
-
 var init = require('../base/init');
 var error = require('../base/error');
 var config = require('../base/config')({ path: 'config/test.json' });
@@ -7,6 +5,7 @@ var exp = require('../express/express');
 var userb = require('../user/user-base');
 var userf = require('../user/user-fixture');
 var local = require('../express/local');
+var expect = require('../base/assert').expect
 
 before(function (done) {
   init.run(done);
@@ -33,7 +32,7 @@ describe('login', function () {
     local.get('/api/users/login').end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).exist;
-      expect(error.find(res.body.err, error.NOT_AUTHENTICATED)).true;
+      expect(res.body.err).error('NOT_AUTHENTICATED');
       done();
     });
   });
@@ -59,7 +58,7 @@ describe('login', function () {
     local.get('/api/users/login').end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).exist;
-      expect(error.find(res.body.err, error.NOT_AUTHENTICATED)).true;
+      expect(res.body.err).error('NOT_AUTHENTICATED');
       done();
     });
   });
@@ -78,7 +77,7 @@ describe('login', function () {
     local.post('/api/users/login').send({ password: 'xxx' }).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).exist;
-      expect(error.find(res.body.err, error.USER_NOT_FOUND)).true;
+      expect(res.body.err).error('USER_NOT_FOUND');
       done();
     });
   });  
@@ -91,7 +90,7 @@ describe('accessing user resource', function () {
   it('should fail', function (done) {
     local.get('/api/test/user', function (err, res) {
       expect(err).not.exist;
-      expect(error.find(res.body.err, error.NOT_AUTHENTICATED)).true;
+      expect(res.body.err).error('NOT_AUTHENTICATED');
       done();
     });
   });
@@ -111,7 +110,7 @@ describe('accessing user resource', function () {
   it('should fail', function (done) {
     local.get('/api/test/user', function (err, res) {
       expect(err).not.exist;
-      expect(error.find(res.body.err, error.NOT_AUTHENTICATED)).true;
+      expect(res.body.err).error('NOT_AUTHENTICATED');
       done();
     });
   });
@@ -124,7 +123,7 @@ describe('accessing admin resource', function () {
   it('should fail', function (done) {
     local.get('/api/test/admin', function (err, res) {
       expect(err).not.exist;
-      expect(error.find(res.body.err, error.NOT_AUTHENTICATED)).true;
+      expect(res.body.err).error('NOT_AUTHENTICATED');
       done();
     });
   });
@@ -134,7 +133,7 @@ describe('accessing admin resource', function () {
   it('should fail', function (done) {
     local.get('/api/test/admin', function (err, res) {
       expect(err).not.exist;
-      expect(error.find(res.body.err, error.NOT_AUTHORIZED)).true;
+      expect(res.body.err).error('NOT_AUTHORIZED');
       done();
     });
   });

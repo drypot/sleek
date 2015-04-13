@@ -1,5 +1,3 @@
-var expect = require('../base/chai').expect;
-
 var init = require('../base/init');
 var error = require('../base/error');
 var config = require('../base/config')({ path: 'config/test.json' });
@@ -8,6 +6,7 @@ var userb = require('../user/user-base');
 var userf = require('../user/user-fixture');
 var postb = require('../post/post-base');
 var local = require('../express/local');
+var expect = require('../base/assert').expect
 
 before(function (done) {
   init.run(done);

@@ -1,5 +1,3 @@
-var expect = require('../base/chai').expect;
-
 var init = require('../base/init');
 var error = require('../base/error');
 var config = require('../base/config')({ path: 'config/test.json' });
@@ -8,6 +6,7 @@ var exp = require('../express/express');
 var userb = require('../user/user-base');
 var userf = require('../user/user-fixture');
 var local = require('../express/local');
+var expect = require('../base/assert').expect
 
 require('../post/post-api');
 
@@ -34,7 +33,7 @@ describe('creating post/replay', function () {
     var form = { cid: 101, writer: 'snowman', title: 'title 1', text: 'text' };
     local.post('/api/threads').send(form).end(function (err, res) {
       expect(err).not.exist;
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       tid1 = res.body.tid;
       done();
     });
@@ -60,7 +59,7 @@ describe('creating post/replay', function () {
       expect(err).not.exist;
       res.body.err.rc.should.equal(error.ERROR_SET);
       res.body.err.errors.some(function (field) {
-        return field.name === 'writer' && field.msg === error.msg.FILL_WRITER;
+        return field.name === 'writer' && field.msg === error.FILL_WRITER;
       }).should.true;
       done();
     });
@@ -68,8 +67,8 @@ describe('creating post/replay', function () {
   it('should success', function (done) {
     var form = { writer: 'snowman', text: 'text' };
     local.post('/api/threads/' + tid1).send(form).end(function (err, res) {
-      should.not.exist(res.body.err);
-      res.body.should.have.property('pid');
+      expect(res.body.err).not.exist;
+      res.body.should.property('pid');
       done();
     });
   });
@@ -84,7 +83,7 @@ describe('creating post/replay in recycle bin', function () {
     var form = { cid: 40, writer: 'snowman', title: 'title in recycle bin', text: 'head text in recycle bin' };
     local.post('/api/threads').send(form).end(function (err, res) {
       expect(err).not.exist;
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       tid1 = res.body.tid;
       done();
     });
@@ -107,7 +106,7 @@ describe('creating post/replay in recycle bin', function () {
     var form = { writer: 'snowman', text: 'text' };
     local.post('/api/threads/' + tid1).send(form).end(function (err, res) {
       expect(err).not.exist;
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       done();
     });
   });

@@ -1,5 +1,3 @@
-var expect = require('../base/chai').expect;
-
 var init = require('../base/init');
 var error = require('../base/error');
 var config = require('../base/config')({ path: 'config/test.json' });
@@ -9,6 +7,7 @@ var post = require('../post/post-base');
 var userb = require('../user/user-base');
 var userf = require('../user/user-fixture');
 var local = require('../express/local');
+var expect = require('../base/assert').expect
 
 require('../post/post-api');
 require('../search/search-base-api');
@@ -28,7 +27,7 @@ describe('posting', function () {
     var form = { cid: 101, writer: 'snowman', title: '첫번째 글줄', text: 'apple pine banana' };
     local.post('/api/threads').send(form).end(function (err, res) {
       expect(err).not.exist;
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       tid1 = res.body.tid;
       pid1 = res.body.pid;
       done();
@@ -38,7 +37,7 @@ describe('posting', function () {
     var form = { writer: '김순이', text: '둥글게 네모나게 붉게 파랗게' };
     local.post('/api/threads/' + tid1).send(form).end(function (err, res) {
       expect(err).not.exist;
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       pid2 = res.body.pid;
       done();
     });
@@ -47,7 +46,7 @@ describe('posting', function () {
     var form = { cid: 101, writer: '박철수', title: '두번째 글줄', text: '붉은 벽돌길을 걷다보면' };
     local.post('/api/threads').send(form).end(function (err, res) {
       expect(err).not.exist;
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       tid2 = res.body.tid;
       pid3 = res.body.pid;
       done();
@@ -59,7 +58,7 @@ describe('searching', function () {
   it('should success for pid1', function (done) {
     local.get('/api/search').query({ q: '첫번째' }).end(function (err, res) {
       expect(err).not.exist;
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       var r = res.body.posts;
       r.should.length(1);
       r[0]._id.should.equal(pid1);
@@ -69,7 +68,7 @@ describe('searching', function () {
   it('should success for pid2', function (done) {
     local.get('/api/search').query({ q: '둥글게 네모나게' }).end(function (err, res) {
       expect(err).not.exist;
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       var r = res.body.posts;
       r.should.length(1);
       r[0]._id.should.equal(pid2);
@@ -79,7 +78,7 @@ describe('searching', function () {
   it('should success for pid3', function (done) {
     local.get('/api/search').query({ q: '박철수' }).end(function (err, res) {
       expect(err).not.exist;
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       var r = res.body.posts;
       r.should.length(1);
       r[0]._id.should.equal(pid3);
@@ -98,7 +97,7 @@ describe('searching emtpy tokens', function () {
   it('should return nothing for pid1', function (done) {
     local.get('/api/search').query({ q: '첫번째' }).end(function (err, res) {
       expect(err).not.exist;
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       res.body.posts.should.length(0);
       done();
     });
@@ -106,7 +105,7 @@ describe('searching emtpy tokens', function () {
   it('should return nothing for pid2', function (done) {
     local.get('/api/search').query({ q: '둥글게 네모나게' }).end(function (err, res) {
       expect(err).not.exist;
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       res.body.posts.should.length(0);
       done();
     });
@@ -114,7 +113,7 @@ describe('searching emtpy tokens', function () {
   it('should return nothing for pid3', function (done) {
     local.get('/api/search').query({ q: '박철수' }).end(function (err, res) {
       expect(err).not.exist;
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       var r = res.body.posts;
       res.body.posts.should.length(0);
       done();
@@ -132,7 +131,7 @@ describe('re-searching', function () {
   it('should success for pid1', function (done) {
     local.get('/api/search').query({ q: '첫번째' }).end(function (err, res) {
       expect(err).not.exist;
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       var r = res.body.posts;
       r.should.length(1);
       r[0]._id.should.equal(pid1);
@@ -142,7 +141,7 @@ describe('re-searching', function () {
   it('should success for pid2', function (done) {
     local.get('/api/search').query({ q: '둥글게 네모나게' }).end(function (err, res) {
       expect(err).not.exist;
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       var r = res.body.posts;
       r.should.length(1);
       r[0]._id.should.equal(pid2);
@@ -152,7 +151,7 @@ describe('re-searching', function () {
   it('should success for pid3', function (done) {
     local.get('/api/search').query({ q: '박철수' }).end(function (err, res) {
       expect(err).not.exist;
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       var r = res.body.posts;
       r.should.length(1);
       r[0]._id.should.equal(pid3);

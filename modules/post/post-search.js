@@ -17,10 +17,10 @@ exp.core.get('/api/search', function (req, res, done) {
 init.add(function () {
   exp.core.get('/search', function (req, res, done) {
     userb.checkUser(res, function (err, user) {
-      if (err) return res.renderErr(err);
+      if (err) return done(err);
       var params = search.makeParams(req);
       search.searchPost(user, params, function (err, posts, last) {
-        if (err) return res.renderErr(err);
+        if (err) return done(err);
         prevNext(params, last, function (prevUrl, nextUrl) {
           res.render('search-results', {
             query: req.query.q || '',

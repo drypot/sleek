@@ -1,5 +1,3 @@
-var expect = require('../base/chai').expect;
-
 var init = require('../base/init');
 var error = require('../base/error');
 var config = require('../base/config')({ path: 'config/test.json' });
@@ -8,6 +6,7 @@ var exp = require('../express/express');
 var userb = require('../user/user-base');
 var userf = require('../user/user-fixture');
 var local = require('../express/local');
+var expect = require('../base/assert').expect
 
 require('../post/post-api');
 
@@ -34,7 +33,7 @@ describe('reading thread and posts', function () {
     var form = { cid: 101, writer: 'snowman', title: 'title', text: 'post1' };
     local.post('/api/threads').send(form).end(function (err, res) {
       expect(err).not.exist;
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       tid = res.body.tid;
       done();
     });
@@ -43,14 +42,14 @@ describe('reading thread and posts', function () {
     var form = { writer: 'snowman2', text: 'post2' };
     local.post('/api/threads/' + tid).send(form).end(function (err, res) {
       expect(err).not.exist;
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       done();
     });
   });
   it('should return 2 posts', function (done) {
     local.get('/api/threads/' + tid, function (err, res) {
       expect(err).not.exist;
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       res.body.thread._id.should.equal(tid);
       res.body.thread.title.should.equal('title');
       res.body.category.id.should.equal(101);
@@ -66,14 +65,14 @@ describe('reading thread and posts', function () {
     var form = { writer: 'snowman2', text: 'post3' };
     local.post('/api/threads/' + tid).send(form).end(function (err, res) {
       expect(err).not.exist;
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       done();
     });
   });
   it('should return 3 posts', function (done) {
     local.get('/api/threads/' + tid, function (err, res) {
       expect(err).not.exist;
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       res.body.posts.should.length(3);
       done();
     });
@@ -85,14 +84,14 @@ describe('reading thread and posts', function () {
     var form = { writer: 'admin', text: 'post4', visible: false };
     local.post('/api/threads/' + tid).send(form).end(function (err, res) {
       expect(err).not.exist;
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       done();
     });
   });
   it('should return 4 posts', function (done) {
     local.get('/api/threads/' + tid, function (err, res) {
       expect(err).not.exist;
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       res.body.posts.should.length(4);
       done();
     });
@@ -103,7 +102,7 @@ describe('reading thread and posts', function () {
   it('should return 3 posts', function (done) {
     local.get('/api/threads/' + tid, function (err, res) {
       expect(err).not.exist;
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       res.body.posts.should.length(3);
       done();
     });

@@ -1,5 +1,3 @@
-var expect = require('../base/chai').expect;
-
 var init = require('../base/init');
 var error = require('../base/error');
 var config = require('../base/config')({ path: 'config/test.json' });
@@ -8,6 +6,7 @@ var exp = require('../express/express');
 var userb = require('../user/user-base');
 var userf = require('../user/user-fixture');
 var local = require('../express/local');
+var expect = require('../base/assert').expect
 
 require('../post/post-api');
 
@@ -24,7 +23,7 @@ describe('post.editable', function () {
     var form = { cid: 101, writer: 'snowman', title: 'title 1', text: 'post1' };
       local.post('/api/threads').send(form).end(function (err, res) {
         expect(err).not.exist;
-        should.not.exist(res.body.err);
+        expect(res.body.err).not.exist;
         tid1 = res.body.tid;
         pid1 = res.body.pid;
         done();
@@ -35,7 +34,7 @@ describe('post.editable', function () {
     var form = { writer: 'snowman', text: 'post2' };
     local.post('/api/threads/' + tid1).send(form).end(function (err, res) {
       expect(err).not.exist;
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       pid2 = res.body.pid;
       done();
     });
@@ -43,7 +42,7 @@ describe('post.editable', function () {
   it('should be true for pid1', function (done) {
     local.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
       expect(err).not.exist;
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       res.body.post.editable.should.true;
       done();
     });
@@ -51,7 +50,7 @@ describe('post.editable', function () {
   it('should be true for pid2', function (done) {
     local.get('/api/threads/' + tid1 + '/' + pid2, function (err, res) {
       expect(err).not.exist;
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       res.body.post.editable.should.true;
       done();
     });
@@ -62,7 +61,7 @@ describe('post.editable', function () {
   it('should be false for pid1', function (done) {
     local.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
       expect(err).not.exist;
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       res.body.post.editable.should.false;
       done();
     });
@@ -70,7 +69,7 @@ describe('post.editable', function () {
   it('should be false for pid2', function (done) {
     local.get('/api/threads/' + tid1 + '/' + pid2, function (err, res) {
       expect(err).not.exist;
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       res.body.post.editable.should.false;
       done();
     });
@@ -81,7 +80,7 @@ describe('post.editable', function () {
   it('should be true for pid1', function (done) {
     local.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
       expect(err).not.exist;
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       res.body.post.editable.should.true;
       done();
     });
@@ -89,7 +88,7 @@ describe('post.editable', function () {
   it('should be true for pid2', function (done) {
     local.get('/api/threads/' + tid1 + '/' + pid2, function (err, res) {
       expect(err).not.exist;
-      should.not.exist(res.body.err);
+      expect(res.body.err).not.exist;
       res.body.post.editable.should.true;
       done();
     });

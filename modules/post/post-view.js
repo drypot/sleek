@@ -42,10 +42,10 @@ exp.core.get('/api/threads/:tid([0-9]+)/:pid([0-9]+)', function (req, res, done)
 
 exp.core.get('/threads/:tid([0-9]+)', function (req, res, done) {
   userb.checkUser(res, function (err, user) {
-    if (err) return res.renderErr(err);
+    if (err) return done(err);
     var tid = parseInt(req.params.tid) || 0;
     post.findThreadAndPosts(user, tid, req.session.posts, function (err, category, thread, posts) {
-      if (err) return res.renderErr(err);
+      if (err) return done(err);
       res.render('thread-view', {
         category: category,
         thread: thread,

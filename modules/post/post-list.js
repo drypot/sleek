@@ -34,11 +34,11 @@ exp.core.get('/', function (req, res, done) {
 
 exp.core.get('/threads', function (req, res, done) {
   userb.checkUser(res, function (err, user) {
-    if (err) return res.renderErr(err);
+    if (err) return done(err);
     var params = post.makeThreadsParams(req);
     if (params.cid) {
       post.findThreadsByCategory(user, params, function (err, category, threads, last) {
-        if (err) return res.renderErr(err);
+        if (err) return done(err);
         prevNext(params, last, function (prevUrl, nextUrl) {
           res.render('thread-list', {
             category: category,
@@ -50,7 +50,7 @@ exp.core.get('/threads', function (req, res, done) {
       });
     } else {
       post.findThreads(user, params, function (err, threads, last) {
-        if (err) return res.renderErr(err);
+        if (err) return done(err);
         prevNext(params, last, function (prevUrl, nextUrl) {
           res.render('thread-list', {
             category: {
