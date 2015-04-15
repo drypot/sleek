@@ -10,9 +10,9 @@ error.define('INVALID_CATEGORY', '정상적인 카테고리가 아닙니다.');
 error.define('INVALID_THREAD', '정상적인 글줄이 아닙니다.');
 error.define('INVALID_POST', '정상적인 글이 아닙니다.');
 
-error.define('FILL_TITLE', '제목을 입력해 주십시오.', 'title');
+error.define('TITLE_EMPTY', '제목을 입력해 주십시오.', 'title');
 error.define('TITLE_TOO_LONG', '제목을 줄여 주십시오.', 'title');
-error.define('FILL_WRITER', '필명을 입력해 주십시오.', 'writer');
+error.define('WRITER_EMPTY', '필명을 입력해 주십시오.', 'writer');
 error.define('WRITER_TOO_LONG', '필명을 줄여 주십시오.', 'writer');
 
 // threads

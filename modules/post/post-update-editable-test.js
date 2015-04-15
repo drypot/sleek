@@ -15,7 +15,7 @@ before(function (done) {
 });
 
 describe('post.editable', function () {
-  it('given user session', function (done) {
+  it('given user', function (done) {
     userf.login('user', done);
   });
   var tid1, pid1, pid2;
@@ -74,7 +74,7 @@ describe('post.editable', function () {
       done();
     });
   });
-  it('given admin session', function (done) {
+  it('given admin', function (done) {
     userf.login('admin', done);
   });
   it('should be true for pid1', function (done) {

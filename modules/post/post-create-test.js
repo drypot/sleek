@@ -15,7 +15,17 @@ before(function (done) {
 });
 
 describe.only('creating thread', function () {
-  it('given user login', function (done) {
+  it('given no user', function (done) {
+    userf.logout(done);
+  });
+  it('should fail', function (done) {
+    local.post('/api/posts', function (err, res) {
+      expect(err).not.exist;
+      expect(res.body.err).error('NOT_AUTHENTICATED');
+      done();
+    });
+  });
+  it('given user', function (done) {
     userf.login('user', done);
   });
   it('should success', function (done) {
@@ -41,7 +51,7 @@ describe.only('creating thread', function () {
           expect(post.text).equals('post 1');
           expect(post.tokens).exist;
           done();
-        })
+        });
       });
     });
   });
@@ -64,7 +74,7 @@ describe.only('creating thread', function () {
     var form = { cid: 100, writer: 'snowman', title: ' ', text: 'text' };
     local.post('/api/posts').send(form).end(function (err, res) {
       expect(err).not.exist;
-      expect(res.body.err).error('FILL_TITLE');
+      expect(res.body.err).error('TITLE_EMPTY');
       done();
     });
   });
@@ -77,15 +87,15 @@ describe.only('creating thread', function () {
       done();
     });
   });
-  it('should fail when writer empty', function (done) {
+  it('empty writer should fail', function (done) {
     var form = { cid: 100, writer: ' ', title: 'title', text: 'text' };
     local.post('/api/posts').send(form).end(function (err, res) {
       expect(err).not.exist;
-      expect(res.body.err).error('FILL_WRITER');
+      expect(res.body.err).error('WRITER_EMPTY');
       done();
     });
   });
-  it('should fail when writer big', function (done) {
+  it('long writer should fail', function (done) {
     var form = { cid: 100, writer: '123456789012345678901234567890123', title: 'title', text: 'text' };
     local.post('/api/posts').send(form).end(function (err, res) {
       expect(err).not.exist;
@@ -109,7 +119,7 @@ describe.only('creating thread', function () {
       done();
     });
   });
-  it('given admin session', function (done) {
+  it('given admin', function (done) {
     userf.login('admin', done);
   });
   it('to recycle bin should success', function (done) {
@@ -117,16 +127,6 @@ describe.only('creating thread', function () {
     local.post('/api/posts').send(form).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
-      done();
-    });
-  });
-  it('given logged out', function (done) {
-    userf.logout(done);
-  });
-  it('should fail', function (done) {
-    local.post('/api/posts', function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).error('NOT_AUTHENTICATED');
       done();
     });
   });

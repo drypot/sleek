@@ -15,7 +15,7 @@ before(function (done) {
 });
 
 describe('reading thread and posts', function () {
-  it('given logged out', function (done) {
+  it('given no user', function (done) {
     userf.logout(done);
   });
   it('should fail', function (done) {
@@ -25,7 +25,7 @@ describe('reading thread and posts', function () {
       done();
     });
   });
-  it('given user session', function (done) {
+  it('given user', function (done) {
     userf.login('user', done);
   });
   var tid;
@@ -77,7 +77,7 @@ describe('reading thread and posts', function () {
       done();
     });
   });
-  it('given admin session', function (done) {
+  it('given admin', function (done) {
     userf.login('admin', done);
   });
   it('given another invisible reply', function (done) {
@@ -96,7 +96,7 @@ describe('reading thread and posts', function () {
       done();
     });
   });
-  it('given user session', function (done) {
+  it('given user', function (done) {
     userf.login('user', done);
   });
   it('should return 3 posts', function (done) {

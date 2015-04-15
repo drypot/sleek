@@ -12,9 +12,60 @@ var postb = require('../post/post-base');
 var postc = exports;
 
 exp.core.post('/api/posts', upload.handler(function (req, res, done) {
+  createPost(req, res, done);
+}));
+
+exp.core.post('/api/posts/:tid([0-9]+)', upload.handler(function (req, res, done) {
+  createPost(req, res, done);
+  return;
+
   userb.checkUser(res, function (err, user) {
     if (err) return done(err);
     var form = getForm(req);
+    var tid = parseInt(req.params.tid) || 0;
+    form.head = false;
+    postb.threads.findOne({ _id: tid }, function (err, thread) {
+      if (err) return done(err);
+      if (!thread) return done(error('INVALID_THREAD'));
+      postb.checkCategory(user, thread.cid, function (err, category) {
+        if (err) return done(err);
+        checkForm(form, function (err) {
+          if (err) return done(err);
+          var post = {
+            _id: postb.getNewPostId(),
+            tid: tid,
+            cdate: form.now,
+            visible: user.admin ? form.visible : true,
+            writer: form.writer,
+            text: form.text,
+            tokens: form.tokens
+          };
+          saveFiles(form, post, function (err) {
+            if (err) return done(err);
+            postb.posts.insertOne(post, function (err) {
+              if (err) return done(err);
+              postb.threads.updateOne({ _id: tid }, { $inc: { length: 1 }, $set: { udate: form.now }}, function (err) {
+                if (err) return done(err);
+                req.session.posts.push(post._id);
+                res.json({
+                  tid: tid,
+                  pid: post._id
+                });
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+}));
+
+function createPost(req, res, tid, done) {
+  userb.checkUser(res, function (err, user) {
+    if (err) return done(err);
+    var form = getForm(req);
+    var tid = parseInt(req.params.tid) || 0;
     form.head = true;
     postb.checkCategory(user, form.cid, function (err, category) {
       if (err) return done(err);
@@ -57,49 +108,7 @@ exp.core.post('/api/posts', upload.handler(function (req, res, done) {
       });
     });
   });
-}));
-
-exp.core.post('/api/posts/:tid([0-9]+)', upload.handler(function (req, res, done) {
-  userb.checkUser(res, function (err, user) {
-    if (err) return done(err);
-    var form = getForm(req);
-    var tid = parseInt(req.params.tid) || 0;
-    form.head = false;
-    postb.threads.findOne({ _id: tid }, function (err, thread) {
-      if (err) return done(err);
-      postb.checkCategory(user, thread.cid, function (err, category) {
-        if (err) return done(err);
-        checkForm(form, function (err) {
-          if (err) return done(err);
-          var post = {
-            _id: postb.getNewPostId(),
-            tid: tid,
-            cdate: form.now,
-            visible: user.admin ? form.visible : true,
-            writer: form.writer,
-            text: form.text,
-            tokens: form.tokens
-          };
-          saveFiles(form, post, function (err) {
-            if (err) return done(err);
-            postb.posts.insertOne(post, function (err) {
-              if (err) return done(err);
-              postb.threads.updateOne({ _id: tid }, { $inc: { length: 1 }, $set: { udate: form.now }}, function (err) {
-                if (err) return done(err);
-                req.session.posts.push(post._id);
-                res.json({
-                  tid: tid,
-                  pid: post._id
-                });
-                done();
-              });
-            });
-          });
-        });
-      });
-    });
-  });
-}));
+}
 
 var getForm = postc.getForm = function (req) {
   var body = req.body;
@@ -120,14 +129,14 @@ var checkForm = postc.checkForm = function (form, done) {
   var errors = [];
   if (form.head) {
     if (!form.title.length) {
-      errors.push(error.FILL_TITLE);
+      errors.push(error.TITLE_EMPTY);
     }
     if (form.title.length > 128) {
       errors.push(error.TITLE_TOO_LONG);
     }
   }
   if (!form.writer) {
-    errors.push(error.FILL_WRITER);
+    errors.push(error.WRITER_EMPTY);
   }
   if (form.writer.length > 32) {
     errors.push(error.WRITER_TOO_LONG);

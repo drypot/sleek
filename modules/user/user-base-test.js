@@ -84,7 +84,7 @@ describe('login', function () {
 });
 
 describe('accessing user resource', function () {
-  it('given logged out', function (done) {
+  it('given no user', function (done) {
     userf.logout(done);
   });
   it('should fail', function (done) {
@@ -94,7 +94,7 @@ describe('accessing user resource', function () {
       done();
     });
   });
-  it('given user session', function (done) {
+  it('given user', function (done) {
     userf.login('user', done);
   });
   it('should success', function (done) {
@@ -104,7 +104,7 @@ describe('accessing user resource', function () {
       done();
     });
   });
-  it('given logged out', function (done) {
+  it('given no user', function (done) {
     userf.logout(done);
   });
   it('should fail', function (done) {
@@ -117,7 +117,7 @@ describe('accessing user resource', function () {
 });
 
 describe('accessing admin resource', function () {
-  it('given logged out', function (done) {
+  it('given no user', function (done) {
     userf.logout(done);
   });
   it('should fail', function (done) {
@@ -127,7 +127,7 @@ describe('accessing admin resource', function () {
       done();
     });
   });
-  it('given user session', function (done) {
+  it('given user', function (done) {
     userf.login('user', done);
   });
   it('should fail', function (done) {
@@ -137,7 +137,7 @@ describe('accessing admin resource', function () {
       done();
     });
   });
-  it('given admin session', function (done) {
+  it('given admin', function (done) {
     userf.login('admin', done);
   });
   it('should success', function (done) {
@@ -183,7 +183,7 @@ describe('auto login', function () {
       done();
     })
   });
-  it('given logged out', function (done) {
+  it('given no user', function (done) {
     userf.logout(done);
   });
   it('access should fail', function (done) {

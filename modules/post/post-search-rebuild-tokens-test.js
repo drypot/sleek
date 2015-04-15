@@ -20,7 +20,7 @@ var tid1, tid2;
 var pid1, pid2, pid3;
 
 describe('posting', function () {
-  it('given user session', function (done) {
+  it('given user', function (done) {
     userf.login('user', done);
   });
   it('should success for tid1, pid1', function (done) {

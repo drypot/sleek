@@ -16,7 +16,7 @@ before(function (done) {
 
 describe('updating', function () {
   var tid1, pid1;
-  it('given logged out', function (done) {
+  it('given no user', function (done) {
     userf.logout(done);
   });
   it('should fail', function (done) {
@@ -26,7 +26,7 @@ describe('updating', function () {
       done();
     });
   });
-  it('given user session', function (done) {
+  it('given user', function (done) {
     userf.login('user', done);
   });
   it('given p11', function (done) {
@@ -45,7 +45,7 @@ describe('updating', function () {
       expect(err).not.exist;
       expect(res.body.err).error('ERROR_SET');
       res.body.err.errors.some(function (field) {
-        return field.name === 'title' && field.msg === error.FILL_TITLE;
+        return field.name === 'title' && field.msg === error.TITLE_EMPTY;
       }).should.true;
       done();
     });
@@ -56,7 +56,7 @@ describe('updating', function () {
       expect(err).not.exist;
       expect(res.body.err).error('ERROR_SET');
       res.body.err.errors.some(function (field) {
-        return field.name === 'writer' && field.msg === error.FILL_WRITER;
+        return field.name === 'writer' && field.msg === error.WRITER_EMPTY;
       }).should.true;
       done();
     });
@@ -126,7 +126,7 @@ describe('updating', function () {
       done();
     });
   });
-  it('given admin session', function (done) {
+  it('given admin', function (done) {
     userf.login('admin', done);
   });
   it('should success and can change visible', function (done) {
@@ -149,7 +149,7 @@ describe('updating', function () {
 
 describe('updating reply', function () {
   var tid1, pid1, pid2;
-  it('given user session', function (done) {
+  it('given user', function (done) {
     userf.login('user', done);
   });
   it('given pid1', function (done) {
@@ -194,7 +194,7 @@ describe('updating reply', function () {
 
 describe('updating recycle bin', function () {
   var tid1, pid1;
-  it('given admin session', function (done) {
+  it('given admin', function (done) {
     userf.login('admin', done);
   });
   it('given p11 in recyle bin', function (done) {
@@ -215,7 +215,7 @@ describe('updating recycle bin', function () {
       done();
     });
   });
-  it('given user session', function (done) {
+  it('given user', function (done) {
     userf.login('user', done);
   });
   it('should fail', function (done) {

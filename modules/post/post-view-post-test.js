@@ -15,7 +15,7 @@ before(function (done) {
 });
 
 describe('reading post', function () {
-  it('given user session', function (done) {
+  it('given user', function (done) {
     userf.login('user', done);
   });
   var tid1, pid1, pid2;
@@ -38,7 +38,7 @@ describe('reading post', function () {
       done();
     });
   });
-  it('given admin session', function (done) {
+  it('given admin', function (done) {
     userf.login('admin', done);
   });
   var tid2, pid3, pid4;
@@ -61,7 +61,7 @@ describe('reading post', function () {
       done();
     });
   });
-  it('given logged out', function (done) {
+  it('given no user', function (done) {
     userf.logout(done);
   });
   it('should fail', function (done) {
@@ -71,7 +71,7 @@ describe('reading post', function () {
       done();
     });
   });
-  it('given user session', function (done) {
+  it('given user', function (done) {
     userf.login('user', done);
   });
   it('should fail with invalid tid', function (done) {
@@ -119,7 +119,7 @@ describe('reading post', function () {
       done();
     });
   });
-  it('given user session', function (done) {
+  it('given user', function (done) {
     userf.login('user', done);
   });
   it('should fail for pid3 in recycle bin', function (done) {
@@ -136,7 +136,7 @@ describe('reading post', function () {
       done();
     });
   });
-  it('given admin session', function (done) {
+  it('given admin', function (done) {
     userf.login('admin', done);
   });
   it('should success for pid3 in recycle bin', function (done) {
