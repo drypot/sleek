@@ -70,25 +70,11 @@ function getThreads(req, res, api, done) {
               last: last
             });
           } else {
-            var prev, next;
-            var params;
-            if (pg > 1) {
-              params = {};
-              if (cid) params.c = cid;
-              if (pg > 2) params.pg = pg - 1;
-              prev = utilp.makeUrl('/posts', params);
-            }
-            if (!last) {
-              params = {};
-              if (cid) params.c = cid;
-              params.pg = pg + 1;
-              next = utilp.makeUrl('/posts', params);
-            }
             res.render('post/post-list', {
               category: category,
               threads: threads,
-              prev: prev,
-              next: next
+              prev: pg > 1 ? new utilp.UrlMaker('/posts').add('c', cid, 0).add('pg', pg, 1).done() : undefined,
+              next: !last ? new utilp.UrlMaker('/posts').add('c', cid, 0).add('pg', pg).done() : undefined
             });
           }
         });
