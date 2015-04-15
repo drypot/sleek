@@ -21,7 +21,7 @@ describe('reading thread and posts', function () {
   it('should fail', function (done) {
     local.get('/api/threads/0', function (err, res) {
       expect(err).not.exist;
-      res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
+      expect(res.body.err).error('NOT_AUTHENTICATED');
       done();
     });
   });

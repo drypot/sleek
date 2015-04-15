@@ -22,7 +22,7 @@ describe('updating', function () {
   it('should fail', function (done) {
     express.put('/api/threads/0/0', function (err, res) {
       expect(err).not.exist;
-      res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
+      expect(res.body.err).error('NOT_AUTHENTICATED');
       done();
     });
   });
@@ -43,7 +43,7 @@ describe('updating', function () {
     var form = { cid: 101, writer: 'snowman', title: ' ', text: 'text', visible: true };
     express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
       expect(err).not.exist;
-      res.body.err.rc.should.equal(error.ERROR_SET);
+      expect(res.body.err).error('ERROR_SET');
       res.body.err.errors.some(function (field) {
         return field.name === 'title' && field.msg === error.FILL_TITLE;
       }).should.true;
@@ -54,7 +54,7 @@ describe('updating', function () {
     var form = { cid: 101, writer: ' ', title: 'title', text: 'text', visible: true };
     express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
       expect(err).not.exist;
-      res.body.err.rc.should.equal(error.ERROR_SET);
+      expect(res.body.err).error('ERROR_SET');
       res.body.err.errors.some(function (field) {
         return field.name === 'writer' && field.msg === error.FILL_WRITER;
       }).should.true;
@@ -122,7 +122,7 @@ describe('updating', function () {
     express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
       expect(err).not.exist;
       should.exist(res.body.err);
-      res.body.err.rc.should.equal(error.NOT_AUTHORIZED);
+      expect(res.body.err).error('NOT_AUTHORIZED');
       done();
     });
   });
@@ -222,7 +222,7 @@ describe('updating recycle bin', function () {
     var form = { cid: 40, writer: 'snowman1', title: 'title1', text: 'text1' };
     express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
       expect(err).not.exist;
-      res.body.err.rc.should.equal(error.INVALID_CATEGORY);
+      expect(res.body.err).error('INVALID_CATEGORY');
       done();
     });
   });

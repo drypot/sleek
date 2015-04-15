@@ -110,15 +110,11 @@ init.add(function () {
 });
 
 postb.checkCategory = function (user, cid, done) {
-  if (!cid === null) {
-    done();
+  var category = user.categoryIndex[cid];
+  if (!category) {
+    done(error('INVALID_CATEGORY'));
   } else {
-    var category = user.categoryIndex[cid];
-    if (!category) {
-      done(error(error.INVALID_CATEGORY));
-    } else {
-      done(null, category);
-    }
+    done(null, category);
   }
 }
 

@@ -44,7 +44,7 @@ exports.updatePost = function (user, form, editables, done) {
       checkCategory(user, thread.cid, function (err, category) {
         if (err) return done(err);
         if (!isEditable(user, post._id, editables)) {
-          return done(error(error.NOT_AUTHORIZED));
+          return done(error('NOT_AUTHORIZED'));
         }
         var head = isHead(thread, post);
         checkNewCategory(user, form.cid, head, function (err) {

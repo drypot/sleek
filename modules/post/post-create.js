@@ -1,3 +1,5 @@
+var fs = require('fs');
+
 var init = require('../base/init');
 var error = require('../base/error');
 var config = require('../base/config');
@@ -108,7 +110,7 @@ var getForm = postc.getForm = function (req) {
   form.title = String(body.title || '').trim();
   form.text = String(body.text || '').trim();
   form.visible = body.hasOwnProperty('visible') ? !!body.visible : true;
-  form.files = req.files && req.files.files; // json 리퀘스트의 경우 files 기본값 세팅이 안 된다.
+  form.files = req.files && req.files.files;
   form.dfiles = body.dfiles;
   form.tokens = utilp.tokenize(form.title, form.writer, form.text);
   return form;
@@ -138,26 +140,24 @@ var checkForm = postc.checkForm = function (form, done) {
 };
 
 var saveFiles = postc.saveFiles = function (form, post, done) {
-  if (form.files) {
-    fsp.makrDir(postb.getFileDir(post._id), function (err, dir) {
-      if (err) return done(err);
-      var i = 0;
-      post.files = [];
-      (function save() {
-        if (i == form.files.length) {
-          return done(null);
-        }
+  if (!form.files) return done();
+  fsp.makeDir(postb.getFileDir(post._id), function (err, dir) {
+    if (err) return done(err);
+    post.files = [];
+    var i = 0;
+    (function save() {
+      if (i < form.files.length) {
         var file = form.files[i++];
         fs.rename(file.path, dir + '/' + file.safeFilename, function (err) {
           if (err) return done(err);
-          post.files.push({ name: safeName });
+          post.files.push({ name: file.safeFilename });
           setImmediate(save);
         });
-      })();
-    });
-  } else {
-    done();
-  }
+        return;
+      }
+      done();
+    })();
+  });
 };
 
 exp.core.get('/posts/new', function (req, res, done) {

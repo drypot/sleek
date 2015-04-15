@@ -21,7 +21,7 @@ describe('creating post/replay', function () {
   it('should fail', function (done) {
     local.post('/api/threads/0', function (err, res) {
       expect(err).not.exist;
-      res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
+      expect(res.body.err).error('NOT_AUTHENTICATED');
       done();
     });
   });
@@ -42,7 +42,7 @@ describe('creating post/replay', function () {
     var form = { writer: 'snowman', text: 'text' };
     local.post('/api/threads/99999').send(form).end(function (err, res) {
       expect(err).not.exist;
-      res.body.err.rc.should.equal(error.INVALID_THREAD);
+      expect(res.body.err).error('INVALID_THREAD');
       done();
     });
   });
@@ -57,7 +57,7 @@ describe('creating post/replay', function () {
     var form = { writer: ' ', text: 'text' };
     local.post('/api/threads/' + tid1).send(form).end(function (err, res) {
       expect(err).not.exist;
-      res.body.err.rc.should.equal(error.ERROR_SET);
+      expect(res.body.err).error('ERROR_SET');
       res.body.err.errors.some(function (field) {
         return field.name === 'writer' && field.msg === error.FILL_WRITER;
       }).should.true;
@@ -95,7 +95,7 @@ describe('creating post/replay in recycle bin', function () {
     var form = { writer: 'snowman', text: 'text' };
     local.post('/api/threads/' + tid1).send(form).end(function (err, res) {
       expect(err).not.exist;
-      res.body.err.rc.should.equal(error.INVALID_CATEGORY);
+      expect(res.body.err).error('INVALID_CATEGORY');
       done();
     });
   });

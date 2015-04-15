@@ -35,7 +35,7 @@ describe('searching', function () {
   it('should fail', function (done) {
     local.get('/api/search', function (err, res) {
       expect(err).not.exist;
-      res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
+      expect(res.body.err).error('NOT_AUTHENTICATED');
       done();
     });
   });
@@ -55,15 +55,18 @@ describe('searching', function () {
     var i = 0;
     var len = docs.length;
     (function insert() {
-      if (i == len) return done();
-      var doc = docs[i++];
-      local.post('/api/threads').send(doc).end(function (err, res) {
-        should.not.exists(err);
-        expect(res.body.err).not.exist;
-        doc.pid = res.body.pid;
-        doc.tid = res.body.tid;
-        setImmediate(insert);
-      });
+      if (i < len) {
+        var doc = docs[i++];
+        local.post('/api/threads').send(doc).end(function (err, res) {
+          should.not.exists(err);
+          expect(res.body.err).not.exist;
+          doc.pid = res.body.pid;
+          doc.tid = res.body.tid;
+          setImmediate(insert);
+        });
+        return;
+      }
+      done();
     })();
   });
   it('given user session', function (done) {

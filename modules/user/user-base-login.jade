@@ -1,10 +1,10 @@
-extends layout
+extends ../layout/layout
 
 block title
   title #{appName}
 
 block content
-  script
+  script.
     init.add(function () {
       session.initLogin();
     });

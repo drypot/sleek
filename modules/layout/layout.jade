@@ -6,19 +6,18 @@ html
     block title
 
     meta(name='viewport', content='width=device-width, initial-scale=1.0')
-    meta(name='description', content=')
-    meta(name='author', content=')
+    meta(name='description', content='')
+    meta(name='author', content='')
 
-    link(rel='shortcut icon', href='/modules/favicon/favicon1.ico', type='image/x-icon')
+    link(rel='icon', type='image/png', href='/modules/favicon/favicon1.png')
 
     link(rel='stylesheet', href='/modules/bower/bootstrap/dist/css/bootstrap.min.css')
-    link(rel='stylesheet', href='/modules/layout/base.css')
+    link(rel='stylesheet', href='/modules/bower/bootstrap/dist/css/bootstrap-theme.min.css')
+    link(rel='stylesheet', href='/modules/css/base.css')
 
     script(src='/modules/bower/json2/json2.js')
     script(src='/modules/bower/jquery/dist/jquery.min.js')
-    script(src='/modules/bower/jquery.iframe-transport/jquery.iframe-transport.js')
     script(src='/modules/bower/bootstrap/dist/js/bootstrap.min.js')
-    script(src='/modules/bower/superagent/superagent.js')
 
     script(src='/modules/js/base.js')
     script(src='/modules/js/ui.js')
@@ -64,20 +63,7 @@ html
         .modal-content
           .modal-header
             button.close(type='button', data-dismiss='modal', aria-hidden='true') ×
-            h4.modal-title Modal title
+            h4.modal-title
           .modal-body
           .modal-footer
-            a.btn.btn-primary(data-dismiss='modal') Close
-
-    #file-input-templ.hide
-      .file
-        div(style='width: 0px; height: 0px;')
-          input(type='file', multiple='multiple')
-        .input-group
-          input(type='text', disabled)
-          span.input-group-btn
-            button.btn.btn-default File
-
-    #file-input-templ-msie.hide
-      .file
-        input(type='file')
+            button.btn.btn-default(data-dismiss='modal') Close

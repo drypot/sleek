@@ -85,16 +85,6 @@ exports.findPostsByThread = function (tid) {
   return posts.find({ tid: tid }, opt);
 };
 
-exports.makeThreadsParams = function (req) {
-  var query = req.query;
-  var params = {};
-  params.cid = parseInt(query.c) || 0;
-  var pg = parseInt(query.pg) || 1;
-  params.pg = pg < 1 ? 1 : pg;
-  var pgsize = parseInt(query.ps) || 16;
-  params.pgsize = pgsize > 128 ? 128 : pgsize < 1 ? 1 : pgsize;
-  return params;
-}
 
 exports.findThreadAndPosts = function (user, tid, editables, done) {
   findThread(tid, function (err, thread) {
@@ -152,7 +142,7 @@ function findThread(tid, done) {
       return done(err);
     }
     if (!thread) {
-      return done(error(error.INVALID_THREAD));
+      return done(error('INVALID_THREAD'));
     }
     done(null, thread);
   });
@@ -164,7 +154,7 @@ function findPost(thread, pid, done) {
       return done(err);
     }
     if (!post || post.tid !== thread._id) {
-      return done(error(error.INVALID_POST));
+      return done(error('INVALID_POST'));
     }
     done(null, post);
   });

@@ -115,7 +115,7 @@ function autoLogin(req, res, done) {
 function login(req, res, done) {
   var user = findByPassword(req.body.password || '');
   if (!user) {
-    return done(error(error.USER_NOT_FOUND));
+    return done(error('USER_NOT_FOUND'));
   }
   if (req.body.remember) {
     res.cookie('password', req.body.password, {
@@ -139,7 +139,7 @@ function createSession(req, res, user, done) {
 userb.checkUser = function (res, done) {
   var user = res.locals.user;
   if (!user) {
-    return done(error(error.NOT_AUTHENTICATED));
+    return done(error('NOT_AUTHENTICATED'));
   }
   done(null, user);
 };
@@ -147,10 +147,10 @@ userb.checkUser = function (res, done) {
 userb.checkAdmin = function (res, done) {
   var user = res.locals.user;
   if (!user) {
-    return done(error(error.NOT_AUTHENTICATED));
+    return done(error('NOT_AUTHENTICATED'));
   }
   if (!user.admin) {
-    return done(error(error.NOT_AUTHORIZED));
+    return done(error('NOT_AUTHORIZED'));
   }
   done(null, user);
 };

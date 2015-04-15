@@ -1,6 +1,7 @@
 var init = require('../base/init');
 var error = require('../base/error');
 var config = require('../base/config')({ path: 'config/test.json' });
+var mongop = require('../mongo/mongo')({ dropDatabase: true });
 var exp = require('../express/express');
 var userb = require('../user/user-base');
 var userf = require('../user/user-fixture');
@@ -70,16 +71,9 @@ describe('files', function () {
 
 describe('categories', function () {
   var user;
-  function findc(id) {
-    for (var i = 0; i < user.categories.length; i++) {
-      var c = user.categories[i];
-      if (c.id === id) return c;
-    }
-    return null;
-  }
   it('given user', function (done) {
     userf.login('user', function (err, res) {
-      user = res.body.user;
+      user = userb.users[res.body.user.name];
       done();
     });
   });
@@ -87,18 +81,25 @@ describe('categories', function () {
     expect(user.admin).false;
   });
   it('user can access freetalk', function () {
-    expect(findc(100).name).equal('freetalk');
+    postb.checkCategory(user, 100, function (err, c) {
+      expect(err).not.exist;
+      expect(c.name).equal('freetalk');
+    });
   });
   it('can not access cheat', function () {
-    expect(findc(60)).not.exist;
+    postb.checkCategory(user, 60, function (err, c) {
+      expect(err).error('INVALID_CATEGORY');
+    });
   });
   it('can not access recycle bin', function () {
-    expect(findc(40)).not.exist;
+    postb.checkCategory(user, 40, function (err, c) {
+      expect(err).error('INVALID_CATEGORY');
+    });
   });
 
   it('given cheater', function (done) {
     userf.login('cheater', function (err, res) {
-      user = res.body.user;
+      user = userb.users[res.body.user.name];;
       done();
     });
   });
@@ -106,18 +107,26 @@ describe('categories', function () {
     expect(user.admin).false;
   });
   it('can access freetalk', function () {
-    expect(findc(100).name).equal('freetalk');
+    postb.checkCategory(user, 100, function (err, c) {
+      expect(err).not.exist;
+      expect(c.name).equal('freetalk');
+    });
   });
   it('can access cheat', function () {
-    expect(findc(60).name).equal('cheat');
+    postb.checkCategory(user, 60, function (err, c) {
+      expect(err).not.exist;
+      expect(c.name).equal('cheat');
+    });
   });
   it('can not access recycle bin', function () {
-    expect(findc(40)).not.exist;
+    postb.checkCategory(user, 40, function (err, c) {
+      expect(err).error('INVALID_CATEGORY');
+    });
   });
 
   it('given admin', function (done) {
     userf.login('admin', function (err, res) {
-      user = res.body.user;
+      user = userb.users[res.body.user.name];;
       done();
     });
   });
@@ -125,12 +134,21 @@ describe('categories', function () {
     expect(user.admin).true;
   });
   it('can access freetalk', function () {
-    expect(findc(100).name).equal('freetalk');
+    postb.checkCategory(user, 100, function (err, c) {
+      expect(err).not.exist;
+      expect(c.name).equal('freetalk');
+    });
   });
   it('can access cheat', function () {
-    expect(findc(60).name).equal('cheat');
+    postb.checkCategory(user, 60, function (err, c) {
+      expect(err).not.exist;
+      expect(c.name).equal('cheat');
+    });
   });
   it('can access recycle bin', function () {
-    expect(findc(40).name).equal('recycle bin');
+    postb.checkCategory(user, 40, function (err, c) {
+      expect(err).not.exist;
+      expect(c.name).equal('recycle bin');
+    });
   });
 });

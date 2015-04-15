@@ -67,7 +67,7 @@ describe('reading post', function () {
   it('should fail', function (done) {
     local.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
       expect(err).not.exist;
-      res.body.err.rc.should.equal(error.NOT_AUTHENTICATED);
+      expect(res.body.err).error('NOT_AUTHENTICATED');
       done();
     });
   });
@@ -77,21 +77,21 @@ describe('reading post', function () {
   it('should fail with invalid tid', function (done) {
     local.get('/api/threads/' + 99999 + '/' + pid1, function (err, res) {
       expect(err).not.exist;
-      res.body.err.rc.should.equal(error.INVALID_THREAD);
+      expect(res.body.err).error('INVALID_THREAD');
       done();
     });
   });
   it('should fail with mismatching tid', function (done) {
     local.get('/api/threads/' + tid2 + '/' + pid1, function (err, res) {
       expect(err).not.exist;
-      res.body.err.rc.should.equal(error.INVALID_POST);
+      expect(res.body.err).error('INVALID_POST');
       done();
     });
   });
   it('should fail with invalid pid', function (done) {
     local.get('/api/threads/' + tid1 + '/' + 99999, function (err, res) {
       expect(err).not.exist;
-      res.body.err.rc.should.equal(error.INVALID_POST);
+      expect(res.body.err).error('INVALID_POST');
       done();
     });
   });
@@ -125,14 +125,14 @@ describe('reading post', function () {
   it('should fail for pid3 in recycle bin', function (done) {
     local.get('/api/threads/' + tid2 + '/' + pid3, function (err, res) {
       expect(err).not.exist;
-      res.body.err.rc.should.equal(error.INVALID_CATEGORY);
+      expect(res.body.err).error('INVALID_CATEGORY');
       done();
     });
   });
   it('should fail for pid4 in recycle bin', function (done) {
     local.get('/api/threads/' + tid2 + '/' + pid4, function (err, res) {
       expect(err).not.exist;
-      res.body.err.rc.should.equal(error.INVALID_CATEGORY);
+      expect(res.body.err).error('INVALID_CATEGORY');
       done();
     });
   });

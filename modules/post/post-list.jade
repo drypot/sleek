@@ -1,11 +1,11 @@
-extends layout
+extends ../layout/layout
 
 block title
   title #{category.name} - #{appName}
 
 block content
 
-  script
+  script.
     init.add(function () {
       post.initThreadList();
     });
@@ -58,4 +58,4 @@ block content
             td.t 표시할 내용이 없습니다.
             td
   .side-space
-    include pager
+    include ../layout/pager
