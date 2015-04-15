@@ -17,60 +17,16 @@ exp.core.post('/api/posts', upload.handler(function (req, res, done) {
 
 exp.core.post('/api/posts/:tid([0-9]+)', upload.handler(function (req, res, done) {
   createPost(req, res, done);
-  return;
-
-  userb.checkUser(res, function (err, user) {
-    if (err) return done(err);
-    var form = getForm(req);
-    var tid = parseInt(req.params.tid) || 0;
-    form.head = false;
-    postb.threads.findOne({ _id: tid }, function (err, thread) {
-      if (err) return done(err);
-      if (!thread) return done(error('INVALID_THREAD'));
-      postb.checkCategory(user, thread.cid, function (err, category) {
-        if (err) return done(err);
-        checkForm(form, function (err) {
-          if (err) return done(err);
-          var post = {
-            _id: postb.getNewPostId(),
-            tid: tid,
-            cdate: form.now,
-            visible: user.admin ? form.visible : true,
-            writer: form.writer,
-            text: form.text,
-            tokens: form.tokens
-          };
-          saveFiles(form, post, function (err) {
-            if (err) return done(err);
-            postb.posts.insertOne(post, function (err) {
-              if (err) return done(err);
-              postb.threads.updateOne({ _id: tid }, { $inc: { length: 1 }, $set: { udate: form.now }}, function (err) {
-                if (err) return done(err);
-                req.session.posts.push(post._id);
-                res.json({
-                  tid: tid,
-                  pid: post._id
-                });
-                done();
-              });
-            });
-          });
-        });
-      });
-    });
-  });
 }));
 
-function createPost(req, res, tid, done) {
+function createPost(req, res, done) {
   userb.checkUser(res, function (err, user) {
     if (err) return done(err);
     var form = getForm(req);
-    var tid = parseInt(req.params.tid) || 0;
-    form.head = true;
-    postb.checkCategory(user, form.cid, function (err, category) {
+    var newThread = !form.tid;
+    checkForm(form, newThread, function (err) {
       if (err) return done(err);
-      checkForm(form, function (err) {
-        if (err) return done(err);
+      utilp.fif(newThread, function (next) {
         var thread = {
           _id : postb.getNewThreadId(),
           cid: form.cid,
@@ -81,27 +37,43 @@ function createPost(req, res, tid, done) {
           writer: form.writer,
           title: form.title
         };
-        var post = {
-          _id: postb.getNewPostId(),
-          tid: thread._id,
-          cdate: form.now,
-          visible: user.admin ? form.visible : true,
-          writer: form.writer,
-          text: form.text,
-          tokens: form.tokens
-        };
-        saveFiles(form, post, function (err) {
+        next(thread);
+      }, function (next) {
+        postb.threads.findOne({ _id: form.tid }, function (err, thread) {
           if (err) return done(err);
-          postb.threads.insertOne(thread, function (err) {
+          if (!thread) return done(error('INVALID_THREAD'));
+          form.cid = thread.cid;
+          next(thread);
+        });
+      }, function (thread) {
+        postb.checkCategory(user, form.cid, function (err, category) {
+          if (err) return done(err);
+          var post = {
+            _id: postb.getNewPostId(),
+            tid: thread._id,
+            cdate: form.now,
+            visible: user.admin ? form.visible : true,
+            writer: form.writer,
+            text: form.text,
+            tokens: form.tokens
+          };
+          saveFiles(form, post, function (err) {
             if (err) return done(err);
             postb.posts.insertOne(post, function (err) {
               if (err) return done(err);
-              req.session.posts.push(post._id);
-              res.json({
-                tid: thread._id,
-                pid: post._id
+              utilp.fif(newThread, function (next) {
+                postb.threads.insertOne(thread, next)
+              }, function (next) {
+                postb.threads.updateOne({ _id: thread.tid }, { $inc: { length: 1 }, $set: { udate: form.now }}, next);
+              }, function (err) {
+                if (err) return done(err);
+                req.session.posts.push(post._id);
+                res.json({
+                  tid: thread._id,
+                  pid: post._id
+                });
+                done();
               });
-              done();
             });
           });
         });
@@ -115,19 +87,21 @@ var getForm = postc.getForm = function (req) {
   var form = {};
   form.now = new Date();
   form.cid = parseInt(body.cid) || 0;
+  form.tid = parseInt(req.params.tid) || 0; // for update and reply
+  form.pid = parseInt(req.params.pid) || 0; // for update
   form.writer  = String(body.writer || '').trim();
   form.title = String(body.title || '').trim();
   form.text = String(body.text || '').trim();
   form.visible = body.hasOwnProperty('visible') ? !!body.visible : true;
   form.files = req.files && req.files.files;
-  form.dfiles = body.dfiles;
+  form.dfiles = body.dfiles; // for update
   form.tokens = utilp.tokenize(form.title, form.writer, form.text);
   return form;
 };
 
-var checkForm = postc.checkForm = function (form, done) {
+var checkForm = postc.checkForm = function (form, newThread, done) {
   var errors = [];
-  if (form.head) {
+  if (newThread) {
     if (!form.title.length) {
       errors.push(error.TITLE_EMPTY);
     }
