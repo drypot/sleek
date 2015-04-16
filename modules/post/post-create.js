@@ -67,7 +67,7 @@ function createPost(req, res, done) {
                 postb.threads.updateOne({ _id: thread.tid }, { $inc: { length: 1 }, $set: { udate: form.now }}, next);
               }, function (err) {
                 if (err) return done(err);
-                req.session.posts.push(post._id);
+                req.session.pids.push(post._id);
                 res.json({
                   tid: thread._id,
                   pid: post._id
@@ -126,17 +126,24 @@ var saveFiles = postc.saveFiles = function (form, post, done) {
   if (!form.files) return done();
   fsp.makeDir(postb.getFileDir(post._id), function (err, dir) {
     if (err) return done(err);
-    post.files = [];
+    var saved = []; // 업데이트에서 같은 이름의 파일이 업로드될 수 있으므로 post.files 에 바로 push 하지 않는다.
     var i = 0;
     (function save() {
       if (i < form.files.length) {
         var file = form.files[i++];
         fs.rename(file.path, dir + '/' + file.safeFilename, function (err) {
           if (err) return done(err);
-          post.files.push({ name: file.safeFilename });
+          saved.push({ name: file.safeFilename });
           setImmediate(save);
         });
         return;
+      }
+      if (post.files) {
+        utilp.mergeArray(post.files, saved, function (file1, file2) {
+          return file1.name === file2.name;
+        });
+      } else {
+        post.files = saved;
       }
       done();
     })();

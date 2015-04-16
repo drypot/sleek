@@ -84,14 +84,13 @@ init.add(function (done) {
     postb.getFilePath = function (id, fname) {
       return postb.getFileDir(id) + '/' + fname;
     };
-
-    postb.getFileUrl = function (id, fname) {
-      return config.uploadSite + '/post/' + Math.floor(id / 10000) + '/' + id + '/' + encodeURIComponent(fname);
-    }
-
     done();
   });
 });
+
+var getFileUrl = postb.getFileUrl = function (id, fname) {
+  return config.uploadSite + '/post/' + Math.floor(id / 10000) + '/' + id + '/' + encodeURIComponent(fname);
+};
 
 // category
 
@@ -118,3 +117,21 @@ postb.checkCategory = function (user, cid, done) {
   }
 }
 
+// support
+
+postb.isHead = function(thread, post) {
+  return thread.cdate.getTime() === post.cdate.getTime();
+};
+
+postb.isEditable = function (user, pid, pids) {
+  return user.admin || !!(pids && ~pids.indexOf(pid));
+}
+
+postb.addFileUrls = function (post) {
+  if (post.files) {
+    for (var i = 0; i < post.files.length; i++) {
+      var file = post.files[i];
+      file.url = getFileUrl(post._id, file.name);
+    }
+  }
+}

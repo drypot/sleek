@@ -130,7 +130,7 @@ function createSession(req, res, user, done) {
   req.session.regenerate(function (err) {
     if (err) return done(err);
     req.session.uname = user.name;
-    req.session.posts = [];
+    req.session.pids = [];
     res.locals.user = user;
     done(null, user);
   });

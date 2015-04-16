@@ -3,7 +3,7 @@ exp.core.get('/api/threads/:tid([0-9]+)', function (req, res, done) {
   userb.checkUser(res, function (err, user) {
     if (err) return done(err);
     var tid = parseInt(req.params.tid) || 0;
-    post.findThreadAndPosts(user, tid, req.session.posts, function (err, category, thread, posts) {
+    post.findThreadAndPosts(user, tid, req.session.pids, function (err, category, thread, posts) {
       if (err) return done(err);
       res.json({
         thread: {
@@ -24,7 +24,7 @@ exp.core.get('/api/threads/:tid([0-9]+)/:pid([0-9]+)', function (req, res, done)
     if (err) return done(err);
     var tid = parseInt(req.params.tid) || 0;
     var pid = parseInt(req.params.pid) || 0;
-    post.findThreadAndPost(user, tid, pid, req.session.posts, function (err, category, thread, post) {
+    post.findThreadAndPost(user, tid, pid, req.session.pids, function (err, category, thread, post) {
       if (err) return done(err);
       res.json({
         thread: {
@@ -44,7 +44,7 @@ exp.core.get('/threads/:tid([0-9]+)', function (req, res, done) {
   userb.checkUser(res, function (err, user) {
     if (err) return done(err);
     var tid = parseInt(req.params.tid) || 0;
-    post.findThreadAndPosts(user, tid, req.session.posts, function (err, category, thread, posts) {
+    post.findThreadAndPosts(user, tid, req.session.pids, function (err, category, thread, posts) {
       if (err) return done(err);
       res.render('thread-view', {
         category: category,
@@ -71,10 +71,8 @@ exports.findThread = function (id, done) {
 };
 
 exports.findPost = function (pid, done) {
-  var opt = {
-    fields: { tokens: 0 }
-  };
-  posts.findOne({ _id: pid }, opt, done);
+  var opt = ;
+  posts.findOne({ _id: pid }, { fields: { tokens: 0 } }, done);
 };
 
 exports.findPostsByThread = function (tid) {
@@ -102,7 +100,7 @@ exports.findThreadAndPosts = function (user, tid, editables, done) {
               if (post.visible || user.admin) {
                 addFileUrls(post);
                 post.editable = isEditable(user, post._id, editables);
-                post.cdateStr = dt.format(post.cdate),
+                post.cdateStr = utilp.toDateTimeString(post.cdate),
                 post.cdate = post.cdate.getTime(),
                 posts.push(post);
               }
@@ -128,7 +126,7 @@ exports.findThreadAndPost = function (user, tid, pid, editables, done) {
         addFileUrls(post);
         post.head = isHead(thread, post);
         post.editable = isEditable(user, post._id, editables)
-        post.cdateStr = dt.format(post.cdate);
+        post.cdateStr = utilp.toDateTimeString(post.cdate);
         post.cdate = post.cdate.getTime();
         done(null, category, thread, post);
       });
@@ -160,11 +158,3 @@ function findPost(thread, pid, done) {
   });
 }
 
-function addFileUrls(post) {
-  if (post.files) {
-    for (var i = 0; i < post.files.length; i++) {
-      var file = post.files[i];
-      file.url = exports.getFileUrl(post._id, file.name);
-    }
-  }
-}

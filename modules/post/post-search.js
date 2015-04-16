@@ -100,7 +100,7 @@ exports.searchPost = function (user, params, done) {
               name: category.name
             };
             post.text = post.text.slice(0, 256);
-            post.cdateStr = dt.format(post.cdate),
+            post.cdateStr = utilp.toDateTimeString(post.cdate),
             post.cdate = post.cdate.getTime(),
             posts.push(post);
           }

@@ -5,22 +5,22 @@ var mongop = require('../mongo/mongo')({ dropDatabase: true });
 var exp = require('../express/express');
 var userb = require('../user/user-base');
 var userf = require('../user/user-fixture');
+var postb = require('../post/post-base');
+var postu = require('../post/post-update');
 var local = require('../express/local');
 var expect = require('../base/assert').expect
-
-require('../post/post-api');
 
 before(function (done) {
   init.run(done);
 });
 
-describe('updating', function () {
-  var tid1, pid1;
+describe.only('updating', function () {
+  var tid, pid, pid2, pid3;
   it('given no user', function (done) {
     userf.logout(done);
   });
   it('should fail', function (done) {
-    express.put('/api/threads/0/0', function (err, res) {
+    local.put('/api/posts/0/0', function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).error('NOT_AUTHENTICATED');
       done();
@@ -29,200 +29,179 @@ describe('updating', function () {
   it('given user', function (done) {
     userf.login('user', done);
   });
-  it('given p11', function (done) {
-    var form = { cid: 101, writer: 'snowman', title: 'title', text: 'text' };
-    local.post('/api/threads').send(form).end(function (err, res) {
+  it('given thread and posts', function (done) {
+    var form = { cid: 100, writer: 'snowman', title: 'title', text: 'text' };
+    local.post('/api/posts').send(form).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
-      tid1 = res.body.tid;
-      pid1 = res.body.pid;
+      tid = res.body.tid;
+      pid = res.body.pid;
       done();
     });
   });
-  it('should fail when title empty', function (done) {
-    var form = { cid: 101, writer: 'snowman', title: ' ', text: 'text', visible: true };
-    express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).error('ERROR_SET');
-      res.body.err.errors.some(function (field) {
-        return field.name === 'title' && field.msg === error.TITLE_EMPTY;
-      }).should.true;
-      done();
-    });
-  });
-  it('should fail when writer empty', function (done) {
-    var form = { cid: 101, writer: ' ', title: 'title', text: 'text', visible: true };
-    express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).error('ERROR_SET');
-      res.body.err.errors.some(function (field) {
-        return field.name === 'writer' && field.msg === error.WRITER_EMPTY;
-      }).should.true;
-      done();
-    });
-  });
-  it('should success when category not changed', function (done) {
-    var form = { cid: 101, writer: 'snowman1', title: 'title1', text: 'text1' };
-    express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
+  it('updating head should success', function (done) {
+    var form = { cid: 100, writer: 'snowman2', title: 'title2', text: 'text2' };
+    local.put('/api/posts/' + tid + '/' + pid).send(form).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
-      done();
+      postb.threads.findOne({ _id: tid}, function (err, thread) {
+        expect(err).not.exist;
+        expect(thread.cid).equals(100);
+        expect(thread.hit).equals(0);
+        expect(thread.length).equals(1);
+        expect(thread.cdate).exist;
+        expect(thread.udate).exist;
+        expect(thread.writer).equals('snowman2');
+        expect(thread.title).equals('title2');
+        postb.posts.findOne({ _id: pid }, function (err, post) {
+          expect(err).not.exist;
+          expect(post.tid).equals(tid);
+          expect(post.cdate).exist;
+          expect(post.visible).true;
+          expect(post.writer).equals('snowman2');
+          expect(post.text).equals('text2');
+          expect(post.tokens).exist;
+          done();
+        });
+      });
     });
   });
-  it('can be confirmed', function (done) {
-    local.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
-      res.body.post.head.should.true;
-      res.body.category.id.should.equal(101);
-      res.body.post.writer.should.equal('snowman1');
-      res.body.thread.title.should.equal('title1');
-      res.body.post.text.should.equal('text1');
-      res.body.post.visible.should.true;
-      done();
-    });
-  });
-  it('should success when category changed', function (done) {
-    var form = { cid: 102, writer: 'snowman2', title: 'title2', text: 'text2' };
-    express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
-      done();
-    });
-  });
-  it('can be confirmed', function (done) {
-    local.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
-      res.body.category.id.should.equal(102);
-      done();
-    });
-  });
-  it('should success but can not change visible', function (done) {
-    var form = { cid: 102, writer: 'snowman3', title: 'title3', text: 'text3', visible: false };
-    express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
-      done();
-    });
-  });
-  it('can be confirmed', function (done) {
-    local.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
-      res.body.post.visible.should.true;
-      done();
-    });
-  });
-  it('given new user session', function (done) {
-    userf.login('user', done);
-  });
-  it('should fail after reloged', function (done) {
-    var form = { cid: 102, writer: 'snowman3', title: 'title3', text: 'text3', visible: false };
-    express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
-      expect(err).not.exist;
-      should.exist(res.body.err);
-      expect(res.body.err).error('NOT_AUTHORIZED');
-      done();
-    });
-  });
-  it('given admin', function (done) {
-    userf.login('admin', done);
-  });
-  it('should success and can change visible', function (done) {
-    var form = { cid: 102, writer: 'snowman4', title: 'title4', text: 'text4', visible: false };
-    express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
-      done();
-    });
-  });
-  it('can be confirmed', function (done) {
-    local.get('/api/threads/' + tid1 + '/' + pid1, function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
-      res.body.post.visible.should.false;
-      done();
-    });
-  });
-});
-
-describe('updating reply', function () {
-  var tid1, pid1, pid2;
-  it('given user', function (done) {
-    userf.login('user', done);
-  });
-  it('given pid1', function (done) {
-    var form = { cid: 101, writer: 'snowman', title: 'title', text: 'text' };
-    local.post('/api/threads').send(form).end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
-      tid1 = res.body.tid;
-      pid1 = res.body.pid;
-      done();
-    });
-  });
-  it('given pid2', function (done) {
-    var form = { writer: 'snowman', text: 'text' };
-    local.post('/api/threads/' + tid1).send(form).end(function (err, res) {
+  it('given reply', function (done) {
+    var form = { writer: 'snowman', text: 'text2' };
+    local.post('/api/posts/' + tid).send(form).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       pid2 = res.body.pid;
       done();
     });
   });
-  it('should success except visible field', function (done) {
-    var form = { writer: 'snowman1', text: 'text1', visible: false };
-    express.put('/api/threads/' + tid1 + '/' + pid2).send(form).end(function (err, res) {
+  it('updating reply should success', function (done) {
+    var form = { writer: 'snowman3', text: 'text3' };
+    local.put('/api/posts/' + tid + '/' + pid2).send(form).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
+      postb.threads.findOne({ _id: tid}, function (err, thread) {
+        expect(err).not.exist;
+        expect(thread.cid).equals(100);
+        expect(thread.hit).equals(0);
+        expect(thread.length).equals(1);
+        expect(thread.cdate).exist;
+        expect(thread.udate).exist;
+        expect(thread.writer).equals('snowman2');
+        expect(thread.title).equals('title2');
+        postb.posts.findOne({ _id: pid2 }, function (err, post) {
+          expect(err).not.exist;
+          expect(post.tid).equals(tid);
+          expect(post.cdate).exist;
+          expect(post.visible).true;
+          expect(post.writer).equals('snowman3');
+          expect(post.text).equals('text3');
+          expect(post.tokens).exist;
+          done();
+        });
+      });
+    });
+  });
+  it('given files', function (done) {
+    var f1 = 'modules/express/upload-fixture1.txt';
+    var f2 = 'modules/express/upload-fixture2.txt';
+    var f3 = 'modules/express/upload-fixture3.txt';
+    var form = { writer: 'snowman', text: 'post with files' };
+    local.post('/api/posts/' + tid).fields(form)
+      .attach('files', f1).attach('files', f2).attach('files', f3).end(function (err, res) {
+      expect(err).not.exist;
+      expect(res.body.err).not.exist;
+      pid3 = res.body.pid;
       done();
     });
   });
-  it('can be confirmed', function (done) {
-    local.get('/api/threads/' + tid1 + '/' + pid2, function (err, res) {
+  it('updating files should success', function (done) {
+    var f3 = 'modules/express/upload-fixture3.txt';
+    var f4 = 'modules/express/upload-fixture4.txt';
+    var form = { writer: 'snowman', text: 'post with files', dfiles: ['nofile.txt', 'upload-fixture2.txt'] };
+    local.put('/api/posts/' + tid + '/' + pid3).fields(form)
+      .attach('files', f3).attach('files', f4).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
-      res.body.post.head.should.false;
-      res.body.post.writer.should.equal('snowman1');
-      res.body.post.text.should.equal('text1');
-      res.body.post.visible.should.true;
+      postb.posts.findOne({ _id: pid3 }, function (err, post) {
+        expect(err).not.exist;
+        expect(post.files).eql([
+          { name : 'upload-fixture1.txt'}, 
+          { name : 'upload-fixture3.txt'}, 
+          { name : 'upload-fixture4.txt'}
+        ]);
+        expect('upload/sleek-test/public/post/0/' + pid3 + '/upload-fixture1.txt').pathExist;
+        expect('upload/sleek-test/public/post/0/' + pid3 + '/upload-fixture2.txt').not.pathExist;
+        expect('upload/sleek-test/public/post/0/' + pid3 + '/upload-fixture3.txt').pathExist;
+        expect('upload/sleek-test/public/post/0/' + pid3 + '/upload-fixture4.txt').pathExist;
+        done();
+      });
+    });    
+  });
+  it('updating category should success', function (done) {
+    var form = { cid: 102, writer: 'snowman', title: 'title', text: 'text' };
+    local.put('/api/posts/' + tid + '/' + pid).send(form).end(function (err, res) {
+      expect(err).not.exist;
+      expect(res.body.err).not.exist;
+      postb.threads.findOne({ _id: tid}, function (err, thread) {
+        expect(err).not.exist;
+        expect(thread.cid).equals(102);
+        done();
+      });
+    });
+  });
+  it('emtpy title should fail', function (done) {
+    var form = { cid: 100, writer: 'snowman', title: ' ', text: 'text'};
+    local.put('/api/posts/' + tid + '/' + pid).send(form).end(function (err, res) {
+      expect(err).not.exist;
+      expect(res.body.err).error('TITLE_EMPTY');
       done();
     });
   });
-});
-
-describe('updating recycle bin', function () {
-  var tid1, pid1;
+  it('emtpy writer should fail', function (done) {
+    var form = { cid: 100, writer: ' ', title: 'title', text: 'text'};
+    local.put('/api/posts/' + tid + '/' + pid).send(form).end(function (err, res) {
+      expect(err).not.exist;
+      expect(res.body.err).error('WRITER_EMPTY');
+      done();
+    });
+  });
+  it('user can not change visible', function (done) {
+    var form = { cid: 100, writer: 'snowman', title: 'title', text: 'text', visible: false };
+    local.put('/api/posts/' + tid + '/' + pid).send(form).end(function (err, res) {
+      expect(err).not.exist;
+      expect(res.body.err).not.exist;
+      postb.posts.findOne({ _id: pid}, function (err, post) {
+        expect(err).not.exist;
+        expect(post.visible).true;
+        done();
+      });
+    });
+  });
   it('given admin', function (done) {
     userf.login('admin', done);
   });
-  it('given p11 in recyle bin', function (done) {
-    var form = { cid: 40, writer: 'snowman', title: 'title', text: 'text' };
-    local.post('/api/threads').send(form).end(function (err, res) {
+  it('admin can change visible', function (done) {
+    var form = { cid: 100, writer: 'snowman', title: 'title', text: 'text', visible: false };
+    local.put('/api/posts/' + tid + '/' + pid).send(form).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
-      tid1 = res.body.tid;
-      pid1 = res.body.pid;
-      done();
+      postb.posts.findOne({ _id: pid}, function (err, post) {
+        expect(err).not.exist;
+        expect(post.visible).false;
+        done();
+      });
     });
   });
-  it('should success', function (done) {
-    var form = { cid: 40, writer: 'snowman1', title: 'title1', text: 'text1' };
-    express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
-      done();
-    });
-  });
-  it('given user', function (done) {
+  it('given new session', function (done) {
+    local.newAgent();
     userf.login('user', done);
   });
   it('should fail', function (done) {
-    var form = { cid: 40, writer: 'snowman1', title: 'title1', text: 'text1' };
-    express.put('/api/threads/' + tid1 + '/' + pid1).send(form).end(function (err, res) {
+    var form = { cid: 100, writer: 'snowman', title: 'title', text: 'text' };
+    local.put('/api/posts/' + tid + '/' + pid).send(form).end(function (err, res) {
       expect(err).not.exist;
-      expect(res.body.err).error('INVALID_CATEGORY');
+      expect(res.body.err).error('NOT_AUTHORIZED');
       done();
     });
   });

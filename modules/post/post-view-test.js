@@ -108,3 +108,85 @@ describe('reading thread and posts', function () {
     });
   });
 });
+
+describe('post.editable', function () {
+  it('given user', function (done) {
+    userf.login('user', done);
+  });
+  var tid1, pid1, pid2;
+  it('given tid1, pid1', function (done) {
+    var form = { cid: 101, writer: 'snowman', title: 'title 1', text: 'post1' };
+      local.post('/api/posts').send(form).end(function (err, res) {
+        expect(err).not.exist;
+        expect(res.body.err).not.exist;
+        tid1 = res.body.tid;
+        pid1 = res.body.pid;
+        done();
+      }
+    );
+  });
+  it('given pid2', function (done) {
+    var form = { writer: 'snowman', text: 'post2' };
+    local.post('/api/posts/' + tid1).send(form).end(function (err, res) {
+      expect(err).not.exist;
+      expect(res.body.err).not.exist;
+      pid2 = res.body.pid;
+      done();
+    });
+  });
+  it('should be true for pid1', function (done) {
+    local.get('/api/posts/' + tid1 + '/' + pid1, function (err, res) {
+      expect(err).not.exist;
+      expect(res.body.err).not.exist;
+      expect(res.body.post.editable).true;
+      done();
+    });
+  });
+  it('should be true for pid2', function (done) {
+    local.get('/api/posts/' + tid1 + '/' + pid2, function (err, res) {
+      expect(err).not.exist;
+      expect(res.body.err).not.exist;
+      expect(res.body.post.editable).true;
+      done();
+    });
+  });
+  it('given new user session', function (done) {
+    userf.login('user', done);
+  });
+  it('should be false for pid1', function (done) {
+    local.get('/api/posts/' + tid1 + '/' + pid1, function (err, res) {
+      expect(err).not.exist;
+      expect(res.body.err).not.exist;
+      expect(res.body.post.editable).false;
+      done();
+    });
+  });
+  it('should be false for pid2', function (done) {
+    local.get('/api/posts/' + tid1 + '/' + pid2, function (err, res) {
+      expect(err).not.exist;
+      expect(res.body.err).not.exist;
+      expect(res.body.post.editable).false;
+      done();
+    });
+  });
+  it('given admin', function (done) {
+    userf.login('admin', done);
+  });
+  it('should be true for pid1', function (done) {
+    local.get('/api/posts/' + tid1 + '/' + pid1, function (err, res) {
+      expect(err).not.exist;
+      expect(res.body.err).not.exist;
+      expect(res.body.post.editable).true;
+      done();
+    });
+  });
+  it('should be true for pid2', function (done) {
+    local.get('/api/posts/' + tid1 + '/' + pid2, function (err, res) {
+      expect(err).not.exist;
+      expect(res.body.err).not.exist;
+      expect(res.body.post.editable).true;
+      done();
+    });
+  });
+
+});

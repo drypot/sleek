@@ -56,7 +56,7 @@ $(function () {
     };
   }
 
-  dt.format = function (d) {
+  utilp.toDateTimeString = function (d) {
     return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' +
       pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
   };
@@ -82,7 +82,7 @@ $(function () {
     sessionStorage.setItem(key, lastAccess.toISOString());
   }
 
-  lastSessionStr = dt.format(lastSession);
+  lastSessionStr = utilp.toDateTimeString(lastSession);
   localStorage.setItem(key, now.toISOString());
 
   dt.isNew = function (d) {

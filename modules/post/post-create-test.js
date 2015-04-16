@@ -57,15 +57,18 @@ describe('creating thread', function () {
   });
   it('file should success', function (done) {
     var f1 = 'modules/express/upload-fixture1.txt';
+    var f2 = 'modules/express/upload-fixture2.txt';
     var form = { cid: 100, writer: 'snowman', title: 'title 1', text: 'post 1' };
-    local.post('/api/posts').fields(form).attach('files', f1).end(function (err, res) {
+    local.post('/api/posts').fields(form).attach('files', f1).attach('files', f2).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       postb.posts.findOne({ _id: res.body.pid }, function (err, post) {
         expect(err).not.exist;
-        expect(post.files).length(1);
+        expect(post.files).length(2);
         expect(post.files[0].name).equal('upload-fixture1.txt');
+        expect(post.files[1].name).equal('upload-fixture2.txt');
         expect('upload/sleek-test/public/post/0/' + post._id + '/upload-fixture1.txt').pathExist;
+        expect('upload/sleek-test/public/post/0/' + post._id + '/upload-fixture2.txt').pathExist;
         done();
       })
     });
