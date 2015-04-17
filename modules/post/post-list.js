@@ -7,16 +7,16 @@ var userb = require('../user/user-base');
 var postb = require('../post/post-base');
 var postl = exports;
 
-exp.core.get('/api/posts', function (req, res, done) {
-  getThreads(req, res, true, done);
-});
-
 exp.core.get('/', function (req, res, done) {
   res.redirect('/posts');
 });
 
 exp.core.get('/posts', function (req, res, done) {
   getThreads(req, res, false, done);
+});
+
+exp.core.get('/api/posts', function (req, res, done) {
+  getThreads(req, res, true, done);
 });
 
 function getThreads(req, res, api, done) {

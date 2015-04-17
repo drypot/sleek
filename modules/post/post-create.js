@@ -11,6 +11,14 @@ var userb = require('../user/user-base');
 var postb = require('../post/post-base');
 var postc = exports;
 
+exp.core.get('/posts/new', function (req, res, done) {
+  userb.checkUser(res, function (err, user) {
+    if (err) return done(err);
+    var cid = parseInt(req.query.c) || 0;
+    res.render('post-create', { cid: cid });
+  });
+});
+
 exp.core.post('/api/posts', upload.handler(function (req, res, done) {
   createPost(req, res, done);
 }));
@@ -149,11 +157,3 @@ var saveFiles = postc.saveFiles = function (form, post, done) {
     })();
   });
 };
-
-exp.core.get('/posts/new', function (req, res, done) {
-  userb.checkUser(res, function (err, user) {
-    if (err) return done(err);
-    var cid = parseInt(req.query.c) || 0;
-    res.render('post-create', { cid: cid });
-  });
-});

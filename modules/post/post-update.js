@@ -12,6 +12,8 @@ var userb = require('../user/user-base');
 var postb = require('../post/post-base');
 var postc = require('../post/post-create');
 
+// api edit view 는 삭제. 앱용 서비스가 아니니 필요 없을 듯.
+
 exp.core.get('/posts/:tid([0-9]+)/:pid([0-9]+/edit)', function (req, res, done) {
   userb.checkUser(res, function (err, user) {
     if (err) return done(err);
