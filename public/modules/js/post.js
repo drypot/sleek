@@ -147,10 +147,10 @@ $(function () {
       $form.$writer.focus();
     }
     $form.$send.click(function () {
-      formty.post('/api/threads', $form, function (err) {
+      formty.post('/api/posts', $form, function (err) {
         if (err) return showError(err);
         localStorage.setItem('writer', $form.$writer.val());
-        location = '/threads';
+        location = '/posts';
       });
       return false;
     });
@@ -161,10 +161,10 @@ $(function () {
     formty.initFileGroup($form, 'files');
     $form.$writer.val(localStorage.getItem('writer') || '');
     $form.$send.click(function () {
-      formty.post('/api/threads/' + url.pathnames[1], $form, function (err, res) {
+      formty.post('/api/posts/' + url.pathnames[1], $form, function (err, res) {
         if (err) return showError(err);
         localStorage.setItem('writer', $form.$writer.val());
-        location = '/threads/' + res.body.tid;
+        location = '/posts/' + res.body.tid;
       });
       return false;
     });
@@ -174,9 +174,9 @@ $(function () {
     var $form = formty.getForm('#form');
     formty.initFileGroup($form, 'files');
     $form.$send.click(function () {
-      formty.put('/api/threads/' + url.pathnames[1] + '/' + url.pathnames[2], $form, function (err, res) {
+      formty.put('/api/posts/' + url.pathnames[1] + '/' + url.pathnames[2], $form, function (err, res) {
         if (err) return showError(err);
-        location = '/threads/' + url.pathnames[1];
+        location = '/posts/' + url.pathnames[1];
       });
       return false;
     });
