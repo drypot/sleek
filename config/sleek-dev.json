@@ -2,11 +2,9 @@
   "appName": "sleek dev",
   "appPort": 8000,
   "cookieSecret": "o;iejf832ndvs",
-  "serviceStaticFiles": false,
 
   "uploadSite": "http://file.sleek.local:8080",
   "uploadDir": "upload/sleek",
-  "uploadMax": 512,
 
   "mongodb": "sleek",
   "mongoUser": "",
