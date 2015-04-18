@@ -129,7 +129,7 @@ describe('post editable', function () {
   });
 });
 
-describe.only('redirects', function () {
+describe('redirects', function () {
   it('should success', function (done) {
     local.get('/post/10').redirects(0).end(function (err, res) {
       expect(err).exist;

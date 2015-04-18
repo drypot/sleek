@@ -22,10 +22,9 @@ exp.core.get('/api/posts', function (req, res, done) {
 function getThreads(req, res, api, done) {
   userb.checkUser(res, function (err, user) {
     if (err) return done(err);
-    var query = req.query;
-    var cid = parseInt(query.c) || 0;
-    var pg = Math.max(parseInt(query.pg) || 1, 1);
-    var pgsize = Math.min(Math.max(parseInt(query.ps) || 16, 1), 128);
+    var cid = parseInt(req.query.c) || 0;
+    var pg = Math.max(parseInt(req.query.pg) || 1, 1);
+    var pgsize = Math.min(Math.max(parseInt(req.query.ps) || 16, 1), 128);
     utilp.fif(cid, function (next) {
       postb.checkCategory(user, cid, function (err, category) {
         if (err) return done(err);
@@ -73,8 +72,8 @@ function getThreads(req, res, api, done) {
             res.render('post/post-list', {
               category: category,
               threads: threads,
-              prev: pg > 1 ? new utilp.UrlMaker('/posts').add('c', cid, 0).add('pg', pg, 1).done() : undefined,
-              next: !last ? new utilp.UrlMaker('/posts').add('c', cid, 0).add('pg', pg).done() : undefined
+              prev: pg > 1 ? new utilp.UrlMaker('/posts').add('c', cid, 0).add('pg', pg - 1, 1).done() : undefined,
+              next: !last ? new utilp.UrlMaker('/posts').add('c', cid, 0).add('pg', pg + 1).done() : undefined
             });
           }
         });

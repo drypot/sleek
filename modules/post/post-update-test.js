@@ -14,7 +14,7 @@ before(function (done) {
   init.run(done);
 });
 
-describe.only('updating', function () {
+describe('updating', function () {
   var tid, pid, pid2, pid3;
   it('given no user', function (done) {
     userf.logout(done);
