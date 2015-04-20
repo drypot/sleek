@@ -1,26 +1,30 @@
-
 $(function () {
+  window.userl = {};
 
-  window.session = {};
-
-  session.initLogin = function () {
-    var $form = formty.getForm('#form');
+  userl.initLogin = function () {
+    var $form = formty.getForm('form.main');
     $form.$password.focus();
     $form.$send.click(function () {
-      formty.post('/api/users/login', $form, function (err) {
-        if (err) return showError(err);
-        location = '/threads';
+      formty.post('/api/users/login', $form, function () {
+        location = '/posts';
       });
       return false;
     });
   };
 
-  session.logout = function () {
-    request.del('/api/users/login').end(function (err, res) {
-      err = err || res.error || res.body.err;
+  userl.logout = function () {
+    request.post('/api/users/logout').end(function (err, res) {
+      err = err || res.body.err;
       if (err) return showError(err);
+      console.log('logged out');
       location = '/';
     });
   };
+});
 
+$(function () {
+  $('#logout-btn').click(function () {
+    userl.logout();
+    return false;
+  });
 });

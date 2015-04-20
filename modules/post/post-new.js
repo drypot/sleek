@@ -9,13 +9,13 @@ var exp = require('../express/express');
 var upload = require('../express/upload');
 var userb = require('../user/user-base');
 var postb = require('../post/post-base');
-var postc = exports;
+var postn = exports;
 
 exp.core.get('/posts/new', function (req, res, done) {
   userb.checkUser(res, function (err, user) {
     if (err) return done(err);
     var cid = parseInt(req.query.c) || 0;
-    res.render('post-create', { cid: cid });
+    res.render('post-new', { cid: cid });
   });
 });
 
@@ -90,7 +90,7 @@ function createPost(req, res, done) {
   });
 }
 
-var getForm = postc.getForm = function (req) {
+var getForm = postn.getForm = function (req) {
   var body = req.body;
   var form = {};
   form.now = new Date();
@@ -107,7 +107,7 @@ var getForm = postc.getForm = function (req) {
   return form;
 };
 
-var checkForm = postc.checkForm = function (form, newThread, done) {
+var checkForm = postn.checkForm = function (form, newThread, done) {
   var errors = [];
   if (newThread) {
     if (!form.title.length) {
@@ -130,7 +130,7 @@ var checkForm = postc.checkForm = function (form, newThread, done) {
   }
 };
 
-var saveFiles = postc.saveFiles = function (form, post, done) {
+var saveFiles = postn.saveFiles = function (form, post, done) {
   if (!form.files) return done();
   fsp.makeDir(postb.getFileDir(post._id), function (err, dir) {
     if (err) return done(err);

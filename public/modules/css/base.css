@@ -1,32 +1,80 @@
-body {
-  padding-bottom: 40px;
+.ac-link a {
+  color: #333333;
 }
-.side-space {
-  margin-left: 1px;
-  margin-right: 1px;
-  padding-left: 8px;
-  padding-right: 8px;
+.section {
+  margin-top: 0px;
+  margin-bottom: 40px;
+  padding: 0px 8px;
 }
-.side-space-table {
-  margin-left: 1px;
-  margin-right: 1px;
-  padding-left: 0px;
-  padding-right: 0px;
+.sub-section {
+  margin-bottom: 24px;
 }
-.page-header {
-  border: 0;
+.page-title {
+  margin-top: 40px;
 }
-.footer {
-  margin-top: 45px;
+.page-title a {
+  color: #333333;
+}
+.page-footer {
+  margin-top: 40px;
+  margin-bottom: 40px;
   border-top: 1px solid #eeeeee;
   padding-top: 10px;
 }
-.footer ul {
+.page-footer ul {
   margin: 0px;
 }
-.footer ul li {
+.page-footer ul li {
   padding-left: 0px;
   padding-right: 9px;
+}
+pre.error-report {
+  margin: 0px;
+  padding: 0px;
+  padding-top: 5px;
+  border: 0;
+  border-top: 1px solid #eeeeee;
+  text-align: left;
+  font-family: monospace;
+  font-size: 14px;
+  background-color: white;
+  white-space: nowrap;
+}
+.modal-body p {
+  white-space: nowrap;
+  overflow: scroll;
+}
+form.main .form-row {
+  margin-bottom: 10px;
+}
+form.main .form-actions {
+  margin-top: 25px;
+  margin-bottom: 20px;
+}
+form.main .file-group .col {
+  padding: 0px;
+  margin-right: 5px;
+}
+form.main .file-group .files .file {
+  margin-bottom: 5px;
+}
+form.main .file-group .files .file input[type=file] {
+  width: 100%;
+}
+form.main p.error {
+  display: block;
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+form.main .alert {
+  margin-bottom: 5px;
+}
+form.main textarea {
+  font-family: monospace;
+  -webkit-overflow-scrolling: auto;
+}
+form.login {
+  max-width: 320px;
 }
 .threads-lg td {
   white-space: nowrap;
@@ -103,35 +151,6 @@ body {
 }
 .search-results .i span {
   margin-right: 10px;
-}
-form .form-row {
-  margin-bottom: 10px;
-}
-form .form-actions {
-  margin-top: 25px;
-  margin-bottom: 20px;
-}
-form .file-group .col {
-  padding: 0px;
-  margin-right: 5px;
-}
-form .file-group .files .file {
-  margin-bottom: 5px;
-}
-form .file-group .files .file input[type=file] {
-  width: 100%;
-}
-form p.error {
-  display: block;
-  margin-top: 5px;
-  margin-bottom: 10px;
-}
-form .alert {
-  margin-bottom: 5px;
-}
-form textarea {
-  font-family: monospace;
-  -webkit-overflow-scrolling: auto;
 }
 .pager {
   margin-left: -6px;

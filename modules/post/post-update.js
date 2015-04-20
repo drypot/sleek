@@ -10,7 +10,7 @@ var exp = require('../express/express');
 var upload = require('../express/upload');
 var userb = require('../user/user-base');
 var postb = require('../post/post-base');
-var postc = require('../post/post-create');
+var postn = require('../post/post-new');
 
 // api edit view 는 삭제. 앱용 서비스가 아니니 필요 없을 듯.
 
@@ -46,7 +46,7 @@ exp.core.get('/posts/:tid([0-9]+)/:pid([0-9]+/edit)', function (req, res, done) 
 exp.core.put('/api/posts/:tid([0-9]+)/:pid([0-9]+)', upload.handler(function (req, res, done) {
   userb.checkUser(res, function (err, user) {
     if (err) return done(err);
-    var form = postc.getForm(req);
+    var form = postn.getForm(req);
     postb.threads.findOne({ _id : form.tid }, function (err, thread) {
       if (err) return done(err);
       if (!thread) return done(error('INVALID_THREAD'));
@@ -61,11 +61,11 @@ exp.core.put('/api/posts/:tid([0-9]+)/:pid([0-9]+)', upload.handler(function (re
             postb.checkCategory(user, form.cid, next); // check new cid
           }, function (err) {
             if (err) return done(err);
-            postc.checkForm(form, head, function (err) {
+            postn.checkForm(form, head, function (err) {
               if (err) return done(err);
               deleteFiles(form, post, function (err) {
                 if (err) return done(err);
-                postc.saveFiles(form, post, function (err) {
+                postn.saveFiles(form, post, function (err) {
                   if (err) return done(err);
                   post.writer = form.writer;
                   post.text = form.text;

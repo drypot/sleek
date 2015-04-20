@@ -6,7 +6,7 @@ var exp = require('../express/express');
 var userb = require('../user/user-base');
 var userf = require('../user/user-fixture');
 var postb = require('../post/post-base');
-var postc = require('../post/post-create');
+var postn = require('../post/post-new');
 var local = require('../express/local');
 var expect = require('../base/assert').expect
 

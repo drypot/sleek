@@ -1,28 +1,38 @@
+@font-size: 16px;
+@color: #333;
+@dim-color: lighten(@color, 50%);
+@margin: 40px;
+@width: 640px;
+
+// basic layout
+
 body {
-  //padding-top: 50px;
-  padding-bottom: 40px;
 }
 
-.side-space {
-  margin-left: 1px;
-  margin-right: 1px;
-  padding-left: 8px;
-  padding-right: 8px;
+.ac-link { // achromatic color link
+  a {
+    color: @color;
+  }
 }
 
-.side-space-table {
-  margin-left: 1px;
-  margin-right: 1px;
-  padding-left: 0px;
-  padding-right: 0px;
+.section {
+  margin-top: 0px;
+  margin-bottom: @margin;
+  padding: 0px 8px;
 }
 
-.page-header {
-  border: 0;
+.sub-section {
+  margin-bottom: @margin * 0.6;
 }
 
-.footer {
-  margin-top: 45px;
+.page-title {
+  .ac-link;
+  margin-top: @margin
+}
+
+.page-footer {
+  margin-top: @margin;
+  margin-bottom: @margin;
   border-top: 1px solid #eeeeee;
   padding-top: 10px;
   ul {
@@ -33,6 +43,77 @@ body {
     }
   }
 }
+
+// error
+
+pre.error-report {
+  margin: 0px;
+
+  padding: 0px;
+  padding-top: 5px;
+
+  border: 0;
+  border-top: 1px solid #eeeeee;
+
+  text-align: left;
+  font-family: monospace;
+  font-size: 14px;
+  background-color: white;
+  white-space: nowrap;
+}
+
+.modal-body {
+  p {
+    white-space: nowrap;
+    overflow: scroll;
+  }
+}
+
+// form
+
+form.main {
+  .form-row {
+    margin-bottom:10px;
+  }
+  .form-actions {
+    margin-top: 25px;
+    margin-bottom: 20px;
+  }
+  .file-group {
+    .col {
+      padding: 0px;
+      margin-right: 5px;
+    }
+    .files {
+      .file {
+        margin-bottom: 5px;
+        input[type=file] {
+          width:100%;
+        }
+      }
+    }
+  }
+  p.error {
+    display: block;
+    margin-top: 5px;
+    margin-bottom: 10px;
+  }
+  .alert {
+    margin-bottom:5px;
+  }
+  textarea {
+    font-family: monospace;
+    -webkit-overflow-scrolling: auto;
+  }
+}
+
+// login
+
+form.login {
+  max-width: 320px;
+}
+
+// posts
 
 .threads {
   //margin-bottom: 20px;
@@ -124,42 +205,6 @@ body {
     span {
       margin-right: 10px;
     }
-  }
-}
-
-form {
-  .form-row {
-    margin-bottom:10px;
-  }
-  .form-actions {
-    margin-top: 25px;
-    margin-bottom: 20px;
-  }
-  .file-group {
-    .col {
-      padding: 0px;
-      margin-right: 5px;
-    }
-    .files {
-      .file {
-        margin-bottom: 5px;
-        input[type=file] {
-          width:100%;
-        }
-      }
-    }
-  }
-  p.error {
-    display: block;
-    margin-top: 5px;
-    margin-bottom: 10px;
-  }
-  .alert {
-    margin-bottom:5px;
-  }
-  textarea {
-    font-family: monospace;
-    -webkit-overflow-scrolling: auto;
   }
 }
 

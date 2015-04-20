@@ -7,14 +7,14 @@ block content
 
   script
     $(function () {
-      post.initNewForm();
+      postl.initNew();
     });
 
   .side-space
-    .page-header
+    .page-title
       h2 New Post
 
-    form#form
+    form.main
       .form-row
         select.col-lg-4(name='cid')
           for c in user.categories

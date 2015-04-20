@@ -1,11 +1,7 @@
-
 $(function () {
+  window.postl = {};
 
-  // Threads
-
-  window.post = {};
-
-  post.initThreadList = function () {
+  postl.initList = function () {
     $('.threads .d').each(function () {
       var $tar = $(this).closest('tr').find('a')
       var udateStr = $(this).text();
@@ -13,9 +9,19 @@ $(function () {
         $tar.removeClass('text-muted');
       }
     });
+
+    // $('.navbar .new-btn').click(function () {
+    //   if (url.query.c) {
+    //     location='/threads/new?c=' + url.query.c;
+    //   } else {
+    //     location='/threads/new';
+    //   }
+    //   return false;
+    // });
+
   };
 
-  post.initThreadAndPosts = function () {
+  postl.initView = function () {
 
     var patterns = [
       { // iframe
@@ -134,7 +140,7 @@ $(function () {
     }
   };
 
-  post.initNewForm = function () {
+  postl.initNew = function () {
     var $form = formty.getForm('#form');
     formty.initFileGroup($form, 'files');
     if (url.query.c) {
@@ -156,7 +162,7 @@ $(function () {
     });
   };
 
-  post.initReplyForm = function () {
+  postl.initReply = function () {
     var $form = formty.getForm('#form');
     formty.initFileGroup($form, 'files');
     $form.$writer.val(localStorage.getItem('writer') || '');
@@ -170,7 +176,7 @@ $(function () {
     });
   };
 
-  post.initEditForm = function () {
+  postl.initUpdate = function () {
     var $form = formty.getForm('#form');
     formty.initFileGroup($form, 'files');
     $form.$send.click(function () {

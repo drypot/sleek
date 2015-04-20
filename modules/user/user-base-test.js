@@ -77,7 +77,7 @@ describe('login', function () {
     local.post('/api/users/login').send({ password: 'xxx' }).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).exist;
-      expect(res.body.err).error('USER_NOT_FOUND');
+      expect(res.body.err).error('PASSWORD_WRONG');
       done();
     });
   });  

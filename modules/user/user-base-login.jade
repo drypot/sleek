@@ -6,19 +6,22 @@ block title
 block content
   script.
     $(function () {
-      session.initLogin();
+      userl.initLogin();
     });
 
-  .side-space
-    .page-header
-      h2 Login
+  .section.page-title
+    h1 Login
 
-    form#form
-      .form-row
-        label.control-label Password
-        input.input-with-feedback.col-lg-3(name='password', type='password')
-      .checkbox
-        label Remember
-        input(name='remember', type='checkbox')
-      .form-actions
-        button.btn.btn-primary(name='send') Login
+  .section
+    form.main.login
+      .sub-section
+        .form-group
+          label.control-label Password
+          input.form-control(name='password', type='password')
+        .checkbox
+          label 
+            input(name='remember', type='checkbox') 
+            | Remember
+      .sub-section
+        .form-group
+          button.btn.btn-primary(name='send') Login
