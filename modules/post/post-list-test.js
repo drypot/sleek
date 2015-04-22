@@ -225,3 +225,14 @@ describe('listing threads', function () {
     });
   });
 });
+
+describe('redirects', function () {
+  it('should success', function (done) {
+    local.get('/threads').redirects(0).end(function (err, res) {
+      expect(err).exist;
+      expect(res).status(302); // Moved Temporarily 
+      expect(res).header('location', '/posts');
+      done();
+    });
+  });
+});

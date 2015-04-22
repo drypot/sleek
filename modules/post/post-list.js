@@ -81,3 +81,7 @@ function getThreads(req, res, api, done) {
     });
   });
 }
+
+exp.core.get('/threads', function (req, res, done) {
+  res.redirect('/posts');
+});
