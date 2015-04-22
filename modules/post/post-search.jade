@@ -5,19 +5,18 @@ block title
 
 block content
 
-  .side-space
-    .page-title
-      h2 Search: #{query}
+  .section.page-title
+      h1 Search: #{query}
 
-  .side-space-table
-    table.table.table-hover.search-results
+  .section.search-results
+    table.table.table-hover
       tbody
         for post in posts
           tr
             td
               .t
                 h4
-                  a(href='/threads/' + post.thread._id + '#' + post._id) #{post.thread.title}
+                  a(href='/posts/' + post.thread._id + '#' + post._id) #{post.thread.title}
               .tx #{post.text}
               .i
                 span #{post.category.name}
@@ -28,5 +27,18 @@ block content
             td.t 검색 결과가 없습니다.
             td
 
-  .side-space
-    include pager
+    .commands
+      .left
+        if prev
+          a.btn.btn-default(href=prev): span.glyphicon.glyphicon-chevron-left
+        else
+          button.btn.btn-default(disabled=true): span.glyphicon.glyphicon-chevron-left
+      .left
+        if next
+          a.btn.btn-default(href=next): span.glyphicon.glyphicon-chevron-right
+        else
+          button.btn.btn-default(disabled=true): span.glyphicon.glyphicon-chevron-right
+      .right
+        form.form-inline(method='get', action='/posts/search')
+          .form-group
+            input.form-control(type='text', name='q', style='width:240px', placeholder='Search')

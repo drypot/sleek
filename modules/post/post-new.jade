@@ -5,33 +5,33 @@ block title
 
 block content
 
-  script
+  script.
     $(function () {
       postl.initNew();
     });
 
-  .side-space
-    .page-title
-      h2 New Post
+  .section.page-title
+      h1 New Post
 
+  .section
     form.main
-      .form-row
-        select.col-lg-4(name='cid')
-          for c in user.categories
-            option(value=c.id, selected=c.id==cid) #{c.name}
-      .form-row
-        label.control-label 이름
-        input.input-with-feedback.col-lg-4(type='text', name='writer', value='', maxlength='32')
-      .form-row
-        label.control-label 제목
-        input.input-with-feedback.col-lg-12(type='text', name='title', value='', maxlength='128')
-      .form-row
-        label.control-label 내용
-        textarea.input-with-feedback(name='text', rows=10)
-      .form-row.file-group.clearfix
-        .files.col.col-lg-7
-        .actions.col.col-lg-1
-          button.btn.btn-default.glyphicon.glyphicon-plus
-      .form-actions
-        button.btn.btn-primary(name='send') Send
-        button.btn.btn-default.disabled.hide(name='sending') Sending
+      .sub-section
+        .form-group
+          select.form-control.short(name='cid')
+            for c in user.categories
+              option(value=c.id, selected=c.id==cid) #{c.name}
+        .form-group
+          label.control-label 이름
+          input.form-control.short(type='text', name='writer', value='', maxlength='32')
+        .form-group
+          label.control-label 제목
+          input.form-control(type='text', name='title', value='', maxlength='128')
+        .form-group
+          label.control-label 내용
+          textarea.form-control(name='text', rows=10)
+        .form-group
+          label.control-label 첨부
+          input.form-control(type='file', name='files', multiple='multiple')
+          button.btn.btn-default.btn-mini.add-file +
+      .sub-section
+        button.btn.btn-primary(name='send', data-loading-text='Sending') Send

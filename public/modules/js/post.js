@@ -9,16 +9,48 @@ $(function () {
         $tar.removeClass('text-muted');
       }
     });
+  };
 
-    // $('.navbar .new-btn').click(function () {
-    //   if (url.query.c) {
-    //     location='/threads/new?c=' + url.query.c;
-    //   } else {
-    //     location='/threads/new';
-    //   }
-    //   return false;
-    // });
+  postl.initNew = function () {
+    var $form = formty.getForm('form.main');
+    if (url.query.c) {
+      $form.$cid.val(url.query.c);
+    }
+    $form.$writer.val(localStorage.getItem('writer') || '');
+    if ($form.$writer.val()) {
+      $form.$title.focus();
+    } else {
+      $form.$writer.focus();
+    }
+    $form.$send.click(function () {
+      formty.post('/api/posts', $form, function () {
+        localStorage.setItem('writer', $form.$writer.val());
+        location = '/posts';
+      });
+      return false;
+    });
+  };
 
+  postl.initReply = function () {
+    var $form = formty.getForm('form.main');
+    $form.$writer.val(localStorage.getItem('writer') || '');
+    $form.$send.click(function () {
+      formty.post('/api/posts/' + url.pathnames[1], $form, function (err, res) {
+        localStorage.setItem('writer', $form.$writer.val());
+        location = '/posts/' + res.body.tid;
+      });
+      return false;
+    });
+  };
+
+  postl.initUpdate = function () {
+    var $form = formty.getForm('form.main');
+    $form.$send.click(function () {
+      formty.put('/api/posts/' + url.pathnames[1] + '/' + url.pathnames[2], $form, function () {
+        location = '/posts/' + url.pathnames[1];
+      });
+      return false;
+    });
   };
 
   postl.initView = function () {
@@ -51,8 +83,6 @@ $(function () {
       }
     ];
 
-    var $1pat = /\$1/g;
-
     function tagUpText(s, pi) {
       if (pi == patterns.length) {
         return s;
@@ -63,17 +93,11 @@ $(function () {
       var match;
       while(match = p.pattern.exec(s)) {
         r += tagUpText(s.slice(a, match.index), pi + 1);
-        r += p.replace.replace($1pat, match[1]);
+        r += p.replace.replace(/\$1/g, match[1]);
         a = match.index + match[0].length;
       }
       r += tagUpText(s.slice(a), pi + 1);
       return r;
-    }
-
-    var imgPattern = /.*\.(jpg|jpeg|gif|png)$/i;
-
-    function handle() {
-      return $('<button class="media-handle btn btn-mini btn-info">Show</button>');
     }
 
     var $posts = $('.posts');
@@ -84,40 +108,40 @@ $(function () {
 
     $posts.find('.file a').each(function () {
       var $this = $(this);
-      if (imgPattern.test($this.attr('href'))) {
+      if (/.*\.(jpg|jpeg|gif|png)$/i.test($this.attr('href'))) {
         $this.wrap('<span class="media-img"></span>');
       }
     });
 
     $posts.find('.media-img').after(
-      handle().click(function () {
-        var $handle = $(this);
-        var $media = $handle.prev();
-        if ($handle.text() === 'Show') {
-          $handle.after(
+      $('<button class="media-show-btn btn btn-mini btn-info">Show</button>').click(function () {
+        var $btn = $(this);
+        var $media = $btn.prev();
+        if ($btn.text() === 'Show') {
+          $btn.after(
             $('<div class="img"></div>').append(
               $('<img>', { src: $media.children('a').attr('href') })
             )
           );
-          $handle.text('Hide');
+          $btn.text('Hide');
         } else {
-          $handle.done().remove();
-          $handle.text('Show');
+          $btn.next().remove();
+          $btn.text('Show');
         }
       })
     );
 
     $posts.find('.media').after(
-      handle().click(function () {
-        var $handle = $(this);
-        var $media = $handle.prev();
-        if ($handle.text() === 'Show') {
-          $handle.data('org-code', $media.text());
+      $('<button class="media-show-btn btn btn-mini btn-info">Show</button>').click(function () {
+        var $btn = $(this);
+        var $media = $btn.prev();
+        if ($btn.text() === 'Show') {
+          $btn.data('org-code', $media.text());
           $media.html($media.text());
-          $handle.text('Hide');
+          $btn.text('Hide');
         } else {
-          $media.text($handle.data('org-code'));
-          $handle.text('Show');
+          $media.text($btn.data('org-code'));
+          $btn.text('Show');
         }
       })
     );
@@ -139,53 +163,4 @@ $(function () {
       $('body, html').animate({ scrollTop: ey }, 200);
     }
   };
-
-  postl.initNew = function () {
-    var $form = formty.getForm('#form');
-    formty.initFileGroup($form, 'files');
-    if (url.query.c) {
-      $form.$cid.val(url.query.c);
-    }
-    $form.$writer.val(localStorage.getItem('writer') || '');
-    if ($form.$writer.val()) {
-      $form.$title.focus();
-    } else {
-      $form.$writer.focus();
-    }
-    $form.$send.click(function () {
-      formty.post('/api/posts', $form, function (err) {
-        if (err) return showError(err);
-        localStorage.setItem('writer', $form.$writer.val());
-        location = '/posts';
-      });
-      return false;
-    });
-  };
-
-  postl.initReply = function () {
-    var $form = formty.getForm('#form');
-    formty.initFileGroup($form, 'files');
-    $form.$writer.val(localStorage.getItem('writer') || '');
-    $form.$send.click(function () {
-      formty.post('/api/posts/' + url.pathnames[1], $form, function (err, res) {
-        if (err) return showError(err);
-        localStorage.setItem('writer', $form.$writer.val());
-        location = '/posts/' + res.body.tid;
-      });
-      return false;
-    });
-  };
-
-  postl.initUpdate = function () {
-    var $form = formty.getForm('#form');
-    formty.initFileGroup($form, 'files');
-    $form.$send.click(function () {
-      formty.put('/api/posts/' + url.pathnames[1] + '/' + url.pathnames[2], $form, function (err, res) {
-        if (err) return showError(err);
-        location = '/posts/' + url.pathnames[1];
-      });
-      return false;
-    });
-  };
-
 });

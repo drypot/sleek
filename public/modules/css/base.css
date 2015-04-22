@@ -3,21 +3,21 @@
 }
 .section {
   margin-top: 0px;
-  margin-bottom: 40px;
+  margin-bottom: 30px;
   padding: 0px 8px;
 }
 .sub-section {
-  margin-bottom: 24px;
+  margin-bottom: 30px;
 }
 .page-title {
-  margin-top: 40px;
+  margin-top: 30px;
 }
 .page-title a {
   color: #333333;
 }
 .page-footer {
-  margin-top: 40px;
-  margin-bottom: 40px;
+  margin-top: 30px;
+  margin-bottom: 30px;
   border-top: 1px solid #eeeeee;
   padding-top: 10px;
 }
@@ -44,22 +44,15 @@ pre.error-report {
   white-space: nowrap;
   overflow: scroll;
 }
-form.main .form-row {
-  margin-bottom: 10px;
+form.main textarea {
+  font-family: monospace;
+  -webkit-overflow-scrolling: auto;
 }
-form.main .form-actions {
-  margin-top: 25px;
-  margin-bottom: 20px;
+form.main input[type="file"] {
+  margin-bottom: 3px;
 }
-form.main .file-group .col {
-  padding: 0px;
-  margin-right: 5px;
-}
-form.main .file-group .files .file {
-  margin-bottom: 5px;
-}
-form.main .file-group .files .file input[type=file] {
-  width: 100%;
+form.main .short {
+  max-width: 320px;
 }
 form.main p.error {
   display: block;
@@ -69,31 +62,47 @@ form.main p.error {
 form.main .alert {
   margin-bottom: 5px;
 }
-form.main textarea {
-  font-family: monospace;
-  -webkit-overflow-scrolling: auto;
+.threads {
+  padding: 0px 0px;
 }
-form.login {
-  max-width: 320px;
+@media (min-width: 768px) {
+  .threads td {
+    white-space: nowrap;
+  }
+  .threads td.t {
+    width: 100%;
+  }
 }
-.threads-lg td {
-  white-space: nowrap;
+@media (max-width: 767px) {
+  .threads td {
+    width: 767px;
+  }
+  .threads div.t {
+    margin-bottom: 3px;
+  }
+  .threads small {
+    margin-right: 10px;
+  }
 }
-.threads-lg td.t {
-  width: 100%;
+.search-results {
+  padding: 0px 0px;
 }
-.threads-sm td {
-  width: 1000px;
+.search-results .t h4 {
+  margin-top: 2px;
 }
-.threads-sm div.t {
-  margin-bottom: 3px;
+.search-results .tx {
+  margin-bottom: 5px;
+  word-break: break-all;
 }
-.threads-sm small {
+.search-results .i {
+  margin-bottom: 5px;
+}
+.search-results .i span {
   margin-right: 10px;
 }
 .posts {
+  padding: 0px 0px;
   border-bottom: 1px solid #ddd;
-  margin-bottom: 20px;
 }
 .posts .post {
   border-top: 1px solid #ddd;
@@ -133,34 +142,27 @@ form.login {
 .posts .post .cmd {
   margin-bottom: 1em;
 }
-.posts .post .media-handle {
+.posts .post .media-show-btn {
   margin-left: 8px;
 }
 .posts .post .media {
   color: #56C0E0;
 }
-.search-results .t h4 {
-  margin-top: 2px;
-}
-.search-results .tx {
-  margin-bottom: 5px;
-  word-break: break-all;
-}
-.search-results .i {
-  margin-bottom: 5px;
-}
-.search-results .i span {
-  margin-right: 10px;
-}
-.pager {
-  margin-left: -6px;
-  text-align: left;
-}
-.pagination {
-  margin: 0px;
-  margin-left: -1px;
-}
 .btn-mini {
   padding: 1px 6px 1px 6px;
   font-size: 11px;
+}
+.commands {
+  clear: both;
+  overflow: auto;
+}
+.commands .left {
+  float: left;
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+.commands .right {
+  float: right;
+  margin-left: 5px;
+  margin-bottom: 5px;
 }

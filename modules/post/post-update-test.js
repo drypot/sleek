@@ -138,6 +138,24 @@ describe('updating', function () {
       });
     });    
   });
+  it('deleting one file should success', function (done) {
+    var form = { writer: 'snowman', text: 'post with files', dfiles: 'upload-fixture3.txt' };
+    local.put('/api/posts/' + tid + '/' + pid3).fields(form).end(function (err, res) {
+      expect(err).not.exist;
+      expect(res.body.err).not.exist;
+      postb.posts.findOne({ _id: pid3 }, function (err, post) {
+        expect(err).not.exist;
+        expect(post.files).eql([
+          { name : 'upload-fixture1.txt'}, 
+          { name : 'upload-fixture4.txt'}
+        ]);
+        expect('upload/sleek-test/public/post/0/' + pid3 + '/upload-fixture1.txt').pathExist;
+        expect('upload/sleek-test/public/post/0/' + pid3 + '/upload-fixture3.txt').not.pathExist;
+        expect('upload/sleek-test/public/post/0/' + pid3 + '/upload-fixture4.txt').pathExist;
+        done();
+      });
+    });    
+  });
   it('updating category should success', function (done) {
     var form = { cid: 102, writer: 'snowman', title: 'title', text: 'text' };
     local.put('/api/posts/' + tid + '/' + pid).send(form).end(function (err, res) {

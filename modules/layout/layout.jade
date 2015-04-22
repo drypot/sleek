@@ -46,7 +46,7 @@ html
       if locals.user
         .page-footer
           ul.list-inline
-            li: a(href='/threads') all
+            li: a(href='/posts') all
             for c in user.categories
               li: a(href='/posts?c=' + c.id) #{c.name}
 

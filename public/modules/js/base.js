@@ -124,7 +124,7 @@ $(function () {
 $(function() {
   window.formty = {};
 
-  /* checkbox 이름에는 [] 이 딸 붙는다. */
+  /* checkbox 이름에는 [] 이 붙는다. */
   var namex = /[^\[]+/;
 
   formty.getForm = function (sel) {
@@ -135,27 +135,14 @@ $(function() {
         $form['$' + name] = $(this);
       }
     });
-
-    // 무슨 의미인지 잊음;
-    // if ($form.$send) {
-    //   $form.$send.button();
-    // }
-    
-    return $form;
-  };
-
-  formty.initFileFieldAdder = function ($form) {
-    $form.find('.file-inputs').each(function () {
-      var $inputs = $(this);
-      var $input = $inputs.children().first();
-      var $adder =  $inputs.find('.adder');
-      var $adderBtn = $('<button>').addClass('btn btn-default glyphicon glyphicon-plus');
-      $adderBtn.click(function () {
-        $input.clone().insertBefore($adder);
+    $form.find('.add-file').each(function () {
+      $btn = $(this);
+      $btn.click(function () {
+        $btn.prev().clone().insertBefore($btn);
         return false;
       });
-      $adderBtn.appendTo($adder);
     });
+    return $form;
   };
 
   ['post', 'put'].forEach(function (method) {

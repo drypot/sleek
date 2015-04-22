@@ -97,6 +97,9 @@ exp.core.put('/api/posts/:tid([0-9]+)/:pid([0-9]+)', upload.handler(function (re
 
 function deleteFiles(form, post, done) {
   if (!form.dfiles) return done();
+  if (!Array.isArray(form.dfiles)) {
+    form.dfiles = [form.dfiles];
+  }
   var dir = postb.getFileDir(form.pid);
   var deleted = [];
   var i = 0;

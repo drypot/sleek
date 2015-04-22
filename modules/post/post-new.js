@@ -15,7 +15,7 @@ exp.core.get('/posts/new', function (req, res, done) {
   userb.checkUser(res, function (err, user) {
     if (err) return done(err);
     var cid = parseInt(req.query.c) || 0;
-    res.render('post-new', { cid: cid });
+    res.render('post/post-new', { cid: cid });
   });
 });
 

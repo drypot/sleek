@@ -5,48 +5,46 @@ block title
 
 block content
 
-  script
+  script.
     $(function () {
       postl.initView();
       postl.initReply();
     });
 
-  .side-space
-    .page-title
-      h2 #{thread.title}
+  .section.page-title
+      h1 #{thread.title}
 
-  .side-space-table
-    .posts
-      for post in posts
-        .post(id=post._id)
-          h5 #{post.writer}
-            small.d !{post.cdateStr}
-          if post.files
-            .files
-              for file in post.files
-                .file
-                  a(href=file.url, target='_blank') #{file.name}
-          .text
-            pre #{post.text}
-          if post.editable
-            .cmd
-              a.btn.btn-mini.btn-default(href='/threads/' + thread._id + '/' + post._id + '/edit') Edit
+  .section.posts
+    for post in posts
+      .post(id=post._id)
+        h5 #{post.writer}
+          small.d !{post.cdateStr}
+        if post.files
+          .files
+            for file in post.files
+              .file
+                a(href=file.url, target='_blank') #{file.name}
+        .text
+          pre #{post.text}
+        if post.editable
+          .cmd
+            a.btn.btn-mini.btn-default(href='/posts/' + thread._id + '/' + post._id + '/edit') Edit
 
-  .side-space
-    .page-title
-      h2 Reply
+  .section.page-title
+      h1 Reply
 
+  .section
     form.main
-      .form-row
-        label.control-label 이름
-        input.input-with-feedback.col-lg-4(type='text', name='writer', value='', maxlength='32')
-      .form-row
-        label.control-label 내용
-        textarea.input-with-feedback(name='text', rows=10)
-      .form-row.file-group.clearfix
-        .files.col.col-lg-7
-        .actions.col.col-lg-1
-          button.btn.btn-default.glyphicon.glyphicon-plus
-      .form-actions
-        button.btn.btn-primary(name='send') Send
-        button.btn.btn-default.disabled.hide(name='sending') Sending
+      .sub-section
+        .form-group
+          label.control-label 이름
+          input.form-control.short(type='text', name='writer', value='', maxlength='32')
+        .form-group
+          label.control-label 내용
+          textarea.form-control(name='text', rows=10)
+        .form-group
+          label.control-label 첨부
+          input.form-control(type='file', name='files', multiple='multiple')
+          button.btn.btn-default.btn-mini.add-file +
+      .sub-section
+        button.btn.btn-primary(name='send', data-loading-text='Sending') Send
