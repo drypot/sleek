@@ -51,7 +51,7 @@ Arch 서비스 Fail 나면
 
 ## 필요하면 서비스 재실행
 
-    sudo systemctl start sleek
-    sudo systemctl start willy
-    sudo systemctl start billy
-    sudo systemctl start dmlab
+    sudo systemctl restart sleek
+    sudo systemctl restart willy
+    sudo systemctl restart billy
+    sudo systemctl restart dmlab
