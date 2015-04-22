@@ -172,7 +172,12 @@ describe('creating replay', function () {
         expect(post.writer).equals('snowman 2');
         expect(post.text).equals('text 2');
         expect(post.tokens).exist;
-        done();
+        postb.threads.findOne({ _id: tid }, function (err, thread) {
+          expect(err).not.exist;
+          expect(thread.length).equal(2);
+          expect(thread.udate).eql(post.cdate);
+          done();
+        });
       });    
     });
   });

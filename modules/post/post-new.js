@@ -72,8 +72,8 @@ function createPost(req, res, done) {
               utilp.fif(newThread, function (next) {
                 postb.threads.insertOne(thread, next)
               }, function (next) {
-                postb.threads.updateOne({ _id: thread.tid }, { $inc: { length: 1 }, $set: { udate: form.now }}, next);
-              }, function (err) {
+                postb.threads.updateOne({ _id: thread._id }, { $inc: { length: 1 }, $set: { udate: form.now }}, next);
+              }, function (err, r) {
                 if (err) return done(err);
                 req.session.pids.push(post._id);
                 res.json({
