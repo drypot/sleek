@@ -2,7 +2,6 @@
 
 아래는 Arch Linux 를 가정.
 
-
 ## Nginx
 
 Mac 개발환경용 Nginx 설정 예
@@ -33,11 +32,9 @@ Mac 개발환경용 Nginx 설정 예
       root /Users/drypot/projects/sleek/website/upload/public;
     }
 
-
 ## Requirements
 
 mongodb, redis.
-
 
 ## Clone Source
 
@@ -48,6 +45,7 @@ mongodb, redis.
     $ cd sleek
 
     $ npm install
+    $ bower install
 
 설정파일 생성.
 
@@ -56,7 +54,6 @@ mongodb, redis.
 실행.
 
     bin/run sleek live
-
 
 ## 서비스로 등록
 

@@ -1,10 +1,10 @@
 {
   "name": "Sleek",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "description": "개인적인 기술 실험용 게시판 시스템",
-  "main": "app.js",
-  "directories": {
-    "test": "server/test"
+  "main": "modules/main/main.js",
+  "scripts": {
+    "test": "bin/test"
   },
   "dependencies": {
     "bcrypt": "^0.8.1",

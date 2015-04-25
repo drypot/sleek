@@ -68,8 +68,8 @@ function search(req, res, api, done) {
           res.render('post/post-search', {
             query: req.query.q || '',
             posts: posts,
-            prev: pg > 1 ? new utilp.UrlMaker('/search').add('q', query).add('pg', pg - 1, 1).done() : undefined,
-            next: !last ? new utilp.UrlMaker('/search').add('q', query).add('pg', pg + 1).done() : undefined
+            prev: pg > 1 ? new utilp.UrlMaker('/posts/search').add('q', query).add('pg', pg - 1, 1).done() : undefined,
+            next: !last ? new utilp.UrlMaker('/posts/search').add('q', query).add('pg', pg + 1).done() : undefined
           });
         }
       });
