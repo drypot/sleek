@@ -4,7 +4,7 @@
   "description": "개인적인 기술 실험용 게시판 시스템",
   "main": "modules/main/main.js",
   "scripts": {
-    "test": "bin/test"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "bcrypt": "^0.8.1",
@@ -16,14 +16,12 @@
     "express": "^4.12.3",
     "express-session": "^1.10.4",
     "jade": "^1.9.2",
+    "minimist": "^1.1.1",
     "mongodb": "^2.0.27",
     "multiparty": "^4.1.1",
     "superagent": "^1.1.0"
   },
   "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
     "url": "git://github.com/drypot/sleek.git"

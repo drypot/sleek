@@ -1,6 +1,6 @@
 var init = require('../base/init');
 var config = require('../base/config');
-var expect = require('../base/assert').expect
+var expect = require('../base/assert').expect;
 
 describe('config with invalid path', function () {
   it('should fail', function (done) {

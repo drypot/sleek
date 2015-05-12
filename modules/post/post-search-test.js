@@ -8,7 +8,7 @@ var postb = require('../post/post-base');
 var postn = require('../post/post-new');
 var postsr = require('../post/post-search');
 var local = require('../express/local');
-var expect = require('../base/assert').expect
+var expect = require('../base/assert').expect;
 
 before(function (done) {
   init.run(done);

@@ -7,7 +7,7 @@ var userf = require('../user/user-fixture');
 var postn = require('../post/post-new');
 var postv = require('../post/post-view');
 var local = require('../express/local');
-var expect = require('../base/assert').expect
+var expect = require('../base/assert').expect;
 
 before(function (done) {
   init.run(done);
