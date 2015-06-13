@@ -124,6 +124,7 @@ form.main .alert {
 }
 .posts .post .files .file img {
   margin-top: 3px;
+  max-width: 100%;
 }
 .posts .post .text {
   clear: both;
