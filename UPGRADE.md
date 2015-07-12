@@ -4,7 +4,6 @@
 
     sudo systemctl stop sleek
     sudo systemctl stop willy
-    sudo systemctl stop billy
     sudo systemctl stop dmlab
 
 ## 디비 백업
@@ -53,5 +52,4 @@ Arch 서비스 Fail 나면
 
     sudo systemctl restart sleek
     sudo systemctl restart willy
-    sudo systemctl restart billy
     sudo systemctl restart dmlab
