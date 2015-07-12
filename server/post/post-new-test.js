@@ -56,8 +56,8 @@ describe('creating thread', function () {
     });
   });
   it('file should success', function (done) {
-    var f1 = 'modules/express/upload-fixture1.txt';
-    var f2 = 'modules/express/upload-fixture2.txt';
+    var f1 = 'server/express/upload-fixture1.txt';
+    var f2 = 'server/express/upload-fixture2.txt';
     var form = { cid: 100, writer: 'snowman', title: 'title 1', text: 'post 1' };
     local.post('/api/posts').fields(form).attach('files', f1).attach('files', f2).end(function (err, res) {
       expect(err).not.exist;

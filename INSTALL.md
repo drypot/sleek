@@ -18,10 +18,10 @@ Mac 개발환경용 Nginx 설정 예
         proxy_set_header Host $http_host;
       }
 
-      location /modules/ {
+      location /static/ {
       }
 
-      location /modules/bower/ {
+      location /static/bower/ {
         alias /Users/drypot/projects/sleek/website/bower_components/;
       }
     }
@@ -72,7 +72,7 @@ mongodb, redis.
     Restart=always
     RestartSec=15
     WorkingDirectory=/data/web/sleek
-    ExecStart=/usr/bin/node modules/main/main.js --config config/sleek-live.json
+    ExecStart=/usr/bin/node server/main/main.js --config config/sleek-live.json
     Environment=NODE_ENV=production
 
     [Install]

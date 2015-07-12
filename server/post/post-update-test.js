@@ -84,7 +84,7 @@ describe('updating', function () {
         expect(err).not.exist;
         expect(thread.cid).equals(100);
         expect(thread.hit).equals(0);
-        expect(thread.length).equals(1);
+        expect(thread.length).equals(2);
         expect(thread.cdate).exist;
         expect(thread.udate).exist;
         expect(thread.writer).equals('snowman2');
@@ -103,9 +103,9 @@ describe('updating', function () {
     });
   });
   it('given files', function (done) {
-    var f1 = 'modules/express/upload-fixture1.txt';
-    var f2 = 'modules/express/upload-fixture2.txt';
-    var f3 = 'modules/express/upload-fixture3.txt';
+    var f1 = 'server/express/upload-fixture1.txt';
+    var f2 = 'server/express/upload-fixture2.txt';
+    var f3 = 'server/express/upload-fixture3.txt';
     var form = { writer: 'snowman', text: 'post with files' };
     local.post('/api/posts/' + tid).fields(form)
       .attach('files', f1).attach('files', f2).attach('files', f3).end(function (err, res) {
@@ -116,8 +116,8 @@ describe('updating', function () {
     });
   });
   it('updating files should success', function (done) {
-    var f3 = 'modules/express/upload-fixture3.txt';
-    var f4 = 'modules/express/upload-fixture4.txt';
+    var f3 = 'server/express/upload-fixture3.txt';
+    var f4 = 'server/express/upload-fixture4.txt';
     var form = { writer: 'snowman', text: 'post with files', dfiles: ['nofile.txt', 'upload-fixture2.txt'] };
     local.put('/api/posts/' + tid + '/' + pid3).fields(form)
       .attach('files', f3).attach('files', f4).end(function (err, res) {

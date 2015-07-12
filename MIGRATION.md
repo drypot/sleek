@@ -3,10 +3,10 @@
 ##
     nginx:  
         location ~ /(?:css|image|js|lib)/ ->
-            location /modules/ {
+            location /static/ {
             }
 
-            location /modules/bower/ {
+            location /static/bower/ {
               alias /Users/drypot/projects/sleek/website/bower_components/;
             }
 
