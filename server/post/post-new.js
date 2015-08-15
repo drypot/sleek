@@ -3,15 +3,15 @@ var fs = require('fs');
 var init = require('../base/init');
 var error = require('../base/error');
 var config = require('../base/config');
-var fsp = require('../base/fs');
-var utilp = require('../base/util');
-var exp = require('../express/express');
-var upload = require('../express/upload');
+var fs2 = require('../base/fs2');
+var util2 = require('../base/util2');
+var expb = require('../express/express-base');
+var expu = require('../express/express-upload');
 var userb = require('../user/user-base');
 var postb = require('../post/post-base');
 var postn = exports;
 
-exp.core.get('/posts/new', function (req, res, done) {
+expb.core.get('/posts/new', function (req, res, done) {
   userb.checkUser(res, function (err, user) {
     if (err) return done(err);
     var cid = parseInt(req.query.c) || 0;
@@ -19,11 +19,11 @@ exp.core.get('/posts/new', function (req, res, done) {
   });
 });
 
-exp.core.post('/api/posts', upload.handler(function (req, res, done) {
+expb.core.post('/api/posts', expu.handler(function (req, res, done) {
   createPost(req, res, done);
 }));
 
-exp.core.post('/api/posts/:tid([0-9]+)', upload.handler(function (req, res, done) {
+expb.core.post('/api/posts/:tid([0-9]+)', expu.handler(function (req, res, done) {
   createPost(req, res, done);
 }));
 
@@ -34,7 +34,7 @@ function createPost(req, res, done) {
     var newThread = !form.tid;
     checkForm(form, newThread, function (err) {
       if (err) return done(err);
-      utilp.fif(newThread, function (next) {
+      util2.fif(newThread, function (next) {
         var thread = {
           _id : postb.getNewThreadId(),
           cid: form.cid,
@@ -69,7 +69,7 @@ function createPost(req, res, done) {
             if (err) return done(err);
             postb.posts.insertOne(post, function (err) {
               if (err) return done(err);
-              utilp.fif(newThread, function (next) {
+              util2.fif(newThread, function (next) {
                 postb.threads.insertOne(thread, next)
               }, function (next) {
                 postb.threads.updateOne({ _id: thread._id }, { $inc: { length: 1 }, $set: { udate: form.now }}, next);
@@ -103,7 +103,7 @@ var getForm = postn.getForm = function (req) {
   form.visible = body.hasOwnProperty('visible') ? !!body.visible : true;
   form.files = req.files && req.files.files;
   form.dfiles = body.dfiles; // for update
-  form.tokens = utilp.tokenize(form.title, form.writer, form.text);
+  form.tokens = util2.tokenize(form.title, form.writer, form.text);
   return form;
 };
 
@@ -132,7 +132,7 @@ var checkForm = postn.checkForm = function (form, newThread, done) {
 
 var saveFiles = postn.saveFiles = function (form, post, done) {
   if (!form.files) return done();
-  fsp.makeDir(postb.getFileDir(post._id), function (err, dir) {
+  fs2.makeDir(postb.getFileDir(post._id), function (err, dir) {
     if (err) return done(err);
     var saved = []; // 업데이트에서 같은 이름의 파일이 업로드될 수 있으므로 post.files 에 바로 push 하지 않는다.
     var i = 0;
@@ -147,7 +147,7 @@ var saveFiles = postn.saveFiles = function (form, post, done) {
         return;
       }
       if (post.files) {
-        utilp.mergeArray(post.files, saved, function (file1, file2) {
+        util2.mergeArray(post.files, saved, function (file1, file2) {
           return file1.name === file2.name;
         });
       } else {

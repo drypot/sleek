@@ -1,21 +1,21 @@
 var init = require('../base/init');
 var error = require('../base/error');
-var utilp = require('../base/util');
+var util2 = require('../base/util2');
 var config = require('../base/config');
-var exp = require('../express/express');
+var expb = require('../express/express-base');
 var userb = require('../user/user-base');
 var postb = require('../post/post-base');
 var postl = exports;
 
-exp.core.get('/', function (req, res, done) {
+expb.core.get('/', function (req, res, done) {
   res.redirect('/posts');
 });
 
-exp.core.get('/posts', function (req, res, done) {
+expb.core.get('/posts', function (req, res, done) {
   getThreads(req, res, false, done);
 });
 
-exp.core.get('/api/posts', function (req, res, done) {
+expb.core.get('/api/posts', function (req, res, done) {
   getThreads(req, res, true, done);
 });
 
@@ -25,7 +25,7 @@ function getThreads(req, res, api, done) {
     var cid = parseInt(req.query.c) || 0;
     var pg = Math.max(parseInt(req.query.pg) || 1, 1);
     var pgsize = Math.min(Math.max(parseInt(req.query.ps) || 16, 1), 128);
-    utilp.fif(cid, function (next) {
+    util2.fif(cid, function (next) {
       postb.checkCategory(user, cid, function (err, category) {
         if (err) return done(err);
         next(
@@ -57,7 +57,7 @@ function getThreads(req, res, api, done) {
                 name: c.name
               };
             }
-            thread.udateStr = utilp.toDateTimeString(thread.udate),
+            thread.udateStr = util2.toDateTimeString(thread.udate),
             thread.udate = thread.udate.getTime(),
             threads.push(thread);
             return setImmediate(read);
@@ -72,8 +72,8 @@ function getThreads(req, res, api, done) {
             res.render('post/post-list', {
               category: category,
               threads: threads,
-              prev: pg > 1 ? new utilp.UrlMaker('/posts').add('c', cid, 0).add('pg', pg - 1, 1).done() : undefined,
-              next: !last ? new utilp.UrlMaker('/posts').add('c', cid, 0).add('pg', pg + 1).done() : undefined
+              prev: pg > 1 ? new util2.UrlMaker('/posts').add('c', cid, 0).add('pg', pg - 1, 1).done() : undefined,
+              next: !last ? new util2.UrlMaker('/posts').add('c', cid, 0).add('pg', pg + 1).done() : undefined
             });
           }
         });
@@ -82,6 +82,6 @@ function getThreads(req, res, api, done) {
   });
 }
 
-exp.core.get('/threads', function (req, res, done) {
+expb.core.get('/threads', function (req, res, done) {
   res.redirect('/posts');
 });

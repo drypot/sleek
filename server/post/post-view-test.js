@@ -1,13 +1,13 @@
 var init = require('../base/init');
 var error = require('../base/error');
 var config = require('../base/config')({ path: 'config/test.json' });
-var mongop = require('../mongo/mongo')({ dropDatabase: true });
-var exp = require('../express/express');
+var mongob = require('../mongo/mongo-base')({ dropDatabase: true });
+var expb = require('../express/express-base');
 var userf = require('../user/user-fixture');
 var postn = require('../post/post-new');
 var postv = require('../post/post-view');
-var local = require('../express/local');
-var expect = require('../base/assert').expect;
+var expl = require('../express/express-local');
+var expect = require('../base/assert2').expect;
 
 before(function (done) {
   init.run(done);
@@ -20,7 +20,7 @@ describe('thread and posts', function () {
   });
   it('given thread', function (done) {
     var form = { cid: 100, writer: 'snowman', title: 'title', text: 'post1' };
-    local.post('/api/posts').send(form).end(function (err, res) {
+    expl.post('/api/posts').send(form).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       tid = res.body.tid;
@@ -29,7 +29,7 @@ describe('thread and posts', function () {
   });
   it('given reply', function (done) {
     var form = { writer: 'snowman2', text: 'post2' };
-    local.post('/api/posts/' + tid).send(form).end(function (err, res) {
+    expl.post('/api/posts/' + tid).send(form).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       done();
@@ -40,7 +40,7 @@ describe('thread and posts', function () {
   });
   it('given invisible reply', function (done) {
     var form = { writer: 'admin', text: 'post3', visible: false };
-    local.post('/api/posts/' + tid).send(form).end(function (err, res) {
+    expl.post('/api/posts/' + tid).send(form).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       done();
@@ -50,7 +50,7 @@ describe('thread and posts', function () {
     userf.logout(done);
   });
   it('should fail', function (done) {
-    local.get('/api/posts/0', function (err, res) {
+    expl.get('/api/posts/0', function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).error('NOT_AUTHENTICATED');
       done();
@@ -60,7 +60,7 @@ describe('thread and posts', function () {
     userf.login('user', done);
   });
   it('should return 2 posts', function (done) {
-    local.get('/api/posts/' + tid, function (err, res) {
+    expl.get('/api/posts/' + tid, function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       expect(res.body.posts).length(2);
@@ -71,7 +71,7 @@ describe('thread and posts', function () {
     userf.login('admin', done);
   });
   it('should return 3 posts', function (done) {
-    local.get('/api/posts/' + tid, function (err, res) {
+    expl.get('/api/posts/' + tid, function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       expect(res.body.posts).length(3);
@@ -87,7 +87,7 @@ describe('post editable', function () {
   });
   it('given thread', function (done) {
     var form = { cid: 100, writer: 'snowman', title: 'title 1', text: 'post 1' };
-      local.post('/api/posts').send(form).end(function (err, res) {
+      expl.post('/api/posts').send(form).end(function (err, res) {
         expect(err).not.exist;
         expect(res.body.err).not.exist;
         tid = res.body.tid;
@@ -97,7 +97,7 @@ describe('post editable', function () {
     );
   });
   it('should be true', function (done) {
-    local.get('/api/posts/' + tid, function (err, res) {
+    expl.get('/api/posts/' + tid, function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       expect(res.body.posts[0].editable).true;
@@ -105,11 +105,11 @@ describe('post editable', function () {
     });
   });
   it('given new user session', function (done) {
-    local.newAgent();
+    expl.newAgent();
     userf.login('user', done);
   });
   it('should be false', function (done) {
-    local.get('/api/posts/' + tid, function (err, res) {
+    expl.get('/api/posts/' + tid, function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       expect(res.body.posts[0].editable).false;
@@ -120,7 +120,7 @@ describe('post editable', function () {
     userf.login('admin', done);
   });
   it('should be true', function (done) {
-    local.get('/api/posts/' + tid, function (err, res) {
+    expl.get('/api/posts/' + tid, function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       expect(res.body.posts[0].editable).true;
@@ -131,7 +131,7 @@ describe('post editable', function () {
 
 describe('redirects', function () {
   it('should success', function (done) {
-    local.get('/post/10').redirects(0).end(function (err, res) {
+    expl.get('/post/10').redirects(0).end(function (err, res) {
       expect(err).exist;
       expect(res).status(302); // Moved Temporarily 
       expect(res).header('location', '/posts/10');
@@ -139,7 +139,7 @@ describe('redirects', function () {
     });
   });
   it('should success', function (done) {
-    local.get('/threads/10').redirects(0).end(function (err, res) {
+    expl.get('/threads/10').redirects(0).end(function (err, res) {
       expect(err).exist;
       expect(res).status(302); // Moved Temporarily 
       expect(res).header('location', '/posts/10');

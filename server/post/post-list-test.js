@@ -1,14 +1,14 @@
 var init = require('../base/init');
 var error = require('../base/error');
 var config = require('../base/config')({ path: 'config/test.json' });
-var mongop = require('../mongo/mongo')({ dropDatabase: true });
-var exp = require('../express/express');
+var mongob = require('../mongo/mongo-base')({ dropDatabase: true });
+var expb = require('../express/express-base');
 var userb = require('../user/user-base');
 var userf = require('../user/user-fixture');
 var postn = require('../post/post-new');
 var postl = require('../post/post-list');
-var local = require('../express/local');
-var expect = require('../base/assert').expect;
+var expl = require('../express/express-local');
+var expect = require('../base/assert2').expect;
 
 before(function (done) {
   init.run(done);
@@ -33,7 +33,7 @@ describe('preparing sample docs', function () {
     var i = 0;
     (function insert() {
       if (i < samples.length) {
-        local.post('/api/posts').send(samples[i++]).end(function (err, res) {
+        expl.post('/api/posts').send(samples[i++]).end(function (err, res) {
           expect(err).not.exist;
           expect(res.body.err).not.exist;
           setImmediate(insert);
@@ -50,14 +50,14 @@ describe('checking user', function () {
     userf.logout(done);
   });
   it('api should fail', function (done) {
-    local.get('/api/posts', function (err, res) {
+    expl.get('/api/posts', function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).error('NOT_AUTHENTICATED');
       done();
     });
   });
   it('/ should redirected', function (done) {
-    local.get('/').redirects(0).end(function (err, res) {
+    expl.get('/').redirects(0).end(function (err, res) {
       expect(err).exist;
       expect(res).status(302); // Moved Temporarily 
       expect(res).header('location', '/posts');
@@ -65,7 +65,7 @@ describe('checking user', function () {
     });
   });
   it('/posts should redirected', function (done) {
-    local.get('/posts').redirects(0).end(function (err, res) {
+    expl.get('/posts').redirects(0).end(function (err, res) {
       expect(err).exist;
       expect(res).status(302); // Moved Temporarily 
       expect(res).header('location', '/users/login');
@@ -76,14 +76,14 @@ describe('checking user', function () {
     userf.login('user', done);
   });
   it('api should success', function (done) {
-    local.get('/api/posts', function (err, res) {
+    expl.get('/api/posts', function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       done();
     });
   });
   it('/ should redirected', function (done) {
-    local.get('/').redirects(0).end(function (err, res) {
+    expl.get('/').redirects(0).end(function (err, res) {
       expect(err).exist;
       expect(res).status(302); // Moved Temporarily 
       expect(res).header('location', '/posts');
@@ -91,7 +91,7 @@ describe('checking user', function () {
     });
   });
   it('/posts should success', function (done) {
-    local.get('/posts').redirects(0).end(function (err, res) {
+    expl.get('/posts').redirects(0).end(function (err, res) {
       expect(err).not.exist;
       expect(res.text).contains('<title>all');
       done();
@@ -104,7 +104,7 @@ describe('listing threads', function () {
     userf.login('admin', done);
   });
   it('category 0 should success', function (done) {
-    local.get('/api/posts', function (err, res) {
+    expl.get('/api/posts', function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       var threads = res.body.threads;
@@ -125,7 +125,7 @@ describe('listing threads', function () {
     userf.login('user', done);
   });
   it('category 0 should success', function (done) {
-    local.get('/api/posts', function (err, res) {
+    expl.get('/api/posts', function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       var threads = res.body.threads;
@@ -143,7 +143,7 @@ describe('listing threads', function () {
     });
   });
   it('category 0 page 2 should success', function (done) {
-    local.get('/api/posts').query({ c: 0, pg: 2, ps: 3 }).end(function (err, res) {
+    expl.get('/api/posts').query({ c: 0, pg: 2, ps: 3 }).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       var threads = res.body.threads;
@@ -155,7 +155,7 @@ describe('listing threads', function () {
     });
   });
   it('category 100 should success', function (done) {
-    local.get('/api/posts').query({ c: 100 }).end(function (err, res) {
+    expl.get('/api/posts').query({ c: 100 }).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       var threads = res.body.threads;
@@ -165,14 +165,14 @@ describe('listing threads', function () {
     });
   });
   it('category 40 should fail', function (done) {
-    local.get('/api/posts').query({ c: 40 }).end(function (err, res) {
+    expl.get('/api/posts').query({ c: 40 }).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).error('INVALID_CATEGORY');
       done();
     });
   });
   it('category 0 should have category field', function (done) {
-    local.get('/api/posts').query({ c: 0, ps: 1 }).end(function (err, res) {
+    expl.get('/api/posts').query({ c: 0, ps: 1 }).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       var threads = res.body.threads;
@@ -187,7 +187,7 @@ describe('listing threads', function () {
     });
   });
   it('category 100 should have no category field', function (done) {
-    local.get('/api/posts').query({ c: 100, ps: 1 }).end(function (err, res) {
+    expl.get('/api/posts').query({ c: 100, ps: 1 }).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       var threads = res.body.threads;
@@ -201,7 +201,7 @@ describe('listing threads', function () {
     });
   });
   it('page 1 is not last', function (done) {
-    local.get('/api/posts').query({ c: 0, pg: 1, ps: 4 }).end(function (err, res) {
+    expl.get('/api/posts').query({ c: 0, pg: 1, ps: 4 }).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       expect(res.body.last).false;
@@ -209,7 +209,7 @@ describe('listing threads', function () {
     });
   });
   it('page 2 is not last', function (done) {
-    local.get('/api/posts').query({ c: 0, pg: 2, ps: 4 }).end(function (err, res) {
+    expl.get('/api/posts').query({ c: 0, pg: 2, ps: 4 }).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       expect(res.body.last).false;
@@ -217,7 +217,7 @@ describe('listing threads', function () {
     });
   });
   it('page 3 is last', function (done) {
-    local.get('/api/posts').query({ c: 0, pg: 3, ps: 4 }).end(function (err, res) {
+    expl.get('/api/posts').query({ c: 0, pg: 3, ps: 4 }).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       expect(res.body.last).true;
@@ -228,7 +228,7 @@ describe('listing threads', function () {
 
 describe('redirects', function () {
   it('should success', function (done) {
-    local.get('/threads').redirects(0).end(function (err, res) {
+    expl.get('/threads').redirects(0).end(function (err, res) {
       expect(err).exist;
       expect(res).status(302); // Moved Temporarily 
       expect(res).header('location', '/posts');

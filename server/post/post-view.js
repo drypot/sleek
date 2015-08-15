@@ -1,17 +1,17 @@
 var init = require('../base/init');
 var error = require('../base/error');
 var config = require('../base/config');
-var utilp = require('../base/util');
-var exp = require('../express/express');
+var util2 = require('../base/util2');
+var expb = require('../express/express-base');
 var userb = require('../user/user-base');
 var postb = require('../post/post-base');
 var postv = exports;
 
-exp.core.get('/posts/:tid([0-9]+)', function (req, res, done) {
+expb.core.get('/posts/:tid([0-9]+)', function (req, res, done) {
   view(req, res, false, done);
 });
 
-exp.core.get('/api/posts/:tid([0-9]+)', function (req, res, done) {
+expb.core.get('/api/posts/:tid([0-9]+)', function (req, res, done) {
   view(req, res, true, done);
 });
 
@@ -39,7 +39,7 @@ function view(req, res, api, done) {
                 if (post.visible || user.admin) {
                   postb.addFileUrls(post);
                   post.editable = postb.isEditable(user, post._id, req.session.pids);
-                  post.cdateStr = utilp.toDateTimeString(post.cdate),
+                  post.cdateStr = util2.toDateTimeString(post.cdate),
                   post.cdate = post.cdate.getTime(),
                   posts.push(post);
                 }
@@ -66,6 +66,6 @@ function view(req, res, api, done) {
   });
 }
 
-exp.core.get([ '/post/*', '/threads/*' ], function (req, res, done) {
+expb.core.get([ '/post/*', '/threads/*' ], function (req, res, done) {
   res.redirect('/posts/' + req.url.match(/^\/(?:post|threads)\/(.*)/)[1]);
 });

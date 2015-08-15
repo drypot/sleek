@@ -4,7 +4,7 @@ var bcrypt = require('bcrypt');
 var init = require('../base/init');
 var error = require('../base/error');
 var config = require('../base/config');
-var exp = require('../express/express');
+var expb = require('../express/express-base');
 var userb = exports;
 
 error.define('NOT_AUTHENTICATED', '먼저 로그인해 주십시오.');
@@ -65,7 +65,7 @@ userb.checkAdmin = function (res, done) {
 
 // login
 
-exp.redirectToLogin = function (err, req, res, done) {
+expb.redirectToLogin = function (err, req, res, done) {
   if (!res.locals.api && err.code == error.NOT_AUTHENTICATED.code) {
     res.redirect('/users/login');
   } else {
@@ -73,11 +73,11 @@ exp.redirectToLogin = function (err, req, res, done) {
   }
 };
 
-exp.core.get('/users/login', function (req, res, done) {
+expb.core.get('/users/login', function (req, res, done) {
   res.render('user/user-base-login');
 });
 
-exp.core.post('/api/users/login', function (req, res, done) {
+expb.core.post('/api/users/login', function (req, res, done) {
   var user = findByPassword(req.body.password || '');
   if (!user) {
     return done(error('PASSWORD_WRONG'));
@@ -101,7 +101,7 @@ exp.core.post('/api/users/login', function (req, res, done) {
   });
 });
 
-exp.autoLogin = function (req, res, done) {
+expb.autoLogin = function (req, res, done) {
   if (req.session.uname) {
     res.locals.user = users[req.session.uname];
     return done();
@@ -129,7 +129,7 @@ function createSession(req, res, user, done) {
 }
 
 // used for login test.
-exp.core.get('/api/users/login', function (req, res, done) {
+expb.core.get('/api/users/login', function (req, res, done) {
   userb.checkUser(res, function (err, user) {
     if (err) return done(err);
     res.json({
@@ -145,7 +145,7 @@ exp.core.get('/api/users/login', function (req, res, done) {
 
 // logout
 
-exp.core.post('/api/users/logout', function (req, res, done) {
+expb.core.post('/api/users/logout', function (req, res, done) {
   res.clearCookie('password');
   req.session.destroy();
   res.json({});

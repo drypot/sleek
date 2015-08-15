@@ -1,8 +1,8 @@
 var init = require('../base/init');
 var error = require('../base/error');
 var config = require('../base/config');
-var fsp = require('../base/fs');
-var mongop = require('../mongo/mongo');
+var fs2 = require('../base/fs2');
+var mongob = require('../mongo/mongo-base');
 var userb = require('../user/user-base');
 var postb = exports;
 
@@ -20,7 +20,7 @@ error.define('WRITER_TOO_LONG', '필명을 줄여 주십시오.', 'writer');
 var threadId;
 
 init.add(function (done) {
-  postb.threads = mongop.db.collection('threads');
+  postb.threads = mongob.db.collection('threads');
   postb.threads.ensureIndex({ cid: 1, udate: -1 }, function (err) {
     if (err) return done(err);
     postb.threads.ensureIndex({ udate: -1 }, done);
@@ -28,7 +28,7 @@ init.add(function (done) {
 });
 
 init.add(function (done) {
-  mongop.getLastId(postb.threads, function (err, id) {
+  mongob.getLastId(postb.threads, function (err, id) {
     if (err) return done(err);
     threadId = id;
     console.log('post-base: thread id = ' + threadId);
@@ -45,7 +45,7 @@ postb.getNewThreadId = function () {
 var postId;
 
 init.add(function (done) {
-  postb.posts = mongop.db.collection('posts');
+  postb.posts = mongob.db.collection('posts');
   postb.posts.ensureIndex({ tid: 1, cdate: 1 }, function (err) {
     if (err) return done(err);
     postb.posts.ensureIndex({ tokens: 1 }, done);
@@ -53,7 +53,7 @@ init.add(function (done) {
 });
 
 init.add(function (done) {
-  mongop.getLastId(postb.posts, function (err, id) {
+  mongob.getLastId(postb.posts, function (err, id) {
     if (err) return done(err);
     postId = id;
     console.log('post-base: post id = ' + postId);
@@ -68,12 +68,12 @@ postb.getNewPostId = function () {
 // files
 
 init.add(function (done) {
-  fsp.makeDir(config.uploadDir + '/public/post', function (err, dir) {
+  fs2.makeDir(config.uploadDir + '/public/post', function (err, dir) {
     if (err) return done(err);
 
     if (config.dev) {
       postb.emptyDir = function (done) {
-        fsp.emptyDir(dir, done);
+        fs2.emptyDir(dir, done);
       }
     }
 

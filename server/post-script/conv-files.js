@@ -1,6 +1,6 @@
 var init = require('../base/init');
 var config = require('../base/config');
-var mongop = require('../mongo/mongo');
+var mongob = require('../mongo/mongo-base');
 
 init.run(function (err) {
   if (err) throw err;

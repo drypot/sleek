@@ -1,17 +1,17 @@
 var init = require('../base/init');
 var error = require('../base/error');
 var config = require('../base/config');
-var utilp = require('../base/util');
-var exp = require('../express/express');
+var util2 = require('../base/util2');
+var expb = require('../express/express-base');
 var userb = require('../user/user-base');
 var postb = require('../post/post-base');
 var postsr = exports;
 
-exp.core.get('/posts/search', function (req, res, done) {
+expb.core.get('/posts/search', function (req, res, done) {
   search(req, res, false, done);
 });
 
-exp.core.get('/api/posts/search', function (req, res, done) {
+expb.core.get('/api/posts/search', function (req, res, done) {
   search(req, res, true, done);
 });
 
@@ -19,7 +19,7 @@ function search(req, res, api, done) {
   userb.checkUser(res, function (err, user) {
     if (err) return done(err);
     var query = req.query.q || '';
-    var tokens = utilp.tokenize(query);
+    var tokens = util2.tokenize(query);
     var pg = Math.max(parseInt(req.query.pg) || 1, 1);
     var pgsize = Math.min(Math.max(parseInt(req.query.ps) || 16, 1), 128);
     var categoryIndex = user.categoryIndex;
@@ -50,7 +50,7 @@ function search(req, res, api, done) {
                 name: category.name
               };
               post.text = post.text.slice(0, 256);
-              post.cdateStr = utilp.toDateTimeString(post.cdate),
+              post.cdateStr = util2.toDateTimeString(post.cdate),
               post.cdate = post.cdate.getTime(),
               posts.push(post);
             }
@@ -68,8 +68,8 @@ function search(req, res, api, done) {
           res.render('post/post-search', {
             query: req.query.q || '',
             posts: posts,
-            prev: pg > 1 ? new utilp.UrlMaker('/posts/search').add('q', query).add('pg', pg - 1, 1).done() : undefined,
-            next: !last ? new utilp.UrlMaker('/posts/search').add('q', query).add('pg', pg + 1).done() : undefined
+            prev: pg > 1 ? new util2.UrlMaker('/posts/search').add('q', query).add('pg', pg - 1, 1).done() : undefined,
+            next: !last ? new util2.UrlMaker('/posts/search').add('q', query).add('pg', pg + 1).done() : undefined
           });
         }
       });
@@ -90,7 +90,7 @@ postsr.rebuildTokens = function (done) {
             if (err) return done(err);
             if (post) {
               var head = postb.isHead(thread, post);
-              var tokens = utilp.tokenize(head ? thread.title : '', post.writer, post.text);
+              var tokens = util2.tokenize(head ? thread.title : '', post.writer, post.text);
               postb.posts.updateOne({ _id: post._id }, { $set: { tokens: tokens } }, function (err) {
                 if (err) return done(err);
                 count++;

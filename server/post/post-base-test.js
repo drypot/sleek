@@ -1,13 +1,13 @@
 var init = require('../base/init');
 var error = require('../base/error');
 var config = require('../base/config')({ path: 'config/test.json' });
-var mongop = require('../mongo/mongo')({ dropDatabase: true });
-var exp = require('../express/express');
+var mongob = require('../mongo/mongo-base')({ dropDatabase: true });
+var expb = require('../express/express-base');
 var userb = require('../user/user-base');
 var userf = require('../user/user-fixture');
 var postb = require('../post/post-base');
-var local = require('../express/local');
-var expect = require('../base/assert').expect;
+var expl = require('../express/express-local');
+var expect = require('../base/assert2').expect;
 
 before(function (done) {
   init.run(done);

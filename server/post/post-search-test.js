@@ -1,14 +1,14 @@
 var init = require('../base/init');
 var error = require('../base/error');
 var config = require('../base/config')({ path: 'config/test.json' });
-var mongop = require('../mongo/mongo')({ dropDatabase: true });
-var exp = require('../express/express');
+var mongob = require('../mongo/mongo-base')({ dropDatabase: true });
+var expb = require('../express/express-base');
 var userf = require('../user/user-fixture');
 var postb = require('../post/post-base');
 var postn = require('../post/post-new');
 var postsr = require('../post/post-search');
-var local = require('../express/local');
-var expect = require('../base/assert').expect;
+var expl = require('../express/express-local');
+var expect = require('../base/assert2').expect;
 
 before(function (done) {
   init.run(done);
@@ -34,7 +34,7 @@ describe('searching', function () {
     (function insert() {
       if (i < len) {
         var doc = docs[i++];
-        local.post('/api/posts').send(doc).end(function (err, res) {
+        expl.post('/api/posts').send(doc).end(function (err, res) {
           expect(err).not.exist;;
           expect(res.body.err).not.exist;
           doc.pid = res.body.pid;
@@ -50,7 +50,7 @@ describe('searching', function () {
     userf.logout(done);
   });
   it('should fail', function (done) {
-    local.get('/api/posts/search', function (err, res) {
+    expl.get('/api/posts/search', function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).error('NOT_AUTHENTICATED');
       done();
@@ -60,7 +60,7 @@ describe('searching', function () {
     userf.login('admin', done);
   });
   it('should success', function (done) {
-    local.get('/api/posts/search').query({ q: 'text' }).end(function (err, res) {
+    expl.get('/api/posts/search').query({ q: 'text' }).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       var r = res.body.posts;
@@ -75,7 +75,7 @@ describe('searching', function () {
     userf.login('user', done);
   });
   it('should success', function (done) {
-    local.get('/api/posts/search').query({ q: 'text' }).end(function (err, res) {
+    expl.get('/api/posts/search').query({ q: 'text' }).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       var r = res.body.posts;
@@ -86,7 +86,7 @@ describe('searching', function () {
     });
   });
   it('user name should success', function (done) {
-    local.get('/api/posts/search').query({ q: 'snowman' }).end(function (err, res) {
+    expl.get('/api/posts/search').query({ q: 'snowman' }).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       var r = res.body.posts;
@@ -98,7 +98,7 @@ describe('searching', function () {
     });
   });
   it('title should success', function (done) {
-    local.get('/api/posts/search').query({ q: 'title 4' }).end(function (err, res) {
+    expl.get('/api/posts/search').query({ q: 'title 4' }).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       var r = res.body.posts;
@@ -108,7 +108,7 @@ describe('searching', function () {
     });
   });
   it('text should success', function (done) {
-    local.get('/api/posts/search').query({ q: 'apple orange' }).end(function (err, res) {
+    expl.get('/api/posts/search').query({ q: 'apple orange' }).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       var r = res.body.posts;
@@ -119,7 +119,7 @@ describe('searching', function () {
     });
   });
   it('hangul should success', function (done) {
-    local.get('/api/posts/search').query({ q: '둥글' }).end(function (err, res) {
+    expl.get('/api/posts/search').query({ q: '둥글' }).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       var r = res.body.posts;
@@ -147,11 +147,11 @@ describe('rebuilding tokens', function () {
   });
   it('given post', function (done) {
     var form = { cid: 100, writer: '이철이', title: '첫번째 글줄', text: '안녕하세요' };
-    local.post('/api/posts').send(form).end(function (err, res) {
+    expl.post('/api/posts').send(form).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       var form = { writer: '김순이', text: '둥글게 네모나게 붉게 파랗게' };
-      local.post('/api/posts/' + res.body.tid).send(form).end(function (err, res) {
+      expl.post('/api/posts/' + res.body.tid).send(form).end(function (err, res) {
         expect(err).not.exist;
         expect(res.body.err).not.exist;
         done();
@@ -160,14 +160,14 @@ describe('rebuilding tokens', function () {
   });
   it('given post', function (done) {
     var form = { cid: 100, writer: '박철수', title: '두번째 글줄', text: '붉은 벽돌길을 걷다보면' };
-    local.post('/api/posts').send(form).end(function (err, res) {
+    expl.post('/api/posts').send(form).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       done();
     });
   });
   it('search should success', function (done) {
-    local.get('/api/posts/search').query({ q: '첫번째' }).end(function (err, res) {
+    expl.get('/api/posts/search').query({ q: '첫번째' }).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       var r = res.body.posts;
@@ -177,7 +177,7 @@ describe('rebuilding tokens', function () {
     });
   });
   it('search should success', function (done) {
-    local.get('/api/posts/search').query({ q: '둥글게 네모나게' }).end(function (err, res) {
+    expl.get('/api/posts/search').query({ q: '둥글게 네모나게' }).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       var r = res.body.posts;
@@ -187,7 +187,7 @@ describe('rebuilding tokens', function () {
     });
   });
   it('search should success', function (done) {
-    local.get('/api/posts/search').query({ q: '박철수' }).end(function (err, res) {
+    expl.get('/api/posts/search').query({ q: '박철수' }).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       var r = res.body.posts;
@@ -200,7 +200,7 @@ describe('rebuilding tokens', function () {
     postb.posts.updateMany({}, { $unset: { tokens: 1 } }, done);
   });
   it('result should be empty', function (done) {
-    local.get('/api/posts/search').query({ q: '첫번째' }).end(function (err, res) {
+    expl.get('/api/posts/search').query({ q: '첫번째' }).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       expect(res.body.posts).length(0);
@@ -208,7 +208,7 @@ describe('rebuilding tokens', function () {
     });
   });
   it('result should be empty', function (done) {
-    local.get('/api/posts/search').query({ q: '둥글게 네모나게' }).end(function (err, res) {
+    expl.get('/api/posts/search').query({ q: '둥글게 네모나게' }).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       expect(res.body.posts).length(0);
@@ -216,7 +216,7 @@ describe('rebuilding tokens', function () {
     });
   });
   it('result should be empty', function (done) {
-    local.get('/api/posts/search').query({ q: '박철수' }).end(function (err, res) {
+    expl.get('/api/posts/search').query({ q: '박철수' }).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       var r = res.body.posts;
@@ -228,7 +228,7 @@ describe('rebuilding tokens', function () {
     postsr.rebuildTokens(done);
   });
   it('search should success', function (done) {
-    local.get('/api/posts/search').query({ q: '첫번째' }).end(function (err, res) {
+    expl.get('/api/posts/search').query({ q: '첫번째' }).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       var r = res.body.posts;
@@ -238,7 +238,7 @@ describe('rebuilding tokens', function () {
     });
   });
   it('search should success', function (done) {
-    local.get('/api/posts/search').query({ q: '둥글게 네모나게' }).end(function (err, res) {
+    expl.get('/api/posts/search').query({ q: '둥글게 네모나게' }).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       var r = res.body.posts;
@@ -248,7 +248,7 @@ describe('rebuilding tokens', function () {
     });
   });
   it('search should success', function (done) {
-    local.get('/api/posts/search').query({ q: '박철수' }).end(function (err, res) {
+    expl.get('/api/posts/search').query({ q: '박철수' }).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       var r = res.body.posts;

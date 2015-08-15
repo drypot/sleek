@@ -1,14 +1,14 @@
 var init = require('../base/init');
 var error = require('../base/error');
 var config = require('../base/config')({ path: 'config/test.json' });
-var mongop = require('../mongo/mongo')({ dropDatabase: true });
-var exp = require('../express/express');
+var mongob = require('../mongo/mongo-base')({ dropDatabase: true });
+var expb = require('../express/express-base');
 var userb = require('../user/user-base');
 var userf = require('../user/user-fixture');
 var postb = require('../post/post-base');
 var postn = require('../post/post-new');
-var local = require('../express/local');
-var expect = require('../base/assert').expect;
+var expl = require('../express/express-local');
+var expect = require('../base/assert2').expect;
 
 before(function (done) {
   init.run(done);
@@ -19,7 +19,7 @@ describe('creating thread', function () {
     userf.logout(done);
   });
   it('should fail', function (done) {
-    local.post('/api/posts', function (err, res) {
+    expl.post('/api/posts', function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).error('NOT_AUTHENTICATED');
       done();
@@ -30,7 +30,7 @@ describe('creating thread', function () {
   });
   it('should success', function (done) {
     var form = { cid: 100, writer: 'snowman', title: 'title 1', text: 'post 1' };
-    local.post('/api/posts').send(form).end(function (err, res) {
+    expl.post('/api/posts').send(form).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       postb.threads.findOne({ _id: res.body.tid }, function (err, thread) {
@@ -56,26 +56,26 @@ describe('creating thread', function () {
     });
   });
   it('file should success', function (done) {
-    var f1 = 'server/express/upload-fixture1.txt';
-    var f2 = 'server/express/upload-fixture2.txt';
+    var f1 = 'server/express/express-upload-f1.txt';
+    var f2 = 'server/express/express-upload-f2.txt';
     var form = { cid: 100, writer: 'snowman', title: 'title 1', text: 'post 1' };
-    local.post('/api/posts').fields(form).attach('files', f1).attach('files', f2).end(function (err, res) {
+    expl.post('/api/posts').fields(form).attach('files', f1).attach('files', f2).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       postb.posts.findOne({ _id: res.body.pid }, function (err, post) {
         expect(err).not.exist;
         expect(post.files).length(2);
-        expect(post.files[0].name).equal('upload-fixture1.txt');
-        expect(post.files[1].name).equal('upload-fixture2.txt');
-        expect('upload/sleek-test/public/post/0/' + post._id + '/upload-fixture1.txt').pathExist;
-        expect('upload/sleek-test/public/post/0/' + post._id + '/upload-fixture2.txt').pathExist;
+        expect(post.files[0].name).equal('express-upload-f1.txt');
+        expect(post.files[1].name).equal('express-upload-f2.txt');
+        expect('upload/sleek-test/public/post/0/' + post._id + '/express-upload-f1.txt').pathExist;
+        expect('upload/sleek-test/public/post/0/' + post._id + '/express-upload-f2.txt').pathExist;
         done();
       })
     });
   });
   it('empty title should fail', function (done) {
     var form = { cid: 100, writer: 'snowman', title: ' ', text: 'text' };
-    local.post('/api/posts').send(form).end(function (err, res) {
+    expl.post('/api/posts').send(form).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).error('TITLE_EMPTY');
       done();
@@ -84,7 +84,7 @@ describe('creating thread', function () {
   it('logn title should fail', function (done) {
     var bigTitle = 'big title title title title title title title title title title title title title title title title title title title title title title title title title title title title';
     var form = { cid: 100, writer: 'snowman', text: 'text', title: bigTitle };
-    local.post('/api/posts').send(form).end(function (err, res) {
+    expl.post('/api/posts').send(form).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).error('TITLE_TOO_LONG');
       done();
@@ -92,7 +92,7 @@ describe('creating thread', function () {
   });
   it('empty writer should fail', function (done) {
     var form = { cid: 100, writer: ' ', title: 'title', text: 'text' };
-    local.post('/api/posts').send(form).end(function (err, res) {
+    expl.post('/api/posts').send(form).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).error('WRITER_EMPTY');
       done();
@@ -100,7 +100,7 @@ describe('creating thread', function () {
   });
   it('long writer should fail', function (done) {
     var form = { cid: 100, writer: '123456789012345678901234567890123', title: 'title', text: 'text' };
-    local.post('/api/posts').send(form).end(function (err, res) {
+    expl.post('/api/posts').send(form).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).error('WRITER_TOO_LONG');
       done();
@@ -108,7 +108,7 @@ describe('creating thread', function () {
   });
   it('invalid category should fail', function (done) {
     var form = { cid: 9999, writer: 'snowman', title: 'title', text: 'text' };
-    local.post('/api/posts').send(form).end(function (err, res) {
+    expl.post('/api/posts').send(form).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).error('INVALID_CATEGORY');
       done();
@@ -116,7 +116,7 @@ describe('creating thread', function () {
   });
   it('to recycle bin should fail', function (done) {
     var form = { cid: 40, writer: 'snowman', title: 'title', text: 'text' };
-    local.post('/api/posts').send(form).end(function (err, res) {
+    expl.post('/api/posts').send(form).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).error('INVALID_CATEGORY');
       done();
@@ -127,7 +127,7 @@ describe('creating thread', function () {
   });
   it('to recycle bin should success', function (done) {
     var form = { cid: 40, writer: 'snowman', title: 'title', text: 'text' };
-    local.post('/api/posts').send(form).end(function (err, res) {
+    expl.post('/api/posts').send(form).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       done();
@@ -141,7 +141,7 @@ describe('creating replay', function () {
     userf.logout(done);
   });
   it('should fail', function (done) {
-    local.post('/api/posts/0', function (err, res) {
+    expl.post('/api/posts/0', function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).error('NOT_AUTHENTICATED');
       done();
@@ -152,7 +152,7 @@ describe('creating replay', function () {
   });
   it('given thread', function (done) {
     var form = { cid: 100, writer: 'snowman', title: 'title 1', text: 'text' };
-    local.post('/api/posts').send(form).end(function (err, res) {
+    expl.post('/api/posts').send(form).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       tid = res.body.tid;
@@ -161,7 +161,7 @@ describe('creating replay', function () {
   });
   it('should success', function (done) {
     var form = { writer: 'snowman 2', text: 'text 2' };
-    local.post('/api/posts/' + tid).send(form).end(function (err, res) {
+    expl.post('/api/posts/' + tid).send(form).end(function (err, res) {
       expect(res.body.err).not.exist;
       expect(res.body).property('pid');
       postb.posts.findOne({ _id: res.body.pid }, function (err, post) {
@@ -183,7 +183,7 @@ describe('creating replay', function () {
   });
   it('thread 999 should fail', function (done) {
     var form = { writer: 'snowman', text: 'text' };
-    local.post('/api/posts/999').send(form).end(function (err, res) {
+    expl.post('/api/posts/999').send(form).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).error('INVALID_THREAD');
       done();
@@ -191,7 +191,7 @@ describe('creating replay', function () {
   });
   it('thread xxx should fail', function (done) {
     var form = { writer: 'snowman', text: 'text' };
-    local.post('/api/posts/xxx').send(form).end(function (err, res) {
+    expl.post('/api/posts/xxx').send(form).end(function (err, res) {
       expect(err).exist;
       expect(res.status).equal(404);
       done();
@@ -199,7 +199,7 @@ describe('creating replay', function () {
   });
   it('empty writer should fail', function (done) {
     var form = { writer: ' ', text: 'text' };
-    local.post('/api/posts/' + tid).send(form).end(function (err, res) {
+    expl.post('/api/posts/' + tid).send(form).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).error('WRITER_EMPTY');
       done();
@@ -214,7 +214,7 @@ describe('creating reply in recycle bin', function () {
   var tid;
   it('given thread', function (done) {
     var form = { cid: 40, writer: 'snowman', title: 'in recycle bin', text: 'text' };
-    local.post('/api/posts').send(form).end(function (err, res) {
+    expl.post('/api/posts').send(form).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       tid = res.body.tid;
@@ -223,7 +223,7 @@ describe('creating reply in recycle bin', function () {
   });
   it('should success', function (done) {
     var form = { writer: 'snowman', text: 'text' };
-    local.post('/api/posts/' + tid).send(form).end(function (err, res) {
+    expl.post('/api/posts/' + tid).send(form).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).not.exist;
       done();
@@ -234,7 +234,7 @@ describe('creating reply in recycle bin', function () {
   });
   it('should fail', function (done) {
     var form = { writer: 'snowman', text: 'text' };
-    local.post('/api/posts/' + tid).send(form).end(function (err, res) {
+    expl.post('/api/posts/' + tid).send(form).end(function (err, res) {
       expect(err).not.exist;
       expect(res.body.err).error('INVALID_CATEGORY');
       done();
