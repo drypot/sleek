@@ -3,7 +3,7 @@
   "appPort": 8001,
   "cookieSecret": "o;iejf832ndvs",
 
-  "uploadSite": "http://file.sleek.local:8080",
+  "uploadSite": "http://file.sleek.dev:8080",
   "uploadDir": "upload/sleek-test",
 
   "mongodb": "sleek-test",
