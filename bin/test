@@ -1,11 +1,11 @@
 for arg in ${@-server}; do
   if [ -f $arg ]; then
-    echo mocha --timeout 15000 $arg
-    mocha --timeout 15000 $arg
+    echo mocha $arg
+    mocha --timeout 15000 --exit $arg
   else
     for path in $(find ${arg} -name "*-test.js"); do
-      echo mocha --timeout 15000 $path
-      mocha --timeout 15000 $path
+      echo mocha $path
+      mocha --timeout 15000 --exit $path
       if [ $? -ne 0 ]; then break; fi
     done
   fi
