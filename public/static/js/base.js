@@ -99,6 +99,13 @@ $(function () {
     var _form = this._form;
     if (_form) {
       data = new FormData(_form instanceof jQuery ? _form[0] : _form);
+      // iOS 11.3, macOS 10.13.4 부터 empty file field 를 넣으면 전송을 못하는 버그를 우회
+      $('input[type=file]', _form).each(function() {
+        var files = $(this).prop('files');
+        if (files != undefined && files.length == 0) {
+            data.delete($(this).attr('name'));
+        }
+      });
       for (var key in this._obj) {
         data.append(key, this._obj[key]);
       }
