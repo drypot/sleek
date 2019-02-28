@@ -18,7 +18,7 @@ describe('threads', function () {
     expect(postb.threads).exist;
   });
   it('should be empty', function (done) {
-    postb.threads.count(function (err, count) {
+    postb.threads.countDocuments(function (err, count) {
       expect(err).not.exist;
       expect(count).equal(0);
       done();
@@ -41,7 +41,7 @@ describe('posts', function () {
     expect(postb.posts).exist;
   });
   it('should be empty', function (done) {
-    postb.posts.count(function (err, count) {
+    postb.posts.countDocuments(function (err, count) {
       expect(err).not.exist;
       expect(count).equal(0);
       done();

@@ -24,16 +24,16 @@ function view(req, res, api, done) {
       if (!thread) { return done(error('INVALID_THREAD')); }
       postb.checkCategory(user, thread.cid, function (err, category) {
         if (err) return done(err);
-        postb.threads.update({ _id: tid }, { $inc: { hit: 1 }}, function (err) {
+        postb.threads.updateOne({ _id: tid }, { $inc: { hit: 1 }}, function (err) {
           if (err) return done(err);
           var opt = {
-            fields: { tokens: 0 },
+            projection: { tokens: 0 },
             sort: { cdate: 1 }
           };
           var cursor = postb.posts.find({ tid: tid }, opt);
           var posts = [];
           (function read() {
-            cursor.nextObject(function (err, post) {
+            cursor.next(function (err, post) {
               if (err) return done(err);
               if (post) {
                 if (post.visible || user.admin) {

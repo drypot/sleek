@@ -22,7 +22,7 @@ expb.core.get('/posts/:tid([0-9]+)/:pid([0-9]+/edit)', function (req, res, done)
     postb.threads.findOne({ _id : tid }, function (err, thread) {
       if (err) return done(err);
       if (!thread) return done(error('INVALID_THREAD'));
-      postb.posts.findOne({ _id: pid }, { fields: { tokens: 0 } }, function (err, post) {
+      postb.posts.findOne({ _id: pid }, { projection: { tokens: 0 } }, function (err, post) {
         if (err) return done(err);
         if (!post || post.tid !== thread._id) return done(error('INVALID_POST'));
         postb.checkCategory(user, thread.cid, function (err, category) {
@@ -50,7 +50,7 @@ expb.core.put('/api/posts/:tid([0-9]+)/:pid([0-9]+)', expu.handler(function (req
     postb.threads.findOne({ _id : form.tid }, function (err, thread) {
       if (err) return done(err);
       if (!thread) return done(error('INVALID_THREAD'));
-      postb.posts.findOne({ _id: form.pid }, { fields: { tokens: 0 } }, function (err, post) {
+      postb.posts.findOne({ _id: form.pid }, { projection: { tokens: 0 } }, function (err, post) {
         if (err) return done(err);
         if (!post || post.tid !== thread._id) return done(error('INVALID_POST'));
         postb.checkCategory(user, thread.cid, function (err, category) {
@@ -73,13 +73,13 @@ expb.core.put('/api/posts/:tid([0-9]+)/:pid([0-9]+)', expu.handler(function (req
                   if (user.admin) {
                     post.visible = form.visible;
                   }
-                  postb.posts.save(post, function (err) {
+                  postb.posts.updateOne({ _id: post._id }, { $set: post }, function (err) {
                     if (err) return done(err);
                     util2.fif(head, function (next) {
                       thread.cid = form.cid;
                       thread.title = form.title;
                       thread.writer = form.writer;
-                      postb.threads.save(thread, next);
+                      postb.threads.updateOne({ _id: thread._id }, { $set: thread }, next);
                     }, function (err) {
                       if (err) return done(err);
                       res.json({});

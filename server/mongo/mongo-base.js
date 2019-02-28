@@ -15,15 +15,15 @@ var mongob = exports = module.exports = function (_opt) {
 // db
 
 init.add(function (done) {
-  mongo.MongoClient.connect('mongodb://localhost:27017/' + config.mongodb, function(err, db) {
+  mongo.MongoClient.connect('mongodb://localhost:27017', { useNewUrlParser: true }, function(err, client) {
     if (err) return done(err);
-    mongob.db = db;
+    mongob.db = client.db(config.mongodb);
     console.log('mongo: ' + mongob.db.databaseName);
     if (config.mongoUser) {
       mongob.db.authenticate(config.mongoUser, config.mongoPassword, done);
     } else {
       done();
-    }    
+    }
   });
 });
 
@@ -43,7 +43,7 @@ mongob.ObjectID = mongo.ObjectID;
 // _id 를 숫자로 쓰는 컬렉션만 페이징할 수 있다.
 
 mongob.findPage = function (col, query, gt, lt, ps, filter, done) {
-  
+
   readPage(getCursor());
 
   function getCursor() {
@@ -74,7 +74,7 @@ mongob.findPage = function (col, query, gt, lt, ps, filter, done) {
     var count = 0, first = 0, last = 0;
 
     (function read() {
-      cursor.nextObject(function (err, result) {
+      cursor.next(function (err, result) {
         if (err) return done(err);
         if (result) {
           count++;
@@ -106,7 +106,7 @@ mongob.findPage = function (col, query, gt, lt, ps, filter, done) {
         results.push(result);
       }
     }
-    
+
     function returnPage(more) {
       if (gt) {
         gt = more ? last : 0;
@@ -127,12 +127,12 @@ mongob.findPage = function (col, query, gt, lt, ps, filter, done) {
 mongob.forEach = function (col, doit, done) {
   var cursor = col.find();
   (function read() {
-    cursor.nextObject(function (err, obj) {
+    cursor.next(function (err, obj) {
       if (err) return done(err);
       if (obj) {
         doit(obj, function (err) {
           if (err) return done(err);
-          setImmediate(read);         
+          setImmediate(read);
         });
         return;
       }
@@ -142,8 +142,8 @@ mongob.forEach = function (col, doit, done) {
 };
 
 mongob.getLastId = function (col, done) {
-  var opt = { fields: { _id: 1 }, sort: { _id: -1 }, limit: 1 };
-  col.find({}, opt).nextObject(function (err, obj) {
+  var opt = { projection: { _id: 1 }, sort: { _id: -1 }, limit: 1 };
+  col.find({}, opt).next(function (err, obj) {
     done(err, obj ? obj._id : 0);
   });
 };

@@ -29,13 +29,13 @@ function getThreads(req, res, api, done) {
       postb.checkCategory(user, cid, function (err, category) {
         if (err) return done(err);
         next(
-          category, 
+          category,
           postb.threads.find({ cid: cid }).sort({ udate: -1 }).skip((pg - 1) * pgsize).limit(pgsize)
         );
       });
     }, function (next) {
       next(
-        { id: 0, name: 'all' }, 
+        { id: 0, name: 'all' },
         postb.threads.find({}).sort({ udate: -1 }).skip((pg - 1) * pgsize).limit(pgsize)
       );
     }, function (category, cursor) {
@@ -43,7 +43,7 @@ function getThreads(req, res, api, done) {
       var threads = [];
       var count = 0;
       (function read() {
-        cursor.nextObject(function (err, thread) {
+        cursor.next(function (err, thread) {
           if (err) return done(err);
           if (thread) {
             count++;

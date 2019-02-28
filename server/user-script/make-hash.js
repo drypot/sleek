@@ -3,7 +3,7 @@ var bcrypt = require('bcrypt');
 
 var funcs = {
   sha256: function (s) {
-    var buf = new Buffer(s, 'ucs2');
+    var buf = Buffer.from(s, 'ucs2');
     var hash = crypto.createHash('sha256');
     hash.update(buf);
     var d = hash.digest('base64');

@@ -21,9 +21,9 @@ var threadId;
 
 init.add(function (done) {
   postb.threads = mongob.db.collection('threads');
-  postb.threads.ensureIndex({ cid: 1, udate: -1 }, function (err) {
+  postb.threads.createIndex({ cid: 1, udate: -1 }, function (err) {
     if (err) return done(err);
-    postb.threads.ensureIndex({ udate: -1 }, done);
+    postb.threads.createIndex({ udate: -1 }, done);
   });
 });
 
@@ -46,9 +46,9 @@ var postId;
 
 init.add(function (done) {
   postb.posts = mongob.db.collection('posts');
-  postb.posts.ensureIndex({ tid: 1, cdate: 1 }, function (err) {
+  postb.posts.createIndex({ tid: 1, cdate: 1 }, function (err) {
     if (err) return done(err);
-    postb.posts.ensureIndex({ tokens: 1 }, done);
+    postb.posts.createIndex({ tokens: 1 }, done);
   });
 });
 

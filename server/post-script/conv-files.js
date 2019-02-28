@@ -6,7 +6,7 @@ init.run(function (err) {
   if (err) throw err;
   var posts = mongo.posts.find();
   (function nextPost() {
-    posts.nextObject(function (err, post) {
+    posts.next(function (err, post) {
       if (err) throw err;
       if (post) {
         if (post.files) {

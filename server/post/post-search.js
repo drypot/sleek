@@ -26,14 +26,14 @@ function search(req, res, api, done) {
     var posts = [];
     var count = 0;
     var opt = {
-      fields: { tokens: 0 },
+      projection: { tokens: 0 },
       skip: (pg - 1) * pgsize,
       sort: { cdate: -1 },
       limit: pgsize
     };
     var cursor = postb.posts.find({ tokens: { $all: tokens } }, opt);
     (function read() {
-      cursor.nextObject(function (err, post) {
+      cursor.next(function (err, post) {
         if (err) return done(err);
         if (post) {
           count++;
@@ -81,12 +81,12 @@ postsr.rebuildTokens = function (done) {
   var count = 0;
   var threads = postb.threads.find();
   (function readt() {
-    threads.nextObject(function (err, thread) {
+    threads.next(function (err, thread) {
       if (err) return done(err);
       if (thread) {
         var posts = postb.posts.find({ tid: thread._id });
         (function readp() {
-          posts.nextObject(function (err, post) {
+          posts.next(function (err, post) {
             if (err) return done(err);
             if (post) {
               var head = postb.isHead(thread, post);

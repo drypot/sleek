@@ -32,7 +32,7 @@ function findByPassword(password) {
   }
   for (var name in users) {
     var user = users[name];
-    var buf = new Buffer(password, 'ucs2');
+    var buf = Buffer.from(password, 'ucs2');
     var hash = crypto.createHash('sha256');
     hash.update(buf);
     if (hash.digest('base64') == user.hash) {
@@ -105,7 +105,7 @@ expb.autoLogin = function (req, res, done) {
   if (req.session.uname) {
     res.locals.user = users[req.session.uname];
     return done();
-  } 
+  }
   var password = req.cookies.password;
   if (!password) {
     return done();
