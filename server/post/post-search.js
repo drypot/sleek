@@ -31,10 +31,12 @@ function search(req, res, api, done) {
       sort: { cdate: -1 },
       limit: pgsize
     };
-    var cursor = postb.posts.find({ tokens: { $all: tokens } }, opt);
+    // tokens 인덱스가 불가능해졌다. 기능을 잠시 꺼둔다.
+    //var cursor = postb.posts.find({ tokens: { $all: tokens } }, opt);
     (function read() {
-      cursor.next(function (err, post) {
-        if (err) return done(err);
+      //cursor.next(function (err, post) {
+        //if (err) return done(err);
+        post = undefined;
         if (post) {
           count++;
           postb.threads.findOne({ _id: post.tid }, function (err, thread) {
@@ -72,7 +74,7 @@ function search(req, res, api, done) {
             next: !last ? new util2.UrlMaker('/posts/search').add('q', query).add('pg', pg + 1).done() : undefined
           });
         }
-      });
+      //});
     })();
   });
 }

@@ -14,7 +14,7 @@ before(function (done) {
   init.run(done);
 });
 
-describe('searching', function () {
+describe.skip('searching', function () {
   var docs = [
     { cid: 100, writer: 'snowman', title: 'title 1', text: 'apple orange banana' },
     { cid: 100, writer: 'snowman', title: 'title 2', text: 'apple orange pine' },
@@ -132,7 +132,7 @@ describe('searching', function () {
   });
 });
 
-describe('rebuilding tokens', function () {
+describe.skip('rebuilding tokens', function () {
   it('given user', function (done) {
     userf.login('user', done);
   });
