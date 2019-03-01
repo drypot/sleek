@@ -48,7 +48,9 @@ init.add(function (done) {
   postb.posts = mongob.db.collection('posts');
   postb.posts.createIndex({ tid: 1, cdate: 1 }, function (err) {
     if (err) return done(err);
-    postb.posts.createIndex({ tokens: 1 }, done);
+    //1024 사이즈 이상의 필드는 인덱스 생성이 안 되게 바뀌었다.
+    //postb.posts.createIndex({ tokens: 1 }, done);
+    done();
   });
 });
 
