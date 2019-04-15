@@ -50,7 +50,7 @@ describe('posts', function () {
   it('should have indexes', function (done) {
     postb.posts.indexes(function (err, indexes) {
       expect(err).not.exist;
-      expect(indexes).length(3);
+      expect(indexes).length(2);
       done();
     });
   });

@@ -73,7 +73,7 @@ describe('parsing form', function () {
 });
 
 describe('parsing one file', function () {
-  var f1 = 'server/express/express-upload-f1.txt';
+  var f1 = 'app/express/express-upload-f1.txt';
   var p1;
   it('given handler', function () {
     expb.core.post('/api/test/upload-one', expu.handler(function (req, res, done) {
@@ -97,8 +97,8 @@ describe('parsing one file', function () {
 });
 
 describe('parsing two files', function () {
-  var f1 = 'server/express/express-upload-f1.txt';
-  var f2 = 'server/express/express-upload-f2.txt';
+  var f1 = 'app/express/express-upload-f1.txt';
+  var f2 = 'app/express/express-upload-f2.txt';
   var p1, p2;
   it('given handler', function () {
     expb.core.post('/api/test/upload-two', expu.handler(function (req, res, done) {
@@ -128,7 +128,7 @@ describe('parsing two files', function () {
 });
 
 describe('parsing irregular filename', function () {
-  var f1 = 'server/express/express-upload-f1.txt';
+  var f1 = 'app/express/express-upload-f1.txt';
   var p1;
   it('given handler', function () {
     expb.core.post('/api/test/upload-irregular', expu.handler(function (req, res, done) {

@@ -72,7 +72,7 @@ mongodb, redis.
     Restart=always
     RestartSec=15
     WorkingDirectory=/data/web/sleek
-    ExecStart=/usr/bin/node server/main/main.js --config config/sleek-live.json
+    ExecStart=/usr/bin/node app/main/main.js --config config/sleek-live.json
     Environment=NODE_ENV=production
 
     [Install]

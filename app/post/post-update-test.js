@@ -103,9 +103,9 @@ describe('updating', function () {
     });
   });
   it('given files', function (done) {
-    var f1 = 'server/express/express-upload-f1.txt';
-    var f2 = 'server/express/express-upload-f2.txt';
-    var f3 = 'server/express/express-upload-f3.txt';
+    var f1 = 'app/express/express-upload-f1.txt';
+    var f2 = 'app/express/express-upload-f2.txt';
+    var f3 = 'app/express/express-upload-f3.txt';
     var form = { writer: 'snowman', text: 'post with files' };
     expl.post('/api/posts/' + tid).fields(form)
       .attach('files', f1).attach('files', f2).attach('files', f3).end(function (err, res) {
@@ -116,8 +116,8 @@ describe('updating', function () {
     });
   });
   it('updating files should success', function (done) {
-    var f3 = 'server/express/express-upload-f3.txt';
-    var f4 = 'server/express/express-upload-f4.txt';
+    var f3 = 'app/express/express-upload-f3.txt';
+    var f4 = 'app/express/express-upload-f4.txt';
     var form = { writer: 'snowman', text: 'post with files', dfiles: ['nofile.txt', 'express-upload-f2.txt'] };
     expl.put('/api/posts/' + tid + '/' + pid3).fields(form)
       .attach('files', f3).attach('files', f4).end(function (err, res) {
@@ -126,8 +126,8 @@ describe('updating', function () {
       postb.posts.findOne({ _id: pid3 }, function (err, post) {
         expect(err).not.exist;
         expect(post.files).eql([
-          { name : 'express-upload-f1.txt'}, 
-          { name : 'express-upload-f3.txt'}, 
+          { name : 'express-upload-f1.txt'},
+          { name : 'express-upload-f3.txt'},
           { name : 'express-upload-f4.txt'}
         ]);
         expect('upload/sleek-test/public/post/0/' + pid3 + '/express-upload-f1.txt').pathExist;
@@ -136,7 +136,7 @@ describe('updating', function () {
         expect('upload/sleek-test/public/post/0/' + pid3 + '/express-upload-f4.txt').pathExist;
         done();
       });
-    });    
+    });
   });
   it('deleting one file should success', function (done) {
     var form = { writer: 'snowman', text: 'post with files', dfiles: 'express-upload-f3.txt' };
@@ -146,7 +146,7 @@ describe('updating', function () {
       postb.posts.findOne({ _id: pid3 }, function (err, post) {
         expect(err).not.exist;
         expect(post.files).eql([
-          { name : 'express-upload-f1.txt'}, 
+          { name : 'express-upload-f1.txt'},
           { name : 'express-upload-f4.txt'}
         ]);
         expect('upload/sleek-test/public/post/0/' + pid3 + '/express-upload-f1.txt').pathExist;
@@ -154,7 +154,7 @@ describe('updating', function () {
         expect('upload/sleek-test/public/post/0/' + pid3 + '/express-upload-f4.txt').pathExist;
         done();
       });
-    });    
+    });
   });
   it('updating category should success', function (done) {
     var form = { cid: 102, writer: 'snowman', title: 'title', text: 'text' };

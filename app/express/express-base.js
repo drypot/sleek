@@ -25,11 +25,11 @@ init.add(function () {
 
   expb.app.engine('jade', require('jade').renderFile);
   expb.app.set('view engine', 'jade');
-  expb.app.set('views', 'server');
+  expb.app.set('views', 'app');
 
   expb.app.use(cookieParser());
-  expb.app.use(session({ 
-    store: new redisStore({ ttl: 1800 /* 단위: 초. 30 분 */ }), 
+  expb.app.use(session({
+    store: new redisStore({ ttl: 1800 /* 단위: 초. 30 분 */ }),
     resave: false,
     saveUninitialized: false,
     secret: config.cookieSecret
@@ -39,25 +39,25 @@ init.add(function () {
 
   expb.app.use(function (req, res, done) {
     res.locals.query = req.query;
-    
+
     // Response 의 Content-Type 을 지정할 방법을 마련해 두어야한다.
     // 각 핸들러에서 res.send(), res.json() 으로 Content-Type 을 간접적으로 명시할 수도 있지만
     // 에러 핸들러는 공용으로 사용하기 때문에 이 방식에 의존할 수 없다.
-    // 
-    // req.xhr: 
+    //
+    // req.xhr:
     //   node + superagent 로 테스트할 시에는 Fail.
     //
-    // req.is('json'): 
-    //   superagent 로 GET 할 경우 매번 type('json') 을 명시해야하며 
+    // req.is('json'):
+    //   superagent 로 GET 할 경우 매번 type('json') 을 명시해야하며
     //   그렇게 한다 하여도 Content-Length: 0 인 GET 을 type-is 가 제대로 처리하지 못하고 null 을 리턴한다. Fail.
     //
     // 위와 같이 클라이언트에서 보내주는 정보에 의존하는 것은 불안정하다.
     // 해서 /api/* 로 들어오는 Request 에 대한 에러 Content-Type 은 일괄 json 으로 한다.
     // json 이외의 결과 타입을 원하는 클라이언트에서도 json 타입 에러를 처리하는 것은 크게 어려워보이지 않는다.
 
-    res.locals.api = /^\/api\//.test(req.path);  
+    res.locals.api = /^\/api\//.test(req.path);
     if (res.locals.api) {
-      // IE 는 웹페이지까지만 refresh 하고 ajax request 는 refresh 하지 않는다.  
+      // IE 는 웹페이지까지만 refresh 하고 ajax request 는 refresh 하지 않는다.
       res.set('Cache-Control', 'no-cache');
     } else {
       // force web page cached.
