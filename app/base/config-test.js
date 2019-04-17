@@ -1,13 +1,16 @@
+'use strict';
+
 var init = require('../base/init');
-var config = require('../base/config')({ path: 'app/base/config-fixture.json' });
-var expect = require('../base/assert2').expect;
+var config = require('../base/config')({ path: 'config/test.json' });
+var assert = require('assert');
+var assert2 = require('../base/assert2');
 
 describe('config with valid path', function () {
-  it('should success', function (done) {
+  it('should succeed', function (done) {
     init.run(function (err) {
-      expect(err).not.exist;
-      expect(config.appName).exist;
-      expect(config.xxx).not.exist;
+      assert.ifError(err);
+      assert(config.appName !== undefined);
+      assert(config.xxx === undefined);
       done();
     });
   });

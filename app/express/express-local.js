@@ -1,7 +1,10 @@
+'use strict';
+
 var superagent = require('superagent');
 
 var config = require('../base/config');
-var expect = require('../base/assert2').expect;
+var assert = require('assert');
+var assert2 = require('../base/assert2');
 var expl = exports;
 
 // user-fixture 와 같이 여러 테스트 모듈이 세션을 공유할 필요가 있다.
@@ -10,7 +13,7 @@ var expl = exports;
 
 // superagent
 
-expect(superagent.Request.prototype.fields).not.exist;
+assert2.e(superagent.Request.prototype.fields, undefined);
 
 superagent.Request.prototype.fields = function(obj){
   for (var key in obj) {

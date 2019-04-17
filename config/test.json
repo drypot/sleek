@@ -10,6 +10,10 @@
   "mongoUser": "",
   "mongoPassword": "",
 
+  "mysqlDatabase": "sleek-test",
+  "mysqlUser": "drypot",
+  "mysqlPassword": "",
+
   "users": [
     { "name": "user", "hash": "$2a$10$ku7nymS.1CPd8jMttYXZMe4wVWweWr1EqaYst75tzimQh2iAAqvZW" },
     { "name": "cheater", "hash": "kT2h+N9vj9R1k4QNUzugRYzJhzmWvzEEYKu0lbNMIyo=", "comment": "sha256 hashed" },

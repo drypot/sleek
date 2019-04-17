@@ -1,27 +1,11 @@
+'use strict';
+
 var init = require('../base/init');
-var expect = require('../base/assert2').expect;
+var assert = require('assert');
+var assert2 = require('../base/assert2');
 
-describe('sync init function', function () {
-  it('should success', function (done) {
-    var a = [];
-    init.reset();
-    init.add(function () {
-      a.push(3);
-    });
-    init.add(function () {
-      a.push(7);
-    });
-    init.run(function () {
-      expect(a).length(2);
-      expect(a[0]).equal(3);
-      expect(a[1]).equal(7);
-      done();
-    });
-  });
-});
-
-describe('async init function', function () {
-  it('should success', function (done) {
+describe('init.run', function () {
+  it('should work', function (done) {
     var a = [];
     init.reset();
     init.add(function (done) {
@@ -33,20 +17,18 @@ describe('async init function', function () {
       done();
     });
     init.run(function () {
-      expect(a).length(2);
-      expect(a[0]).equal(33);
-      expect(a[1]).equal(77);
+      assert2.e(a.length, 2);
+      assert2.e(a[0], 33);
+      assert2.e(a[1], 77);
       done();
     });
   });
-});
-
-describe('sync throw', function () {
-  it('should success', function (done) {
+  it('should pass an error', function (done) {
     var a = [];
     init.reset();
-    init.add(function () {
+    init.add(function (done) {
       a.push(3);
+      done();
     });
     init.add(function (done) {
       try {
@@ -57,52 +39,35 @@ describe('sync throw', function () {
       }
     });
     init.run(function (err) {
-      expect(a).length(1);
-      expect(a[0]).equal(3);
-      expect(err).exist;
+      assert2.e(a.length, 1);
+      assert2.e(a[0], 3);
+      assert(err !== null);
       done();
     });
   });
 });
 
-describe('async throw', function () {
-  it('should success', function (done) {
+describe('init.tail', function () {
+  it('should work', function (done) {
     var a = [];
     init.reset();
     init.add(function (done) {
-      a.push(33);
-      done();
-    });
-    init.add(function (done) {
-      done(new Error('critical'));
-    });
-    init.run(function (err) {
-      expect(a).length(1);
-      expect(a[0]).equal(33);
-      expect(err).exist;
-      done();
-    });
-  });
-});
-
-describe('tail function', function () {
-  it('should success', function (done) {
-    var a = [];
-    init.reset();
-    init.add(function () {
       a.push(3);
+      done();
     });
-    init.tail(function () {
+    init.tail(function (done) {
       a.push(10);
+      done();
     });
-    init.add(function () {
+    init.add(function (done) {
       a.push(7);
+      done();
     });
     init.run(function () {
-      expect(a).length(3);
-      expect(a[0]).equal(3);
-      expect(a[1]).equal(7);
-      expect(a[2]).equal(10);
+      assert2.e(a.length, 3);
+      assert2.e(a[0], 3);
+      assert2.e(a[1], 7);
+      assert2.e(a[2], 10);
       done();
     });
   });

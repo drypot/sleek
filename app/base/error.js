@@ -1,5 +1,6 @@
+'use strict';
+
 var assert2 = require('../base/assert2');
-var expect = assert2.expect;
 
 var error = exports = module.exports = function (obj) {
   var err;
@@ -29,7 +30,7 @@ var error = exports = module.exports = function (obj) {
 };
 
 error.define = function (code, msg, field) {
-  expect(error[code]).not.exist;
+  assert2.e(error[code], undefined);
   var ec = error[code] = {
     code: code,
     message: msg
@@ -57,17 +58,3 @@ error.find = function (act, code) {
   }
   return false;
 };
-
-assert2.chai.use(function (chai, utils) {
-  var Assertion = chai.Assertion;
-  Assertion.addMethod('error', function (code) {
-    new Assertion(error[code]).exist;
-    this.assert(
-      error.find(this._obj, code),
-      "expected #{this.code} to be #{exp} but got #{act}",
-      "expected #{this.code} not to be #{exp}",
-      code,
-      this._obj.code
-    );    
-  });
-});

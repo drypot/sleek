@@ -1,3 +1,5 @@
+'use strict';
+
 var util2 = exports;
 
 util2.defineMethod = function (con, methodName, fn) {
@@ -13,16 +15,6 @@ util2.find = function (a, fn) {
   }
   return null;
 };
-
-util2.mergeObject = function () {
-  var tar = arguments[0];
-  for (var i = 1; i < arguments.length; i++) {
-    var src = arguments[i];
-    for (var p in src) {
-      tar[p] = src[p];
-    }
-  }
-}
 
 util2.mergeArray = function () {
   var tar = arguments[0];
@@ -69,6 +61,18 @@ util2.pass = function () {
 
 // datetime
 
+util2.today = function () {
+  var today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return today;
+}
+
+util2.dateFromString = function (s) {
+  var d = new Date(s);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
 function pad(number) {
   var r = String(number);
   if ( r.length === 1 ) {
@@ -77,24 +81,23 @@ function pad(number) {
   return r;
 }
 
-util2.toDateTimeString = function (d) {
+util2.dateTimeString = function (d) {
   return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' +
     pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
 };
 
-util2.toDateString = function (d) {
+util2.dateString = function (d) {
   return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
 };
 
-util2.toDateStringNoDash = function (d) {
+util2.dateStringNoDash = function (d) {
   return d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate());
 };
 
 // url
 
-util2.makeUrl = function(url, params) {
+util2.url = function(url, params) {
   var qm;
-
   for(var p in params) {
     if (qm) {
       url += '&';
@@ -106,7 +109,6 @@ util2.makeUrl = function(url, params) {
     url += '=';
     url += params[p];
   }
-
   return url;
 };
 

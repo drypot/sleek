@@ -1,20 +1,8 @@
+'use strict';
+
 var fs = require('fs');
 var path = require('path');
-
-var assert2 = require('../base/assert2');
 var fs2 = exports;
-
-assert2.chai.use(function (chai, utils) {
-  var Assertion = chai.Assertion;
-  Assertion.addProperty('pathExist', function () {
-    new Assertion(this._obj).a('string');
-    this.assert(
-      fs.existsSync(this._obj),
-      "expected #{this} to exist",
-      "expected #{this} not to exist"
-    );
-  });
-});
 
 fs2.removeDir = function removeDir(p, done) {
   fs.stat(p, function (err, stat) {
@@ -66,7 +54,7 @@ fs2.emptyDir = function (p, done) {
 };
 
 fs2.makeDir = function (p, done) {
-  fs.mkdir(p, 0755, function(err) {
+  fs.mkdir(p, 0o755, function(err) {
     if (err && err.code === 'ENOENT') {
       fs2.makeDir(path.dirname(p), function (err) {
         if (err) return done(err);
@@ -104,4 +92,20 @@ fs2.makeDeepPath = function (id, iter) {
     id = Math.floor(id / 1000);
   }
   return id + path;
+};
+
+fs2.copy = function (src, tar, done) {
+  var r = fs.createReadStream(src);
+  var w = fs.createWriteStream(tar);
+  r.on('error', function (err) {
+    fs.unlinkSync(tar);
+    done(err);
+  });
+  w.on('finish', function () {
+    done();
+  });
+  w.on('error', function (err) {
+    done(err);
+  });
+  r.pipe(w);
 }
