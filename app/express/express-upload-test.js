@@ -40,7 +40,6 @@ describe('parsing form', function () {
   it('given handler', function () {
     expb.core.post('/api/test/upload-form', expu.handler(function (req, res, done) {
       // RegExp 기능이 chai-http github 에는 커밋되어 있으나 npm 패키지엔 아직 적용이 안 되어 있다.
-      // expect(req).header('content-type', /multipart/);
       assert(req.header('content-type').includes('multipart'));
       req.body.files = req.files;
       res.json(req.body);

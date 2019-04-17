@@ -8,7 +8,8 @@ var userf = require('../user/user-fixture');
 var postb = require('../post/post-base');
 var postu = require('../post/post-update');
 var expl = require('../express/express-local');
-var expect = require('../base/assert2').expect;
+var assert = require('assert');
+var assert2 = require('../base/assert2');
 
 before(function (done) {
   init.run(done);
@@ -21,8 +22,8 @@ describe('updating', function () {
   });
   it('should fail', function (done) {
     expl.put('/api/posts/0/0', function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).error('NOT_AUTHENTICATED');
+      assert.ifError(err);
+      assert(error.find(res.body.err, 'NOT_AUTHENTICATED'));
       done();
     });
   });
@@ -32,8 +33,8 @@ describe('updating', function () {
   it('given thread and posts', function (done) {
     var form = { cid: 100, writer: 'snowman', title: 'title', text: 'text' };
     expl.post('/api/posts').send(form).end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
+      assert.ifError(err);
+      assert2.empty(res.body.err);
       tid = res.body.tid;
       pid = res.body.pid;
       done();
@@ -42,25 +43,25 @@ describe('updating', function () {
   it('updating head should success', function (done) {
     var form = { cid: 100, writer: 'snowman2', title: 'title2', text: 'text2' };
     expl.put('/api/posts/' + tid + '/' + pid).send(form).end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
+      assert.ifError(err);
+      assert2.empty(res.body.err);
       postb.threads.findOne({ _id: tid}, function (err, thread) {
-        expect(err).not.exist;
-        expect(thread.cid).equals(100);
-        expect(thread.hit).equals(0);
-        expect(thread.length).equals(1);
-        expect(thread.cdate).exist;
-        expect(thread.udate).exist;
-        expect(thread.writer).equals('snowman2');
-        expect(thread.title).equals('title2');
+        assert.ifError(err);
+        assert2.e(thread.cid, 100);
+        assert2.e(thread.hit, 0);
+        assert2.e(thread.length, 1);
+        assert2.ne(thread.cdate, undefined); 
+        assert2.ne(thread.udate, undefined); 
+        assert2.e(thread.writer, 'snowman2');
+        assert2.e(thread.title, 'title2');
         postb.posts.findOne({ _id: pid }, function (err, post) {
-          expect(err).not.exist;
-          expect(post.tid).equals(tid);
-          expect(post.cdate).exist;
-          expect(post.visible).true;
-          expect(post.writer).equals('snowman2');
-          expect(post.text).equals('text2');
-          expect(post.tokens).exist;
+          assert.ifError(err);
+          assert2.e(post.tid, tid);
+          assert2.ne(post.cdate, undefined); 
+          assert2.e(post.visible, true);
+          assert2.e(post.writer, 'snowman2');
+          assert2.e(post.text, 'text2');
+          assert2.ne(post.tokens, undefined); 
           done();
         });
       });
@@ -69,8 +70,8 @@ describe('updating', function () {
   it('given reply', function (done) {
     var form = { writer: 'snowman', text: 'text2' };
     expl.post('/api/posts/' + tid).send(form).end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
+      assert.ifError(err);
+      assert2.empty(res.body.err);
       pid2 = res.body.pid;
       done();
     });
@@ -78,25 +79,25 @@ describe('updating', function () {
   it('updating reply should success', function (done) {
     var form = { writer: 'snowman3', text: 'text3' };
     expl.put('/api/posts/' + tid + '/' + pid2).send(form).end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
+      assert.ifError(err);
+      assert2.empty(res.body.err);
       postb.threads.findOne({ _id: tid}, function (err, thread) {
-        expect(err).not.exist;
-        expect(thread.cid).equals(100);
-        expect(thread.hit).equals(0);
-        expect(thread.length).equals(2);
-        expect(thread.cdate).exist;
-        expect(thread.udate).exist;
-        expect(thread.writer).equals('snowman2');
-        expect(thread.title).equals('title2');
+        assert.ifError(err);
+        assert2.e(thread.cid, 100);
+        assert2.e(thread.hit, 0);
+        assert2.e(thread.length, 2);
+        assert2.ne(thread.cdate, undefined); 
+        assert2.ne(thread.udate, undefined); 
+        assert2.e(thread.writer, 'snowman2');
+        assert2.e(thread.title, 'title2');
         postb.posts.findOne({ _id: pid2 }, function (err, post) {
-          expect(err).not.exist;
-          expect(post.tid).equals(tid);
-          expect(post.cdate).exist;
-          expect(post.visible).true;
-          expect(post.writer).equals('snowman3');
-          expect(post.text).equals('text3');
-          expect(post.tokens).exist;
+          assert.ifError(err);
+          assert2.e(post.tid, tid);
+          assert2.ne(post.cdate, undefined); 
+          assert2.e(post.visible, true);
+          assert2.e(post.writer, 'snowman3');
+          assert2.e(post.text, 'text3');
+          assert2.ne(post.tokens, undefined); 
           done();
         });
       });
@@ -109,8 +110,8 @@ describe('updating', function () {
     var form = { writer: 'snowman', text: 'post with files' };
     expl.post('/api/posts/' + tid).fields(form)
       .attach('files', f1).attach('files', f2).attach('files', f3).end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
+      assert.ifError(err);
+      assert2.empty(res.body.err);
       pid3 = res.body.pid;
       done();
     });
@@ -121,19 +122,19 @@ describe('updating', function () {
     var form = { writer: 'snowman', text: 'post with files', dfiles: ['nofile.txt', 'express-upload-f2.txt'] };
     expl.put('/api/posts/' + tid + '/' + pid3).fields(form)
       .attach('files', f3).attach('files', f4).end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
+      assert.ifError(err);
+      assert2.empty(res.body.err);
       postb.posts.findOne({ _id: pid3 }, function (err, post) {
-        expect(err).not.exist;
-        expect(post.files).eql([
+        assert.ifError(err);
+        assert2.de(post.files, [
           { name : 'express-upload-f1.txt'},
           { name : 'express-upload-f3.txt'},
           { name : 'express-upload-f4.txt'}
         ]);
-        expect('upload/sleek-test/public/post/0/' + pid3 + '/express-upload-f1.txt').pathExist;
-        expect('upload/sleek-test/public/post/0/' + pid3 + '/express-upload-f2.txt').not.pathExist;
-        expect('upload/sleek-test/public/post/0/' + pid3 + '/express-upload-f3.txt').pathExist;
-        expect('upload/sleek-test/public/post/0/' + pid3 + '/express-upload-f4.txt').pathExist;
+        assert2.path('upload/sleek-test/public/post/0/' + pid3 + '/express-upload-f1.txt');
+        assert2.path('upload/sleek-test/public/post/0/' + pid3 + '/express-upload-f2.txt', false);
+        assert2.path('upload/sleek-test/public/post/0/' + pid3 + '/express-upload-f3.txt');
+        assert2.path('upload/sleek-test/public/post/0/' + pid3 + '/express-upload-f4.txt');
         done();
       });
     });
@@ -141,17 +142,17 @@ describe('updating', function () {
   it('deleting one file should success', function (done) {
     var form = { writer: 'snowman', text: 'post with files', dfiles: 'express-upload-f3.txt' };
     expl.put('/api/posts/' + tid + '/' + pid3).fields(form).end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
+      assert.ifError(err);
+      assert2.empty(res.body.err);
       postb.posts.findOne({ _id: pid3 }, function (err, post) {
-        expect(err).not.exist;
-        expect(post.files).eql([
+        assert.ifError(err);
+        assert2.de(post.files, [
           { name : 'express-upload-f1.txt'},
           { name : 'express-upload-f4.txt'}
         ]);
-        expect('upload/sleek-test/public/post/0/' + pid3 + '/express-upload-f1.txt').pathExist;
-        expect('upload/sleek-test/public/post/0/' + pid3 + '/express-upload-f3.txt').not.pathExist;
-        expect('upload/sleek-test/public/post/0/' + pid3 + '/express-upload-f4.txt').pathExist;
+        assert2.path('upload/sleek-test/public/post/0/' + pid3 + '/express-upload-f1.txt');
+        assert2.path('upload/sleek-test/public/post/0/' + pid3 + '/express-upload-f3.txt', false);
+        assert2.path('upload/sleek-test/public/post/0/' + pid3 + '/express-upload-f4.txt');
         done();
       });
     });
@@ -159,11 +160,11 @@ describe('updating', function () {
   it('updating category should success', function (done) {
     var form = { cid: 102, writer: 'snowman', title: 'title', text: 'text' };
     expl.put('/api/posts/' + tid + '/' + pid).send(form).end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
+      assert.ifError(err);
+      assert2.empty(res.body.err);
       postb.threads.findOne({ _id: tid}, function (err, thread) {
-        expect(err).not.exist;
-        expect(thread.cid).equals(102);
+        assert.ifError(err);
+        assert2.e(thread.cid, 102);
         done();
       });
     });
@@ -171,27 +172,27 @@ describe('updating', function () {
   it('emtpy title should fail', function (done) {
     var form = { cid: 100, writer: 'snowman', title: ' ', text: 'text'};
     expl.put('/api/posts/' + tid + '/' + pid).send(form).end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).error('TITLE_EMPTY');
+      assert.ifError(err);
+      assert(error.find(res.body.err, 'TITLE_EMPTY'));
       done();
     });
   });
   it('emtpy writer should fail', function (done) {
     var form = { cid: 100, writer: ' ', title: 'title', text: 'text'};
     expl.put('/api/posts/' + tid + '/' + pid).send(form).end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).error('WRITER_EMPTY');
+      assert.ifError(err);
+      assert(error.find(res.body.err, 'WRITER_EMPTY'));
       done();
     });
   });
   it('user can not change visible', function (done) {
     var form = { cid: 100, writer: 'snowman', title: 'title', text: 'text', visible: false };
     expl.put('/api/posts/' + tid + '/' + pid).send(form).end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
+      assert.ifError(err);
+      assert2.empty(res.body.err);
       postb.posts.findOne({ _id: pid}, function (err, post) {
-        expect(err).not.exist;
-        expect(post.visible).true;
+        assert.ifError(err);
+        assert2.e(post.visible, true);
         done();
       });
     });
@@ -202,11 +203,11 @@ describe('updating', function () {
   it('admin can change visible', function (done) {
     var form = { cid: 100, writer: 'snowman', title: 'title', text: 'text', visible: false };
     expl.put('/api/posts/' + tid + '/' + pid).send(form).end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
+      assert.ifError(err);
+      assert2.empty(res.body.err);
       postb.posts.findOne({ _id: pid}, function (err, post) {
-        expect(err).not.exist;
-        expect(post.visible).false;
+        assert.ifError(err);
+        assert2.e(post.visible, false);
         done();
       });
     });
@@ -218,8 +219,8 @@ describe('updating', function () {
   it('should fail', function (done) {
     var form = { cid: 100, writer: 'snowman', title: 'title', text: 'text' };
     expl.put('/api/posts/' + tid + '/' + pid).send(form).end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).error('NOT_AUTHORIZED');
+      assert.ifError(err);
+      assert(error.find(res.body.err, 'NOT_AUTHORIZED'));
       done();
     });
   });

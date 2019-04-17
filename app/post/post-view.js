@@ -39,7 +39,7 @@ function view(req, res, api, done) {
                 if (post.visible || user.admin) {
                   postb.addFileUrls(post);
                   post.editable = postb.isEditable(user, post._id, req.session.pids);
-                  post.cdateStr = util2.toDateTimeString(post.cdate),
+                  post.cdateStr = util2.dateTimeString(post.cdate),
                   post.cdate = post.cdate.getTime(),
                   posts.push(post);
                 }

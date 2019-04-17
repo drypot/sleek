@@ -52,7 +52,7 @@ function search(req, res, api, done) {
                 name: category.name
               };
               post.text = post.text.slice(0, 256);
-              post.cdateStr = util2.toDateTimeString(post.cdate),
+              post.cdateStr = util2.dateTimeString(post.cdate),
               post.cdate = post.cdate.getTime(),
               posts.push(post);
             }

@@ -7,7 +7,8 @@ var userb = require('../user/user-base');
 var userf = require('../user/user-fixture');
 var postb = require('../post/post-base');
 var expl = require('../express/express-local');
-var expect = require('../base/assert2').expect;
+var assert = require('assert');
+var assert2 = require('../base/assert2');
 
 before(function (done) {
   init.run(done);
@@ -15,56 +16,56 @@ before(function (done) {
 
 describe('threads', function () {
   it('should exist', function () {
-    expect(postb.threads).exist;
+    assert2.ne(postb.threads, undefined); 
   });
   it('should be empty', function (done) {
     postb.threads.countDocuments(function (err, count) {
-      expect(err).not.exist;
-      expect(count).equal(0);
+      assert.ifError(err);
+      assert2.e(count, 0);
       done();
     })
   });
   it('should have indexes', function (done) {
     postb.threads.indexes(function (err, indexes) {
-      expect(err).not.exist;
-      expect(indexes).length(3);
+      assert.ifError(err);
+      assert2.e(indexes.length, 3);
       done();
     });
   });
   it('getNewId should success', function () {
-    expect(postb.getNewThreadId() < postb.getNewThreadId()).true;
+    assert2.e(postb.getNewThreadId() < postb.getNewThreadId(), true);
   });
 });
 
 describe('posts', function () {
   it('should exist', function () {
-    expect(postb.posts).exist;
+    assert2.ne(postb.posts, undefined); 
   });
   it('should be empty', function (done) {
     postb.posts.countDocuments(function (err, count) {
-      expect(err).not.exist;
-      expect(count).equal(0);
+      assert.ifError(err);
+      assert2.e(count, 0);
       done();
     })
   });
   it('should have indexes', function (done) {
     postb.posts.indexes(function (err, indexes) {
-      expect(err).not.exist;
-      expect(indexes).length(2);
+      assert.ifError(err);
+      assert2.e(indexes.length, 2);
       done();
     });
   });
   it('getNewId should success', function () {
-    expect(postb.getNewPostId() < postb.getNewPostId()).true;
+    assert2.e(postb.getNewPostId() < postb.getNewPostId(), true);
   });
 });
 
 describe('files', function () {
   it('should exist', function (done) {
-    expect(config.uploadDir + '/public/post').pathExist;
-    expect(postb.getFileDir(20100)).equal(config.uploadDir + '/public/post/2/20100');
-    expect(postb.getFilePath(20100, 'image.jpg')).equal(config.uploadDir + '/public/post/2/20100/image.jpg');
-    expect(postb.getFileUrl(20100, 'image.jpg')).equal(config.uploadSite + '/post/2/20100/image.jpg');
+    assert2.path(config.uploadDir + '/public/post');
+    assert2.e(postb.getFileDir(20100), config.uploadDir + '/public/post/2/20100');
+    assert2.e(postb.getFilePath(20100, 'image.jpg'), config.uploadDir + '/public/post/2/20100/image.jpg');
+    assert2.e(postb.getFileUrl(20100, 'image.jpg'), config.uploadSite + '/post/2/20100/image.jpg');
     done();
   });
 });
@@ -78,22 +79,22 @@ describe('categories', function () {
     });
   });
   it('user should not be admin', function () {
-    expect(user.admin).false;
+    assert2.e(user.admin, false);
   });
   it('user can access freetalk', function () {
     postb.checkCategory(user, 100, function (err, c) {
-      expect(err).not.exist;
-      expect(c.name).equal('freetalk');
+      assert.ifError(err);
+      assert2.e(c.name, 'freetalk');
     });
   });
   it('can not access cheat', function () {
     postb.checkCategory(user, 60, function (err, c) {
-      expect(err).error('INVALID_CATEGORY');
+      assert(error.find(err, 'INVALID_CATEGORY'));
     });
   });
   it('can not access recycle bin', function () {
     postb.checkCategory(user, 40, function (err, c) {
-      expect(err).error('INVALID_CATEGORY');
+      assert(error.find(err, 'INVALID_CATEGORY'));
     });
   });
 
@@ -104,23 +105,23 @@ describe('categories', function () {
     });
   });
   it('should not be admin', function () {
-    expect(user.admin).false;
+    assert2.e(user.admin, false);
   });
   it('can access freetalk', function () {
     postb.checkCategory(user, 100, function (err, c) {
-      expect(err).not.exist;
-      expect(c.name).equal('freetalk');
+      assert.ifError(err);
+      assert2.e(c.name, 'freetalk');
     });
   });
   it('can access cheat', function () {
     postb.checkCategory(user, 60, function (err, c) {
-      expect(err).not.exist;
-      expect(c.name).equal('cheat');
+      assert.ifError(err);
+      assert2.e(c.name, 'cheat');
     });
   });
   it('can not access recycle bin', function () {
     postb.checkCategory(user, 40, function (err, c) {
-      expect(err).error('INVALID_CATEGORY');
+      assert(error.find(err, 'INVALID_CATEGORY'));
     });
   });
 
@@ -131,24 +132,24 @@ describe('categories', function () {
     });
   });
   it('should be admin', function () {
-    expect(user.admin).true;
+    assert2.e(user.admin, true);
   });
   it('can access freetalk', function () {
     postb.checkCategory(user, 100, function (err, c) {
-      expect(err).not.exist;
-      expect(c.name).equal('freetalk');
+      assert.ifError(err);
+      assert2.e(c.name, 'freetalk');
     });
   });
   it('can access cheat', function () {
     postb.checkCategory(user, 60, function (err, c) {
-      expect(err).not.exist;
-      expect(c.name).equal('cheat');
+      assert.ifError(err);
+      assert2.e(c.name, 'cheat');
     });
   });
   it('can access recycle bin', function () {
     postb.checkCategory(user, 40, function (err, c) {
-      expect(err).not.exist;
-      expect(c.name).equal('recycle bin');
+      assert.ifError(err);
+      assert2.e(c.name, 'recycle bin');
     });
   });
 });

@@ -5,7 +5,8 @@ var expb = require('../express/express-base');
 var userb = require('../user/user-base');
 var userf = require('../user/user-fixture');
 var expl = require('../express/express-local');
-var expect = require('../base/assert2').expect;
+var assert = require('assert');
+var assert2 = require('../base/assert2');
 
 before(function (done) {
   init.run(done);
@@ -30,9 +31,9 @@ before(function () {
 describe('login', function () {
   it('session should be clear', function (done) {
     expl.get('/api/users/login').end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).exist;
-      expect(res.body.err).error('NOT_AUTHENTICATED');
+      assert.ifError(err);
+      assert2.ne(res.body.err, undefined); 
+      assert(error.find(res.body.err, 'NOT_AUTHENTICATED'));
       done();
     });
   });
@@ -41,24 +42,24 @@ describe('login', function () {
   });
   it('session should be filled', function (done) {
     expl.get('/api/users/login').end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
-      expect(res.body.user.name).equal('user');
+      assert.ifError(err);
+      assert2.empty(res.body.err);
+      assert2.e(res.body.user.name, 'user');
       done();
     });
   });
   it('logout should success', function (done) {
     userf.logout(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
+      assert.ifError(err);
+      assert2.empty(res.body.err);
       done();
     })
   });
   it('session should be clear', function (done) {
     expl.get('/api/users/login').end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).exist;
-      expect(res.body.err).error('NOT_AUTHENTICATED');
+      assert.ifError(err);
+      assert2.ne(res.body.err, undefined); 
+      assert(error.find(res.body.err, 'NOT_AUTHENTICATED'));
       done();
     });
   });
@@ -67,17 +68,17 @@ describe('login', function () {
   });
   it('session should be filled', function (done) {
     expl.get('/api/users/login').end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
-      expect(res.body.user.name).equal('admin');
+      assert.ifError(err);
+      assert2.empty(res.body.err);
+      assert2.e(res.body.user.name, 'admin');
       done();
     });
   });
   it('wrong password should fail', function (done) {
     expl.post('/api/users/login').send({ password: 'xxx' }).end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).exist;
-      expect(res.body.err).error('PASSWORD_WRONG');
+      assert.ifError(err);
+      assert2.ne(res.body.err, undefined); 
+      assert(error.find(res.body.err, 'PASSWORD_WRONG'));
       done();
     });
   });  
@@ -89,8 +90,8 @@ describe('accessing user resource', function () {
   });
   it('should fail', function (done) {
     expl.get('/api/test/user', function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).error('NOT_AUTHENTICATED');
+      assert.ifError(err);
+      assert(error.find(res.body.err, 'NOT_AUTHENTICATED'));
       done();
     });
   });
@@ -99,8 +100,8 @@ describe('accessing user resource', function () {
   });
   it('should success', function (done) {
     expl.get('/api/test/user', function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
+      assert.ifError(err);
+      assert2.empty(res.body.err);
       done();
     });
   });
@@ -109,8 +110,8 @@ describe('accessing user resource', function () {
   });
   it('should fail', function (done) {
     expl.get('/api/test/user', function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).error('NOT_AUTHENTICATED');
+      assert.ifError(err);
+      assert(error.find(res.body.err, 'NOT_AUTHENTICATED'));
       done();
     });
   });
@@ -122,8 +123,8 @@ describe('accessing admin resource', function () {
   });
   it('should fail', function (done) {
     expl.get('/api/test/admin', function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).error('NOT_AUTHENTICATED');
+      assert.ifError(err);
+      assert(error.find(res.body.err, 'NOT_AUTHENTICATED'));
       done();
     });
   });
@@ -132,8 +133,8 @@ describe('accessing admin resource', function () {
   });
   it('should fail', function (done) {
     expl.get('/api/test/admin', function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).error('NOT_AUTHORIZED');
+      assert.ifError(err);
+      assert(error.find(res.body.err, 'NOT_AUTHORIZED'));
       done();
     });
   });
@@ -142,8 +143,8 @@ describe('accessing admin resource', function () {
   });
   it('should success', function (done) {
     expl.get('/api/test/admin', function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
+      assert.ifError(err);
+      assert2.empty(res.body.err);
       done();
     });
   });
@@ -155,8 +156,8 @@ describe('auto login', function () {
   });
   it('access should fail', function (done) {
     expl.get('/api/test/user').end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).exist;
+      assert.ifError(err);
+      assert2.ne(res.body.err, undefined); 
       done();
     });
   });
@@ -165,21 +166,21 @@ describe('auto login', function () {
   });
   it('access should success', function (done) {
     expl.get('/api/test/user').end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
+      assert.ifError(err);
+      assert2.empty(res.body.err);
       done();
     });
   });
   it('given new session', function (done) {
-    expl.post('/api/test/destroy-session').end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
+    expl.post('/api/destroy-session').end(function (err, res) {
+      assert.ifError(err);
+      assert2.empty(res.body.err);
       done();
     });
   });
   it('access should success', function (done) {
     expl.get('/api/test/user').end(function (err, res) {
-      expect(res.body.err).not.exist;
+      assert2.empty(res.body.err);
       done();
     })
   });
@@ -188,8 +189,8 @@ describe('auto login', function () {
   });
   it('access should fail', function (done) {
     expl.get('/api/test/user').end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).exist;
+      assert.ifError(err);
+      assert2.ne(res.body.err, undefined); 
       done();
     })
   });

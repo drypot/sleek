@@ -96,7 +96,7 @@ var getFileUrl = postb.getFileUrl = function (id, fname) {
 
 // category
 
-init.add(function () {
+init.add(function (done) {
   for (var name in userb.users) {
     var user = userb.users[name];
     user.categories = []; // Array 와 Object 는 용도별로 확실히 구분해 쓴다.
@@ -108,6 +108,7 @@ init.add(function () {
       }
     });
   }
+  done();
 });
 
 postb.checkCategory = function (user, cid, done) {

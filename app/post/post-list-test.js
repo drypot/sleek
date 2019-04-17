@@ -8,7 +8,8 @@ var userf = require('../user/user-fixture');
 var postn = require('../post/post-new');
 var postl = require('../post/post-list');
 var expl = require('../express/express-local');
-var expect = require('../base/assert2').expect;
+var assert = require('assert');
+var assert2 = require('../base/assert2');
 
 before(function (done) {
   init.run(done);
@@ -34,8 +35,8 @@ describe('preparing sample docs', function () {
     (function insert() {
       if (i < samples.length) {
         expl.post('/api/posts').send(samples[i++]).end(function (err, res) {
-          expect(err).not.exist;
-          expect(res.body.err).not.exist;
+          assert.ifError(err);
+          assert2.empty(res.body.err);
           setImmediate(insert);
         });
         return;
@@ -51,24 +52,22 @@ describe('checking user', function () {
   });
   it('api should fail', function (done) {
     expl.get('/api/posts', function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).error('NOT_AUTHENTICATED');
+      assert.ifError(err);
+      assert(error.find(res.body.err, 'NOT_AUTHENTICATED'));
       done();
     });
   });
   it('/ should redirected', function (done) {
     expl.get('/').redirects(0).end(function (err, res) {
-      expect(err).exist;
-      expect(res).status(302); // Moved Temporarily 
-      expect(res).header('location', '/posts');
+      assert2.ne(err, undefined); 
+      assert2.redirect(res, '/posts');
       done();
     });
   });
   it('/posts should redirected', function (done) {
     expl.get('/posts').redirects(0).end(function (err, res) {
-      expect(err).exist;
-      expect(res).status(302); // Moved Temporarily 
-      expect(res).header('location', '/users/login');
+      assert2.ne(err, undefined); 
+      assert2.redirect(res, '/users/login');
       done();
     });
   });
@@ -77,23 +76,22 @@ describe('checking user', function () {
   });
   it('api should success', function (done) {
     expl.get('/api/posts', function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
+      assert.ifError(err);
+      assert2.empty(res.body.err);
       done();
     });
   });
   it('/ should redirected', function (done) {
     expl.get('/').redirects(0).end(function (err, res) {
-      expect(err).exist;
-      expect(res).status(302); // Moved Temporarily 
-      expect(res).header('location', '/posts');
+      assert2.ne(err, undefined); 
+      assert2.redirect(res, '/posts');
       done();
     });
   });
   it('/posts should success', function (done) {
     expl.get('/posts').redirects(0).end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.text).contains('<title>all');
+      assert.ifError(err);
+      assert(res.text.indexOf('<title>all') > 0);
       done();
     });
   });
@@ -105,19 +103,19 @@ describe('listing threads', function () {
   });
   it('category 0 should success', function (done) {
     expl.get('/api/posts', function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
+      assert.ifError(err);
+      assert2.empty(res.body.err);
       var threads = res.body.threads;
-      expect(threads).length(9)
-      expect(threads[0].title).equal('game 4');
-      expect(threads[1].title).equal('game 3');
-      expect(threads[2].title).equal('game 2');
-      expect(threads[3].title).equal('game 1');
-      expect(threads[4].title).equal('freetalk 4');
-      expect(threads[5].title).equal('freetalk 3');
-      expect(threads[6].title).equal('freetalk 2');
-      expect(threads[7].title).equal('freetalk 1');
-      expect(threads[8].title).equal('rbin 1');
+      assert2.e(threads.length, 9)
+      assert2.e(threads[0].title, 'game 4');
+      assert2.e(threads[1].title, 'game 3');
+      assert2.e(threads[2].title, 'game 2');
+      assert2.e(threads[3].title, 'game 1');
+      assert2.e(threads[4].title, 'freetalk 4');
+      assert2.e(threads[5].title, 'freetalk 3');
+      assert2.e(threads[6].title, 'freetalk 2');
+      assert2.e(threads[7].title, 'freetalk 1');
+      assert2.e(threads[8].title, 'rbin 1');
       done();
     });
   });
@@ -126,101 +124,101 @@ describe('listing threads', function () {
   });
   it('category 0 should success', function (done) {
     expl.get('/api/posts', function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
+      assert.ifError(err);
+      assert2.empty(res.body.err);
       var threads = res.body.threads;
-      expect(threads).length(8)
-      expect(threads[0].title).equal('game 4');
-      expect(threads[1].title).equal('game 3');
-      expect(threads[2].title).equal('game 2');
-      expect(threads[3].title).equal('game 1');
-      expect(threads[4].title).equal('freetalk 4');
-      expect(threads[5].title).equal('freetalk 3');
-      expect(threads[6].title).equal('freetalk 2');
-      expect(threads[7].title).equal('freetalk 1');
-      expect(threads[8]).not.exist; // should not be rbin 6
+      assert2.e(threads.length, 8)
+      assert2.e(threads[0].title, 'game 4');
+      assert2.e(threads[1].title, 'game 3');
+      assert2.e(threads[2].title, 'game 2');
+      assert2.e(threads[3].title, 'game 1');
+      assert2.e(threads[4].title, 'freetalk 4');
+      assert2.e(threads[5].title, 'freetalk 3');
+      assert2.e(threads[6].title, 'freetalk 2');
+      assert2.e(threads[7].title, 'freetalk 1');
+      assert2.e(threads[8], undefined); // should not be rbin 6
       done();
     });
   });
   it('category 0 page 2 should success', function (done) {
     expl.get('/api/posts').query({ c: 0, pg: 2, ps: 3 }).end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
+      assert.ifError(err);
+      assert2.empty(res.body.err);
       var threads = res.body.threads;
-      expect(threads).length(3);
-      expect(threads[0].title).equal('game 1');
-      expect(threads[1].title).equal('freetalk 4');
-      expect(threads[2].title).equal('freetalk 3');
+      assert2.e(threads.length, 3);
+      assert2.e(threads[0].title, 'game 1');
+      assert2.e(threads[1].title, 'freetalk 4');
+      assert2.e(threads[2].title, 'freetalk 3');
       done();
     });
   });
   it('category 100 should success', function (done) {
     expl.get('/api/posts').query({ c: 100 }).end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
+      assert.ifError(err);
+      assert2.empty(res.body.err);
       var threads = res.body.threads;
-      expect(threads).length(4);
-      expect(threads[0].title).equal('freetalk 4');
+      assert2.e(threads.length, 4);
+      assert2.e(threads[0].title, 'freetalk 4');
       done();
     });
   });
   it('category 40 should fail', function (done) {
     expl.get('/api/posts').query({ c: 40 }).end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).error('INVALID_CATEGORY');
+      assert.ifError(err);
+      assert(error.find(res.body.err, 'INVALID_CATEGORY'));
       done();
     });
   });
   it('category 0 should have category field', function (done) {
     expl.get('/api/posts').query({ c: 0, ps: 1 }).end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
+      assert.ifError(err);
+      assert2.empty(res.body.err);
       var threads = res.body.threads;
-      expect(threads[0]).property('_id');
-      expect(threads[0].writer).equal('snowman');
-      expect(threads[0].title).equal('game 4');
-      expect(threads[0].hit).equal(0);
-      expect(threads[0].length).equal(1);
-      expect(threads[0].category.id).equal(120);
-      expect(threads[0].category.name).equal('game');
+      assert2.ne(threads[0]._id, undefined);
+      assert2.e(threads[0].writer, 'snowman');
+      assert2.e(threads[0].title, 'game 4');
+      assert2.e(threads[0].hit, 0);
+      assert2.e(threads[0].length, 1);
+      assert2.e(threads[0].category.id, 120);
+      assert2.e(threads[0].category.name, 'game');
       done();
     });
   });
   it('category 100 should have no category field', function (done) {
     expl.get('/api/posts').query({ c: 100, ps: 1 }).end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
+      assert.ifError(err);
+      assert2.empty(res.body.err);
       var threads = res.body.threads;
-      expect(threads[0]).property('_id');
-      expect(threads[0].writer).equal('snowman');
-      expect(threads[0].title).equal('freetalk 4');
-      expect(threads[0].hit).equal(0);
-      expect(threads[0].length).equal(1);
-      expect(threads[0].category).not.exist;
+      assert2.ne(threads[0]._id, undefined);
+      assert2.e(threads[0].writer, 'snowman');
+      assert2.e(threads[0].title, 'freetalk 4');
+      assert2.e(threads[0].hit, 0);
+      assert2.e(threads[0].length, 1);
+      assert2.e(threads[0].category, undefined);
       done();
     });
   });
   it('page 1 is not last', function (done) {
     expl.get('/api/posts').query({ c: 0, pg: 1, ps: 4 }).end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
-      expect(res.body.last).false;
+      assert.ifError(err);
+      assert2.empty(res.body.err);
+      assert2.e(res.body.last, false);
       done();
     });
   });
   it('page 2 is not last', function (done) {
     expl.get('/api/posts').query({ c: 0, pg: 2, ps: 4 }).end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
-      expect(res.body.last).false;
+      assert.ifError(err);
+      assert2.empty(res.body.err);
+      assert2.e(res.body.last, false);
       done();
     });
   });
   it('page 3 is last', function (done) {
     expl.get('/api/posts').query({ c: 0, pg: 3, ps: 4 }).end(function (err, res) {
-      expect(err).not.exist;
-      expect(res.body.err).not.exist;
-      expect(res.body.last).true;
+      assert.ifError(err);
+      assert2.empty(res.body.err);
+      assert2.e(res.body.last, true);
       done();
     });
   });
@@ -229,9 +227,8 @@ describe('listing threads', function () {
 describe('redirects', function () {
   it('should success', function (done) {
     expl.get('/threads').redirects(0).end(function (err, res) {
-      expect(err).exist;
-      expect(res).status(302); // Moved Temporarily 
-      expect(res).header('location', '/posts');
+      assert2.ne(err, undefined); 
+      assert2.redirect(res, '/posts');
       done();
     });
   });

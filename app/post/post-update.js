@@ -30,7 +30,7 @@ expb.core.get('/posts/:tid([0-9]+)/:pid([0-9]+/edit)', function (req, res, done)
           postb.addFileUrls(post);
           post.head = postb.isHead(thread, post);
           post.editable = postb.isEditable(user, post._id, req.session.pids)
-          post.cdateStr = util2.toDateTimeString(post.cdate);
+          post.cdateStr = util2.dateTimeString(post.cdate);
           post.cdate = post.cdate.getTime();
           res.render('post/post-update', {
             thread: thread,

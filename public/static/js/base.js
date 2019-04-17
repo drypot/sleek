@@ -300,7 +300,7 @@ $(function () {
     };
   }
 
-  dt.toDateTimeString = function (d) {
+  dt.dateTimeString = function (d) {
     return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' +
       pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
   };
@@ -326,7 +326,7 @@ $(function () {
     sessionStorage.setItem(key, lastAccess.toISOString());
   }
 
-  lastSessionStr = dt.toDateTimeString(lastSession);
+  lastSessionStr = dt.dateTimeString(lastSession);
   localStorage.setItem(key, now.toISOString());
 
   dt.isNew = function (d) {

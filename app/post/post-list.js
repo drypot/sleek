@@ -57,7 +57,7 @@ function getThreads(req, res, api, done) {
                 name: c.name
               };
             }
-            thread.udateStr = util2.toDateTimeString(thread.udate),
+            thread.udateStr = util2.dateTimeString(thread.udate),
             thread.udate = thread.udate.getTime(),
             threads.push(thread);
             return setImmediate(read);
