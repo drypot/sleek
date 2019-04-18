@@ -10,7 +10,7 @@
   "mongoUser": "",
   "mongoPassword": "",
 
-  "mysqlDatabase": "sleek-test",
+  "mysqlDatabase": "sleek_test",
   "mysqlUser": "drypot",
   "mysqlPassword": "",
 
