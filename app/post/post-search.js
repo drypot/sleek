@@ -1,10 +1,12 @@
-var init = require('../base/init');
-var error = require('../base/error');
-var config = require('../base/config');
-var util2 = require('../base/util2');
-var expb = require('../express/express-base');
-var userb = require('../user/user-base');
-var postb = require('../post/post-base');
+'use strict';
+
+const init = require('../base/init');
+const error = require('../base/error');
+const config = require('../base/config');
+const util2 = require('../base/util2');
+const expb = require('../express/express-base');
+const userb = require('../user/user-base');
+const postb = require('../post/post-base');
 var postsr = exports;
 
 expb.core.get('/posts/search', function (req, res, done) {
@@ -39,12 +41,12 @@ function search(req, res, api, done) {
         post = undefined;
         if (post) {
           count++;
-          postb.threads.findOne({ _id: post.tid }, function (err, thread) {
+          postb.threads.findOne({ id: post.tid }, function (err, thread) {
             if (err) return done(err);
             var category = categoryIndex[thread.cid];
             if (category && (post.visible || user.admin)) {
               post.thread = {
-                _id: thread._id,
+                id: thread.id,
                 title: thread.title
               };
               post.category = {
@@ -86,14 +88,14 @@ postsr.rebuildTokens = function (done) {
     threads.next(function (err, thread) {
       if (err) return done(err);
       if (thread) {
-        var posts = postb.posts.find({ tid: thread._id });
+        var posts = postb.posts.find({ tid: thread.id });
         (function readp() {
           posts.next(function (err, post) {
             if (err) return done(err);
             if (post) {
               var head = postb.isHead(thread, post);
               var tokens = util2.tokenize(head ? thread.title : '', post.writer, post.text);
-              postb.posts.updateOne({ _id: post._id }, { $set: { tokens: tokens } }, function (err) {
+              postb.posts.updateOne({ id: post.id }, { $set: { tokens: tokens } }, function (err) {
                 if (err) return done(err);
                 count++;
                 if (count % 1000 === 0) {

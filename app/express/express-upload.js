@@ -1,14 +1,14 @@
 'use strict';
 
-var fs = require('fs');
-var path = require('path');
+const fs = require('fs');
+const path = require('path');
 
-var init = require('../base/init');
-var config = require('../base/config');
-var fs2 = require('../base/fs2');
-var multiparty = require('multiparty');
-var expb = require('../express/express-base');
-var expu = exports;
+const init = require('../base/init');
+const config = require('../base/config');
+const fs2 = require('../base/fs2');
+const multiparty = require('multiparty');
+const expb = require('../express/express-base');
+const expu = exports;
 
 var tmpDir;
 

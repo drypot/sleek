@@ -1,27 +1,17 @@
 'use strict';
 
-var fs = require('fs');
-var minimist = require('minimist');
-
-var init = require('../base/init');
-
-var opt = {};
-var argv = [];
-
-var config = exports = module.exports = function (_opt) {
-  for(var p in _opt) {
-    opt[p] = _opt[p];
-  }
-  return config;
-};
+const fs = require('fs');
+const minimist = require('minimist');
+const init = require('../base/init');
+const config = exports;
 
 config.dev = process.env.NODE_ENV != 'production';
 
 init.add(function (done) {
   config.argv = minimist(process.argv.slice(2));
-  var path = opt.path || config.argv.config || config.argv.c;
+  var path = config.path || config.argv.config || config.argv.c;
   if (path) {
-    console.log('config: ' + path);
+    console.log('config: path=' + path);
     fs.readFile(path, 'utf8', function (err, data) {
       if (err) return done(err);
       var _config = JSON.parse(data);

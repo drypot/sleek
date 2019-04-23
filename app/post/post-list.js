@@ -1,10 +1,12 @@
-var init = require('../base/init');
-var error = require('../base/error');
-var util2 = require('../base/util2');
-var config = require('../base/config');
-var expb = require('../express/express-base');
-var userb = require('../user/user-base');
-var postb = require('../post/post-base');
+'use strict';
+
+const init = require('../base/init');
+const error = require('../base/error');
+const util2 = require('../base/util2');
+const config = require('../base/config');
+const expb = require('../express/express-base');
+const userb = require('../user/user-base');
+const postb = require('../post/post-base');
 var postl = exports;
 
 expb.core.get('/', function (req, res, done) {

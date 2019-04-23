@@ -16,7 +16,7 @@ block content
 
   .section.posts
     for post in posts
-      .post(id=post._id)
+      .post(id=post.id)
         h5 #{post.writer}
           small.d !{post.cdateStr}
         if post.files
@@ -28,7 +28,7 @@ block content
           pre #{post.text}
         if post.editable
           .cmd
-            a.btn.btn-mini.btn-default(href='/posts/' + thread._id + '/' + post._id + '/edit') Edit
+            a.btn.btn-mini.btn-default(href='/posts/' + thread.id + '/' + post.id + '/edit') Edit
 
   .section.page-title
       h1 Reply

@@ -1,18 +1,28 @@
-var init = require('../base/init');
-var error = require('../base/error');
-var config = require('../base/config')({ path: 'config/test.json' });
-var mongob = require('../mongo/mongo-base')({ dropDatabase: true });
-var expb = require('../express/express-base');
-var userb = require('../user/user-base');
-var userf = require('../user/user-fixture');
-var postb = require('../post/post-base');
-var postn = require('../post/post-new');
-var expl = require('../express/express-local');
-var assert = require('assert');
-var assert2 = require('../base/assert2');
+'use strict';
+
+const init = require('../base/init');
+const error = require('../base/error');
+const config = require('../base/config');
+const mysql2 = require('../mysql/mysql2');
+const expb = require('../express/express-base');
+const userb = require('../user/user-base');
+const userf = require('../user/user-fixture');
+const postb = require('../post/post-base');
+const postn = require('../post/post-new');
+const expl = require('../express/express-local');
+const assert = require('assert');
+const assert2 = require('../base/assert2');
 
 before(function (done) {
   init.run(done);
+});
+
+before(function (done) {
+  mysql2.pool.query('truncate table thread', done);
+});
+
+before(function (done) {
+  mysql2.pool.query('truncate table post', done);
 });
 
 describe('creating thread', function () {
@@ -34,8 +44,9 @@ describe('creating thread', function () {
     expl.post('/api/posts').send(form).end(function (err, res) {
       assert.ifError(err);
       assert2.empty(res.body.err);
-      postb.threads.findOne({ _id: res.body.tid }, function (err, thread) {
+      mysql2.pool.query('select * from thread where id = ?', res.body.tid, (err, r) => {
         assert.ifError(err);
+        let thread = r[0];
         assert2.e(thread.cid, 100);
         assert2.e(thread.hit, 0);
         assert2.e(thread.length, 1);
@@ -43,15 +54,15 @@ describe('creating thread', function () {
         assert2.ne(thread.udate, undefined); 
         assert2.e(thread.writer, 'snowman');
         assert2.e(thread.title, 'title 1');
-        postb.posts.findOne({ _id: res.body.pid }, function (err, post) {
+        mysql2.pool.query('select * from post where id = ?', res.body.pid, (err, r) => {
           assert.ifError(err);
+          let post = r[0];
           assert2.e(post.tid, res.body.tid);
           assert2.ne(post.cdate, undefined); 
-          assert2.e(post.visible, true);
+          assert2.e(post.visible, 1);
           assert2.e(post.writer, 'snowman');
           assert2.e(post.text, 'post 1');
-          assert2.ne(post.tokens, undefined); 
-          done();
+          done();          
         });
       });
     });
@@ -63,13 +74,14 @@ describe('creating thread', function () {
     expl.post('/api/posts').fields(form).attach('files', f1).attach('files', f2).end(function (err, res) {
       assert.ifError(err);
       assert2.empty(res.body.err);
-      postb.posts.findOne({ _id: res.body.pid }, function (err, post) {
+      mysql2.pool.query('select * from post where id = ?', res.body.pid, (err, r) => {
         assert.ifError(err);
+        let post = r[0];
         assert2.e(post.files.length, 2);
         assert2.e(post.files[0].name, 'express-upload-f1.txt');
         assert2.e(post.files[1].name, 'express-upload-f2.txt');
-        assert2.path('upload/sleek-test/public/post/0/' + post._id + '/express-upload-f1.txt');
-        assert2.path('upload/sleek-test/public/post/0/' + post._id + '/express-upload-f2.txt');
+        assert2.path('upload/sleek-test/public/post/0/' + post.id + '/express-upload-f1.txt');
+        assert2.path('upload/sleek-test/public/post/0/' + post.id + '/express-upload-f2.txt');
         done();
       })
     });
@@ -165,16 +177,17 @@ describe('creating replay', function () {
     expl.post('/api/posts/' + tid).send(form).end(function (err, res) {
       assert2.empty(res.body.err);
       assert2.ne(res.body.pid, undefined);
-      postb.posts.findOne({ _id: res.body.pid }, function (err, post) {
+      mysql2.pool.query('select * from post where id = ?', res.body.pid, (err, r) => {
         assert.ifError(err);
+        let post = r[0];
         assert2.e(post.tid, tid);
         assert2.ne(post.cdate, undefined); 
-        assert2.e(post.visible, true);
+        assert2.e(post.visible, 1);
         assert2.e(post.writer, 'snowman 2');
         assert2.e(post.text, 'text 2');
-        assert2.ne(post.tokens, undefined); 
-        postb.threads.findOne({ _id: tid }, function (err, thread) {
+        mysql2.pool.query('select * from thread where id = ?', tid, (err, r) => {
           assert.ifError(err);
+          let thread = r[0];
           assert2.e(thread.length, 2);
           assert2.de(thread.udate, post.cdate);
           done();

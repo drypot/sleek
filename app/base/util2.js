@@ -1,6 +1,6 @@
 'use strict';
 
-var util2 = exports;
+const util2 = exports;
 
 util2.defineMethod = function (con, methodName, fn) {
   Object.defineProperty(

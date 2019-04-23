@@ -16,7 +16,7 @@ block content
             td
               .t
                 h4
-                  a(href='/posts/' + post.thread._id + '#' + post._id) #{post.thread.title}
+                  a(href='/posts/' + post.thread.id + '#' + post.id) #{post.thread.title}
               .tx #{post.text}
               .i
                 span #{post.category.name}

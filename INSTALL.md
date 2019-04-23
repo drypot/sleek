@@ -34,7 +34,7 @@ Mac 개발환경용 Nginx 설정 예
 
 ## Requirements
 
-mongodb, redis.
+mariadb, redis.
 
 ## Clone Source
 
@@ -46,6 +46,8 @@ mongodb, redis.
 
     $ npm install
     $ bower install
+
+## 실행
 
 설정파일 생성.
 

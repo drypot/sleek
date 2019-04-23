@@ -1,54 +1,60 @@
-var mysql = require('mysql');
+'use strict';
 
-var init = require('../base/init');
-var config = require('../base/config');
+const mysql = require('mysql');
 
-var opt = {};
-
-var mysql2 = exports = module.exports = function (_opt) {
-  for(var p in _opt) {
-    opt[p] = _opt[p];
-  }
-  return mysql2;
-};
+const init = require('../base/init');
+const config = require('../base/config');
+const mysql2 = exports;
 
 // db
 
-init.add(function (done) {
-  console.log('mysql: db=' + config.mysqlDatabase);
-  mysql2.conn = mysql.createConnection({
+var conn;
+
+init.add((done) => {
+  conn = mysql.createConnection({
     host     : 'localhost',
     user     : config.mysqlUser,
     password : config.mysqlPassword,
-  });
-  mysql2.pool = mysql.createPool({
-    connectionLimit : 10,
-    host     : 'localhost',
-    database : config.mysqlDatabase,
-    user     : config.mysqlUser,
-    password : config.mysqlPassword,
-    charset  : 'utf8mb4',
   });
   done();
 });
 
-init.add(function (done) {
-  if (opt.dropDatabase) {
-    console.log('mysql: dropping db');
-    mysql2.conn.query('drop database if exists ??', config.mysqlDatabase, done);
+init.add((done) => {
+  if (mysql2.dropDatabase) {
+    console.log('mysql: dropping db, ' + config.mysqlDatabase);
+    conn.query('drop database if exists ??', config.mysqlDatabase, done);
   } else {
     done();
   }
 });
 
 init.add(function (done) {
-  mysql2.conn.query('create database if not exists ?? character set utf8mb4', config.mysqlDatabase, done);
+  console.log('mysql: db=' + config.mysqlDatabase);
+  conn.query('create database if not exists ?? character set utf8mb4', config.mysqlDatabase, (err) => {
+    if (err) return done(err);
+    mysql2.pool = mysql.createPool({
+      connectionLimit : 10,
+      host     : 'localhost',
+      database : config.mysqlDatabase,
+      user     : config.mysqlUser,
+      password : config.mysqlPassword,
+      charset  : 'utf8mb4',
+      multipleStatements: true,
+    });
+    done();
+  });  
 });
 
 // utilities
 
-// id 를 숫자로 쓰는 컬렉션만 페이징할 수 있다.
+mysql2.tableExists = function (name, done) {
+  mysql2.pool.query('show tables like ?', name, (err, r) => {
+    if (err) return done(err);
+    done(null, !!r.length);
+  });
+};
 
+// id 를 숫자로 쓰는 컬렉션만 페이징할 수 있다.
 mysql2.findPage = function (sql, up, down, ps, done) {
   var where;
   if (down) {

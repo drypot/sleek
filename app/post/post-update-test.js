@@ -1,15 +1,17 @@
-var init = require('../base/init');
-var error = require('../base/error');
-var config = require('../base/config')({ path: 'config/test.json' });
-var mongob = require('../mongo/mongo-base')({ dropDatabase: true });
-var expb = require('../express/express-base');
-var userb = require('../user/user-base');
-var userf = require('../user/user-fixture');
-var postb = require('../post/post-base');
-var postu = require('../post/post-update');
-var expl = require('../express/express-local');
-var assert = require('assert');
-var assert2 = require('../base/assert2');
+'use strict';
+
+const init = require('../base/init');
+const error = require('../base/error');
+const config = require('../base/config');
+const mysql2 = require('../mysql/mysql2');
+const expb = require('../express/express-base');
+const userb = require('../user/user-base');
+const userf = require('../user/user-fixture');
+const postb = require('../post/post-base');
+const postu = require('../post/post-update');
+const expl = require('../express/express-local');
+const assert = require('assert');
+const assert2 = require('../base/assert2');
 
 before(function (done) {
   init.run(done);
@@ -45,7 +47,7 @@ describe('updating', function () {
     expl.put('/api/posts/' + tid + '/' + pid).send(form).end(function (err, res) {
       assert.ifError(err);
       assert2.empty(res.body.err);
-      postb.threads.findOne({ _id: tid}, function (err, thread) {
+      postb.threads.findOne({ id: tid}, function (err, thread) {
         assert.ifError(err);
         assert2.e(thread.cid, 100);
         assert2.e(thread.hit, 0);
@@ -54,14 +56,13 @@ describe('updating', function () {
         assert2.ne(thread.udate, undefined); 
         assert2.e(thread.writer, 'snowman2');
         assert2.e(thread.title, 'title2');
-        postb.posts.findOne({ _id: pid }, function (err, post) {
+        postb.posts.findOne({ id: pid }, function (err, post) {
           assert.ifError(err);
           assert2.e(post.tid, tid);
           assert2.ne(post.cdate, undefined); 
           assert2.e(post.visible, true);
           assert2.e(post.writer, 'snowman2');
           assert2.e(post.text, 'text2');
-          assert2.ne(post.tokens, undefined); 
           done();
         });
       });
@@ -81,7 +82,7 @@ describe('updating', function () {
     expl.put('/api/posts/' + tid + '/' + pid2).send(form).end(function (err, res) {
       assert.ifError(err);
       assert2.empty(res.body.err);
-      postb.threads.findOne({ _id: tid}, function (err, thread) {
+      postb.threads.findOne({ id: tid}, function (err, thread) {
         assert.ifError(err);
         assert2.e(thread.cid, 100);
         assert2.e(thread.hit, 0);
@@ -90,14 +91,13 @@ describe('updating', function () {
         assert2.ne(thread.udate, undefined); 
         assert2.e(thread.writer, 'snowman2');
         assert2.e(thread.title, 'title2');
-        postb.posts.findOne({ _id: pid2 }, function (err, post) {
+        postb.posts.findOne({ id: pid2 }, function (err, post) {
           assert.ifError(err);
           assert2.e(post.tid, tid);
           assert2.ne(post.cdate, undefined); 
           assert2.e(post.visible, true);
           assert2.e(post.writer, 'snowman3');
           assert2.e(post.text, 'text3');
-          assert2.ne(post.tokens, undefined); 
           done();
         });
       });
@@ -124,7 +124,7 @@ describe('updating', function () {
       .attach('files', f3).attach('files', f4).end(function (err, res) {
       assert.ifError(err);
       assert2.empty(res.body.err);
-      postb.posts.findOne({ _id: pid3 }, function (err, post) {
+      postb.posts.findOne({ id: pid3 }, function (err, post) {
         assert.ifError(err);
         assert2.de(post.files, [
           { name : 'express-upload-f1.txt'},
@@ -144,7 +144,7 @@ describe('updating', function () {
     expl.put('/api/posts/' + tid + '/' + pid3).fields(form).end(function (err, res) {
       assert.ifError(err);
       assert2.empty(res.body.err);
-      postb.posts.findOne({ _id: pid3 }, function (err, post) {
+      postb.posts.findOne({ id: pid3 }, function (err, post) {
         assert.ifError(err);
         assert2.de(post.files, [
           { name : 'express-upload-f1.txt'},
@@ -162,7 +162,7 @@ describe('updating', function () {
     expl.put('/api/posts/' + tid + '/' + pid).send(form).end(function (err, res) {
       assert.ifError(err);
       assert2.empty(res.body.err);
-      postb.threads.findOne({ _id: tid}, function (err, thread) {
+      postb.threads.findOne({ id: tid}, function (err, thread) {
         assert.ifError(err);
         assert2.e(thread.cid, 102);
         done();
@@ -190,7 +190,7 @@ describe('updating', function () {
     expl.put('/api/posts/' + tid + '/' + pid).send(form).end(function (err, res) {
       assert.ifError(err);
       assert2.empty(res.body.err);
-      postb.posts.findOne({ _id: pid}, function (err, post) {
+      postb.posts.findOne({ id: pid}, function (err, post) {
         assert.ifError(err);
         assert2.e(post.visible, true);
         done();
@@ -205,7 +205,7 @@ describe('updating', function () {
     expl.put('/api/posts/' + tid + '/' + pid).send(form).end(function (err, res) {
       assert.ifError(err);
       assert2.empty(res.body.err);
-      postb.posts.findOne({ _id: pid}, function (err, post) {
+      postb.posts.findOne({ id: pid}, function (err, post) {
         assert.ifError(err);
         assert2.e(post.visible, false);
         done();

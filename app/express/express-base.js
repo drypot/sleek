@@ -1,17 +1,17 @@
 'use strict';
 
-var express = require('express');
-var bodyParser = require('body-parser');
-var cookieParser = require('cookie-parser');
-var session = require('express-session');
-var redisStore = require('connect-redis')(session);
+const express = require('express');
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+const redisStore = require('connect-redis')(session);
 
-var init = require('../base/init');
-var error = require('../base/error');
-var config = require('../base/config');
-var assert = require('assert');
-var assert2 = require('../base/assert2');
-var expb = exports;
+const init = require('../base/init');
+const error = require('../base/error');
+const config = require('../base/config');
+const assert = require('assert');
+const assert2 = require('../base/assert2');
+const expb = exports;
 
 expb.core = express.Router();
 

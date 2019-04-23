@@ -1,8 +1,10 @@
-var init = require('../base/init');
-var expl = require('../express/express-local');
-var assert = require('assert');
-var assert2 = require('../base/assert2');
-var userf = exports;
+'use strict';
+
+const init = require('../base/init');
+const expl = require('../express/express-local');
+const assert = require('assert');
+const assert2 = require('../base/assert2');
+const userf = exports;
 
 userf.login = function (name, remember, done) {
   if (typeof remember == 'function') {

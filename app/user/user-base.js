@@ -1,11 +1,13 @@
-var crypto = require('crypto');
-var bcrypt = require('bcrypt');
+'use strict';
 
-var init = require('../base/init');
-var error = require('../base/error');
-var config = require('../base/config');
-var expb = require('../express/express-base');
-var userb = exports;
+const crypto = require('crypto');
+const bcrypt = require('bcrypt');
+
+const init = require('../base/init');
+const error = require('../base/error');
+const config = require('../base/config');
+const expb = require('../express/express-base');
+const userb = exports;
 
 error.define('NOT_AUTHENTICATED', '먼저 로그인해 주십시오.');
 error.define('NOT_AUTHORIZED', '사용 권한이 없습니다.');

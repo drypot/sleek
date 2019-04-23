@@ -1,6 +1,6 @@
 'use strict';
 
-var assert2 = require('../base/assert2');
+const assert2 = require('../base/assert2');
 
 var error = exports = module.exports = function (obj) {
   var err;

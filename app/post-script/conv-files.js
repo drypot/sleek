@@ -1,6 +1,8 @@
-var init = require('../base/init');
-var config = require('../base/config');
-var mongob = require('../mongo/mongo-base');
+'use strict';
+
+const init = require('../base/init');
+const config = require('../base/config');
+const mysql2 = require('../mysql/mysql2');
 
 init.run(function (err) {
   if (err) throw err;

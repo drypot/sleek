@@ -1,7 +1,9 @@
-var init = require('../base/init');
-var config = require('../base/config');
-var mongob = require('../mongo/mongo-base');
-var postb = require('../post/post-base');
+'use strict';
+
+const init = require('../base/init');
+const config = require('../base/config');
+const mysql2 = require('../mysql/mysql2');
+const postb = require('../post/post-base');
 
 init.run(function (err) {
   console.log('start rebuilding:');

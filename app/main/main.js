@@ -1,6 +1,8 @@
-var init = require('../base/init');
-var config = require('../base/config');
-var expb = require('../express/express-base');
+'use strict';
+
+const init = require('../base/init');
+const config = require('../base/config');
+const expb = require('../express/express-base');
 
 require('../user/user-base');
 require('../post/post-list');

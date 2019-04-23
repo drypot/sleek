@@ -1,5 +1,7 @@
-var crypto = require('crypto');
-var bcrypt = require('bcrypt');
+'use strict';
+
+const crypto = require('crypto');
+const bcrypt = require('bcrypt');
 
 var funcs = {
   sha256: function (s) {

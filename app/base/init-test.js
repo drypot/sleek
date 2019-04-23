@@ -1,8 +1,8 @@
 'use strict';
 
-var init = require('../base/init');
-var assert = require('assert');
-var assert2 = require('../base/assert2');
+const init = require('../base/init');
+const assert = require('assert');
+const assert2 = require('../base/assert2');
 
 describe('init.run', function () {
   it('should work', function (done) {

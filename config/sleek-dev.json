@@ -3,12 +3,16 @@
   "appPort": 8000,
   "cookieSecret": "o;iejf832ndvs",
 
-  "uploadSite": "http://file.sleek.dev:8080",
+  "uploadSite": "http://file.sleek.test:8080",
   "uploadDir": "upload/sleek",
 
   "mongodb": "sleek",
   "mongoUser": "",
   "mongoPassword": "",
+
+  "mysqlDatabase": "sleek",
+  "mysqlUser": "drypot",
+  "mysqlPassword": "",
 
   "users": [
     { "name": "user", "hash": "$2a$10$ku7nymS.1CPd8jMttYXZMe4wVWweWr1EqaYst75tzimQh2iAAqvZW" },

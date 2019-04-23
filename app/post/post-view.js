@@ -1,10 +1,12 @@
-var init = require('../base/init');
-var error = require('../base/error');
-var config = require('../base/config');
-var util2 = require('../base/util2');
-var expb = require('../express/express-base');
-var userb = require('../user/user-base');
-var postb = require('../post/post-base');
+'use strict';
+
+const init = require('../base/init');
+const error = require('../base/error');
+const config = require('../base/config');
+const util2 = require('../base/util2');
+const expb = require('../express/express-base');
+const userb = require('../user/user-base');
+const postb = require('../post/post-base');
 var postv = exports;
 
 expb.core.get('/posts/:tid([0-9]+)', function (req, res, done) {
@@ -19,12 +21,12 @@ function view(req, res, api, done) {
   userb.checkUser(res, function (err, user) {
     if (err) return done(err);
     var tid = parseInt(req.params.tid) || 0;
-    postb.threads.findOne({ _id: tid }, function (err, thread) {
+    postb.threads.findOne({ id: tid }, function (err, thread) {
       if (err) return done(err);
       if (!thread) { return done(error('INVALID_THREAD')); }
       postb.checkCategory(user, thread.cid, function (err, category) {
         if (err) return done(err);
-        postb.threads.updateOne({ _id: tid }, { $inc: { hit: 1 }}, function (err) {
+        postb.threads.updateOne({ id: tid }, { $inc: { hit: 1 }}, function (err) {
           if (err) return done(err);
           var opt = {
             projection: { tokens: 0 },
@@ -37,8 +39,8 @@ function view(req, res, api, done) {
               if (err) return done(err);
               if (post) {
                 if (post.visible || user.admin) {
-                  postb.addFileUrls(post);
-                  post.editable = postb.isEditable(user, post._id, req.session.pids);
+                  postb.addFilesUrl(post);
+                  post.editable = postb.isEditable(user, post.id, req.session.pids);
                   post.cdateStr = util2.dateTimeString(post.cdate),
                   post.cdate = post.cdate.getTime(),
                   posts.push(post);
@@ -47,7 +49,7 @@ function view(req, res, api, done) {
               }
               if (api) {
                 res.json({
-                  thread: { _id: thread._id, title: thread.title },
+                  thread: { id: thread.id, title: thread.title },
                   category: { id: category.id },
                   posts: posts
                 });

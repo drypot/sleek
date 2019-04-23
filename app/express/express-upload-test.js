@@ -1,18 +1,19 @@
 'use strict';
 
-var fs = require('fs');
+const fs = require('fs');
 
-var util2 = require('../base/util2');
-var init = require('../base/init');
-var fs2 = require('../base/fs2');
-var config = require('../base/config')({ path: 'config/test.json' });
-var expb = require('../express/express-base');
-var expu = require('../express/express-upload');
-var expl = require('../express/express-local');
-var assert = require('assert');
-var assert2 = require('../base/assert2');
+const util2 = require('../base/util2');
+const init = require('../base/init');
+const fs2 = require('../base/fs2');
+const config = require('../base/config');
+const expb = require('../express/express-base');
+const expu = require('../express/express-upload');
+const expl = require('../express/express-local');
+const assert = require('assert');
+const assert2 = require('../base/assert2');
 
 before(function (done) {
+  config.path = 'config/test.json';
   init.run(done);
 });
 

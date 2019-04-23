@@ -1,7 +1,7 @@
 'use strict';
 
-var util = require('util');
-var init = exports;
+const util = require('util');
+const init = exports;
 
 process.on('uncaughtException', function (err) {
   console.error(err.stack);

@@ -1,11 +1,11 @@
 'use strict';
 
-var superagent = require('superagent');
+const superagent = require('superagent');
 
-var config = require('../base/config');
-var assert = require('assert');
-var assert2 = require('../base/assert2');
-var expl = exports;
+const config = require('../base/config');
+const assert = require('assert');
+const assert2 = require('../base/assert2');
+const expl = exports;
 
 // user-fixture 와 같이 여러 테스트 모듈이 세션을 공유할 필요가 있다.
 // 각 모듈별로 supertest 류의 라이브러리를 각자 생성해서 사용하면 세션 공유에 문제가 발생한다.

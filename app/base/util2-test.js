@@ -1,8 +1,8 @@
 'use strict';
 
-var util2 = require('../base/util2');
-var assert = require('assert');
-var assert2 = require('../base/assert2');
+const util2 = require('../base/util2');
+const assert = require('assert');
+const assert2 = require('../base/assert2');
 
 describe('find', function () {
   it('should succeed', function () {

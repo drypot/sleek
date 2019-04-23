@@ -1,66 +1,52 @@
-var init = require('../base/init');
-var error = require('../base/error');
-var config = require('../base/config')({ path: 'config/test.json' });
-var mongob = require('../mongo/mongo-base')({ dropDatabase: true });
-var expb = require('../express/express-base');
-var userb = require('../user/user-base');
-var userf = require('../user/user-fixture');
-var postb = require('../post/post-base');
-var expl = require('../express/express-local');
-var assert = require('assert');
-var assert2 = require('../base/assert2');
+'use strict';
+
+const init = require('../base/init');
+const error = require('../base/error');
+const config = require('../base/config');
+const mysql2 = require('../mysql/mysql2');
+const expb = require('../express/express-base');
+const userb = require('../user/user-base');
+const userf = require('../user/user-fixture');
+const postb = require('../post/post-base');
+const expl = require('../express/express-local');
+const assert = require('assert');
+const assert2 = require('../base/assert2');
 
 before(function (done) {
+  config.path = 'config/test.json';
+  mysql2.dropDatabase = true;
   init.run(done);
 });
 
-describe('threads', function () {
-  it('should exist', function () {
-    assert2.ne(postb.threads, undefined); 
-  });
-  it('should be empty', function (done) {
-    postb.threads.countDocuments(function (err, count) {
+describe('table thread', function () {
+  it('should exist', function (done) {
+    mysql2.tableExists('thread', (err, exist) => {
       assert.ifError(err);
-      assert2.e(count, 0);
-      done();
-    })
-  });
-  it('should have indexes', function (done) {
-    postb.threads.indexes(function (err, indexes) {
-      assert.ifError(err);
-      assert2.e(indexes.length, 3);
+      assert(exist);
       done();
     });
   });
   it('getNewId should success', function () {
-    assert2.e(postb.getNewThreadId() < postb.getNewThreadId(), true);
+    assert(postb.getNewThreadId() === 1);
+    assert(postb.getNewThreadId() < postb.getNewThreadId());
   });
 });
 
-describe('posts', function () {
-  it('should exist', function () {
-    assert2.ne(postb.posts, undefined); 
-  });
-  it('should be empty', function (done) {
-    postb.posts.countDocuments(function (err, count) {
+describe('table post', function () {
+  it('should exist', function (done) {
+    mysql2.tableExists('post', (err, exist) => {
       assert.ifError(err);
-      assert2.e(count, 0);
-      done();
-    })
-  });
-  it('should have indexes', function (done) {
-    postb.posts.indexes(function (err, indexes) {
-      assert.ifError(err);
-      assert2.e(indexes.length, 2);
+      assert(exist);
       done();
     });
   });
   it('getNewId should success', function () {
-    assert2.e(postb.getNewPostId() < postb.getNewPostId(), true);
+    assert(postb.getNewPostId() === 1);
+    assert(postb.getNewPostId() < postb.getNewPostId());
   });
 });
 
-describe('files', function () {
+describe('upload directory', function () {
   it('should exist', function (done) {
     assert2.path(config.uploadDir + '/public/post');
     assert2.e(postb.getFileDir(20100), config.uploadDir + '/public/post/2/20100');

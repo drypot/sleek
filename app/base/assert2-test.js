@@ -1,7 +1,7 @@
 'use strict';
 
-var assert = require('assert');
-var assert2 = require('../base/assert2');
+const assert = require('assert');
+const assert2 = require('../base/assert2');
 
 describe('aliases', function () {
   it('should succeed', function (done) {

@@ -1,14 +1,17 @@
-var fs = require('fs');
+'use strict';
 
-var init = require('../base/init');
-var error = require('../base/error');
-var config = require('../base/config');
-var fs2 = require('../base/fs2');
-var util2 = require('../base/util2');
-var expb = require('../express/express-base');
-var expu = require('../express/express-upload');
-var userb = require('../user/user-base');
-var postb = require('../post/post-base');
+const fs = require('fs');
+
+const init = require('../base/init');
+const error = require('../base/error');
+const config = require('../base/config');
+const fs2 = require('../base/fs2');
+const util2 = require('../base/util2');
+const expb = require('../express/express-base');
+const expu = require('../express/express-upload');
+const mysql2 = require('../mysql/mysql2');
+const userb = require('../user/user-base');
+const postb = require('../post/post-base');
 var postn = exports;
 
 expb.core.get('/posts/new', function (req, res, done) {
@@ -35,8 +38,7 @@ function createPost(req, res, done) {
     checkForm(form, newThread, function (err) {
       if (err) return done(err);
       util2.fif(newThread, function (next) {
-        var thread = {
-          _id : postb.getNewThreadId(),
+        let thread = {
           cid: form.cid,
           hit: 0,
           length: 1,
@@ -45,43 +47,43 @@ function createPost(req, res, done) {
           writer: form.writer,
           title: form.title
         };
-        next(thread);
-      }, function (next) {
-        postb.threads.findOne({ _id: form.tid }, function (err, thread) {
+        mysql2.pool.query('insert into thread set ?', thread, (err, r) => {
           if (err) return done(err);
+          thread.id = r.insertId;
+          next(thread);          
+        });
+      }, function (next) {
+        mysql2.pool.query('select * from thread where id = ?', form.tid, (err, r) => {
+          if (err) return done(err);
+          let thread = r[0];
           if (!thread) return done(error('INVALID_THREAD'));
           form.cid = thread.cid;
-          next(thread);
+          mysql2.pool.query('update thread set length = length + 1, udate = ?', form.now,  (err, r) => {
+            if (err) return done(err);
+            next(thread);
+          });
         });
       }, function (thread) {
         postb.checkCategory(user, form.cid, function (err, category) {
           if (err) return done(err);
           var post = {
-            _id: postb.getNewPostId(),
-            tid: thread._id,
+            tid: thread.id,
             cdate: form.now,
             visible: user.admin ? form.visible : true,
             writer: form.writer,
-            text: form.text,
-            tokens: form.tokens
+            text: form.text
           };
-          saveFiles(form, post, function (err) {
+          mysql2.pool.query('insert into post set ?', post, (err, r) => {
             if (err) return done(err);
-            postb.posts.insertOne(post, function (err) {
+            post.id = r.insertId;
+            saveFiles(form, post, function (err) {
               if (err) return done(err);
-              util2.fif(newThread, function (next) {
-                postb.threads.insertOne(thread, next)
-              }, function (next) {
-                postb.threads.updateOne({ _id: thread._id }, { $inc: { length: 1 }, $set: { udate: form.now }}, next);
-              }, function (err, r) {
-                if (err) return done(err);
-                req.session.pids.push(post._id);
-                res.json({
-                  tid: thread._id,
-                  pid: post._id
-                });
-                done();
+              req.session.pids.push(post.id);
+              res.json({
+                tid: thread.id,
+                pid: post.id
               });
+              done();
             });
           });
         });
@@ -103,7 +105,6 @@ var getForm = postn.getForm = function (req) {
   form.visible = body.hasOwnProperty('visible') ? !!body.visible : true;
   form.files = req.files && req.files.files;
   form.dfiles = body.dfiles; // for update
-  form.tokens = util2.tokenize(form.title, form.writer, form.text);
   return form;
 };
 
@@ -132,7 +133,7 @@ var checkForm = postn.checkForm = function (form, newThread, done) {
 
 var saveFiles = postn.saveFiles = function (form, post, done) {
   if (!form.files) return done();
-  fs2.makeDir(postb.getFileDir(post._id), function (err, dir) {
+  fs2.makeDir(postb.getFileDir(post.id), function (err, dir) {
     if (err) return done(err);
     var saved = []; // 업데이트에서 같은 이름의 파일이 업로드될 수 있으므로 post.files 에 바로 push 하지 않는다.
     var i = 0;

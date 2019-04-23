@@ -1,12 +1,11 @@
 'use strict';
 
-var fs = require('fs');
+const fs = require('fs');
+const fs2 = require('../base/fs2');
+const assert = require('assert');
+const assert2 = require('../base/assert2');
 
-var fs2 = require('../base/fs2');
-var assert = require('assert');
-var assert2 = require('../base/assert2');
-
-var testdir = 'tmp/fs-test';
+const testdir = 'tmp/fs-test';
 
 before(function (done) {
   fs.mkdir('tmp', 0o755, function (err) {

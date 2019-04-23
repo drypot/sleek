@@ -1,15 +1,17 @@
-var init = require('../base/init');
-var error = require('../base/error');
-var config = require('../base/config')({ path: 'config/test.json' });
-var mongob = require('../mongo/mongo-base')({ dropDatabase: true });
-var expb = require('../express/express-base');
-var userb = require('../user/user-base');
-var userf = require('../user/user-fixture');
-var postn = require('../post/post-new');
-var postl = require('../post/post-list');
-var expl = require('../express/express-local');
-var assert = require('assert');
-var assert2 = require('../base/assert2');
+'use strict';
+
+const init = require('../base/init');
+const error = require('../base/error');
+const config = require('../base/config');
+const mysql2 = require('../mysql/mysql2');
+const expb = require('../express/express-base');
+const userb = require('../user/user-base');
+const userf = require('../user/user-fixture');
+const postn = require('../post/post-new');
+const postl = require('../post/post-list');
+const expl = require('../express/express-local');
+const assert = require('assert');
+const assert2 = require('../base/assert2');
 
 before(function (done) {
   init.run(done);
@@ -174,7 +176,7 @@ describe('listing threads', function () {
       assert.ifError(err);
       assert2.empty(res.body.err);
       var threads = res.body.threads;
-      assert2.ne(threads[0]._id, undefined);
+      assert2.ne(threads[0].id, undefined);
       assert2.e(threads[0].writer, 'snowman');
       assert2.e(threads[0].title, 'game 4');
       assert2.e(threads[0].hit, 0);
@@ -189,7 +191,7 @@ describe('listing threads', function () {
       assert.ifError(err);
       assert2.empty(res.body.err);
       var threads = res.body.threads;
-      assert2.ne(threads[0]._id, undefined);
+      assert2.ne(threads[0].id, undefined);
       assert2.e(threads[0].writer, 'snowman');
       assert2.e(threads[0].title, 'freetalk 4');
       assert2.e(threads[0].hit, 0);

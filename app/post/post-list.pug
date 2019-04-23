@@ -19,7 +19,7 @@ block content
         for thread in threads
           tr
             td.t
-              a.text-muted(href='/posts/' + thread._id)
+              a.text-muted(href='/posts/' + thread.id)
                 | #{thread.title}
                 if thread.length > 1
                   | &nbsp;&nbsp;[!{thread.length - 1}]
@@ -41,7 +41,7 @@ block content
           tr
             td
               .t
-                a.text-muted(href='/posts/' + thread._id)
+                a.text-muted(href='/posts/' + thread.id)
                   | #{thread.title}
                   if thread.length > 1
                     | &nbsp;&nbsp;[!{thread.length - 1}]

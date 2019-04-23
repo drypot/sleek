@@ -1,9 +1,13 @@
 'use strict';
 
-var init = require('../base/init');
-var config = require('../base/config')({ path: 'config/test.json' });
-var assert = require('assert');
-var assert2 = require('../base/assert2');
+const init = require('../base/init');
+const config = require('../base/config');
+const assert = require('assert');
+const assert2 = require('../base/assert2');
+
+before(() => {
+  config.path = 'config/test.json';
+});
 
 describe('config with valid path', function () {
   it('should succeed', function (done) {

@@ -1,10 +1,12 @@
-var init = require('../base/init');
-var error = require('../base/error');
-var config = require('../base/config');
-var fs2 = require('../base/fs2');
-var mongob = require('../mongo/mongo-base');
-var userb = require('../user/user-base');
-var postb = exports;
+'use strict';
+
+const init = require('../base/init');
+const error = require('../base/error');
+const config = require('../base/config');
+const fs2 = require('../base/fs2');
+const mysql2 = require('../mysql/mysql2');
+const userb = require('../user/user-base');
+const postb = exports;
 
 error.define('INVALID_CATEGORY', '정상적인 카테고리가 아닙니다.');
 error.define('INVALID_THREAD', '정상적인 글줄이 아닙니다.');
@@ -15,23 +17,61 @@ error.define('TITLE_TOO_LONG', '제목을 줄여 주십시오.', 'title');
 error.define('WRITER_EMPTY', '필명을 입력해 주십시오.', 'writer');
 error.define('WRITER_TOO_LONG', '필명을 줄여 주십시오.', 'writer');
 
-// threads
+init.add(function (done) {
+  mysql2.pool.query(`
+    create table if not exists thread(
+      id int not null,
+      cid smallint not null,
+      hit int not null,
+      length smallint not null,
+      cdate datetime(3) not null,
+      udate datetime(3) not null,
+      writer varchar(255) not null,
+      title varchar(255) not null,
+      primary key (id)
+    )
+  `, done);
+});
+
+init.add(function (done) {
+  mysql2.pool.query(`
+    create index thread_cid_udate on thread(cid, udate desc);
+  `, err => { done(); });
+});
+
+init.add(function (done) {
+  mysql2.pool.query(`
+    create index thread_udate on thread(udate desc);
+  `, err => { done(); });
+});
+
+init.add(function (done) {
+  mysql2.pool.query(`
+    create table if not exists post (
+      id int not null,
+      tid int not null,
+      cdate datetime(3) not null,
+      visible bool not null,
+      writer varchar(255) not null,
+      text longtext not null,
+      files json not null,
+      primary key (id)
+    )
+  `, done);
+});
+
+init.add(function (done) {
+  mysql2.pool.query(`
+    create index post_tid_cdate on post(tid, cdate)
+  `, err => { done(); });
+});
 
 var threadId;
 
 init.add(function (done) {
-  postb.threads = mongob.db.collection('threads');
-  postb.threads.createIndex({ cid: 1, udate: -1 }, function (err) {
+  mysql2.pool.query('select coalesce(max(id), 0) as maxId from thread', (err, r) => {
     if (err) return done(err);
-    postb.threads.createIndex({ udate: -1 }, done);
-  });
-});
-
-init.add(function (done) {
-  mongob.getLastId(postb.threads, function (err, id) {
-    if (err) return done(err);
-    threadId = id;
-    console.log('post-base: thread id = ' + threadId);
+    threadId = r[0].maxId;
     done();
   });
 });
@@ -40,25 +80,12 @@ postb.getNewThreadId = function () {
   return ++threadId;
 };
 
-// posts
-
 var postId;
 
 init.add(function (done) {
-  postb.posts = mongob.db.collection('posts');
-  postb.posts.createIndex({ tid: 1, cdate: 1 }, function (err) {
+  mysql2.pool.query('select coalesce(max(id), 0) as maxId from post', (err, r) => {
     if (err) return done(err);
-    //1024 사이즈 이상의 필드는 인덱스 생성이 안 되게 바뀌었다.
-    //postb.posts.createIndex({ tokens: 1 }, done);
-    done();
-  });
-});
-
-init.add(function (done) {
-  mongob.getLastId(postb.posts, function (err, id) {
-    if (err) return done(err);
-    postId = id;
-    console.log('post-base: post id = ' + postId);
+    postId = r[0].maxId;
     done();
   });
 });
@@ -130,11 +157,11 @@ postb.isEditable = function (user, pid, pids) {
   return user.admin || !!(pids && ~pids.indexOf(pid));
 }
 
-postb.addFileUrls = function (post) {
+postb.addFilesUrl = function (post) {
   if (post.files) {
     for (var i = 0; i < post.files.length; i++) {
       var file = post.files[i];
-      file.url = getFileUrl(post._id, file.name);
+      file.url = getFileUrl(post.id, file.name);
     }
   }
 }

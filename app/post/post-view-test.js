@@ -1,14 +1,16 @@
-var init = require('../base/init');
-var error = require('../base/error');
-var config = require('../base/config')({ path: 'config/test.json' });
-var mongob = require('../mongo/mongo-base')({ dropDatabase: true });
-var expb = require('../express/express-base');
-var userf = require('../user/user-fixture');
-var postn = require('../post/post-new');
-var postv = require('../post/post-view');
-var expl = require('../express/express-local');
-var assert = require('assert');
-var assert2 = require('../base/assert2');
+'use strict';
+
+const init = require('../base/init');
+const error = require('../base/error');
+const config = require('../base/config');
+const mysql2 = require('../mysql/mysql2');
+const expb = require('../express/express-base');
+const userf = require('../user/user-fixture');
+const postn = require('../post/post-new');
+const postv = require('../post/post-view');
+const expl = require('../express/express-local');
+const assert = require('assert');
+const assert2 = require('../base/assert2');
 
 before(function (done) {
   init.run(done);

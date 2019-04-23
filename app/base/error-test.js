@@ -1,9 +1,9 @@
 'use strict';
 
-var init = require('../base/init');
-var error = require('../base/error');
-var assert = require('assert');
-var assert2 = require('../base/assert2');
+const assert = require('assert');
+const assert2 = require('../base/assert2');
+const init = require('../base/init');
+const error = require('../base/error');
 
 before(function (done) {
   init.run(done);
@@ -63,17 +63,17 @@ describe('error(unknown)', function () {
   });
 });
 
-describe('error find', function () {
+describe('error.find', function () {
   it('should succeed', function () {
     var err = error('INVALID_DATA');
-    assert2.e(error.find(err, 'INVALID_DATA'), true);
-    assert2.e(error.find(err, 'INVALID_FORM'), false);
-    assert2.e(error.find(err, 'NAME_DUPE'), false);
+    assert(error.find(err, 'INVALID_DATA'));
+    assert(!error.find(err, 'INVALID_FORM'));
+    assert(!error.find(err, 'NAME_DUPE'));
   });
   it('form error should succeed', function () {
     var err = error('NAME_DUPE');
-    assert2.e(error.find(err, 'INVALID_DATA'), false);
-    assert2.e(error.find(err, 'INVALID_FORM'), false);
-    assert2.e(error.find(err, 'NAME_DUPE'), true);
+    assert(!error.find(err, 'INVALID_DATA'));
+    assert(!error.find(err, 'INVALID_FORM'));
+    assert(error.find(err, 'NAME_DUPE'));
   });
 });
