@@ -13,6 +13,8 @@ const assert = require('assert');
 const assert2 = require('../base/assert2');
 
 before(function (done) {
+  config.path = 'config/test.json';
+  mysql2.dropDatabase = true;
   init.run(done);
 });
 

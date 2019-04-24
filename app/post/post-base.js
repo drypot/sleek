@@ -18,7 +18,7 @@ error.define('WRITER_EMPTY', '필명을 입력해 주십시오.', 'writer');
 error.define('WRITER_TOO_LONG', '필명을 줄여 주십시오.', 'writer');
 
 init.add(function (done) {
-  mysql2.pool.query(`
+  mysql2.query(`
     create table if not exists thread(
       id int not null,
       cid smallint not null,
@@ -34,19 +34,19 @@ init.add(function (done) {
 });
 
 init.add(function (done) {
-  mysql2.pool.query(`
+  mysql2.query(`
     create index thread_cid_udate on thread(cid, udate desc);
   `, err => { done(); });
 });
 
 init.add(function (done) {
-  mysql2.pool.query(`
+  mysql2.query(`
     create index thread_udate on thread(udate desc);
   `, err => { done(); });
 });
 
 init.add(function (done) {
-  mysql2.pool.query(`
+  mysql2.query(`
     create table if not exists post (
       id int not null,
       tid int not null,
@@ -61,7 +61,7 @@ init.add(function (done) {
 });
 
 init.add(function (done) {
-  mysql2.pool.query(`
+  mysql2.query(`
     create index post_tid_cdate on post(tid, cdate)
   `, err => { done(); });
 });
@@ -69,9 +69,9 @@ init.add(function (done) {
 var threadId;
 
 init.add(function (done) {
-  mysql2.pool.query('select coalesce(max(id), 0) as maxId from thread', (err, r) => {
+  mysql2.queryOne('select coalesce(max(id), 0) as maxId from thread', (err, r) => {
     if (err) return done(err);
-    threadId = r[0].maxId;
+    threadId = r.maxId;
     done();
   });
 });
@@ -83,9 +83,9 @@ postb.getNewThreadId = function () {
 var postId;
 
 init.add(function (done) {
-  mysql2.pool.query('select coalesce(max(id), 0) as maxId from post', (err, r) => {
+  mysql2.queryOne('select coalesce(max(id), 0) as maxId from post', (err, r) => {
     if (err) return done(err);
-    postId = r[0].maxId;
+    postId = r.maxId;
     done();
   });
 });

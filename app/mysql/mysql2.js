@@ -9,6 +9,7 @@ const mysql2 = exports;
 // db
 
 var conn;
+var pool;
 
 init.add((done) => {
   conn = mysql.createConnection({
@@ -32,7 +33,7 @@ init.add(function (done) {
   console.log('mysql: db=' + config.mysqlDatabase);
   conn.query('create database if not exists ?? character set utf8mb4', config.mysqlDatabase, (err) => {
     if (err) return done(err);
-    mysql2.pool = mysql.createPool({
+    pool = mysql.createPool({
       connectionLimit : 10,
       host     : 'localhost',
       database : config.mysqlDatabase,
@@ -47,8 +48,22 @@ init.add(function (done) {
 
 // utilities
 
+mysql2.query = function () {
+  pool.query.apply(pool, arguments);
+};
+
+mysql2.queryOne = function (sql, param, done) {
+  if (!done) {
+    done = param;
+    param = null;
+  }
+  pool.query(sql, param, (err, r) => {
+    done(err, r[0]);    
+  });
+};
+
 mysql2.tableExists = function (name, done) {
-  mysql2.pool.query('show tables like ?', name, (err, r) => {
+  mysql2.query('show tables like ?', name, (err, r) => {
     if (err) return done(err);
     done(null, !!r.length);
   });
@@ -64,7 +79,7 @@ mysql2.findPage = function (sql, up, down, ps, done) {
   } else {
     where = ' order by id desc limit ' + (ps + 1);
   }
-  mysql2.pool.query(sql + where, function (err, r) {
+  mysql2.query(sql + where, function (err, r) {
     if (err) return done(err);
     var more = false;
     var first = 0;

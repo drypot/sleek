@@ -14,6 +14,8 @@ const assert = require('assert');
 const assert2 = require('../base/assert2');
 
 before(function (done) {
+  config.path = 'config/test.json';
+  mysql2.dropDatabase = true;
   init.run(done);
 });
 
@@ -47,7 +49,7 @@ describe('updating', function () {
     expl.put('/api/posts/' + tid + '/' + pid).send(form).end(function (err, res) {
       assert.ifError(err);
       assert2.empty(res.body.err);
-      postb.threads.findOne({ id: tid}, function (err, thread) {
+      mysql2.queryOne('select * from thread where id = ?', tid, (err, thread) => {
         assert.ifError(err);
         assert2.e(thread.cid, 100);
         assert2.e(thread.hit, 0);
@@ -56,8 +58,9 @@ describe('updating', function () {
         assert2.ne(thread.udate, undefined); 
         assert2.e(thread.writer, 'snowman2');
         assert2.e(thread.title, 'title2');
-        postb.posts.findOne({ id: pid }, function (err, post) {
+        mysql2.queryOne('select * from post where id = ?', pid, (err, post) => {
           assert.ifError(err);
+          postb.unpackPost(post);
           assert2.e(post.tid, tid);
           assert2.ne(post.cdate, undefined); 
           assert2.e(post.visible, true);
@@ -82,7 +85,7 @@ describe('updating', function () {
     expl.put('/api/posts/' + tid + '/' + pid2).send(form).end(function (err, res) {
       assert.ifError(err);
       assert2.empty(res.body.err);
-      postb.threads.findOne({ id: tid}, function (err, thread) {
+      mysql2.queryOne('select * from thread where id = ?', tid, (err, thread) => {
         assert.ifError(err);
         assert2.e(thread.cid, 100);
         assert2.e(thread.hit, 0);
@@ -91,8 +94,9 @@ describe('updating', function () {
         assert2.ne(thread.udate, undefined); 
         assert2.e(thread.writer, 'snowman2');
         assert2.e(thread.title, 'title2');
-        postb.posts.findOne({ id: pid2 }, function (err, post) {
+        mysql2.queryOne('select * from post where id = ?', pid2, (err, post) => {
           assert.ifError(err);
+          postb.unpackPost(post);
           assert2.e(post.tid, tid);
           assert2.ne(post.cdate, undefined); 
           assert2.e(post.visible, true);
@@ -124,8 +128,9 @@ describe('updating', function () {
       .attach('files', f3).attach('files', f4).end(function (err, res) {
       assert.ifError(err);
       assert2.empty(res.body.err);
-      postb.posts.findOne({ id: pid3 }, function (err, post) {
+      mysql2.queryOne('select * from post where id = ?', pid3, (err, post) => {
         assert.ifError(err);
+        postb.unpackPost(post);
         assert2.de(post.files, [
           { name : 'express-upload-f1.txt'},
           { name : 'express-upload-f3.txt'},
@@ -144,8 +149,9 @@ describe('updating', function () {
     expl.put('/api/posts/' + tid + '/' + pid3).fields(form).end(function (err, res) {
       assert.ifError(err);
       assert2.empty(res.body.err);
-      postb.posts.findOne({ id: pid3 }, function (err, post) {
+      mysql2.queryOne('select * from post where id = ?', pid3, (err, post) => {
         assert.ifError(err);
+        postb.unpackPost(post);
         assert2.de(post.files, [
           { name : 'express-upload-f1.txt'},
           { name : 'express-upload-f4.txt'}
@@ -162,7 +168,7 @@ describe('updating', function () {
     expl.put('/api/posts/' + tid + '/' + pid).send(form).end(function (err, res) {
       assert.ifError(err);
       assert2.empty(res.body.err);
-      postb.threads.findOne({ id: tid}, function (err, thread) {
+      mysql2.queryOne('select * from thread where id = ?', tid, (err, thread) => {
         assert.ifError(err);
         assert2.e(thread.cid, 102);
         done();
@@ -190,8 +196,9 @@ describe('updating', function () {
     expl.put('/api/posts/' + tid + '/' + pid).send(form).end(function (err, res) {
       assert.ifError(err);
       assert2.empty(res.body.err);
-      postb.posts.findOne({ id: pid}, function (err, post) {
+      mysql2.queryOne('select * from post where id = ?', pid, (err, post) => {
         assert.ifError(err);
+        postb.unpackPost(post);
         assert2.e(post.visible, true);
         done();
       });
@@ -205,8 +212,9 @@ describe('updating', function () {
     expl.put('/api/posts/' + tid + '/' + pid).send(form).end(function (err, res) {
       assert.ifError(err);
       assert2.empty(res.body.err);
-      postb.posts.findOne({ id: pid}, function (err, post) {
+      mysql2.queryOne('select * from post where id = ?', pid, (err, post) => {
         assert.ifError(err);
+        postb.unpackPost(post);
         assert2.e(post.visible, false);
         done();
       });

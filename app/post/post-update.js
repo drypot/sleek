@@ -8,6 +8,7 @@ const error = require('../base/error');
 const config = require('../base/config');
 const fs2 = require('../base/fs2');
 const util2 = require('../base/util2');
+const mysql2 = require('../mysql/mysql2');
 const expb = require('../express/express-base');
 const expu = require('../express/express-upload');
 const userb = require('../user/user-base');
@@ -21,11 +22,12 @@ expb.core.get('/posts/:tid([0-9]+)/:pid([0-9]+/edit)', function (req, res, done)
     if (err) return done(err);
     var tid = parseInt(req.params.tid) || 0;
     var pid = parseInt(req.params.pid) || 0;
-    postb.threads.findOne({ id : tid }, function (err, thread) {
+    mysql2.queryOne('select * from thread where id = ?', tid, (err, thread) => {
       if (err) return done(err);
       if (!thread) return done(error('INVALID_THREAD'));
-      postb.posts.findOne({ id: pid }, { projection: { tokens: 0 } }, function (err, post) {
+      mysql2.queryOne('select * from post where id = ?', pid, (err, post) => {
         if (err) return done(err);
+        postb.unpackPost(post);
         if (!post || post.tid !== thread.id) return done(error('INVALID_POST'));
         postb.checkCategory(user, thread.cid, function (err, category) {
           if (err) return done(err);
@@ -33,7 +35,6 @@ expb.core.get('/posts/:tid([0-9]+)/:pid([0-9]+/edit)', function (req, res, done)
           post.head = postb.isHead(thread, post);
           post.editable = postb.isEditable(user, post.id, req.session.pids)
           post.cdateStr = util2.dateTimeString(post.cdate);
-          post.cdate = post.cdate.getTime();
           res.render('post/post-update', {
             thread: thread,
             category: category,
@@ -49,11 +50,12 @@ expb.core.put('/api/posts/:tid([0-9]+)/:pid([0-9]+)', expu.handler(function (req
   userb.checkUser(res, function (err, user) {
     if (err) return done(err);
     var form = postn.getForm(req);
-    postb.threads.findOne({ id : form.tid }, function (err, thread) {
+    mysql2.queryOne('select * from thread where id = ?', form.tid, (err, thread) => {
       if (err) return done(err);
       if (!thread) return done(error('INVALID_THREAD'));
-      postb.posts.findOne({ id: form.pid }, { projection: { tokens: 0 } }, function (err, post) {
+      mysql2.queryOne('select * from post where id = ?', form.pid, (err, post) => {
         if (err) return done(err);
+        postb.unpackPost(post);
         if (!post || post.tid !== thread.id) return done(error('INVALID_POST'));
         postb.checkCategory(user, thread.cid, function (err, category) {
           if (err) return done(err);
@@ -74,13 +76,14 @@ expb.core.put('/api/posts/:tid([0-9]+)/:pid([0-9]+)', expu.handler(function (req
                   if (user.admin) {
                     post.visible = form.visible;
                   }
-                  postb.posts.updateOne({ id: post.id }, { $set: post }, function (err) {
+                  postb.packPost(post);
+                  mysql2.query('update post set ? where id = ?', [post, post.id], (err) => {
                     if (err) return done(err);
                     util2.fif(head, function (next) {
                       thread.cid = form.cid;
                       thread.title = form.title;
                       thread.writer = form.writer;
-                      postb.threads.updateOne({ id: thread.id }, { $set: thread }, next);
+                      mysql2.query('update thread set ? where id = ?', [thread, thread.id], next);
                     }, function (err) {
                       if (err) return done(err);
                       res.json({});

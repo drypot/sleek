@@ -15,7 +15,7 @@ before(function (done) {
 describe('db', function () {
   it('should exist.', function (done) {
     var query = 'show databases like ?';
-    mysql2.pool.query(query, config.mysqlDatabase, function (err, r) {
+    mysql2.query(query, config.mysqlDatabase, function (err, r) {
       assert.ifError(err);
       assert(r.length);
       done();
@@ -23,9 +23,27 @@ describe('db', function () {
   });
 });
 
+describe('queryOne', (done) => {
+  it('should succeed when result exists.', done => {
+    mysql2.queryOne('select * from (select 1 as id) dummy where id = 1', (err, r) => {
+      assert.ifError(err);
+      assert(r.id === 1);
+      done();      
+    });
+  });
+  it('should succeed when result does not exists.', done => {
+    mysql2.queryOne('select * from (select 1 as id) dummy where id = 2', (err, r) => {
+      assert.ifError(err);
+      console.log(r);
+      assert(r === undefined);
+      done();      
+    });
+  });
+});
+
 describe('tableExists', () => {
   before((done) => {
-    mysql2.pool.query('create table test_exist(id int)', done);
+    mysql2.query('create table test_exist(id int)', done);
   })
   it('should return false when table not exists.', done => {
     mysql2.tableExists('test_exist_xxx', (err, exist) => {
@@ -45,7 +63,7 @@ describe('tableExists', () => {
 
 describe('paging', function () {
   before(function (done) {
-    mysql2.pool.query('create table test_paging(id int primary key)', done)
+    mysql2.query('create table test_paging(id int primary key)', done)
   });
   it('given 10 records', function (done) {
     var sql = 'insert into test_paging(id) values ';
@@ -53,7 +71,7 @@ describe('paging', function () {
       if (i > 0) sql += ',';
       sql += '(' + (i+1) + ')';
     };
-    mysql2.pool.query(sql, done);
+    mysql2.query(sql, done);
   });
   it('page size 99 should success', function (done) {
     mysql2.findPage('select * from test_paging', 0, 0, 99, function (err, r, gt, lt) {

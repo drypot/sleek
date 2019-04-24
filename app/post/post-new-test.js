@@ -38,9 +38,8 @@ describe('creating thread', function () {
     expl.post('/api/posts').send(form).end(function (err, res) {
       assert.ifError(err);
       assert2.empty(res.body.err);
-      mysql2.pool.query('select * from thread where id = ?', res.body.tid, (err, r) => {
+      mysql2.queryOne('select * from thread where id = ?', res.body.tid, (err, thread) => {
         assert.ifError(err);
-        let thread = r[0];
         assert2.e(thread.cid, 100);
         assert2.e(thread.hit, 0);
         assert2.e(thread.length, 1);
@@ -48,9 +47,8 @@ describe('creating thread', function () {
         assert2.ne(thread.udate, undefined); 
         assert2.e(thread.writer, 'snowman');
         assert2.e(thread.title, 'title 1');
-        mysql2.pool.query('select * from post where id = ?', res.body.pid, (err, r) => {
+        mysql2.queryOne('select * from post where id = ?', res.body.pid, (err, post) => {
           assert.ifError(err);
-          let post = r[0];
           postb.unpackPost(post);
           assert2.e(post.tid, res.body.tid);
           assert2.ne(post.cdate, undefined); 
@@ -69,9 +67,8 @@ describe('creating thread', function () {
     expl.post('/api/posts').fields(form).attach('files', f1).attach('files', f2).end(function (err, res) {
       assert.ifError(err);
       assert2.empty(res.body.err);
-      mysql2.pool.query('select * from post where id = ?', res.body.pid, (err, r) => {
+      mysql2.queryOne('select * from post where id = ?', res.body.pid, (err, post) => {
         assert.ifError(err);
-        let post = r[0];
         postb.unpackPost(post);
         assert2.e(post.files.length, 2);
         assert2.e(post.files[0].name, 'express-upload-f1.txt');
@@ -173,18 +170,16 @@ describe('creating replay', function () {
     expl.post('/api/posts/' + tid).send(form).end(function (err, res) {
       assert2.empty(res.body.err);
       assert2.ne(res.body.pid, undefined);
-      mysql2.pool.query('select * from post where id = ?', res.body.pid, (err, r) => {
+      mysql2.queryOne('select * from post where id = ?', res.body.pid, (err, post) => {
         assert.ifError(err);
-        let post = r[0];
         postb.unpackPost(post);
         assert2.e(post.tid, tid);
         assert2.ne(post.cdate, undefined); 
         assert2.e(post.visible, true);
         assert2.e(post.writer, 'snowman 2');
         assert2.e(post.text, 'text 2');
-        mysql2.pool.query('select * from thread where id = ?', tid, (err, r) => {
+        mysql2.queryOne('select * from thread where id = ?', tid, (err, thread) => {
           assert.ifError(err);
-          let thread = r[0];
           assert2.e(thread.length, 2);
           assert2.de(thread.udate, post.cdate);
           done();

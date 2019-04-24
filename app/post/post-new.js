@@ -50,9 +50,8 @@ function createPost(req, res, done) {
         };
         next(thread);          
       }, function (next) {
-        mysql2.pool.query('select * from thread where id = ?', form.tid, (err, r) => {
+        mysql2.queryOne('select * from thread where id = ?', form.tid, (err, thread) => {
           if (err) return done(err);
-          let thread = r[0];
           if (!thread) return done(error('INVALID_THREAD'));
           form.cid = thread.cid;
           next(thread);
@@ -71,12 +70,12 @@ function createPost(req, res, done) {
           saveFiles(form, post, function (err) {
             if (err) return done(err);
             postb.packPost(post);
-            mysql2.pool.query('insert into post set ?', post, (err, r) => {
+            mysql2.query('insert into post set ?', post, (err) => {
               if (err) return done(err);
               util2.fif(newThread, function (next) {
-                mysql2.pool.query('insert into thread set ?', thread, next);
+                mysql2.query('insert into thread set ?', thread, next);
               }, function (next) {
-                mysql2.pool.query('update thread set length = length + 1, udate = ?', form.now, next);
+                mysql2.query('update thread set length = length + 1, udate = ?', form.now, next);
               }, function (err, r) {
                 if (err) return done(err);
                 req.session.pids.push(post.id);
