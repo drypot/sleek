@@ -94,6 +94,15 @@ postb.getNewPostId = function () {
   return ++postId;
 };
 
+postb.packPost= function (post) {
+  post.files = JSON.stringify(post.files || null);
+};
+
+postb.unpackPost= function (post) {
+  post.files = JSON.parse(post.files);
+  post.visible = !!post.visible;
+};
+
 // files
 
 init.add(function (done) {

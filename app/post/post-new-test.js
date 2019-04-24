@@ -14,15 +14,9 @@ const assert = require('assert');
 const assert2 = require('../base/assert2');
 
 before(function (done) {
+  config.path = 'config/test.json';
+  mysql2.dropDatabase = true;
   init.run(done);
-});
-
-before(function (done) {
-  mysql2.pool.query('truncate table thread', done);
-});
-
-before(function (done) {
-  mysql2.pool.query('truncate table post', done);
 });
 
 describe('creating thread', function () {
@@ -57,9 +51,10 @@ describe('creating thread', function () {
         mysql2.pool.query('select * from post where id = ?', res.body.pid, (err, r) => {
           assert.ifError(err);
           let post = r[0];
+          postb.unpackPost(post);
           assert2.e(post.tid, res.body.tid);
           assert2.ne(post.cdate, undefined); 
-          assert2.e(post.visible, 1);
+          assert2.e(post.visible, true);
           assert2.e(post.writer, 'snowman');
           assert2.e(post.text, 'post 1');
           done();          
@@ -77,6 +72,7 @@ describe('creating thread', function () {
       mysql2.pool.query('select * from post where id = ?', res.body.pid, (err, r) => {
         assert.ifError(err);
         let post = r[0];
+        postb.unpackPost(post);
         assert2.e(post.files.length, 2);
         assert2.e(post.files[0].name, 'express-upload-f1.txt');
         assert2.e(post.files[1].name, 'express-upload-f2.txt');
@@ -180,9 +176,10 @@ describe('creating replay', function () {
       mysql2.pool.query('select * from post where id = ?', res.body.pid, (err, r) => {
         assert.ifError(err);
         let post = r[0];
+        postb.unpackPost(post);
         assert2.e(post.tid, tid);
         assert2.ne(post.cdate, undefined); 
-        assert2.e(post.visible, 1);
+        assert2.e(post.visible, true);
         assert2.e(post.writer, 'snowman 2');
         assert2.e(post.text, 'text 2');
         mysql2.pool.query('select * from thread where id = ?', tid, (err, r) => {

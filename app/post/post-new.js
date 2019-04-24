@@ -39,6 +39,7 @@ function createPost(req, res, done) {
       if (err) return done(err);
       util2.fif(newThread, function (next) {
         let thread = {
+          id : postb.getNewThreadId(),
           cid: form.cid,
           hit: 0,
           length: 1,
@@ -47,43 +48,44 @@ function createPost(req, res, done) {
           writer: form.writer,
           title: form.title
         };
-        mysql2.pool.query('insert into thread set ?', thread, (err, r) => {
-          if (err) return done(err);
-          thread.id = r.insertId;
-          next(thread);          
-        });
+        next(thread);          
       }, function (next) {
         mysql2.pool.query('select * from thread where id = ?', form.tid, (err, r) => {
           if (err) return done(err);
           let thread = r[0];
           if (!thread) return done(error('INVALID_THREAD'));
           form.cid = thread.cid;
-          mysql2.pool.query('update thread set length = length + 1, udate = ?', form.now,  (err, r) => {
-            if (err) return done(err);
-            next(thread);
-          });
+          next(thread);
         });
       }, function (thread) {
         postb.checkCategory(user, form.cid, function (err, category) {
           if (err) return done(err);
           var post = {
+            id: postb.getNewPostId(),
             tid: thread.id,
             cdate: form.now,
             visible: user.admin ? form.visible : true,
             writer: form.writer,
             text: form.text
           };
-          mysql2.pool.query('insert into post set ?', post, (err, r) => {
+          saveFiles(form, post, function (err) {
             if (err) return done(err);
-            post.id = r.insertId;
-            saveFiles(form, post, function (err) {
+            postb.packPost(post);
+            mysql2.pool.query('insert into post set ?', post, (err, r) => {
               if (err) return done(err);
-              req.session.pids.push(post.id);
-              res.json({
-                tid: thread.id,
-                pid: post.id
+              util2.fif(newThread, function (next) {
+                mysql2.pool.query('insert into thread set ?', thread, next);
+              }, function (next) {
+                mysql2.pool.query('update thread set length = length + 1, udate = ?', form.now, next);
+              }, function (err, r) {
+                if (err) return done(err);
+                req.session.pids.push(post.id);
+                res.json({
+                  tid: thread.id,
+                  pid: post.id
+                });
+                done();
               });
-              done();
             });
           });
         });
