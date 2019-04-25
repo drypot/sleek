@@ -4,6 +4,7 @@ const mysql = require('mysql');
 
 const init = require('../base/init');
 const config = require('../base/config');
+const async2 = require('../base/async2');
 const mysql2 = exports;
 
 // db
@@ -46,6 +47,25 @@ init.add(function (done) {
   });  
 });
 
+mysql2.close = function (done) {
+  async2.waterfall(
+    (done) => {
+      if (conn) {
+        conn.end(done);
+      } else {
+        done();
+      }
+    },
+    (done) => {
+      if (pool) {
+        pool.end(done);
+      } else {
+        done();
+      }
+    },
+    done
+  );
+}
 // utilities
 
 mysql2.query = function () {

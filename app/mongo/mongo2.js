@@ -105,6 +105,27 @@ mongo2.findPage = function (col, query, opt, gt, lt, ps, filter, done) {
         count++;
         if (!first) first = doc._id;
         last = doc._id;
+        async2.waterfall(
+          (done) => {
+            if (filter) {
+              filter(doc, done);
+            } else {
+              done(null, doc);
+            }
+          },
+          (err, doc) => {
+            if (err) return done(err);
+            if (doc) {
+              if (gtPage) {
+                results.unshift(doc);
+              } else {
+                results.push(doc);
+              }
+            }
+            setImmediate(read);
+          }
+        );
+        /*
         async2.if(filter, function (next) {
           filter(doc, function (err, doc) {
             if (err) return done(err);
@@ -122,6 +143,7 @@ mongo2.findPage = function (col, query, opt, gt, lt, ps, filter, done) {
           }
           setImmediate(read);
         });
+        */
       }
     });
   })();

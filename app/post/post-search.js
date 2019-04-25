@@ -3,11 +3,61 @@
 const init = require('../base/init');
 const error = require('../base/error');
 const config = require('../base/config');
-const util2 = require('../base/array2');
+const date2 = require('../base/date2');
+const url2 = require('../base/url2');
+const mysql2 = require('../mysql/mysql2');
 const expb = require('../express/express-base');
 const userb = require('../user/user-base');
-const postb = require('../post/post-base');
-var postsr = exports;
+const postb = require('./post-base');
+const postsr = exports;
+
+postsr.updateThread = function (tid, done) {
+  mysql2.queryOne('select * from thread where id = ?', tid, (err, thread) => {
+    if (err) return done(err);
+    thread.merged = thread.writer + ' ' + thread.title + ' ';
+    mysql2.query('select * from post where tid = ?', tid, (err, r) => {
+      if (err) return done(err);
+        r.forEach((post) => {
+        thread.merged += post.text + " " + post.writer + " ";
+        if (!thread.text) {
+          thread.text = post.text.slice(0, 255);
+        }
+      });
+      mysql2.query(
+        'delete from threadmerged where id = ?;' +
+        'insert into threadmerged set ?', 
+        [tid, thread],
+        done);
+    });
+  });
+};
+
+var updateThread = postsr.updateThread;
+
+postsr.updateAll = function (done) {
+  let offset = 0;
+  let ps = 1000;
+  (function loop1() {
+    mysql2.query('select id from thread order by id limit ?, ?', [offset, ps], (err, threads) => {
+      if (err) return done(err);
+      if (!threads.length) return done();
+      if (postsr.updateAll.showProgress) {
+        console.log('rebuilding: offset=' + offset);
+      }
+      offset += ps;
+      let i = 0;
+      (function loop2() {
+        if (i == threads.length) {
+          return setImmediate(loop1);
+        }
+        updateThread(threads[i++].id, (err) => {
+          if (err) return done(err);
+          setImmediate(loop2);
+        });
+      })();
+    });
+  })();
+};
 
 expb.core.get('/posts/search', function (req, res, done) {
   search(req, res, false, done);
@@ -20,97 +70,36 @@ expb.core.get('/api/posts/search', function (req, res, done) {
 function search(req, res, api, done) {
   userb.checkUser(res, function (err, user) {
     if (err) return done(err);
-    var query = req.query.q || '';
-    var tokens = token2.tokenize(query);
-    var pg = Math.max(parseInt(req.query.p) || 1, 1);
-    var pgsize = Math.min(Math.max(parseInt(req.query.ps) || 16, 1), 128);
+    var q = req.query.q || '';
+    var p = Math.max(parseInt(req.query.p) || 1, 1);
+    var ps = Math.min(Math.max(parseInt(req.query.ps) || 16, 1), 128);
     var categoryIndex = user.categoryIndex;
-    var posts = [];
-    var count = 0;
-    var opt = {
-      projection: { tokens: 0 },
-      skip: (pg - 1) * pgsize,
-      sort: { cdate: -1 },
-      limit: pgsize
-    };
-    // tokens 인덱스가 불가능해졌다. 기능을 잠시 꺼둔다.
-    //var cursor = postb.posts.find({ tokens: { $all: tokens } }, opt);
-    (function read() {
-      //cursor.next(function (err, post) {
-        //if (err) return done(err);
-        post = undefined;
-        if (post) {
-          count++;
-          postb.threads.findOne({ id: post.tid }, function (err, thread) {
-            if (err) return done(err);
-            var category = categoryIndex[thread.cid];
-            if (category && (post.visible || user.admin)) {
-              post.thread = {
-                id: thread.id,
-                title: thread.title
-              };
-              post.category = {
-                id: category.id,
-                name: category.name
-              };
-              post.text = post.text.slice(0, 256);
-              post.cdateStr = date2.dateTimeString(post.cdate),
-              post.cdate = post.cdate.getTime(),
-              posts.push(post);
-            }
-            setImmediate(read);
-          });
-          return;
+    var threads = [];
+    mysql2.query('select id, cid, cdate, title, writer, text from threadmerged where match(merged) against(? in boolean mode) order by id desc limit ?, ?', [q, (p-1)*ps, ps], (err, r) => {
+      if (err) return done(err);
+      r.forEach((thread) => {
+        var category = categoryIndex[thread.cid];
+        if (category) {
+          thread.category = {
+            id: category.id,
+            name: category.name
+          };
+          thread.cdateStr = date2.dateTimeString(thread.cdate),
+          threads.push(thread);
         }
-        var last = count !== pgsize;
-        if (api) {
-          res.json({
-            posts: posts,
-            last: last
-          });
-        } else {
-          res.render('post/post-search', {
-            query: req.query.q || '',
-            posts: posts,
-            prev: pg > 1 ? new url2.UrlMaker('/posts/search').add('q', query).add('pg', pg - 1, 1).done() : undefined,
-            next: !last ? new url2.UrlMaker('/posts/search').add('q', query).add('pg', pg + 1).done() : undefined
-          });
-        }
-      //});
-    })();
+      });
+      if (api) {
+        res.json({
+          threads: threads
+        });
+      } else {
+        res.render('post/post-search', {
+          query: req.query.q || '',
+          threads: threads,
+          prev: p > 1 ? new url2.UrlMaker('/posts/search').add('q', query).add('p', p - 1, 1).done() : undefined,
+          next: new url2.UrlMaker('/posts/search').add('q', q).add('p', p + 1).done()
+        });
+      }
+    });
   });
 }
-
-postsr.rebuildTokens = function (done) {
-  var count = 0;
-  var threads = postb.threads.find();
-  (function readt() {
-    threads.next(function (err, thread) {
-      if (err) return done(err);
-      if (thread) {
-        var posts = postb.posts.find({ tid: thread.id });
-        (function readp() {
-          posts.next(function (err, post) {
-            if (err) return done(err);
-            if (post) {
-              var head = postb.isHead(thread, post);
-              var tokens = token2.tokenize(head ? thread.title : '', post.writer, post.text);
-              postb.posts.updateOne({ id: post.id }, { $set: { tokens: tokens } }, function (err) {
-                if (err) return done(err);
-                count++;
-                if (count % 1000 === 0) {
-                  process.stdout.write(count + ' ');
-                }
-                setImmediate(readp);
-              });
-              return;
-            }
-            setImmediate(readt);
-          });
-        })();
-        return;
-      }
-      done();
-    });
-  })();
-};

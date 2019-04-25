@@ -13,7 +13,8 @@ const expu = require('../express/express-upload');
 const mysql2 = require('../mysql/mysql2');
 const userb = require('../user/user-base');
 const postb = require('../post/post-base');
-var postn = exports;
+const postsr = require('./post-search');
+const postn = exports;
 
 expb.core.get('/posts/new', function (req, res, done) {
   userb.checkUser(res, function (err, user) {
@@ -76,15 +77,18 @@ function createPost(req, res, done) {
               async2.if(newThread, function (next) {
                 mysql2.query('insert into thread set ?', thread, next);
               }, function (next) {
-                mysql2.query('update thread set length = length + 1, udate = ?', form.now, next);
+                mysql2.query('update thread set length = length + 1, udate = ? where id = ?', [form.now, thread.id], next);
               }, function (err, r) {
                 if (err) return done(err);
-                req.session.pids.push(post.id);
-                res.json({
-                  tid: thread.id,
-                  pid: post.id
-                });
-                done();
+                postsr.updateThread(thread.id, (err) => {
+                  if (err) return done(err);
+                  req.session.pids.push(post.id);
+                  res.json({
+                    tid: thread.id,
+                    pid: post.id
+                  });
+                  done();                    
+                })
               });
             });
           });

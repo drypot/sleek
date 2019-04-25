@@ -36,6 +36,13 @@ Mac 개발환경용 Nginx 설정 예
 
 mariadb, redis.
 
+## Mroonga
+
+MariaDB 쉘에서 Mroonga 검색 엔진을 활성화 한다. 
+
+	  > install soname 'ha_mroonga';
+  	> show engines;
+
 ## Clone Source
 
     $ mkdir /data/web

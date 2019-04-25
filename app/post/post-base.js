@@ -66,6 +66,25 @@ init.add(function (done) {
   `, err => { done(); });
 });
 
+init.add(function (done) {
+  mysql2.query(`
+    create table if not exists threadmerged (
+      id int not null,
+      cid smallint not null,
+      hit int not null,
+      length smallint not null,
+      cdate datetime(3) not null,
+      udate datetime(3) not null,
+      writer varchar(255) not null,
+      title varchar(255) not null,
+      text varchar(255) not null,
+      merged longtext not null,
+      fulltext index (merged),
+      primary key (id)
+    ) engine = mroonga default charset utf8mb4
+    `, done);
+});
+
 var threadId;
 
 init.add(function (done) {

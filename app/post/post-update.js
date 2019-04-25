@@ -15,6 +15,7 @@ const expu = require('../express/express-upload');
 const userb = require('../user/user-base');
 const postb = require('../post/post-base');
 const postn = require('../post/post-new');
+const postsr = require('./post-search');
 
 // api edit view 는 삭제. 앱용 서비스가 아니니 필요 없을 듯.
 
@@ -87,7 +88,10 @@ expb.core.put('/api/posts/:tid([0-9]+)/:pid([0-9]+)', expu.handler(function (req
                       mysql2.query('update thread set ? where id = ?', [thread, thread.id], next);
                     }, function (err) {
                       if (err) return done(err);
-                      res.json({});
+                      postsr.updateThread(thread.id, (err) => {
+                        if (err) return done(err);
+                        res.json({});
+                      });
                     });
                   });
                 });

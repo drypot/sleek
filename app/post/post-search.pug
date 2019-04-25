@@ -11,17 +11,17 @@ block content
   .section.search-results
     table.table.table-hover
       tbody
-        for post in posts
+        for thread in threads
           tr
             td
               .t
                 h4
-                  a(href='/posts/' + post.thread.id + '#' + post.id) #{post.thread.title}
-              .tx #{post.text}
+                  a(href='/posts/' + thread.id) #{thread.title}
+              .tx #{thread.text}
               .i
-                span #{post.category.name}
-                span #{post.writer}
-                span.d !{post.cdateStr}
+                span #{thread.category.name}
+                span #{thread.writer}
+                span.d !{thread.cdateStr}
         else
           tr
             td.t 검색 결과가 없습니다.
