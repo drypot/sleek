@@ -2,7 +2,6 @@
 
 const fs = require('fs');
 
-const util2 = require('../base/util2');
 const init = require('../base/init');
 const fs2 = require('../base/fs2');
 const config = require('../base/config');

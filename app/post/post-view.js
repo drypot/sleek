@@ -3,7 +3,7 @@
 const init = require('../base/init');
 const error = require('../base/error');
 const config = require('../base/config');
-const util2 = require('../base/util2');
+const date2 = require('../base/date2');
 const mysql2 = require('../mysql/mysql2');
 const expb = require('../express/express-base');
 const userb = require('../user/user-base');
@@ -36,7 +36,7 @@ function view(req, res, api, done) {
               if (post.visible || user.admin) {
                 postb.addFilesUrl(post);
                 post.editable = postb.isEditable(user, post.id, req.session.pids);
-                post.cdateStr = util2.dateTimeString(post.cdate),
+                post.cdateStr = date2.dateTimeString(post.cdate),
                 post.cdate = post.cdate.getTime(),
                 posts.push(post);
               }         

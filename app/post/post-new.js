@@ -6,7 +6,8 @@ const init = require('../base/init');
 const error = require('../base/error');
 const config = require('../base/config');
 const fs2 = require('../base/fs2');
-const util2 = require('../base/util2');
+const array2 = require('../base/array2');
+const async2 = require('../base/async2');
 const expb = require('../express/express-base');
 const expu = require('../express/express-upload');
 const mysql2 = require('../mysql/mysql2');
@@ -37,7 +38,7 @@ function createPost(req, res, done) {
     var newThread = !form.tid;
     checkForm(form, newThread, function (err) {
       if (err) return done(err);
-      util2.fif(newThread, function (next) {
+      async2.if(newThread, function (next) {
         let thread = {
           id : postb.getNewThreadId(),
           cid: form.cid,
@@ -72,7 +73,7 @@ function createPost(req, res, done) {
             postb.packPost(post);
             mysql2.query('insert into post set ?', post, (err) => {
               if (err) return done(err);
-              util2.fif(newThread, function (next) {
+              async2.if(newThread, function (next) {
                 mysql2.query('insert into thread set ?', thread, next);
               }, function (next) {
                 mysql2.query('update thread set length = length + 1, udate = ?', form.now, next);
@@ -149,7 +150,7 @@ var saveFiles = postn.saveFiles = function (form, post, done) {
         return;
       }
       if (post.files) {
-        util2.mergeArray(post.files, saved, function (file1, file2) {
+        array2.merge(post.files, saved, function (file1, file2) {
           return file1.name === file2.name;
         });
       } else {

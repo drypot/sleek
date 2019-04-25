@@ -145,7 +145,7 @@ describe('listing threads', function () {
     });
   });
   it('category 0 page 2 should success', function (done) {
-    expl.get('/api/posts').query({ c: 0, pg: 2, ps: 3 }).end(function (err, res) {
+    expl.get('/api/posts').query({ c: 0, p: 2, ps: 3 }).end(function (err, res) {
       assert.ifError(err);
       assert2.empty(res.body.err);
       var threads = res.body.threads;
@@ -202,24 +202,25 @@ describe('listing threads', function () {
       done();
     });
   });
-  it('page 1 is not last', function (done) {
-    expl.get('/api/posts').query({ c: 0, pg: 1, ps: 4 }).end(function (err, res) {
+  //last 채크 기능은 없앴다.
+  it.skip('page 1 is not last', function (done) {
+    expl.get('/api/posts').query({ c: 0, p: 1, ps: 4 }).end(function (err, res) {
       assert.ifError(err);
       assert2.empty(res.body.err);
       assert2.e(res.body.last, false);
       done();
     });
   });
-  it('page 2 is not last', function (done) {
-    expl.get('/api/posts').query({ c: 0, pg: 2, ps: 4 }).end(function (err, res) {
+  it.skip('page 2 is not last', function (done) {
+    expl.get('/api/posts').query({ c: 0, p: 2, ps: 4 }).end(function (err, res) {
       assert.ifError(err);
       assert2.empty(res.body.err);
       assert2.e(res.body.last, false);
       done();
     });
   });
-  it('page 3 is last', function (done) {
-    expl.get('/api/posts').query({ c: 0, pg: 3, ps: 4 }).end(function (err, res) {
+  it.skip('page 3 is last', function (done) {
+    expl.get('/api/posts').query({ c: 0, p: 3, ps: 4 }).end(function (err, res) {
       assert.ifError(err);
       assert2.empty(res.body.err);
       assert2.e(res.body.last, true);

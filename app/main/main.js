@@ -11,4 +11,6 @@ require('../post/post-new');
 require('../post/post-update');
 require('../post/post-search');
 
-init.run();
+init.run(function (err) {
+  if (err) throw err;
+});

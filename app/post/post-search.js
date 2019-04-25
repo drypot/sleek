@@ -3,7 +3,7 @@
 const init = require('../base/init');
 const error = require('../base/error');
 const config = require('../base/config');
-const util2 = require('../base/util2');
+const util2 = require('../base/array2');
 const expb = require('../express/express-base');
 const userb = require('../user/user-base');
 const postb = require('../post/post-base');
@@ -21,8 +21,8 @@ function search(req, res, api, done) {
   userb.checkUser(res, function (err, user) {
     if (err) return done(err);
     var query = req.query.q || '';
-    var tokens = util2.tokenize(query);
-    var pg = Math.max(parseInt(req.query.pg) || 1, 1);
+    var tokens = token2.tokenize(query);
+    var pg = Math.max(parseInt(req.query.p) || 1, 1);
     var pgsize = Math.min(Math.max(parseInt(req.query.ps) || 16, 1), 128);
     var categoryIndex = user.categoryIndex;
     var posts = [];
@@ -54,7 +54,7 @@ function search(req, res, api, done) {
                 name: category.name
               };
               post.text = post.text.slice(0, 256);
-              post.cdateStr = util2.dateTimeString(post.cdate),
+              post.cdateStr = date2.dateTimeString(post.cdate),
               post.cdate = post.cdate.getTime(),
               posts.push(post);
             }
@@ -72,8 +72,8 @@ function search(req, res, api, done) {
           res.render('post/post-search', {
             query: req.query.q || '',
             posts: posts,
-            prev: pg > 1 ? new util2.UrlMaker('/posts/search').add('q', query).add('pg', pg - 1, 1).done() : undefined,
-            next: !last ? new util2.UrlMaker('/posts/search').add('q', query).add('pg', pg + 1).done() : undefined
+            prev: pg > 1 ? new url2.UrlMaker('/posts/search').add('q', query).add('pg', pg - 1, 1).done() : undefined,
+            next: !last ? new url2.UrlMaker('/posts/search').add('q', query).add('pg', pg + 1).done() : undefined
           });
         }
       //});
@@ -94,7 +94,7 @@ postsr.rebuildTokens = function (done) {
             if (err) return done(err);
             if (post) {
               var head = postb.isHead(thread, post);
-              var tokens = util2.tokenize(head ? thread.title : '', post.writer, post.text);
+              var tokens = token2.tokenize(head ? thread.title : '', post.writer, post.text);
               postb.posts.updateOne({ id: post.id }, { $set: { tokens: tokens } }, function (err) {
                 if (err) return done(err);
                 count++;

@@ -2,12 +2,15 @@
 
 const init = require('../base/init');
 const error = require('../base/error');
-const util2 = require('../base/util2');
 const config = require('../base/config');
+const async2 = require('../base/async2');
+const date2 = require('../base/date2');
+const url2 = require('../base/url2');
+const mysql2 = require('../mysql/mysql2');
 const expb = require('../express/express-base');
 const userb = require('../user/user-base');
 const postb = require('../post/post-base');
-var postl = exports;
+const postl = exports;
 
 expb.core.get('/', function (req, res, done) {
   res.redirect('/posts');
@@ -25,61 +28,49 @@ function getThreads(req, res, api, done) {
   userb.checkUser(res, function (err, user) {
     if (err) return done(err);
     var cid = parseInt(req.query.c) || 0;
-    var pg = Math.max(parseInt(req.query.pg) || 1, 1);
-    var pgsize = Math.min(Math.max(parseInt(req.query.ps) || 16, 1), 128);
-    util2.fif(cid, function (next) {
+    var p = Math.max(parseInt(req.query.p) || 1, 1);
+    var ps = Math.min(Math.max(parseInt(req.query.ps) || 16, 1), 128);
+    async2.if(cid, function (next) {
       postb.checkCategory(user, cid, function (err, category) {
         if (err) return done(err);
-        next(
-          category,
-          postb.threads.find({ cid: cid }).sort({ udate: -1 }).skip((pg - 1) * pgsize).limit(pgsize)
-        );
+        mysql2.query('select * from thread where cid = ? order by udate desc limit ?, ?', [cid, (p-1)*ps, ps], (err, r) => {
+          next(err, category, r);
+        });
       });
     }, function (next) {
-      next(
-        { id: 0, name: 'all' },
-        postb.threads.find({}).sort({ udate: -1 }).skip((pg - 1) * pgsize).limit(pgsize)
-      );
-    }, function (category, cursor) {
+      mysql2.query('select * from thread order by udate desc limit ?, ?', [(p-1)*ps, ps], (err, r) => {
+        next(err, { id: 0, name: 'all' }, r);
+      });
+    }, function (err, category, r) {
+      if (err) return done(err);
       var categoryIndex = user.categoryIndex;
       var threads = [];
-      var count = 0;
-      (function read() {
-        cursor.next(function (err, thread) {
-          if (err) return done(err);
-          if (thread) {
-            count++;
-            if (!cid) {
-              var c = categoryIndex[thread.cid];
-              if (!c) {
-                return setImmediate(read);
-              }
-              thread.category = {
-                id: c.id,
-                name: c.name
-              };
-            }
-            thread.udateStr = util2.dateTimeString(thread.udate),
-            thread.udate = thread.udate.getTime(),
-            threads.push(thread);
-            return setImmediate(read);
+      r.forEach((thread) => {
+        if (!cid) {
+          var c = categoryIndex[thread.cid];
+          if (!c) {
+            return;
           }
-          var last = count !== pgsize;
-          if (api) {
-            res.json({
-              threads: threads,
-              last: last
-            });
-          } else {
-            res.render('post/post-list', {
-              category: category,
-              threads: threads,
-              prev: pg > 1 ? new util2.UrlMaker('/posts').add('c', cid, 0).add('pg', pg - 1, 1).done() : undefined,
-              next: !last ? new util2.UrlMaker('/posts').add('c', cid, 0).add('pg', pg + 1).done() : undefined
-            });
-          }
+          thread.category = {
+            id: c.id,
+            name: c.name
+          };
+        }
+        thread.udateStr = date2.dateTimeString(thread.udate),
+        threads.push(thread);
+      });
+      if (api) {
+        res.json({
+          threads: threads
         });
-      })();
+      } else {
+        res.render('post/post-list', {
+          category: category,
+          threads: threads,
+          prev: p > 1 ? new url2.UrlMaker('/posts').add('c', cid, 0).add('p', p - 1, 1).done() : undefined,
+          next: new url2.UrlMaker('/posts').add('c', cid, 0).add('p', p + 1).done()
+        });
+      }
     });
   });
 }

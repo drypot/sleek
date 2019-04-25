@@ -69,9 +69,9 @@ init.add(function (done) {
 var threadId;
 
 init.add(function (done) {
-  mysql2.queryOne('select coalesce(max(id), 0) as maxId from thread', (err, r) => {
+  mysql2.getMaxId('thread', (err, id) => {
     if (err) return done(err);
-    threadId = r.maxId;
+    threadId = id;
     done();
   });
 });
@@ -83,9 +83,9 @@ postb.getNewThreadId = function () {
 var postId;
 
 init.add(function (done) {
-  mysql2.queryOne('select coalesce(max(id), 0) as maxId from post', (err, r) => {
+  mysql2.getMaxId('post', (err, id) => {
     if (err) return done(err);
-    postId = r.maxId;
+    postId = id;
     done();
   });
 });

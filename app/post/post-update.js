@@ -7,7 +7,8 @@ const init = require('../base/init');
 const error = require('../base/error');
 const config = require('../base/config');
 const fs2 = require('../base/fs2');
-const util2 = require('../base/util2');
+const async2 = require('../base/async2');
+const date2 = require('../base/date2');
 const mysql2 = require('../mysql/mysql2');
 const expb = require('../express/express-base');
 const expu = require('../express/express-upload');
@@ -34,7 +35,7 @@ expb.core.get('/posts/:tid([0-9]+)/:pid([0-9]+/edit)', function (req, res, done)
           postb.addFilesUrl(post);
           post.head = postb.isHead(thread, post);
           post.editable = postb.isEditable(user, post.id, req.session.pids)
-          post.cdateStr = util2.dateTimeString(post.cdate);
+          post.cdateStr = date2.dateTimeString(post.cdate);
           res.render('post/post-update', {
             thread: thread,
             category: category,
@@ -61,7 +62,7 @@ expb.core.put('/api/posts/:tid([0-9]+)/:pid([0-9]+)', expu.handler(function (req
           if (err) return done(err);
           if (!postb.isEditable(user, post.id, req.session.pids)) return done(error('NOT_AUTHORIZED'));
           var head = postb.isHead(thread, post);
-          util2.fif(head, function (next) {
+          async2.if(head, function (next) {
             postb.checkCategory(user, form.cid, next); // check new cid
           }, function (err) {
             if (err) return done(err);
@@ -79,7 +80,7 @@ expb.core.put('/api/posts/:tid([0-9]+)/:pid([0-9]+)', expu.handler(function (req
                   postb.packPost(post);
                   mysql2.query('update post set ? where id = ?', [post, post.id], (err) => {
                     if (err) return done(err);
-                    util2.fif(head, function (next) {
+                    async2.if(head, function (next) {
                       thread.cid = form.cid;
                       thread.title = form.title;
                       thread.writer = form.writer;

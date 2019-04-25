@@ -4,7 +4,7 @@ const mongo = require('mongodb');
 
 const init = require('../base/init');
 const config = require('../base/config');
-const util2 = require('../base/util2');
+const async2 = require('../base/async2');
 const assert = require('assert');
 const assert2 = require('../base/assert2');
 const mongo2 = exports;
@@ -105,7 +105,7 @@ mongo2.findPage = function (col, query, opt, gt, lt, ps, filter, done) {
         count++;
         if (!first) first = doc._id;
         last = doc._id;
-        util2.fif(filter, function (next) {
+        async2.if(filter, function (next) {
           filter(doc, function (err, doc) {
             if (err) return done(err);
             next(doc);
