@@ -77,50 +77,6 @@ function getThreads(req, res, api, done) {
         }
       }
     );
-    /*
-    async2.if(cid, function (next) {
-      postb.checkCategory(user, cid, function (err, category) {
-        if (err) return done(err);
-        mysql2.query('select * from thread where cid = ? order by udate desc limit ?, ?', [cid, (p-1)*ps, ps], (err, r) => {
-          next(err, category, r);
-        });
-      });
-    }, function (next) {
-      mysql2.query('select * from thread order by udate desc limit ?, ?', [(p-1)*ps, ps], (err, r) => {
-        next(err, { id: 0, name: 'all' }, r);
-      });
-    }, function (err, category, r) {
-      if (err) return done(err);
-      var categoryIndex = user.categoryIndex;
-      var threads = [];
-      r.forEach((thread) => {
-        if (!cid) {
-          var c = categoryIndex[thread.cid];
-          if (!c) {
-            return;
-          }
-          thread.category = {
-            id: c.id,
-            name: c.name
-          };
-        }
-        thread.udateStr = date2.dateTimeString(thread.udate),
-        threads.push(thread);
-      });
-      if (api) {
-        res.json({
-          threads: threads
-        });
-      } else {
-        res.render('post/post-list', {
-          category: category,
-          threads: threads,
-          prev: p > 1 ? new url2.UrlMaker('/posts').add('c', cid, 0).add('p', p - 1, 1).done() : undefined,
-          next: new url2.UrlMaker('/posts').add('c', cid, 0).add('p', p + 1).done()
-        });
-      }
-    });
-    */
   });
 }
 
