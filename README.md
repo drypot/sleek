@@ -13,7 +13,7 @@
 
 ## History
 
-2019.03 Node.js, MySQL, MongoDB 를 MySQL 로 이전.
+2019.04 Node.js, MySQL, MongoDB 를 MySQL 로 이전.
 
 2015.04 2 년만에 업데이트, 전반적인 코드 질 개선.
 
