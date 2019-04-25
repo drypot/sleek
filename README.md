@@ -13,11 +13,13 @@
 
 ## History
 
+2019.03 Node.js, MySQL, MongoDB 를 MySQL 로 이전.
+
 2015.04 2 년만에 업데이트, 전반적인 코드 질 개선.
 
-2013.05 14 개월 만에 Node.js 버전 오픈.
+2013.05 Node.js, Mongo, 14 개월 만에 노드 버전 오픈.
 
-2012.03 Node.js 로 재개발 시작.
+2012.03 Node.js, Mongo, 재개발 시작.
 
 2011.12 Java, Jetty, Mongo, Lucene, Spring, Hibernate, JSP
 
