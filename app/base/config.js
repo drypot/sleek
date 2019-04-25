@@ -7,10 +7,10 @@ const config = exports;
 
 config.dev = process.env.NODE_ENV != 'production';
 
-init.add(function (done) {
+init.add((done) => {
   config.argv = minimist(process.argv.slice(2));
   var path = config.path || config.argv.config || config.argv.c;
-  if (path) {
+  if (typeof path == 'string') {
     console.log('config: path=' + path);
     fs.readFile(path, 'utf8', function (err, data) {
       if (err) return done(err);

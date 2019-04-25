@@ -39,61 +39,73 @@ function createPost(req, res, done) {
     var newThread = !form.tid;
     checkForm(form, newThread, function (err) {
       if (err) return done(err);
-      async2.if(newThread, function (next) {
-        let thread = {
-          id : postb.getNewThreadId(),
-          cid: form.cid,
-          hit: 0,
-          length: 1,
-          cdate: form.now,
-          udate: form.now,
-          writer: form.writer,
-          title: form.title
-        };
-        next(thread);          
-      }, function (next) {
-        mysql2.queryOne('select * from thread where id = ?', form.tid, (err, thread) => {
-          if (err) return done(err);
-          if (!thread) return done(error('INVALID_THREAD'));
-          form.cid = thread.cid;
-          next(thread);
-        });
-      }, function (thread) {
-        postb.checkCategory(user, form.cid, function (err, category) {
-          if (err) return done(err);
-          var post = {
-            id: postb.getNewPostId(),
-            tid: thread.id,
-            cdate: form.now,
-            visible: user.admin ? form.visible : true,
-            writer: form.writer,
-            text: form.text
-          };
-          saveFiles(form, post, function (err) {
-            if (err) return done(err);
-            postb.packPost(post);
-            mysql2.query('insert into post set ?', post, (err) => {
+      let thread;
+      async2.waterfall(
+        (done) => {
+          if (newThread) {
+            thread = {
+              id : postb.getNewThreadId(),
+              cid: form.cid,
+              hit: 0,
+              length: 1,
+              cdate: form.now,
+              udate: form.now,
+              writer: form.writer,
+              title: form.title
+            };
+            done();
+          } else {
+            mysql2.queryOne('select * from thread where id = ?', form.tid, (err, _thread) => {
               if (err) return done(err);
-              async2.if(newThread, function (next) {
-                mysql2.query('insert into thread set ?', thread, next);
-              }, function (next) {
-                mysql2.query('update thread set length = length + 1, udate = ? where id = ?', [form.now, thread.id], next);
-              }, function (err, r) {
+              thread = _thread;
+              if (!thread) return done(error('INVALID_THREAD'));
+              form.cid = thread.cid;
+              done();
+            });
+          }
+        },
+        (err) => {
+          if (err) return done(err);
+          postb.checkCategory(user, form.cid, function (err, category) {
+            if (err) return done(err);
+            var post = {
+              id: postb.getNewPostId(),
+              tid: thread.id,
+              cdate: form.now,
+              visible: user.admin ? form.visible : true,
+              writer: form.writer,
+              text: form.text
+            };
+            saveFiles(form, post, function (err) {
+              if (err) return done(err);
+              postb.packPost(post);
+              mysql2.query('insert into post set ?', post, (err) => {
                 if (err) return done(err);
-                postsr.updateThread(thread.id, (err) => {
-                  if (err) return done(err);
-                  req.session.pids.push(post.id);
-                  res.json({
-                    tid: thread.id,
-                    pid: post.id
-                  });
-                  done();                    
-                })
+                async2.waterfall(
+                  (done) => {
+                    if (newThread) {
+                      mysql2.query('insert into thread set ?', thread, done);
+                    } else {
+                      mysql2.query('update thread set length = length + 1, udate = ? where id = ?', [form.now, thread.id], done);
+                    }
+                  },
+                  (err) => {
+                    if (err) return done(err);
+                    postsr.updateThread(thread.id, (err) => {
+                      if (err) return done(err);
+                      req.session.pids.push(post.id);
+                      res.json({
+                        tid: thread.id,
+                        pid: post.id
+                      });
+                    });                      
+                  }
+                );
               });
             });
-          });
-        });
-      });
+          })  
+        }
+      );
     });
   });
 }

@@ -12,7 +12,7 @@ const expu = exports;
 
 var tmpDir;
 
-init.add(function (done) {
+init.add((done) => {
   console.log('upload: ' + config.uploadDir);
   tmpDir = config.uploadDir + '/tmp';
   fs2.makeDir(tmpDir, function (err) {

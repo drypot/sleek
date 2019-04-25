@@ -13,19 +13,20 @@ require('../post/post-new');
 require('../post/post-update');
 const postsr = require('../post/post-search');
 
-init.run(function (err) {
-  if (err) throw err;
+init.tail((done) => {
   async2.waterfall(
     (done) => {
       postsr.updateAll.showProgress = true;
       postsr.updateAll(done);
     },
     (done) => {
-      console.log('done.');
       mysql2.close(done);
     },
     (err) => {
-      if (err) throw err;      
+      console.log('rebuilding done.');
+      process.exit(0);
     }
-  );
+  );  
 });
+
+init.run();

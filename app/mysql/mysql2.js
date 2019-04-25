@@ -12,40 +12,40 @@ const mysql2 = exports;
 var conn;
 var pool;
 
-init.add((done) => {
-  conn = mysql.createConnection({
-    host     : 'localhost',
-    user     : config.mysqlUser,
-    password : config.mysqlPassword,
-  });
-  done();
-});
-
-init.add((done) => {
-  if (mysql2.dropDatabase) {
-    console.log('mysql: dropping db, ' + config.mysqlDatabase);
-    conn.query('drop database if exists ??', config.mysqlDatabase, done);
-  } else {
-    done();
-  }
-});
-
-init.add(function (done) {
-  console.log('mysql: db=' + config.mysqlDatabase);
-  conn.query('create database if not exists ?? character set utf8mb4', config.mysqlDatabase, (err) => {
-    if (err) return done(err);
-    pool = mysql.createPool({
-      connectionLimit : 10,
-      host     : 'localhost',
-      database : config.mysqlDatabase,
-      user     : config.mysqlUser,
-      password : config.mysqlPassword,
-      charset  : 'utf8mb4',
-      multipleStatements: true,
+init.add(
+  (done) => {
+    conn = mysql.createConnection({
+      host: 'localhost',
+      user: config.mysqlUser,
+      password: config.mysqlPassword,
     });
     done();
-  });  
-});
+  },
+  (done) => {
+    if (mysql2.dropDatabase) {
+      console.log('mysql: dropping db, ' + config.mysqlDatabase);
+      conn.query('drop database if exists ??', config.mysqlDatabase, done);
+    } else {
+      done();
+    }
+  },
+  (done) => {
+    console.log('mysql: db=' + config.mysqlDatabase);
+    conn.query('create database if not exists ?? character set utf8mb4', config.mysqlDatabase, (err) => {
+      if (err) return done(err);
+      pool = mysql.createPool({
+        connectionLimit: 10,
+        host: 'localhost',
+        database: config.mysqlDatabase,
+        user: config.mysqlUser,
+        password: config.mysqlPassword,
+        charset: 'utf8mb4',
+        multipleStatements: true,
+      });
+      done();
+    });
+  }
+);
 
 mysql2.close = function (done) {
   async2.waterfall(
@@ -66,6 +66,7 @@ mysql2.close = function (done) {
     done
   );
 }
+
 // utilities
 
 mysql2.query = function () {

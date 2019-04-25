@@ -15,39 +15,39 @@ mongo2.ObjectID = mongo.ObjectID;
 
 var client;
 
-init.add(function (done) {
-  assert2.ne(config.mongodb, undefined);
-  mongo.MongoClient.connect('mongodb://localhost:27017', { useNewUrlParser: true }, function(err, _client) {
-    if (err) return done(err);
-    client = _client;
-    done();
-  });
-});
-
-init.add(function (done) {
-  if (mongo2.dropDatabase) {
-    console.log('mongo: dropping db');
-    client.db(config.mongodb).dropDatabase(done);
-  } else {
-    done();
+init.add(
+  (done) => {
+    assert2.ne(config.mongodb, undefined);
+    mongo.MongoClient.connect('mongodb://localhost:27017', { useNewUrlParser: true }, function (err, _client) {
+      if (err) return done(err);
+      client = _client;
+      done();
+    });
+  },
+  (done) => {
+    if (mongo2.dropDatabase) {
+      console.log('mongo: dropping db');
+      client.db(config.mongodb).dropDatabase(done);
+    } else {
+      done();
+    }
+  },
+  (done) => {
+    console.log('mongo: db=' + config.mongodb);
+    mongo2.db = client.db(config.mongodb);
+    if (config.mongoUser) {
+      mongo2.db.authenticate(config.mongoUser, config.mongoPassword, done);
+    } else {
+      done();
+    }
   }
-});
-
-init.add((done) => {
-  console.log('mongo: db=' + config.mongodb);
-  mongo2.db = client.db(config.mongodb);
-  if (config.mongoUser) {
-    mongo2.db.authenticate(config.mongoUser, config.mongoPassword, done);
-  } else {
-    done();
-  }
-});
+);
 
 // values
 
 mongo2.values = {};
 
-init.add(function (done) {
+init.add((done) => {
   mongo2._values = mongo2.db.collection('values');
   done();
 });
@@ -125,25 +125,6 @@ mongo2.findPage = function (col, query, opt, gt, lt, ps, filter, done) {
             setImmediate(read);
           }
         );
-        /*
-        async2.if(filter, function (next) {
-          filter(doc, function (err, doc) {
-            if (err) return done(err);
-            next(doc);
-          });
-        }, function (next) {
-          next(doc);
-        }, function (doc) {
-          if (doc) {
-            if (gtPage) {
-              results.unshift(doc);
-            } else {
-              results.push(doc);
-            }
-          }
-          setImmediate(read);
-        });
-        */
       }
     });
   })();

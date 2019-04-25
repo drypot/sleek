@@ -23,12 +23,12 @@ init.reset = function () {
   tails = [];
 }
 
-init.add = function (func) {
-  funcs.push(func);
+init.add = function (..._funcs) {
+  funcs = funcs.concat(_funcs);
 };
 
-init.tail = function (func) {
-  tails.unshift(func);
+init.tail = function (..._funcs) {
+  tails = tails.concat(_funcs);
 };
 
 init.run = function (done) {
@@ -38,21 +38,20 @@ init.run = function (done) {
     if (i == funcs.length) {
       funcs = [];
       tails = [];
-      return done();
+      if (done) 
+        return done();
+      else 
+        return;
     }
     var func = funcs[i++];
     func(function (err) {
-      if (err) return done(err);
+      if (err) {
+        if (done) {
+          return done(err);
+        }
+        throw err;
+      }
       setImmediate(run);
     });
   })();
-};
-
-init.main = function (main) {
-  init.run(function (err) {
-    if (err) throw err;
-    main(function (err) {
-      if (err) throw err;
-    });
-  })
 };

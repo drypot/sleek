@@ -18,7 +18,7 @@ error.define('PASSWORD_WRONG', '비밀번호가 틀렸습니다.', 'password');
 
 var users = userb.users = {};
 
-init.add(function (done) {
+init.add((done) => {
   config.users.forEach(function (user) {
     user.admin = !!user.admin;
     users[user.name] = user;

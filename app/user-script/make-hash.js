@@ -19,12 +19,14 @@ var funcs = {
 }
 
 var func = funcs.bcrypt;
+var argv = process.argv;
 
-if (process.argv.length === 2) {
-  console.log('make-hash [-sha256] ...');
+if (argv.length === 2) {
+  console.log('make-hash [-sha256|-bcrypt] ...');
+  return;
 }
 
-process.argv.forEach(function (s, index, array) {
+argv.forEach(function (s, index) {
   if (index < 2) {
     return;
   }

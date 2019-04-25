@@ -49,76 +49,70 @@ expb.core.get('/posts/:tid([0-9]+)/:pid([0-9]+/edit)', function (req, res, done)
 });
 
 expb.core.put('/api/posts/:tid([0-9]+)/:pid([0-9]+)', expu.handler(function (req, res, done) {
-  let user;
-  let form;
-  let thread;
-  let post;
-  let head;
-  async2.waterfall(
-    (done) => {
-      userb.checkUser(res, done);
-    },
-    (_user, done) => {
-      user = _user;
-      form = postn.getForm(req);
-      mysql2.queryOne('select * from thread where id = ?', form.tid, done);
-    },
-    (_thread, f, done) => {
-      thread = _thread;
-      if (!thread) return done(error('INVALID_THREAD'));
-      mysql2.queryOne('select * from post where id = ?', form.pid, done);
-    },
-    (_post, f, done) => {
-      post = _post;
-      postb.unpackPost(post);
-      if (!post || post.tid !== thread.id) return done(error('INVALID_POST'));
-      postb.checkCategory(user, thread.cid, done);
-    },
-    (_category, done) => {
-      if (!postb.isEditable(user, post.id, req.session.pids)) return done(error('NOT_AUTHORIZED'));
-      head = postb.isHead(thread, post);
-      if (head) {
-        postb.checkCategory(user, form.cid, done); // check new cid
-      } else {
-        done(null, null);
-      }
-    },
-    (_category, done) => {
-      postn.checkForm(form, head, done);
-    },
-    (done) => {
-      deleteFiles(form, post, done);              
-    },
-    (done) => {
-      postn.saveFiles(form, post, done);
-    },
-    (done) => {
-      post.writer = form.writer;
-      post.text = form.text;
-      if (user.admin) {
-        post.visible = form.visible;
-      }
-      postb.packPost(post);
-      mysql2.query('update post set ? where id = ?', [post, post.id], done);
-    },
-    (r, f, done) => {
-      if (head) {
-        thread.cid = form.cid;
-        thread.title = form.title;
-        thread.writer = form.writer;
-        mysql2.query('update thread set ? where id = ?', [thread, thread.id], done);
-      } else {
-        done(null, null, null);
-      }
-    },
-    (r, f, done) => {
-      postsr.updateThread(thread.id, done);
-    },
-    (err) => {
+  userb.checkUser(res, function (err, user) {
+    if (err) return done(err);
+    var form = postn.getForm(req);
+    mysql2.queryOne('select * from thread where id = ?', form.tid, (err, thread) => {
       if (err) return done(err);
-      res.json({});
-    }
-  );
+      if (!thread) return done(error('INVALID_THREAD'));
+      mysql2.queryOne('select * from post where id = ?', form.pid, (err, post) => {
+        if (err) return done(err);
+        postb.unpackPost(post);
+        if (!post || post.tid !== thread.id) return done(error('INVALID_POST'));
+        postb.checkCategory(user, thread.cid, function (err, category) {
+          if (err) return done(err);
+          if (!postb.isEditable(user, post.id, req.session.pids)) return done(error('NOT_AUTHORIZED'));
+          var head = postb.isHead(thread, post);
+          async2.waterfall(
+            (done) => {
+              if (head) {
+                postb.checkCategory(user, form.cid, done); // check new cid
+              } else {
+                done();
+              }
+            },
+            (err) => {
+              if (err) return done(err);
+              postn.checkForm(form, head, function (err) {
+                if (err) return done(err);
+                deleteFiles(form, post, function (err) {
+                  if (err) return done(err);
+                  postn.saveFiles(form, post, function (err) {
+                    if (err) return done(err);
+                    post.writer = form.writer;
+                    post.text = form.text;
+                    if (user.admin) {
+                      post.visible = form.visible;
+                    }
+                    postb.packPost(post);
+                    mysql2.query('update post set ? where id = ?', [post, post.id], (err) => {
+                      if (err) return done(err);
+                      async2.waterfall(
+                        (done) => {
+                          if (head) {
+                            thread.cid = form.cid;
+                            thread.title = form.title;
+                            thread.writer = form.writer;
+                            mysql2.query('update thread set ? where id = ?', [thread, thread.id], done);
+                          } else {
+                            done()
+                          }
+                        },
+                        (err) => {
+                          if (err) return done(err);
+                          res.json({});
+                        }
+                      );
+                    });
+                  });
+                });
+              });
+            }
+          );
+        });
+      });
+    });
+  });
 }));
 
 function deleteFiles(form, post, done) {

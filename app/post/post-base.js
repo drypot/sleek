@@ -17,97 +17,91 @@ error.define('TITLE_TOO_LONG', '제목을 줄여 주십시오.', 'title');
 error.define('WRITER_EMPTY', '필명을 입력해 주십시오.', 'writer');
 error.define('WRITER_TOO_LONG', '필명을 줄여 주십시오.', 'writer');
 
-init.add(function (done) {
-  mysql2.query(`
-    create table if not exists thread(
-      id int not null,
-      cid smallint not null,
-      hit int not null,
-      length smallint not null,
-      cdate datetime(3) not null,
-      udate datetime(3) not null,
-      writer varchar(255) not null,
-      title varchar(255) not null,
-      primary key (id)
-    )
-  `, done);
-});
-
-init.add(function (done) {
-  mysql2.query(`
-    create index thread_cid_udate on thread(cid, udate desc);
-  `, err => { done(); });
-});
-
-init.add(function (done) {
-  mysql2.query(`
-    create index thread_udate on thread(udate desc);
-  `, err => { done(); });
-});
-
-init.add(function (done) {
-  mysql2.query(`
-    create table if not exists post (
-      id int not null,
-      tid int not null,
-      cdate datetime(3) not null,
-      visible bool not null,
-      writer varchar(255) not null,
-      text longtext not null,
-      files json not null,
-      primary key (id)
-    )
-  `, done);
-});
-
-init.add(function (done) {
-  mysql2.query(`
-    create index post_tid_cdate on post(tid, cdate)
-  `, err => { done(); });
-});
-
-init.add(function (done) {
-  mysql2.query(`
-    create table if not exists threadmerged (
-      id int not null,
-      cid smallint not null,
-      hit int not null,
-      length smallint not null,
-      cdate datetime(3) not null,
-      udate datetime(3) not null,
-      writer varchar(255) not null,
-      title varchar(255) not null,
-      text varchar(255) not null,
-      merged longtext not null,
-      fulltext index (merged),
-      primary key (id)
-    ) engine = mroonga default charset utf8mb4
-    `, done);
-});
-
 var threadId;
+var postId;
 
-init.add(function (done) {
-  mysql2.getMaxId('thread', (err, id) => {
-    if (err) return done(err);
-    threadId = id;
-    done();
-  });
-});
+init.add(
+  (done) => {
+    mysql2.query(`
+      create table if not exists thread(
+        id int not null,
+        cid smallint not null,
+        hit int not null,
+        length smallint not null,
+        cdate datetime(3) not null,
+        udate datetime(3) not null,
+        writer varchar(255) not null,
+        title varchar(255) not null,
+        primary key (id)
+      )
+    `, done);
+  },
+  (done) => {
+    mysql2.query(`
+      create index thread_cid_udate on thread(cid, udate desc);
+    `, () => { done(); });
+  },
+  (done) => {
+    mysql2.query(`
+      create index thread_udate on thread(udate desc);
+    `, () => { done(); });
+  },
+  (done) => {
+    mysql2.query(`
+      create table if not exists post (
+        id int not null,
+        tid int not null,
+        cdate datetime(3) not null,
+        visible bool not null,
+        writer varchar(255) not null,
+        text longtext not null,
+        files json not null,
+        primary key (id)
+      )
+    `, done);
+  },
+  (done) => {
+    mysql2.query(`
+      create index post_tid_cdate on post(tid, cdate)
+    `, () => { done(); });
+  },
+  (done) => {
+    mysql2.query(`
+      create table if not exists threadmerged (
+        id int not null,
+        cid smallint not null,
+        hit int not null,
+        length smallint not null,
+        cdate datetime(3) not null,
+        udate datetime(3) not null,
+        writer varchar(255) not null,
+        title varchar(255) not null,
+        text varchar(255) not null,
+        merged longtext not null,
+        fulltext index (merged),
+        primary key (id)
+      ) engine = mroonga default charset utf8mb4
+    `, done);
+  },
+  (done) => {
+    mysql2.getMaxId('thread', (err, id) => {
+      if (err) return done(err);
+      threadId = id;
+      done();
+    });
+  },
+  (done) => {
+    mysql2.getMaxId('post', (err, id) => {
+      if (err) return done(err);
+      postId = id;
+      done();
+    });
+  }
+);
 
 postb.getNewThreadId = function () {
   return ++threadId;
 };
-
-var postId;
-
-init.add(function (done) {
-  mysql2.getMaxId('post', (err, id) => {
-    if (err) return done(err);
-    postId = id;
-    done();
-  });
-});
 
 postb.getNewPostId = function () {
   return ++postId;
@@ -124,7 +118,7 @@ postb.unpackPost= function (post) {
 
 // files
 
-init.add(function (done) {
+init.add((done) => {
   fs2.makeDir(config.uploadDir + '/public/post', function (err, dir) {
     if (err) return done(err);
 
@@ -151,7 +145,7 @@ var getFileUrl = postb.getFileUrl = function (id, fname) {
 
 // category
 
-init.add(function (done) {
+init.add((done) => {
   for (var name in userb.users) {
     var user = userb.users[name];
     user.categories = []; // Array 와 Object 는 용도별로 확실히 구분해 쓴다.
