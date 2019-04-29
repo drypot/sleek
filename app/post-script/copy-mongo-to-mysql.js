@@ -42,8 +42,8 @@ init.tail(
         delete r._id;
         mysql2.query('insert into thread set ?', r, (err) => {
           if (err) return done(err);
-          setImmediate(read);
         });
+        setImmediate(read);
       });
     })();
   },
@@ -68,8 +68,8 @@ init.tail(
         postb.packPost(r);
         mysql2.query('insert into post set ?', r, (err) => {
           if (err) return done(err);
-          setImmediate(read);
         });
+        setImmediate(read);
       });
     })(); 
   },
@@ -83,7 +83,7 @@ init.tail(
   },
   () => {
     console.log('done.');
-    process.exit(0);
+    //process.exit(0);
   }
 );
 
