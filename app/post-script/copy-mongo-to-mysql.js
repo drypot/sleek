@@ -17,6 +17,13 @@ init.tail(
     done(); 
   },
   (done) => {
+    mysql2.query(`
+      drop index thread_cid_udate on thread;
+      drop index thread_udate on thread;
+      drop index post_tid_cdate on post;
+    `, done); 
+  },
+  (done) => {
     console.log('copying thread.');
     var count = 0;
     var cursor = mongo2.db.collection('threads').find();
