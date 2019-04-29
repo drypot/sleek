@@ -79,7 +79,8 @@ mysql2.queryOne = function (sql, param, done) {
     param = null;
   }
   pool.query(sql, param, (err, r, f) => {
-    done(err, r[0], f);  
+    if (err) return done(err);
+    done(null, r[0], f);  
   });
 };
 

@@ -9,48 +9,76 @@ const mysql2 = require('../mysql/mysql2');
 const expb = require('../express/express-base');
 const userb = require('../user/user-base');
 const postb = require('../post/post-base');
+const postsr = require('../post/post-search');
 
-var copy = function (done) {
-  var count = 0;
-  var threads = postb.threads.find();
-  (function readt() {
-    threads.next(function (err, thread) {
-      if (err) return done(err);
-      if (thread) {
-        var posts = postb.posts.find({ tid: thread.id });
-        (function readp() {
-          posts.next(function (err, post) {
-            if (err) return done(err);
-            if (post) {
-              var head = postb.isHead(thread, post);
-              var tokens = token2.tokenize(head ? thread.title : '', post.writer, post.text);
-              postb.posts.updateOne({ id: post.id }, { $set: { tokens: tokens } }, function (err) {
-                if (err) return done(err);
-                count++;
-                if (count % 1000 === 0) {
-                  process.stdout.write(count + ' ');
-                }
-                setImmediate(readp);
-              });
-              return;
-            }
-            setImmediate(readt);
-          });
-        })();
-        return;
-      }
-      done();
-    });
-  })();
-};
+init.tail(
+  (done) => {
+    console.log('migration from mongodb to mysql.');
+    done(); 
+  },
+  (done) => {
+    console.log('copying thread.');
+    var count = 0;
+    var cursor = mongo2.db.collection('threads').find();
+    (function read() {
+      cursor.next(function (err, r) {
+        if (err) return done(err);
+        if (!r) {
+          console.log('');
+          return done();
+        }
+        count++;
+        if (count % 1000 === 0) {
+          process.stdout.write(count + ' ');
+        }
+        r.id = r._id;
+        delete r._id;
+        mysql2.query('insert into thread set ?', r, (err) => {
+          if (err) return done(err);
+          setImmediate(read);
+        });
+      });
+    })();
+  },
+  (done) => {
+    console.log('copying post.');
+    var count = 0;
+    var cursor = mongo2.db.collection('posts').find();
+    (function read() {
+      cursor.next(function (err, r) {
+        if (err) return done(err);
+        if (!r) {
+          console.log('');
+          return done();
+        }
+        count++;
+        if (count % 1000 === 0) {
+          process.stdout.write(count + ' ');
+        }
+        r.id = r._id;
+        delete r._id;
+        delete r.tokens;
+        postb.packPost(r);
+        mysql2.query('insert into post set ?', r, (err) => {
+          if (err) return done(err);
+          setImmediate(read);
+        });
+      });
+    })(); 
+  },
+  (done) => {
+    console.log('rebuild fulltext search tokens.');
+    postsr.updateAll.showProgress = true;
+    postsr.updateAll(done);
+  },
+  (done) => {
+    mysql2.close(done);   
+  },
+  () => {
+    console.log('done.');
+    process.exit(0);
+  }
+);
 
-init.run(function (err) {
-  console.log('start migration from mongodb to mysql.');
-  postb.rebuildTokens(function (err) {
-    if (err) throw err;
-    mongo.db.close(function (err) {
-      if (err) throw err;
-      console.log('done');
-    })
-  });
-});
+mysql2.dropDatabase = true;
+init.run();
