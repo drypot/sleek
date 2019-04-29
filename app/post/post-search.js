@@ -36,13 +36,13 @@ var updateThread = postsr.updateThread;
 
 postsr.updateAll = function (done) {
   let offset = 0;
-  let ps = 1000;
+  let ps = 100;
   (function loop1() {
     mysql2.query('select id from thread order by id limit ?, ?', [offset, ps], (err, threads) => {
       if (err) return done(err);
       if (!threads.length) return done();
       if (postsr.updateAll.showProgress) {
-        console.log('rebuilding: offset=' + offset);
+        process.stdout.write(offset + ' ');
       }
       offset += ps;
       let i = 0;

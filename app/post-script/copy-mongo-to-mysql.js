@@ -24,14 +24,14 @@ init.tail(
     `, done); 
   },
   (done) => {
-    console.log('copying thread.');
+    console.log('copying thread: ');
     var count = 0;
     var cursor = mongo2.db.collection('threads').find().sort({ _id: 1 });
     (function read() {
       cursor.next(function (err, r) {
         if (err) return done(err);
         if (!r) {
-          console.log('');
+          console.log('done.');
           return done();
         }
         count++;
@@ -48,14 +48,14 @@ init.tail(
     })();
   },
   (done) => {
-    console.log('copying post.');
+    console.log('copying post: ');
     var count = 0;
     var cursor = mongo2.db.collection('posts').find().sort({ _id: 1 });
     (function read() {
       cursor.next(function (err, r) {
         if (err) return done(err);
         if (!r) {
-          console.log('');
+          console.log('done.');
           return done();
         }
         count++;
@@ -74,15 +74,18 @@ init.tail(
     })(); 
   },
   (done) => {
-    console.log('rebuild fulltext search tokens.');
+    console.log('rebuild fulltext index: ');
     postsr.updateAll.showProgress = true;
-    postsr.updateAll(done);
+    postsr.updateAll(() => {
+      console.log('done.');
+      done();
+    });
   },
   (done) => {
     mysql2.close(done);   
   },
   () => {
-    console.log('done.');
+    console.log('all done.');
     //process.exit(0);
   }
 );
