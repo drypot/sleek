@@ -35,7 +35,7 @@ init.tail(
           return done();
         }
         count++;
-        if (count % 1000 === 0) {
+        if (count % 100 === 0) {
           process.stdout.write(count + ' ');
         }
         r.id = r._id;
@@ -59,7 +59,7 @@ init.tail(
           return done();
         }
         count++;
-        if (count % 1000 === 0) {
+        if (count % 100 === 0) {
           process.stdout.write(count + ' ');
         }
         r.id = r._id;
