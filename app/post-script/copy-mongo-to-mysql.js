@@ -26,7 +26,7 @@ init.tail(
   (done) => {
     console.log('copying thread.');
     var count = 0;
-    var cursor = mongo2.db.collection('threads').find();
+    var cursor = mongo2.db.collection('threads').find().sort({ _id: 1 });
     (function read() {
       cursor.next(function (err, r) {
         if (err) return done(err);
@@ -50,7 +50,7 @@ init.tail(
   (done) => {
     console.log('copying post.');
     var count = 0;
-    var cursor = mongo2.db.collection('posts').find();
+    var cursor = mongo2.db.collection('posts').find().sort({ _id: 1 });
     (function read() {
       cursor.next(function (err, r) {
         if (err) return done(err);
