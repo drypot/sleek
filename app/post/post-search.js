@@ -96,7 +96,7 @@ function search(req, res, api, done) {
         res.render('post/post-search', {
           query: req.query.q || '',
           threads: threads,
-          prev: p > 1 ? new url2.UrlMaker('/posts/search').add('q', query).add('p', p - 1, 1).done() : undefined,
+          prev: p > 1 ? new url2.UrlMaker('/posts/search').add('q', q).add('p', p - 1, 1).done() : undefined,
           next: new url2.UrlMaker('/posts/search').add('q', q).add('p', p + 1).done()
         });
       }
