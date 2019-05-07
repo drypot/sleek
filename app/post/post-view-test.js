@@ -18,6 +18,11 @@ before(function (done) {
   init.run(done);
 });
 
+before((done) => {
+  expb.start();
+  done();
+});
+
 describe('thread and posts', function () {
   var tid;
   it('given user', function (done) {

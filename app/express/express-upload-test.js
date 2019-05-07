@@ -16,6 +16,11 @@ before(function (done) {
   init.run(done);
 });
 
+before((done) => {
+  expb.start();
+  done();
+});
+
 describe('parsing json', function () {
   it('given handler', function () {
     expb.core.post('/api/test/upload-json', expu.handler(function (req, res, done) {

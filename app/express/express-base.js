@@ -15,7 +15,8 @@ const expb = exports;
 
 expb.core = express.Router();
 
-init.add((done) => {
+expb.start = function () {  
+  
   expb.app = express();
 
   // Set Middlewares
@@ -142,11 +143,6 @@ init.add((done) => {
     }
   });
 
-  done();
-});
-
-init.tail((done) => {
   expb.instance = expb.app.listen(config.appPort);
-  console.log('express: listening ' + config.appPort);
-  done();
-});
+  console.log('express: listening ' + config.appPort);  
+};

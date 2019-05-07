@@ -18,6 +18,11 @@ before(function (done) {
   init.run(done);
 });
 
+before((done) => {
+  expb.start();
+  done();
+});
+
 describe('table thread', function () {
   it('should exist', function (done) {
     mysql2.tableExists('thread', (err, exist) => {

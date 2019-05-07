@@ -10,14 +10,20 @@ const mysql2 = exports;
 // db
 
 var conn;
-var pool;
+
+// 작업 종료후 pool을 닫으면 큐잉된 쿼리는 실행되지 못하고 'Pool is closed' 를 뿜는다.
+// 이 문제가 해결되기 전까지 pool 사용을 피한다.
+
+//var pool;
 
 init.add(
   (done) => {
-    conn = mysql.createConnection({
+    mysql2.conn = conn = mysql.createConnection({
       host: 'localhost',
       user: config.mysqlUser,
       password: config.mysqlPassword,
+      charset: 'utf8mb4',
+      multipleStatements: true,
     });
     done();
   },
@@ -31,20 +37,23 @@ init.add(
   },
   (done) => {
     console.log('mysql: db=' + config.mysqlDatabase);
-    conn.query('create database if not exists ?? character set utf8mb4', config.mysqlDatabase, (err) => {
-      if (err) return done(err);
-      pool = mysql.createPool({
-        connectionLimit: 10,
-        host: 'localhost',
-        database: config.mysqlDatabase,
-        user: config.mysqlUser,
-        password: config.mysqlPassword,
-        charset: 'utf8mb4',
-        multipleStatements: true,
-      });
-      done();
-    });
-  }
+    conn.query('create database if not exists ?? character set utf8mb4', config.mysqlDatabase, done);
+  },
+  (done) => {
+    conn.changeUser({ database: config.mysqlDatabase }, done);
+  },
+  // (done) => {
+  //   mysql2.pool = pool = mysql.createPool({
+  //     connectionLimit: 10,
+  //     host: 'localhost',
+  //     database: config.mysqlDatabase,
+  //     user: config.mysqlUser,
+  //     password: config.mysqlPassword,
+  //     charset: 'utf8mb4',
+  //     multipleStatements: true,
+  //   });
+  //   done();
+  // }
 );
 
 mysql2.close = function (done) {
@@ -56,13 +65,13 @@ mysql2.close = function (done) {
         done();
       }
     },
-    (done) => {
-      if (pool) {
-        pool.end(done);
-      } else {
-        done();
-      }
-    },
+    // (done) => {
+    //   if (pool) {
+    //     pool.end(done);
+    //   } else {
+    //     done();
+    //   }
+    // },
     done
   );
 }
@@ -70,7 +79,8 @@ mysql2.close = function (done) {
 // utilities
 
 mysql2.query = function () {
-  pool.query.apply(pool, arguments);
+  //pool.query.apply(pool, arguments);
+  conn.query.apply(conn, arguments);
 };
 
 mysql2.queryOne = function (sql, param, done) {
@@ -78,7 +88,8 @@ mysql2.queryOne = function (sql, param, done) {
     done = param;
     param = null;
   }
-  pool.query(sql, param, (err, r, f) => {
+  //pool.query(sql, param, (err, r, f) => {
+  conn.query(sql, param, (err, r, f) => {
     if (err) return done(err);
     done(null, r[0], f);  
   });

@@ -15,6 +15,11 @@ before(function (done) {
   init.run(done);
 });
 
+before((done) => {
+  expb.start();
+  done();
+});
+
 before(function () {
   expb.core.get('/api/test/user', function (req, res, done) {
     userb.checkUser(res, function (err, user) {

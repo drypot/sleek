@@ -13,6 +13,11 @@ before(function (done) {
   init.run(done);
 });
 
+before((done) => {
+  expb.start();
+  done();
+});
+
 describe('api res.json', function () {
   describe('object', function () {
     before(function () {

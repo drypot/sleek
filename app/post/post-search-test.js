@@ -19,6 +19,11 @@ before(function (done) {
   init.run(done);
 });
 
+before((done) => {
+  expb.start();
+  done();
+});
+
 describe('searching', function () {
   var docs = [
     { cid: 100, writer: 'snowman', title: 'title 1', text: 'apple orange banana' },

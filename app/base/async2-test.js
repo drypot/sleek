@@ -5,7 +5,43 @@ const assert = require('assert');
 const assert2 = require('../base/assert2');
 
 describe('waterfall', () => {
-  it('should succeed when no err', (done) => {
+  it('should succeed', (done) => {
+    let i = 0;
+    async2.waterfall(
+      (done) => {
+        i++;
+        done(null);
+      },
+      (done) => {
+        i++;
+        done(null);
+      },
+      (err) => {
+        assert.ifError(err);
+        assert2.e(i, 2);
+        done();
+      }
+    );
+  });
+  it('should succeed with err', (done) => {
+    let i = 0;
+    async2.waterfall(
+      (done) => {
+        i++;
+        done(new Error());
+      },
+      (done) => {
+        i++;
+        done(null);
+      },
+      (err) => {
+        assert(err);
+        assert2.e(i, 1);
+        done();
+      }
+    );
+  });
+  it('should succeed with param', (done) => {
     async2.waterfall(
       (done) => {
         done(null, 1, 2);
@@ -25,7 +61,7 @@ describe('waterfall', () => {
       }
     );
   });
-  it('should succeed when err', (done) => {
+  it('should succeed with param, err', (done) => {
     async2.waterfall(
       (done) => {
         done(null, 1, 2);

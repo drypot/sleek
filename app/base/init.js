@@ -16,28 +16,20 @@ process.on('uncaughtException', function (err) {
 */
 
 var funcs = [];
-var tails = [];
 
 init.reset = function () {
   funcs = [];
-  tails = [];
 }
 
 init.add = function (..._funcs) {
   funcs = funcs.concat(_funcs);
 };
 
-init.tail = function (..._funcs) {
-  tails = tails.concat(_funcs);
-};
-
 init.run = function (done) {
-  funcs = funcs.concat(tails);
   var i = 0;
   (function run() {
     if (i == funcs.length) {
       funcs = [];
-      tails = [];
       if (done) 
         return done();
       else 

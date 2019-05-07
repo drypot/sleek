@@ -43,6 +43,10 @@ init.add(
   }
 );
 
+mongo2.close = function (done) {
+  client.close(false, done);
+};
+
 // values
 
 mongo2.values = {};

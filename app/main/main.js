@@ -11,4 +11,9 @@ require('../post/post-new');
 require('../post/post-update');
 require('../post/post-search');
 
+init.add((done) => {
+  expb.start();
+  done();
+});
+
 init.run();

@@ -19,6 +19,11 @@ before(function (done) {
   init.run(done);
 });
 
+before((done) => {
+  expb.start();
+  done();
+});
+
 describe('preparing sample docs', function () {
   var samples = [
     { cid: 40,  writer: 'snowman', title: 'rbin 1', text: 'text' },

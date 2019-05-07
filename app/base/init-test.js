@@ -31,37 +31,6 @@ describe('init', () => {
       done();
     });
   });
-  it('should succeed with 3 tails', (done) => {
-    var a = [];
-    init.reset();
-    init.tail((done) => {
-      a.push(7);
-      done();
-    });
-    init.tail(
-      (done) => {
-        a.push(8);
-        done();
-      },
-      (done) => {
-        a.push(9);
-        done();
-      }
-    );
-    init.add((done) => {
-      a.push(1);
-      done();
-    });
-    init.run((err) => {
-      assert.ifError(err);
-      assert2.e(a.length, 4);
-      assert2.e(a[0], 1);
-      assert2.e(a[1], 7);
-      assert2.e(a[2], 8);
-      assert2.e(a[3], 9);
-      done();
-    });
-  });
   it('should succeed with no funcs', (done) => {
     init.reset();
     init.run(done);

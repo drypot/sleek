@@ -21,6 +21,10 @@ init.add((done) => {
       done();
     });
   } else {
-    done();
+    process.stdout.write('config file not found.\n');
+    process.stdout.write('\n');
+    process.stdout.write('node some.js --config config.json\n');
+    process.stdout.write('node some.js -c config.json\n');
+    process.exit(-1);
   }
 });

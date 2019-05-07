@@ -19,6 +19,11 @@ before(function (done) {
   init.run(done);
 });
 
+before((done) => {
+  expb.start();
+  done();
+});
+
 describe('rebuilding tokens', function () {
   it('given user', function (done) {
     userf.login('user', done);
