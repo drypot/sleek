@@ -1,1 +1,1 @@
-node app/main/main.js -c config/sleek.json
+node app/main/main.js -c config/sleek-dev.json
