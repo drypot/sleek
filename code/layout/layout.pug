@@ -5,35 +5,35 @@ html
     meta(name='viewport', content='width=device-width, initial-scale=1.0')
     meta(name='description', content='')
     block head-opt
-    
+
     link(rel='icon', type='image/png', href='/static/favicon/favicon1.png')
 
-    link(rel='stylesheet', href='/static/bower/bootstrap/dist/css/bootstrap.min.css')
+    link(rel='stylesheet', href='/static/lib/bootstrap-3.4.1-dist/css/bootstrap.min.css')
     link(rel='stylesheet', href='/static/css/base.css')
 
-    script(src='/static/bower/json2/json2.js')
-    script(src='/static/bower/jquery/dist/jquery.min.js')
-    script(src='/static/bower/bootstrap/dist/js/bootstrap.min.js')
+    script(src='/static/lib/json2.js')
+    script(src='/static/lib/jquery-3.5.1.min.js')
+    script(src='/static/lib/bootstrap-3.4.1-dist/js/bootstrap.min.js')
 
     script(src='/static/js/base.js')
     script(src='/static/js/user.js')
     script(src='/static/js/post.js')
 
   body
-  
+
     .container
 
       nav.navbar.navbar-default
         .navbar-header
           button.navbar-toggle.collapsed(type='button', data-toggle='collapse', data-target='#navbar-collapse')
             span.sr-only Toggle navigation
-            |         
+            |
             span.icon-bar
-            |         
+            |
             span.icon-bar
-            |         
+            |
             span.icon-bar
-          |       
+          |
           a.navbar-brand(href='/posts') #{appName}
         #navbar-collapse.collapse.navbar-collapse
           if locals.user
