@@ -1,6 +1,6 @@
 # Install
 
-아래는 Arch Linux 를 가정.
+nginx, mariadb, redis 등이 필요.
 
 ## Nginx
 
@@ -8,66 +8,49 @@ Mac 개발환경용 Nginx 설정 예
 
     server {
       listen 8080;
-      server_name sleek.local;
-      root /Users/drypot/projects/sleek/website/public;
-
+      server_name sleek.test;
+      root /Users/drypot/projects/sleek/sleek/public;
+    
       client_max_body_size 512m;
-      
+    
       location / {
-        proxy_pass http://localhost:8800;
+        try_files $uri @app;
+      }
+    
+      location @app {
+        proxy_pass http://localhost:8000;
         proxy_set_header Host $http_host;
       }
-
-      location /static/ {
-      }
-
-      location /static/bower/ {
-        alias /Users/drypot/projects/sleek/website/bower_components/;
-      }
     }
-
+    
     server {
       listen 8080;
-      server_name file.sleek.local;
-      root /Users/drypot/projects/sleek/website/upload/public;
+      server_name file.sleek.test;
+      root /Users/drypot/projects/sleek/sleek/upload/sleek/public;
     }
-
-## Requirements
-
-mariadb, redis.
+    
 
 ## Mroonga
 
 MariaDB 쉘에서 Mroonga 검색 엔진을 활성화 한다. 
 
-	  > install soname 'ha_mroonga';
+	> install soname 'ha_mroonga';
   	> show engines;
 
 ## Clone Source
-
-    $ mkdir /data/web
-    $ cd /data/web
 
     $ git clone https://github.com/drypot/sleek.git
     $ cd sleek
 
     $ npm install
-    $ bower install
 
 ## 실행
 
-설정파일 생성.
-
-    config/sleek-live.json
-
 실행.
 
-    bin/run sleek live
+    $ node code/main/main.js -c config/sleek-dev.json
 
 ## 서비스로 등록
-
-/usr/lib/systemd 디렉토리는 패키지의 유닛 파일들만 들어간다.
-사용자 추가 유닛들은 /etc/systemd/system 에 생성.
 
     /etc/systemd/system/sleek.serivce
 
@@ -81,7 +64,7 @@ MariaDB 쉘에서 Mroonga 검색 엔진을 활성화 한다.
     Restart=always
     RestartSec=15
     WorkingDirectory=/data/web/sleek
-    ExecStart=/usr/bin/node app/main/main.js --config config/sleek-live.json
+    ExecStart=/usr/bin/node code/main/main.js -c config/sleek-live.json
     Environment=NODE_ENV=production
 
     [Install]
