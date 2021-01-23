@@ -66,8 +66,8 @@ describe('creating thread', function () {
     });
   });
   it('file should success', function (done) {
-    var f1 = 'server/express/express-upload-f1.txt';
-    var f2 = 'server/express/express-upload-f2.txt';
+    var f1 = 'code/express/express-upload-f1.txt';
+    var f2 = 'code/express/express-upload-f2.txt';
     var form = { cid: 100, writer: 'snowman', title: 'title 1', text: 'post 1' };
     expl.post('/api/posts').fields(form).attach('files', f1).attach('files', f2).end(function (err, res) {
       assert.ifError(err);

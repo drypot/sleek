@@ -24,7 +24,7 @@ expb.start = function () {
   app.locals.appDesc = config.appDesc;
 
   app.set('view engine', 'pug');
-  app.set('views', 'server');
+  app.set('views', 'code');
 
   app.use(cookieParser());
 

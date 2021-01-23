@@ -113,9 +113,9 @@ describe('updating', function () {
     });
   });
   it('given files', function (done) {
-    var f1 = 'server/express/express-upload-f1.txt';
-    var f2 = 'server/express/express-upload-f2.txt';
-    var f3 = 'server/express/express-upload-f3.txt';
+    var f1 = 'code/express/express-upload-f1.txt';
+    var f2 = 'code/express/express-upload-f2.txt';
+    var f3 = 'code/express/express-upload-f3.txt';
     var form = { writer: 'snowman', text: 'post with files' };
     expl.post('/api/posts/' + tid).fields(form)
       .attach('files', f1).attach('files', f2).attach('files', f3).end(function (err, res) {
@@ -126,8 +126,8 @@ describe('updating', function () {
     });
   });
   it('updating files should success', function (done) {
-    var f3 = 'server/express/express-upload-f3.txt';
-    var f4 = 'server/express/express-upload-f4.txt';
+    var f3 = 'code/express/express-upload-f3.txt';
+    var f4 = 'code/express/express-upload-f4.txt';
     var form = { writer: 'snowman', text: 'post with files', dfiles: ['nofile.txt', 'express-upload-f2.txt'] };
     expl.put('/api/posts/' + tid + '/' + pid3).fields(form)
       .attach('files', f3).attach('files', f4).end(function (err, res) {
