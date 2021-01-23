@@ -98,12 +98,12 @@ function createPost(req, res, done) {
                         tid: thread.id,
                         pid: post.id
                       });
-                    });                      
+                    });
                   }
                 );
               });
             });
-          })  
+          })
         }
       );
     });
@@ -120,7 +120,7 @@ var getForm = postn.getForm = function (req) {
   form.writer  = String(body.writer || '').trim();
   form.title = String(body.title || '').trim();
   form.text = String(body.text || '').trim();
-  form.visible = body.hasOwnProperty('visible') ? !!body.visible : true;
+  form.visible = 'visible' in body ? !!body.visible : true;
   form.files = req.files && req.files.files;
   form.dfiles = body.dfiles; // for update
   return form;
