@@ -1,4 +1,4 @@
-for arg in ${@-app}; do
+for arg in ${@-server}; do
   if [ -f $arg ]; then
     echo mocha $arg
     mocha --timeout 15000 --exit $arg

@@ -59,15 +59,15 @@ describe('updating', function () {
         assert2.e(thread.cid, 100);
         assert2.e(thread.hit, 0);
         assert2.e(thread.length, 1);
-        assert2.ne(thread.cdate, undefined); 
-        assert2.ne(thread.udate, undefined); 
+        assert2.ne(thread.cdate, undefined);
+        assert2.ne(thread.udate, undefined);
         assert2.e(thread.writer, 'snowman2');
         assert2.e(thread.title, 'title2');
         mysql2.queryOne('select * from post where id = ?', pid, (err, post) => {
           assert.ifError(err);
           postb.unpackPost(post);
           assert2.e(post.tid, tid);
-          assert2.ne(post.cdate, undefined); 
+          assert2.ne(post.cdate, undefined);
           assert2.e(post.visible, true);
           assert2.e(post.writer, 'snowman2');
           assert2.e(post.text, 'text2');
@@ -95,15 +95,15 @@ describe('updating', function () {
         assert2.e(thread.cid, 100);
         assert2.e(thread.hit, 0);
         assert2.e(thread.length, 2);
-        assert2.ne(thread.cdate, undefined); 
-        assert2.ne(thread.udate, undefined); 
+        assert2.ne(thread.cdate, undefined);
+        assert2.ne(thread.udate, undefined);
         assert2.e(thread.writer, 'snowman2');
         assert2.e(thread.title, 'title2');
         mysql2.queryOne('select * from post where id = ?', pid2, (err, post) => {
           assert.ifError(err);
           postb.unpackPost(post);
           assert2.e(post.tid, tid);
-          assert2.ne(post.cdate, undefined); 
+          assert2.ne(post.cdate, undefined);
           assert2.e(post.visible, true);
           assert2.e(post.writer, 'snowman3');
           assert2.e(post.text, 'text3');
@@ -113,9 +113,9 @@ describe('updating', function () {
     });
   });
   it('given files', function (done) {
-    var f1 = 'app/express/express-upload-f1.txt';
-    var f2 = 'app/express/express-upload-f2.txt';
-    var f3 = 'app/express/express-upload-f3.txt';
+    var f1 = 'server/express/express-upload-f1.txt';
+    var f2 = 'server/express/express-upload-f2.txt';
+    var f3 = 'server/express/express-upload-f3.txt';
     var form = { writer: 'snowman', text: 'post with files' };
     expl.post('/api/posts/' + tid).fields(form)
       .attach('files', f1).attach('files', f2).attach('files', f3).end(function (err, res) {
@@ -126,8 +126,8 @@ describe('updating', function () {
     });
   });
   it('updating files should success', function (done) {
-    var f3 = 'app/express/express-upload-f3.txt';
-    var f4 = 'app/express/express-upload-f4.txt';
+    var f3 = 'server/express/express-upload-f3.txt';
+    var f4 = 'server/express/express-upload-f4.txt';
     var form = { writer: 'snowman', text: 'post with files', dfiles: ['nofile.txt', 'express-upload-f2.txt'] };
     expl.put('/api/posts/' + tid + '/' + pid3).fields(form)
       .attach('files', f3).attach('files', f4).end(function (err, res) {

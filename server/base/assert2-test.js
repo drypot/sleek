@@ -37,8 +37,8 @@ describe('notEmtpy', function () {
 
 describe('path', function () {
   it('should succeed', function (done) {
-    assert2.path('app/base/assert2.js');
-    assert2.path('app/base/assertX.js', false);
+    assert2.path('server/base/assert2.js');
+    assert2.path('server/base/assertX.js', false);
     done();
   });
 });

@@ -48,26 +48,26 @@ describe('creating thread', function () {
         assert2.e(thread.cid, 100);
         assert2.e(thread.hit, 0);
         assert2.e(thread.length, 1);
-        assert2.ne(thread.cdate, undefined); 
-        assert2.ne(thread.udate, undefined); 
+        assert2.ne(thread.cdate, undefined);
+        assert2.ne(thread.udate, undefined);
         assert2.e(thread.writer, 'snowman');
         assert2.e(thread.title, 'title 1');
         mysql2.queryOne('select * from post where id = ?', res.body.pid, (err, post) => {
           assert.ifError(err);
           postb.unpackPost(post);
           assert2.e(post.tid, res.body.tid);
-          assert2.ne(post.cdate, undefined); 
+          assert2.ne(post.cdate, undefined);
           assert2.e(post.visible, true);
           assert2.e(post.writer, 'snowman');
           assert2.e(post.text, 'post 1');
-          done();          
+          done();
         });
       });
     });
   });
   it('file should success', function (done) {
-    var f1 = 'app/express/express-upload-f1.txt';
-    var f2 = 'app/express/express-upload-f2.txt';
+    var f1 = 'server/express/express-upload-f1.txt';
+    var f2 = 'server/express/express-upload-f2.txt';
     var form = { cid: 100, writer: 'snowman', title: 'title 1', text: 'post 1' };
     expl.post('/api/posts').fields(form).attach('files', f1).attach('files', f2).end(function (err, res) {
       assert.ifError(err);
@@ -179,7 +179,7 @@ describe('creating replay', function () {
         assert.ifError(err);
         postb.unpackPost(post);
         assert2.e(post.tid, tid);
-        assert2.ne(post.cdate, undefined); 
+        assert2.ne(post.cdate, undefined);
         assert2.e(post.visible, true);
         assert2.e(post.writer, 'snowman 2');
         assert2.e(post.text, 'text 2');
@@ -203,7 +203,7 @@ describe('creating replay', function () {
   it('thread xxx should fail', function (done) {
     var form = { writer: 'snowman', text: 'text' };
     expl.post('/api/posts/xxx').send(form).end(function (err, res) {
-      assert2.ne(err, undefined); 
+      assert2.ne(err, undefined);
       assert2.e(res.status, 404);
       done();
     });
