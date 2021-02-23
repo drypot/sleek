@@ -1,0 +1,11 @@
+#!/bin/bash
+args=(
+    start
+    code/main/main.js
+    --name sleek
+    --exp-backoff-restart-delay=2000
+    --
+    -c config-live/sleek-live.json
+)
+export NODE_ENV=production
+pm2 "${args[@]}"
