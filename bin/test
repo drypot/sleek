@@ -1,3 +1,4 @@
+#!/bin/bash
 for arg in ${@-code}; do
   if [ -f $arg ]; then
     echo mocha $arg

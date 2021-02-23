@@ -1,1 +1,2 @@
+#!/bin/bash
 node code/main/main.js -c config-live/sleek-livejson
