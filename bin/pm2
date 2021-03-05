@@ -7,5 +7,5 @@ args=(
     --
     -c config/sleek-dev.json
 )
-export NODE_ENV=production
+export NODE_ENV=development
 pm2 "${args[@]}"
