@@ -1,0 +1,211 @@
+@import "../../../bower_components/bootstrap/less/variables.less";
+
+$margin: 30px;
+
+// basic layout
+
+body {
+}
+
+.ac-link { // achromatic color link
+  a {
+    color: $text-color;
+  }
+}
+
+.section {
+  margin-top: 0px;
+  margin-bottom: $margin;
+  padding: 0px 8px;
+}
+
+.sub-section {
+  margin-bottom: $margin * 1;
+}
+
+h1 {
+  font-size: 30px;
+}
+.page-title {
+  @include ac-link;
+  margin-top: $margin
+}
+
+.page-footer {
+  margin-top: $margin;
+  margin-bottom: $margin;
+  border-top: 1px solid #eeeeee;
+  padding-top: 10px;
+  ul {
+    margin: 0px;
+    li {
+      padding-left:0px;
+      padding-right:9px;
+    }
+  }
+}
+
+// error
+
+pre.error-report {
+  margin: 0px;
+
+  padding: 0px;
+  padding-top: 5px;
+
+  border: 0;
+  border-top: 1px solid #eeeeee;
+
+  text-align: left;
+  font-family: monospace;
+  font-size: 14px;
+  background-color: white;
+  white-space: nowrap;
+}
+
+.modal-body {
+  p {
+    white-space: nowrap;
+    overflow: scroll;
+  }
+}
+
+// form
+
+form.main {
+  textarea {
+    font-family: monospace;
+    -webkit-overflow-scrolling: auto;
+  }
+  input[type="file"] {
+    margin-bottom: 3px;
+  }
+  .short {
+    max-width: 320px;
+  }
+  p.error {
+    display: block;
+    margin-top: 5px;
+    margin-bottom: 10px;
+  }
+  .alert {
+    margin-bottom:5px;
+  }
+}
+
+// posts
+
+.threads {
+  padding: 0px 0px;
+
+  @media (min-width: $screen-sm-min) {
+    td {
+      white-space: nowrap;
+    }
+    td.t {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: $screen-xs-max) {
+    td {
+      width: $screen-xs-max;
+    }
+    div.t {
+      margin-bottom: 3px;
+    }
+    small {
+      margin-right: 10px;
+    }
+  }
+}
+
+.search-results {
+  padding: 0px 0px;
+  .t {
+    h4 {
+      margin-top: 2px;
+    }
+  }
+  .tx {
+    margin-bottom: 5px;
+    word-break: break-all;
+  }
+  .i {
+    margin-bottom: 5px;
+    span {
+      margin-right: 10px;
+    }
+  }
+}
+
+.posts {
+  padding: 0px 0px;
+  border-bottom: 1px solid #ddd;
+  .post {
+    border-top: 1px solid #ddd;
+    padding-left: 8px;
+    padding-right: 8px;
+    h5, h4 {
+      small {
+        margin-left: 15px;
+      }
+    }
+    .files {
+      margin-bottom: 10px;
+      .file {
+        margin-bottom:3px;
+        img {
+          margin-top:3px;
+          max-width: 100%;
+        }
+      }
+    }
+    .text {
+      clear: both;
+      margin-bottom: 25px;
+      pre {
+        font-family: monospace;
+        font-size: 14px;
+        border: 0;
+        background-color: white;
+        margin: 0px;
+        padding: 0px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+      img {
+        vertical-align: top;
+      }
+    }
+    .cmd {
+      margin-bottom: 1em;
+    }
+    .media-show-btn {
+      margin-left:8px;
+    }
+    .media {
+      color: #56C0E0;
+    }
+  }
+}
+
+.btn-mini {
+  padding: 1px 6px 1px 6px;
+  font-size: 11px;
+}
+
+.commands {
+  clear: both;
+  overflow: auto;
+  .left {
+    float: left;
+    margin-right: 5px;
+    margin-bottom: 5px;
+  }
+  .right {
+    float: right;
+    margin-left: 5px;
+    margin-bottom: 5px;
+  }
+}
