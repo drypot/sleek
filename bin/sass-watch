@@ -1,0 +1,2 @@
+#!/bin/bash
+sass --no-source-map --watch public/static/css
