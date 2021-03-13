@@ -1,7 +1,5 @@
-'use strict';
-
-const assert = require('assert');
-const assert2 = require('../base/assert2');
+import assert from "assert";
+import * as assert2 from "../base/assert2.js";
 
 describe('aliases', function () {
   it('should succeed', function (done) {
@@ -13,7 +11,7 @@ describe('aliases', function () {
   });
 });
 
-describe('emtpy', function () {
+describe('empty', function () {
   it('should succeed', function (done) {
     assert2.empty(undefined);
     assert2.empty(null);
@@ -25,7 +23,7 @@ describe('emtpy', function () {
   });
 });
 
-describe('notEmtpy', function () {
+describe('notEmpty', function () {
   it('should succeed', function (done) {
     assert2.notEmpty({ a: 1 });
     assert.throws(function () {

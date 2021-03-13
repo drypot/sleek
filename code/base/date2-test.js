@@ -1,13 +1,12 @@
-'use strict';
 
-const date2 = require('../base/date2');
-const assert = require('assert');
-const assert2 = require('../base/assert2');
+import * as date2 from "../base/date2.js";
+import assert from "assert";
+import * as assert2 from "../base/assert2.js";
 
 describe('today', function () {
   it('should succeed', function (done) {
-    var now = new Date();
-    var today = date2.today();
+    const now = new Date();
+    const today = date2.today();
     assert2.e(today.getFullYear(), now.getFullYear());
     assert2.e(today.getMonth(), now.getMonth());
     assert2.e(today.getDate(), now.getDate());
@@ -21,7 +20,7 @@ describe('today', function () {
 
 describe('dateFromString', function () {
   it('should succeed', function (done) {
-    var d = date2.dateFromString('1974-05-16');
+    const d = date2.dateFromString('1974-05-16');
     assert2.e(d.getFullYear(), 1974);
     assert2.e(d.getMonth(), 4);
     assert2.e(d.getDate(), 16);
@@ -35,21 +34,21 @@ describe('dateFromString', function () {
 
 describe('dateTimeString', function () {
   it('should succeed', function () {
-    var d = new Date(1974, 4, 16, 12, 0);
+    const d = new Date(1974, 4, 16, 12, 0);
     assert2.e(date2.dateTimeString(d), '1974-05-16 12:00:00');
   });
 });
 
 describe('dateString', function () {
   it('should succeed', function () {
-    var d = new Date(1974, 4, 16, 12, 0);
+    const d = new Date(1974, 4, 16, 12, 0);
     assert2.e(date2.dateString(d), '1974-05-16');
   });
 });
 
 describe('dateStringNoDash', function () {
   it('should succeed', function () {
-    var d = new Date(1974, 4, 16, 12, 0);
+    const d = new Date(1974, 4, 16, 12, 0);
     assert2.e(date2.dateStringNoDash(d), '19740516');
   });
 });

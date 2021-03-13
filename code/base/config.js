@@ -1,22 +1,27 @@
-'use strict';
 
-const fs = require('fs');
-const minimist = require('minimist');
-const init = require('../base/init');
-const config = exports;
+import fs from "fs";
+import minimist from "minimist";
+import * as init from "../base/init.js";
 
-config.dev = process.env.NODE_ENV != 'production';
+export const prop = {};
+
+let path = null;
+
+export function setPath(_path) {
+  path = _path;
+}
 
 init.add((done) => {
-  config.argv = minimist(process.argv.slice(2));
-  var path = config.path || config.argv.config || config.argv.c;
-  if (typeof path == 'string') {
-    console.log('config: path=' + path);
-    fs.readFile(path, 'utf8', function (err, data) {
+  prop.dev = process.env.NODE_ENV != 'production';
+  prop.argv = minimist(process.argv.slice(2));
+  const epath = path || prop.argv.config || prop.argv.c;
+  if (typeof epath == 'string') {
+    console.log('config: path=' + epath);
+    fs.readFile(epath, 'utf8', function (err, data) {
       if (err) return done(err);
-      var _config = JSON.parse(data);
-      for(var p in _config) {
-        config[p] = _config[p];
+      const _config = JSON.parse(data);
+      for(let p in _config) {
+        prop[p] = _config[p];
       }
       done();
     });

@@ -1,11 +1,10 @@
-'use strict';
 
-const fs = require('fs');
-const fs2 = require('../base/fs2');
-const assert = require('assert');
-const assert2 = require('../base/assert2');
+import fs from "fs";
+import * as fs2 from "../base/fs2.js";
+import assert from "assert";
+import * as assert2 from "../base/assert2.js";
 
-const testdir = 'tmp/fs-test';
+const testDir = 'tmp/fs-test';
 
 before(function (done) {
   fs.mkdir('tmp', 0o755, function (err) {
@@ -18,90 +17,90 @@ before(function (done) {
 
 describe('removeDir', function () {
   beforeEach(function (done) {
-    fs.mkdir(testdir + '/sub1', 0o755, function (err) {
-      fs.mkdir(testdir + '/sub2', 0o755, function (err) {
-        fs.mkdir(testdir + '/sub2/sub3', 0o755, function (err) {
-          fs.writeFileSync(testdir + '/sub1/f1.txt', 'abc');
-          fs.writeFileSync(testdir + '/sub2/f2.txt', 'abc');
-          fs.writeFileSync(testdir + '/sub2/sub3/f3.txt', 'abc');
+    fs.mkdir(testDir + '/sub1', 0o755, function (err) {
+      fs.mkdir(testDir + '/sub2', 0o755, function (err) {
+        fs.mkdir(testDir + '/sub2/sub3', 0o755, function (err) {
+          fs.writeFileSync(testDir + '/sub1/f1.txt', 'abc');
+          fs.writeFileSync(testDir + '/sub2/f2.txt', 'abc');
+          fs.writeFileSync(testDir + '/sub2/sub3/f3.txt', 'abc');
           done();
         });
       });
     });
   });
   it('should work for one file', function (done) {
-    assert2.path(testdir + '/sub1');
-    assert2.path(testdir + '/sub2');
-    assert2.path(testdir + '/sub2/sub3');
-    assert2.path(testdir + '/sub1/f1.txt');
-    assert2.path(testdir + '/sub2/f2.txt');
-    assert2.path(testdir + '/sub2/sub3/f3.txt');
-    fs2.removeDir(testdir + '/sub2/f2.txt', function (err) {
+    assert2.path(testDir + '/sub1');
+    assert2.path(testDir + '/sub2');
+    assert2.path(testDir + '/sub2/sub3');
+    assert2.path(testDir + '/sub1/f1.txt');
+    assert2.path(testDir + '/sub2/f2.txt');
+    assert2.path(testDir + '/sub2/sub3/f3.txt');
+    fs2.removeDir(testDir + '/sub2/f2.txt', function (err) {
       assert.ifError(err);
-      assert2.path(testdir + '/sub1');
-      assert2.path(testdir + '/sub2');
-      assert2.path(testdir + '/sub2/sub3');
-      assert2.path(testdir + '/sub1/f1.txt');
-      assert2.path(testdir + '/sub2/f2.txt', false);
-      assert2.path(testdir + '/sub2/sub3/f3.txt');
+      assert2.path(testDir + '/sub1');
+      assert2.path(testDir + '/sub2');
+      assert2.path(testDir + '/sub2/sub3');
+      assert2.path(testDir + '/sub1/f1.txt');
+      assert2.path(testDir + '/sub2/f2.txt', false);
+      assert2.path(testDir + '/sub2/sub3/f3.txt');
       done();
     })
   });
   it('should work for one dir', function (done) {
-    assert2.path(testdir + '/sub1');
-    assert2.path(testdir + '/sub2');
-    assert2.path(testdir + '/sub2/sub3');
-    assert2.path(testdir + '/sub1/f1.txt');
-    assert2.path(testdir + '/sub2/f2.txt');
-    assert2.path(testdir + '/sub2/sub3/f3.txt');
-    fs2.removeDir(testdir + '/sub1', function (err) {
+    assert2.path(testDir + '/sub1');
+    assert2.path(testDir + '/sub2');
+    assert2.path(testDir + '/sub2/sub3');
+    assert2.path(testDir + '/sub1/f1.txt');
+    assert2.path(testDir + '/sub2/f2.txt');
+    assert2.path(testDir + '/sub2/sub3/f3.txt');
+    fs2.removeDir(testDir + '/sub1', function (err) {
       assert.ifError(err);
-      assert2.path(testdir + '/sub1', false);
-      assert2.path(testdir + '/sub2');
-      assert2.path(testdir + '/sub2/sub3');
-      assert2.path(testdir + '/sub1/f1.txt', false);
-      assert2.path(testdir + '/sub2/f2.txt');
-      assert2.path(testdir + '/sub2/sub3/f3.txt');
+      assert2.path(testDir + '/sub1', false);
+      assert2.path(testDir + '/sub2');
+      assert2.path(testDir + '/sub2/sub3');
+      assert2.path(testDir + '/sub1/f1.txt', false);
+      assert2.path(testDir + '/sub2/f2.txt');
+      assert2.path(testDir + '/sub2/sub3/f3.txt');
       done();
     })
   });
   it('should work recursively', function (done) {
-    assert2.path(testdir + '/sub1');
-    assert2.path(testdir + '/sub2');
-    assert2.path(testdir + '/sub2/sub3');
-    assert2.path(testdir + '/sub1/f1.txt');
-    assert2.path(testdir + '/sub2/f2.txt');
-    assert2.path(testdir + '/sub2/sub3/f3.txt');
-    fs2.removeDir(testdir + '/sub2', function (err) {
+    assert2.path(testDir + '/sub1');
+    assert2.path(testDir + '/sub2');
+    assert2.path(testDir + '/sub2/sub3');
+    assert2.path(testDir + '/sub1/f1.txt');
+    assert2.path(testDir + '/sub2/f2.txt');
+    assert2.path(testDir + '/sub2/sub3/f3.txt');
+    fs2.removeDir(testDir + '/sub2', function (err) {
       assert.ifError(err);
-      assert2.path(testdir + '/sub1');
-      assert2.path(testdir + '/sub2', false);
-      assert2.path(testdir + '/sub2/sub3', false);
-      assert2.path(testdir + '/sub1/f1.txt');
-      assert2.path(testdir + '/sub2/f2.txt', false);
-      assert2.path(testdir + '/sub2/sub3/f3.txt', false);
+      assert2.path(testDir + '/sub1');
+      assert2.path(testDir + '/sub2', false);
+      assert2.path(testDir + '/sub2/sub3', false);
+      assert2.path(testDir + '/sub1/f1.txt');
+      assert2.path(testDir + '/sub2/f2.txt', false);
+      assert2.path(testDir + '/sub2/sub3/f3.txt', false);
       done();
     })
   });
 });
 
-describe('emtpyDir', function () {
+describe('emptyDir', function () {
   before(function (done) {
-    fs.mkdir(testdir + '/sub1', 0o755, function (err) {
-      fs.mkdir(testdir + '/sub2', 0o755, function (err) {
-        fs.mkdir(testdir + '/sub2/sub3', 0o755, function (err) {
-          fs.writeFileSync(testdir + '/sub1/f1.txt', 'abc');
-          fs.writeFileSync(testdir + '/sub2/f2.txt', 'abc');
-          fs.writeFileSync(testdir + '/sub2/sub3/f3.txt', 'abc');
+    fs.mkdir(testDir + '/sub1', 0o755, function (err) {
+      fs.mkdir(testDir + '/sub2', 0o755, function (err) {
+        fs.mkdir(testDir + '/sub2/sub3', 0o755, function (err) {
+          fs.writeFileSync(testDir + '/sub1/f1.txt', 'abc');
+          fs.writeFileSync(testDir + '/sub2/f2.txt', 'abc');
+          fs.writeFileSync(testDir + '/sub2/sub3/f3.txt', 'abc');
           done();
         });
       });
     });
   });
   it('should succeed', function (done) {
-    fs2.emptyDir(testdir, function (err) {
+    fs2.emptyDir(testDir, function (err) {
       assert.ifError(err);
-      fs.readdir(testdir, function (err, files) {
+      fs.readdir(testDir, function (err, files) {
         if (err) return done(err);
         assert2.e(files.length, 0);
         done();
@@ -112,23 +111,23 @@ describe('emtpyDir', function () {
 
 describe('makeDir', function () {
   before(function (done) {
-    fs2.emptyDir(testdir, done);
+    fs2.emptyDir(testDir, done);
   });
   it('should succeed for first dir', function (done) {
-    assert2.path(testdir + '/sub1', false);
-    fs2.makeDir(testdir + '/sub1', function (err, dir) {
+    assert2.path(testDir + '/sub1', false);
+    fs2.makeDir(testDir + '/sub1', function (err, dir) {
       assert.ifError(err);
-      assert2.e(dir, testdir + '/sub1');
+      assert2.e(dir, testDir + '/sub1');
       assert2.path(dir);
       done();
     });
   });
   it('should succeed for nested dirs', function (done) {
-    assert2.path(testdir + '/sub1');
-    assert2.path(testdir + '/sub1/sub2/sub3', false);
-    fs2.makeDir(testdir + '/sub1/sub2/sub3', function (err, dir) {
+    assert2.path(testDir + '/sub1');
+    assert2.path(testDir + '/sub1/sub2/sub3', false);
+    fs2.makeDir(testDir + '/sub1/sub2/sub3', function (err, dir) {
       assert.ifError(err);
-      assert2.e(dir, testdir + '/sub1/sub2/sub3');
+      assert2.e(dir, testDir + '/sub1/sub2/sub3');
       assert2.path(dir);
       done();
     });
@@ -137,23 +136,23 @@ describe('makeDir', function () {
 
 describe('safeFilename', function () {
   it('should succeed', function () {
-    var table = [
-      [ '`', '`' ], [ '~', '~' ],
-      [ '!', '!' ], [ '@', '@' ], [ '#', '#' ], [ '$', '$' ], [ '%', '%' ],
-      [ '^', '^' ], [ '&', '&' ], [ '*', '_' ], [ '(', '(' ], [ ')', ')' ],
-      [ '-', '-' ], [ '_', '_' ], [ '=', '=' ], [ '+', '+' ],
-      [ '[', '[' ], [ '[', '[' ], [ ']', ']' ], [ ']', ']' ], [ '\\', '_' ], [ '|', '_' ],
-      [ ';', ';' ], [ ':', '_' ], [ "'", "'" ], [ '"', '_' ],
-      [ ',', ',' ], [ '<', '_' ], [ '.', '.' ], [ '>', '_' ], [ '/', '_' ], [ '?', '_' ],
-      [ 'aaa\tbbb', 'aaa_bbb' ],
-      [ 'abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890', 'abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890' ],
-      [ "이상한 '한글' 이름을 가진 파일", "이상한 '한글' 이름을 가진 파일" ]
+    const table = [
+      ['`', '`'], ['~', '~'],
+      ['!', '!'], ['@', '@'], ['#', '#'], ['$', '$'], ['%', '%'],
+      ['^', '^'], ['&', '&'], ['*', '_'], ['(', '('], [')', ')'],
+      ['-', '-'], ['_', '_'], ['=', '='], ['+', '+'],
+      ['[', '['], ['[', '['], [']', ']'], [']', ']'], ['\\', '_'], ['|', '_'],
+      [';', ';'], [':', '_'], ["'", "'"], ['"', '_'],
+      [',', ','], ['<', '_'], ['.', '.'], ['>', '_'], ['/', '_'], ['?', '_'],
+      ['aaa\tbbb', 'aaa_bbb'],
+      ['abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890', 'abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890'],
+      ["이상한 '한글' 이름을 가진 파일", "이상한 '한글' 이름을 가진 파일"]
     ];
     table.forEach(function (pair) {
-      var a = fs2.safeFilename(pair[0]);
-      var b = pair[1];
+      const a = fs2.safeFilename(pair[0]);
+      const b = pair[1];
       if (a !== b) console.log(pair);
-      assert2.e((a == b), true);
+      assert2.e((a === b), true);
     })
   });
 });
@@ -173,10 +172,10 @@ describe('makeDeepPath', function () {
 
 describe('copy', function () {
   before(function (done) {
-    fs2.emptyDir(testdir, done);
+    fs2.emptyDir(testDir, done);
   });
   it('should succeed', function (done) {
-    var t = testdir + '/fs2-dummy-copy.txt';
+    const t = testDir + '/fs2-dummy-copy.txt';
     assert2.path(t, false);
     fs2.copy('code/base/fs2-dummy.txt', t, function (err) {
       assert.ifError(err);
@@ -186,7 +185,7 @@ describe('copy', function () {
     });
   });
   it('should fail when source not exist', function (done) {
-    var t = testdir + '/fs2-not-exist-copy.txt';
+    const t = testDir + '/fs2-not-exist-copy.txt';
     assert2.path(t, false);
     fs2.copy('code/base/fs2-not-exist.txt', t, function (err) {
       assert(err !== null);

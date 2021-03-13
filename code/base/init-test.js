@@ -1,12 +1,11 @@
-'use strict';
 
-const init = require('../base/init');
-const assert = require('assert');
-const assert2 = require('../base/assert2');
+import * as init from "../base/init.js";
+import assert from "assert";
+import * as assert2 from "../base/assert2.js";
 
 describe('init', () => {
   it('should succeed with 3 adds', (done) => {
-    var a = [];
+    let a = [];
     init.reset();
     init.add((done) => {
       a.push(1);
@@ -41,7 +40,7 @@ describe('init', () => {
     done();
   });
   it('should pass an error', (done) => {
-    var a = [];
+    let a = [];
     init.reset();
     init.add(
       (done) => {

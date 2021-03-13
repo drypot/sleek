@@ -1,36 +1,33 @@
-'use strict';
 
-const date2 = exports;
-
-date2.today = function () {
-  var today = new Date();
+export function today() {
+  const today = new Date();
   today.setHours(0, 0, 0, 0);
   return today;
 }
 
-date2.dateFromString = function (s) {
-  var d = new Date(s);
+export function dateFromString(s) {
+  const d = new Date(s);
   d.setHours(0, 0, 0, 0);
   return d;
 }
 
 function pad(number) {
-  var r = String(number);
+  let r = String(number);
   if ( r.length === 1 ) {
     r = '0' + r;
   }
   return r;
 }
 
-date2.dateTimeString = function (d) {
+export function dateTimeString(d) {
   return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' +
     pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
-};
+}
 
-date2.dateString = function (d) {
+export function dateString(d) {
   return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
-};
+}
 
-date2.dateStringNoDash = function (d) {
+export function dateStringNoDash(d) {
   return d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate());
-};
+}

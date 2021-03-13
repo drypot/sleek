@@ -1,8 +1,7 @@
-'use strict';
 
-const async2 = require('../base/async2');
-const assert = require('assert');
-const assert2 = require('../base/assert2');
+import * as async2 from "../base/async2.js";
+import assert from "assert";
+import * as assert2 from "../base/assert2.js";
 
 describe('waterfall', () => {
   it('should succeed', (done) => {

@@ -1,7 +1,3 @@
-'use strict';
-
-const util = require('util');
-const init = exports;
 
 process.on('uncaughtException', function (err) {
   console.error(err.stack);
@@ -11,31 +7,31 @@ process.on('uncaughtException', function (err) {
 /*
   async 스타일 모듈 초기화 유틸리티.
   가능한 async 한 부분에만 사용하고
-  일반적인 정의들은 init.add 밖의 모듈 스코프에 두는 것이 부작용이 적다.
-  일반 펑션을 init.add 안에 두면 init.add 간 펑션 사용에 문제가 발생.
+  일반적인 정의들은 add 밖의 모듈 스코프에 두는 것이 부작용이 적다.
+  일반 펑션을 add 안에 두면 add 간 펑션 사용에 문제가 발생.
 */
 
-var funcs = [];
+let funcs = [];
 
-init.reset = function () {
+export function reset() {
   funcs = [];
 }
 
-init.add = function (..._funcs) {
+export function add(..._funcs) {
   funcs = funcs.concat(_funcs);
-};
+}
 
-init.run = function (done) {
-  var i = 0;
+export function run(done) {
+  let i = 0;
   (function run() {
-    if (i == funcs.length) {
+    if (i === funcs.length) {
       funcs = [];
-      if (done) 
+      if (done)
         return done();
-      else 
+      else
         return;
     }
-    var func = funcs[i++];
+    let func = funcs[i++];
     func(function (err) {
       if (err) {
         if (done) {
@@ -46,4 +42,4 @@ init.run = function (done) {
       setImmediate(run);
     });
   })();
-};
+}

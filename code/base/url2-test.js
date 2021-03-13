@@ -1,13 +1,12 @@
-'use strict';
 
-const url2 = require('../base/url2');
-const assert = require('assert');
-const assert2 = require('../base/assert2');
+import * as url2 from "../base/url2.js";
+import assert from "assert";
+import * as assert2 from "../base/assert2.js";
 
 describe('url', function () {
   it('should succeed', function () {
-    var params = { a: 10 };
-    var params2 = { a: 10, b: 'big'};
+    const params = {a: 10};
+    const params2 = {a: 10, b: 'big'};
     assert2.e(url2.url('http://localhost/test'), 'http://localhost/test');
     assert2.e(url2.url('http://localhost/test', params), 'http://localhost/test?a=10');
     assert2.e(url2.url('http://localhost/test', params2), 'http://localhost/test?a=10&b=big');

@@ -1,52 +1,59 @@
-'use strict';
 
-const assert2 = require('../base/assert2');
+import * as assert2 from "../base/assert2.js";
 
-var error = exports = module.exports = function (obj) {
-  var err;
-  if (Array.isArray(obj)) {
-    err = new Error(error.INVALID_FORM.message);
-    err.code = error.INVALID_FORM.code;
-    err.errors = obj;
-    return err;
-  }
-  var ec = error[obj];
-  if (!ec) {
-    err = new Error('unknown error');
-    for (var p in obj) {
-      err[p] = obj[p];
-    }
-    return err;
-  }
-  if (ec.field) {
-    err = new Error(error.INVALID_FORM.message);
-    err.code = error.INVALID_FORM.code;
-    err.errors = [ec];
-    return err;
-  }
-  err = new Error(ec.message);
-  err.code = ec.code;
-  return err;
-};
+const list = {};
 
-error.define = function (code, msg, field) {
-  assert2.e(error[code], undefined);
-  var ec = error[code] = {
+export function define(code, msg, field) {
+  assert2.e(list[code], undefined);
+  const ec = list[code] = {
     code: code,
     message: msg
   };
   if (field) {
     ec.field = field;
   }
-};
+}
 
-error.define('INVALID_DATA', '비정상적인 값이 입력되었습니다.');
-error.define('INVALID_FORM', '*');
+export function get(code) {
+  return list[code];
+}
 
-error.find = function (act, code) {
-  if (act.code === error.INVALID_FORM.code) {
-    for (var i = 0; i < act.errors.length; i++) {
-      var e = act.errors[i];
+define('INVALID_DATA', '비정상적인 값이 입력되었습니다.');
+define('INVALID_FORM', '*');
+
+const INVALID_FORM = get('INVALID_FORM');
+
+export function from(obj) {
+  let err;
+  if (Array.isArray(obj)) {
+    err = new Error(INVALID_FORM.message);
+    err.code = INVALID_FORM.code;
+    err.errors = obj;
+    return err;
+  }
+  const ec = get(obj);
+  if (!ec) {
+    err = new Error('unknown error');
+    for (let p in obj) {
+      err[p] = obj[p];
+    }
+    return err;
+  }
+  if (ec.field) {
+    err = new Error(INVALID_FORM.message);
+    err.code = INVALID_FORM.code;
+    err.errors = [ec];
+    return err;
+  }
+  err = new Error(ec.message);
+  err.code = ec.code;
+  return err;
+}
+
+export function find(act, code) {
+  if (act.code === INVALID_FORM.code) {
+    for (let i = 0; i < act.errors.length; i++) {
+      const e = act.errors[i];
       if (e.code === code) {
         return true;
       }
@@ -57,4 +64,4 @@ error.find = function (act, code) {
     }
   }
   return false;
-};
+}

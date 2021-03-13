@@ -1,10 +1,8 @@
-'use strict';
 
-const fs = require('fs');
-const path = require('path');
-const fs2 = exports;
+import fs from "fs";
+import path from "path";
 
-fs2.removeDir = function removeDir(p, done) {
+export function removeDir(p, done) {
   fs.stat(p, function (err, stat) {
     if (err) return done(err);
     if(stat.isFile()) {
@@ -16,15 +14,15 @@ fs2.removeDir = function removeDir(p, done) {
     if(stat.isDirectory()) {
       fs.readdir(p, function (err, fnames) {
         if (err) return done(err);
-        var i = 0;
+        let i = 0;
         function unlink() {
-          if (i == fnames.length) {
+          if (i === fnames.length) {
             return fs.rmdir(p, function (err) {
               if (err && err.code !== 'ENOENT') return done(err);
               done();
             });
           }
-          var fname = fnames[i++];
+          let fname = fnames[i++];
           removeDir(p + '/' + fname, function (err) {
             if (err) return done(err);
             setImmediate(unlink);
@@ -36,16 +34,16 @@ fs2.removeDir = function removeDir(p, done) {
   });
 };
 
-fs2.emptyDir = function (p, done) {
+export function emptyDir(p, done) {
   fs.readdir(p, function (err, fnames) {
     if (err) return done(err);
-    var i = 0;
+    let i = 0;
     function unlink() {
-      if (i == fnames.length) {
+      if (i === fnames.length) {
         return done();
       }
-      var fname = fnames[i++];
-      fs2.removeDir(p + '/' + fname, function (err) {
+      let fname = fnames[i++];
+      removeDir(p + '/' + fname, function (err) {
         setImmediate(unlink);
       });
     }
@@ -53,12 +51,12 @@ fs2.emptyDir = function (p, done) {
   });
 };
 
-fs2.makeDir = function (p, done) {
+export function makeDir(p, done) {
   fs.mkdir(p, 0o755, function(err) {
     if (err && err.code === 'ENOENT') {
-      fs2.makeDir(path.dirname(p), function (err) {
+      makeDir(path.dirname(p), function (err) {
         if (err) return done(err);
-        fs2.makeDir(p, done);
+        makeDir(p, done);
       });
     } else if (err && err.code !== 'EEXIST') {
       done(err);
@@ -68,13 +66,13 @@ fs2.makeDir = function (p, done) {
   });
 };
 
-fs2.safeFilename = function (name) {
-  var i = 0;
-  var len = name.length;
-  var safe = '';
+export function safeFilename(name) {
+  let i = 0;
+  const len = name.length;
+  let safe = '';
   for (; i < len; i++) {
-    var ch = name.charAt(i);
-    var code = name.charCodeAt(i);
+    const ch = name.charAt(i);
+    const code = name.charCodeAt(i);
     if ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9') || '`~!@#$%^&()-_+=[{]};\',. '.indexOf(ch) >= 0)
       safe += ch;
     else if (code < 128)
@@ -85,8 +83,8 @@ fs2.safeFilename = function (name) {
   return safe;
 };
 
-fs2.makeDeepPath = function (id, iter) {
-  var path = '';
+export function makeDeepPath(id, iter) {
+  let path = '';
   for (iter--; iter > 0; iter--) {
     path = '/' + id % 1000 + path;
     id = Math.floor(id / 1000);
@@ -94,9 +92,9 @@ fs2.makeDeepPath = function (id, iter) {
   return id + path;
 };
 
-fs2.copy = function (src, tar, done) {
-  var r = fs.createReadStream(src);
-  var w = fs.createWriteStream(tar);
+export function copy(src, tar, done) {
+  const r = fs.createReadStream(src);
+  const w = fs.createWriteStream(tar);
   r.on('error', function (err) {
     fs.unlinkSync(tar);
     done(err);
