@@ -1,4 +1,3 @@
-
 import * as init from "../base/init.js";
 import * as assert2 from "../base/assert2.js";
 

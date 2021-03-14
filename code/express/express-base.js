@@ -1,27 +1,41 @@
-'use strict';
+import express from "express";
+import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
+import redis from "redis";
+import session from "express-session";
+import connectRedis from "connect-redis";
+import * as config from "../base/config.js";
 
-const express = require('express');
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
-const redis = require('redis')
-const session = require('express-session');
-const redisStore = require('connect-redis')(session);
-const config = require('../base/config');
-const expb = exports;
+const redisStore = connectRedis(session);
 
-expb.core = express.Router();
+export const app = express();
+export const core = express.Router();
 
-expb.start = function () {
+let autoLogin = null;
+let logError = false;
+let redirectToLogin = null;
 
-  let app = expb.app = express();
+export function setAutoLogin(f) {
+  autoLogin = f;
+}
+
+export function setRedirectToLogin(f) {
+  redirectToLogin = f;
+}
+
+export function setLogError(b) {
+  logError = b;
+}
+
+export function start() {
 
   // Set Middlewares
 
   app.disable('x-powered-by');
   app.locals.pretty = true;
-  app.locals.appName = config.appName;
-  app.locals.appNamel = config.appNamel;
-  app.locals.appDesc = config.appDesc;
+  app.locals.appName = config.prop.appName;
+  app.locals.appNamel = config.prop.appNamel;
+  app.locals.appDesc = config.prop.appDesc;
 
   app.set('view engine', 'pug');
   app.set('views', 'code');
@@ -40,7 +54,7 @@ expb.start = function () {
     store: new redisStore({ client: redisClient }),
     resave: false,
     saveUninitialized: false,
-    secret: config.cookieSecret
+    secret: config.prop.cookieSecret
   }));
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
@@ -74,19 +88,19 @@ expb.start = function () {
     next();
   });
 
-  // expb.before: 인증 미들웨어용
-  // expb.after: redirect to login page 용
+  // before: 인증 미들웨어용
+  // after: redirect to login page 용
   // 테스트케이스에서 인스턴스가 기동한 후 핸들러를 추가하는 경우가 있어 core 를 도입.
 
-  if (expb.autoLogin) {
-    app.use(expb.autoLogin);
+  if (autoLogin) {
+    app.use(autoLogin);
   }
 
-  app.use(expb.core);
+  app.use(core);
 
   app.get('/api/hello', function (req, res, next) {
     res.json({
-      name: config.appName,
+      name: config.prop.appName,
       time: Date.now()
     });
   });
@@ -103,41 +117,41 @@ expb.start = function () {
   // for test
 
   app.get('/test/error-sample', function (req, res, next) {
-    var err = new Error('Error Sample');
+    const err = new Error('Error Sample');
     err.code = 999;
     next(err);
   });
 
   app.get('/api/error-sample', function (req, res, next) {
-    var err = new Error('Error Sample');
+    const err = new Error('Error Sample');
     err.code = 999;
     next(err);
   });
 
-  expb.core.post('/api/destroy-session', function (req, res, next) {
+  app.post('/api/destroy-session', function (req, res, next) {
     req.session.destroy();
     res.json({});
   });
 
-  expb.core.get('/api/cookies', function (req, res, next) {
+  app.get('/api/cookies', function (req, res, next) {
     res.json(req.cookies);
   });
 
   // error handler
 
-  if (expb.redirectToLogin) {
-    app.use(expb.redirectToLogin);
+  if (redirectToLogin) {
+    app.use(redirectToLogin);
   }
 
   app.use(function (_err, req, res, next) {
-    var err = {
+    const err = {
       message: _err.message,
       code: _err.code,
       errors: _err.errors,
     };
     //err.stack = ((_err.stack || '').match(/^(?:.*\n){1,8}/m) || [''])[0];
     err.stack = _err.stack;
-    if (expb.logError) {
+    if (logError) {
       console.error('Code: ' + err.code);
       console.error(err.stack);
     }
@@ -148,6 +162,6 @@ expb.start = function () {
     }
   });
 
-  expb.instance = app.listen(config.appPort);
-  console.log('express: listening ' + config.appPort);
+  app.listen(config.prop.appPort);
+  console.log('express: listening ' + config.prop.appPort);
 };

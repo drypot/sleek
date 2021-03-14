@@ -1,4 +1,3 @@
-
 import * as async2 from "../base/async2.js";
 import * as assert2 from "../base/assert2.js";
 

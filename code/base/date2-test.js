@@ -1,4 +1,3 @@
-
 import * as date2 from "../base/date2.js";
 import * as assert2 from "../base/assert2.js";
 

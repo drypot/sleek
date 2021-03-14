@@ -1,4 +1,3 @@
-
 import * as assert2 from "../base/assert2.js";
 
 const list = {};

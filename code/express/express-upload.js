@@ -1,35 +1,33 @@
-'use strict';
+import fs from "fs";
+import path from "path";
+import * as init from '../base/init.js';
+import * as config from '../base/config.js';
+import * as expb from '../express/express-base.js';
+import * as fs2 from "../base/fs2.js";
 
-const fs = require('fs');
-const path = require('path');
-const init = require('../base/init');
-const config = require('../base/config');
-const fs2 = require('../base/fs2');
 //const multiparty = require('multiparty');
 //const busboy = require('busboy');
-const multer  = require('multer');
-const expb = require('../express/express-base');
-const expu = exports;
+import multer from "multer";
 
-var tmpDir;
-var multerInst;
+let tmpDir;
+let multerInst;
 
 init.add((done) => {
-  console.log('upload: ' + config.uploadDir);
-  tmpDir = config.uploadDir + '/tmp';
+  console.log('upload: ' + config.prop.uploadDir);
+  tmpDir = config.prop.uploadDir + '/tmp';
   multerInst = multer({ dest: tmpDir });
   fs2.makeDir(tmpDir, function (err) {
     if (err) return done(err);
     fs2.emptyDir(tmpDir, done);
   });
 
-  if (config.dev) {
+  if (config.prop.dev) {
     expb.core.get('/test/upload', function (req, res) {
       res.render('express/express-upload');
     });
 
-    expb.core.all('/api/test/echo-upload', expu.handler(function (req, res, done) {
-      var paths = [];
+    expb.core.all('/api/test/echo-upload', handler(function (req, res, done) {
+      const paths = [];
       if (req.files) {
         Object.keys(req.files).forEach(function (field) {
           req.files[field].forEach(function (file) {
@@ -49,39 +47,40 @@ init.add((done) => {
   }
 });
 
-// req.files is undefined or 
+// req.files is undefined or
 //
-// { 
+// {
 //   f1: [ {   <-- input field name
 //     fieldName: 'f1',
 //     originalFilename: 'express-upload-f1.txt',
 //     path: 'upload/rapixel-test/tmp/L-QT_2veCOSuKmOjdsFu3ivR.txt',
 //      'content-disposition': 'form-data; name="f1"; filename="upload-f1.txt"',
-//      'content-type': 'text/plain' 
+//      'content-type': 'text/plain'
 //     size: 6,
-//     safeFilename: 'express-upload-f1.txt' 
+//     safeFilename: 'express-upload-f1.txt'
 //   }, {
 //     ...
 //   },
-//     ... 
-//   ] 
+//     ...
+//   ]
 // }
 
+/*
 function handlerForMultiParty(inner) {
   return function (req, res, done) {
     if (req._body) return inner(req, res, done);
-    var form = new multiparty.Form({ uploadDir: tmpDir });
-    var paths = [];
+    const form = new multiparty.Form({uploadDir: tmpDir});
+    const paths = [];
     form.parse(req, function(err, fields, files) {
       if (err) {
         res.writeHead(400, { 'content-type': 'text/plain' });
         res.end('invalid request: ' + err.message);
         return;
       }
-      var key, val;
+      let key, val;
       for (key in fields) {
         val = fields[key];
-        req.body[key] = val.length == 1 ? val[0] : val;
+        req.body[key] = val.length === 1 ? val[0] : val;
       }
       for (key in files) {
         files[key].forEach(function (file) {
@@ -95,18 +94,19 @@ function handlerForMultiParty(inner) {
             req.files[key].push(file);
           }
         });
-      }      
+      }
       inner(req, res, deleter);
     });
 
     function deleter(err) {
-      var i = 0;
+      const i = 0;
+
       function unlink() {
-        if (i == paths.length) {
+        if (i === paths.length) {
           if (err) done(err);
           return;
         }
-        var path = paths[i++];
+        const path = paths[i++];
         fs.unlink(path, function (err) {
           setImmediate(unlink);
         });
@@ -115,16 +115,17 @@ function handlerForMultiParty(inner) {
     }
   };
 }
+*/
 
 function handlerForMulter(inner) {
   return function (req, res, done) {
-    var paths = [];
+    const paths = [];
     multerInst.any()(req, res, function (err) {
       if (err) return done(err);
       if (!req.files) return inner(req, res, done);
-      var files = req.files;
+      const files = req.files;
       delete req.files;
-      for (let file of files) {        
+      for (let file of files) {
         paths.push(file.path);
         if (file.originalname.trim()) {
           // XHR 이 빈 파일 필드를 보낸다.
@@ -140,13 +141,14 @@ function handlerForMulter(inner) {
     });
 
     function deleter(err) {
-      var i = 0;
+      let i = 0;
+
       function unlink() {
-        if (i == paths.length) {
+        if (i === paths.length) {
           if (err) done(err);
           return;
         }
-        var path = paths[i++];
+        const path = paths[i++];
         fs.unlink(path, function (err) {
           setImmediate(unlink);
         });
@@ -156,4 +158,4 @@ function handlerForMulter(inner) {
   }
 }
 
-expu.handler = handlerForMulter;
+export const handler = handlerForMulter;

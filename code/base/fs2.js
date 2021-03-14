@@ -1,5 +1,4 @@
-
-import * as fs from "fs";
+import fs from "fs";
 import * as path from "path";
 
 export function removeDir(p, done) {
