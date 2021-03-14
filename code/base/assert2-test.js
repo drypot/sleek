@@ -1,4 +1,3 @@
-import assert from "assert";
 import * as assert2 from "../base/assert2.js";
 
 describe('aliases', function () {
@@ -16,7 +15,7 @@ describe('empty', function () {
     assert2.empty(undefined);
     assert2.empty(null);
     assert2.empty({});
-    assert.throws(function () {
+    assert2.throws(function () {
       assert2.empty({ a: 1 });
     });
     done();
@@ -26,7 +25,7 @@ describe('empty', function () {
 describe('notEmpty', function () {
   it('should succeed', function (done) {
     assert2.notEmpty({ a: 1 });
-    assert.throws(function () {
+    assert2.throws(function () {
       assert2.notEmpty({});
     });
     done();

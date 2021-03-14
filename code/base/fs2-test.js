@@ -1,7 +1,6 @@
 
-import fs from "fs";
+import * as fs from "fs";
 import * as fs2 from "../base/fs2.js";
-import assert from "assert";
 import * as assert2 from "../base/assert2.js";
 
 const testDir = 'tmp/fs-test';
@@ -36,7 +35,7 @@ describe('removeDir', function () {
     assert2.path(testDir + '/sub2/f2.txt');
     assert2.path(testDir + '/sub2/sub3/f3.txt');
     fs2.removeDir(testDir + '/sub2/f2.txt', function (err) {
-      assert.ifError(err);
+      assert2.ifError(err);
       assert2.path(testDir + '/sub1');
       assert2.path(testDir + '/sub2');
       assert2.path(testDir + '/sub2/sub3');
@@ -54,7 +53,7 @@ describe('removeDir', function () {
     assert2.path(testDir + '/sub2/f2.txt');
     assert2.path(testDir + '/sub2/sub3/f3.txt');
     fs2.removeDir(testDir + '/sub1', function (err) {
-      assert.ifError(err);
+      assert2.ifError(err);
       assert2.path(testDir + '/sub1', false);
       assert2.path(testDir + '/sub2');
       assert2.path(testDir + '/sub2/sub3');
@@ -72,7 +71,7 @@ describe('removeDir', function () {
     assert2.path(testDir + '/sub2/f2.txt');
     assert2.path(testDir + '/sub2/sub3/f3.txt');
     fs2.removeDir(testDir + '/sub2', function (err) {
-      assert.ifError(err);
+      assert2.ifError(err);
       assert2.path(testDir + '/sub1');
       assert2.path(testDir + '/sub2', false);
       assert2.path(testDir + '/sub2/sub3', false);
@@ -99,7 +98,7 @@ describe('emptyDir', function () {
   });
   it('should succeed', function (done) {
     fs2.emptyDir(testDir, function (err) {
-      assert.ifError(err);
+      assert2.ifError(err);
       fs.readdir(testDir, function (err, files) {
         if (err) return done(err);
         assert2.e(files.length, 0);
@@ -116,7 +115,7 @@ describe('makeDir', function () {
   it('should succeed for first dir', function (done) {
     assert2.path(testDir + '/sub1', false);
     fs2.makeDir(testDir + '/sub1', function (err, dir) {
-      assert.ifError(err);
+      assert2.ifError(err);
       assert2.e(dir, testDir + '/sub1');
       assert2.path(dir);
       done();
@@ -126,7 +125,7 @@ describe('makeDir', function () {
     assert2.path(testDir + '/sub1');
     assert2.path(testDir + '/sub1/sub2/sub3', false);
     fs2.makeDir(testDir + '/sub1/sub2/sub3', function (err, dir) {
-      assert.ifError(err);
+      assert2.ifError(err);
       assert2.e(dir, testDir + '/sub1/sub2/sub3');
       assert2.path(dir);
       done();
@@ -178,7 +177,7 @@ describe('copy', function () {
     const t = testDir + '/fs2-dummy-copy.txt';
     assert2.path(t, false);
     fs2.copy('code/base/fs2-dummy.txt', t, function (err) {
-      assert.ifError(err);
+      assert2.ifError(err);
       assert2.path(t);
       assert2.e(fs.readFileSync(t, 'utf8'), 'fs2 test dummy');
       done();
@@ -188,7 +187,7 @@ describe('copy', function () {
     const t = testDir + '/fs2-not-exist-copy.txt';
     assert2.path(t, false);
     fs2.copy('code/base/fs2-not-exist.txt', t, function (err) {
-      assert(err !== null);
+      assert2.ne(err, null);
       assert2.e(err.code, 'ENOENT');
       assert2.path(t, false);
       done();

@@ -1,5 +1,5 @@
 
-import fs from "fs";
+import * as fs from "fs";
 import minimist from "minimist";
 import * as init from "../base/init.js";
 

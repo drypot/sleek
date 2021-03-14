@@ -1,5 +1,7 @@
-import fs from "fs";
-import assert from "assert";
+import * as fs from "fs";
+import * as assert from "assert";
+
+export * from "assert";
 
 export const e = assert.strictEqual;
 export const ne = assert.notStrictEqual;

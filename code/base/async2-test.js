@@ -1,6 +1,5 @@
 
 import * as async2 from "../base/async2.js";
-import assert from "assert";
 import * as assert2 from "../base/assert2.js";
 
 describe('waterfall', () => {
@@ -16,7 +15,7 @@ describe('waterfall', () => {
         done(null);
       },
       (err) => {
-        assert.ifError(err);
+        assert2.ifError(err);
         assert2.e(i, 2);
         done();
       }
@@ -34,7 +33,7 @@ describe('waterfall', () => {
         done(null);
       },
       (err) => {
-        assert(err);
+        assert2.ok(err);
         assert2.e(i, 1);
         done();
       }
@@ -46,16 +45,16 @@ describe('waterfall', () => {
         done(null, 1, 2);
       },
       (p1, p2, done) => {
-        assert(p1 === 1);
-        assert(p2 === 2);
+        assert2.ok(p1 === 1);
+        assert2.ok(p2 === 2);
         done(null, p1, p2, 3, 4);
       },
       (err, p1, p2, p3, p4) => {
-        assert.ifError(err);
-        assert(p1 === 1);
-        assert(p2 === 2);
-        assert(p3 === 3);
-        assert(p4 === 4);
+        assert2.ifError(err);
+        assert2.ok(p1 === 1);
+        assert2.ok(p2 === 2);
+        assert2.ok(p3 === 3);
+        assert2.ok(p4 === 4);
         done();
       }
     );
@@ -66,12 +65,12 @@ describe('waterfall', () => {
         done(null, 1, 2);
       },
       (p1, p2, done) => {
-        assert(p1 === 1);
-        assert(p2 === 2);
+        assert2.ok(p1 === 1);
+        assert2.ok(p2 === 2);
         done("err");
       },
       (err, p1, p2, p3, p4) => {
-        assert(err);
+        assert2.ok(err);
         done();
       }
     );

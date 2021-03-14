@@ -1,6 +1,5 @@
 
 import * as init from "../base/init.js";
-import assert from "assert";
 import * as assert2 from "../base/assert2.js";
 
 describe('init', () => {
@@ -22,7 +21,7 @@ describe('init', () => {
       }
     );
     init.run((err) => {
-      assert.ifError(err);
+      assert2.ifError(err);
       assert2.e(a.length, 3);
       assert2.e(a[0], 1);
       assert2.e(a[1], 2);
@@ -56,7 +55,7 @@ describe('init', () => {
       }
     );
     init.run((err) => {
-      assert(err);
+      assert2.ne(err, null);
       assert2.e(a.length, 1);
       assert2.e(a[0], 1);
       done();

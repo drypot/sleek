@@ -1,5 +1,4 @@
 
-import assert from "assert";
 import * as assert2 from "../base/assert2.js";
 import * as init from "../base/init.js";
 import * as error from "../base/error.js";
@@ -15,7 +14,7 @@ before(function () {
 
 describe('defining duplicated', function () {
   it('should fail', function (done) {
-    assert.throws(function() {
+    assert2.throws(function() {
       error.define('NAME_DUPE', '이미 등록되어 있는 이름입니다.', 'name');
     });
     done();
@@ -65,14 +64,14 @@ describe('error.from(unknown)', function () {
 describe('error.find', function () {
   it('should succeed', function () {
     const err = error.from('INVALID_DATA');
-    assert(error.find(err, 'INVALID_DATA'));
-    assert(!error.find(err, 'INVALID_FORM'));
-    assert(!error.find(err, 'NAME_DUPE'));
+    assert2.ok(error.find(err, 'INVALID_DATA'));
+    assert2.ok(!error.find(err, 'INVALID_FORM'));
+    assert2.ok(!error.find(err, 'NAME_DUPE'));
   });
   it('form error should succeed', function () {
     const err = error.from('NAME_DUPE');
-    assert(!error.find(err, 'INVALID_DATA'));
-    assert(!error.find(err, 'INVALID_FORM'));
-    assert(error.find(err, 'NAME_DUPE'));
+    assert2.ok(!error.find(err, 'INVALID_DATA'));
+    assert2.ok(!error.find(err, 'INVALID_FORM'));
+    assert2.ok(error.find(err, 'NAME_DUPE'));
   });
 });

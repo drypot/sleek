@@ -1,5 +1,4 @@
 import * as array2 from "./array2.js";
-import assert from "assert";
 import * as assert2 from "./assert2.js";
 
 describe('find', function () {

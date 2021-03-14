@@ -1,6 +1,5 @@
 
 import * as date2 from "../base/date2.js";
-import assert from "assert";
 import * as assert2 from "../base/assert2.js";
 
 describe('today', function () {
