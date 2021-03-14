@@ -1,29 +1,27 @@
-'use strict';
+import crypto from "crypto";
+import bcrypt from "bcryptjs";
 
-const crypto = require('crypto');
-const bcrypt = require('bcryptjs');
-
-var funcs = {
+const funcs = {
   sha256: function (s) {
-    var buf = Buffer.from(s, 'ucs2');
-    var hash = crypto.createHash('sha256');
+    const buf = Buffer.from(s, 'ucs2');
+    const hash = crypto.createHash('sha256');
     hash.update(buf);
-    var d = hash.digest('base64');
+    const d = hash.digest('base64');
     console.log(d);
   },
   bcrypt: function (s) {
-    var salt = bcrypt.genSaltSync(10);
-    var hash = bcrypt.hashSync(s, salt);
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(s, salt);
     console.log(hash);
   }
-}
+};
 
-var func = funcs.bcrypt;
-var argv = process.argv;
+let func = funcs.bcrypt;
+const argv = process.argv;
 
 if (argv.length === 2) {
   console.log('make-hash [-sha256|-bcrypt] ...');
-  return;
+  process.exit(0);
 }
 
 argv.forEach(function (s, index) {
