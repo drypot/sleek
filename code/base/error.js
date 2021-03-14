@@ -4,13 +4,14 @@ const list = {};
 
 export function define(code, msg, field) {
   assert2.e(list[code], undefined);
-  const ec = list[code] = {
+  const err = {
     code: code,
     message: msg
   };
   if (field) {
-    ec.field = field;
+    err.field = field;
   }
+  list[code] = err;
 }
 
 export function get(code) {

@@ -1,13 +1,9 @@
-'use strict';
-
-const crypto = require('crypto');
-const bcrypt = require('bcryptjs');
-
-const init = require('../base/init');
-const error = require('../base/error');
-const config = require('../base/config');
-const expb = require('../express/express-base');
-const userb = exports;
+import crypto from "crypto";
+import bcrypt from "bcryptjs";
+import * as init from '../base/init.js';
+import * as error from '../base/error.js';
+import * as config from '../base/config.js';
+import * as expb from '../express/express-base.js';
 
 error.define('NOT_AUTHENTICATED', '먼저 로그인해 주십시오.');
 error.define('NOT_AUTHORIZED', '사용 권한이 없습니다.');
@@ -16,74 +12,74 @@ error.define('PASSWORD_WRONG', '비밀번호가 틀렸습니다.', 'password');
 
 // users table
 
-var users = userb.users = {};
+export const users = {};
 
 init.add((done) => {
-  config.users.forEach(function (user) {
+  config.prop.users.forEach(function (user) {
     user.admin = !!user.admin;
     users[user.name] = user;
   });
-  done()
+  done();
 });
 
 function findByPassword(password) {
-  for (var name in users) {
-    var user = users[name];
+  for (let name in users) {
+    let user = users[name];
     if (bcrypt.compareSync(password, user.hash)) {
       return user;
     }
   }
-  for (var name in users) {
-    var user = users[name];
-    var buf = Buffer.from(password, 'ucs2');
-    var hash = crypto.createHash('sha256');
+  for (let name in users) {
+    let user = users[name];
+    const buf = Buffer.from(password, 'ucs2');
+    const hash = crypto.createHash('sha256');
     hash.update(buf);
-    if (hash.digest('base64') == user.hash) {
+    if (hash.digest('base64') === user.hash) {
       return user;
     }
   }
   return null;
-};
+}
 
 // authentication
 
-userb.checkUser = function (res, done) {
-  var user = res.locals.user;
+export function checkUser(res, done) {
+  const user = res.locals.user;
   if (!user) {
-    return done(error('NOT_AUTHENTICATED'));
+    return done(error.from('NOT_AUTHENTICATED'));
   }
   done(null, user);
-};
+}
 
-userb.checkAdmin = function (res, done) {
-  var user = res.locals.user;
+export function checkAdmin(res, done) {
+  const user = res.locals.user;
   if (!user) {
-    return done(error('NOT_AUTHENTICATED'));
+    return done(error.from('NOT_AUTHENTICATED'));
   }
   if (!user.admin) {
-    return done(error('NOT_AUTHORIZED'));
+    return done(error.from('NOT_AUTHORIZED'));
   }
   done(null, user);
-};
+}
 
 // login
 
-expb.redirectToLogin = function (err, req, res, done) {
-  if (!res.locals.api && err.code == error.NOT_AUTHENTICATED.code) {
+expb.setRedirectToLogin(function (err, req, res, done) {
+  if (!res.locals.api && err.code === error.get('NOT_AUTHENTICATED').code) {
     res.redirect('/users/login');
   } else {
     done(err);
   }
-};
+});
 
 expb.core.get('/users/login', function (req, res, done) {
   res.render('user/user-base-login');
 });
 
 expb.core.post('/api/users/login', function (req, res, done) {
-  var user = findByPassword(req.body.password || '');
+  const user = findByPassword(req.body.password || '');
   if (!user) {
-    return done(error('PASSWORD_WRONG'));
+    return done(error.from('PASSWORD_WRONG'));
   }
   if (req.body.remember) {
     res.cookie('password', req.body.password, {
@@ -104,22 +100,22 @@ expb.core.post('/api/users/login', function (req, res, done) {
   });
 });
 
-expb.autoLogin = function (req, res, done) {
+expb.setAutoLogin(function (req, res, done) {
   if (req.session.uname) {
     res.locals.user = users[req.session.uname];
     return done();
   }
-  var password = req.cookies.password;
+  const password = req.cookies.password;
   if (!password) {
     return done();
   }
-  var user = findByPassword(password);
+  const user = findByPassword(password);
   if (!user) {
     res.clearCookie('password');
     return done();
   }
   createSession(req, res, user, done);
-};
+});
 
 function createSession(req, res, user, done) {
   req.session.regenerate(function (err) {
@@ -133,7 +129,7 @@ function createSession(req, res, user, done) {
 
 // used for login test.
 expb.core.get('/api/users/login', function (req, res, done) {
-  userb.checkUser(res, function (err, user) {
+  checkUser(res, function (err, user) {
     if (err) return done(err);
     res.json({
       user: {
