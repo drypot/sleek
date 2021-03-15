@@ -1,19 +1,18 @@
-'use strict';
+import * as assert2 from "../base/assert2.js";
+import * as init from '../base/init.js';
+import * as config from '../base/config.js';
+import * as expb from '../express/express-base.js';
+import * as db from '../db/db.js';
 
-const init = require('../base/init');
-const config = require('../base/config');
-const expb = require('../express/express-base');
-const mysql2 = require('../mysql/mysql2');
-
-require('../user/user-base');
-require('../post/post-list');
-require('../post/post-view');
-require('../post/post-new');
-require('../post/post-update');
-require('../post/post-search');
+import "../post/post-search";
+import "../post/post-update";
+import "../post/post-new";
+import "../post/post-view";
+import "../post/post-list";
+import "../user/user-base";
 
 process.on('SIGINT', function() {
-  mysql2.close(function(err) {
+  db.close(function(err) {
     console.log("SIGINT caught");
     process.exit(err ? 1 : 0);
   });

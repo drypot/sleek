@@ -1,12 +1,10 @@
-'use strict';
-
-const init = require('../base/init');
-const error = require('../base/error');
-const config = require('../base/config');
-const fs2 = require('../base/fs2');
-const mysql2 = require('../mysql/mysql2');
-const userb = require('../user/user-base');
-const postb = exports;
+import * as assert2 from "../base/assert2.js";
+import * as init from '../base/init.js';
+import * as error from '../base/error.js';
+import * as config from '../base/config.js';
+import * as fs2 from "../base/fs2.js";
+import * as db from '../db/db.js';
+import * as userb from "../user/user-base.js";
 
 error.define('INVALID_CATEGORY', '정상적인 카테고리가 아닙니다.');
 error.define('INVALID_THREAD', '정상적인 글줄이 아닙니다.');
@@ -17,12 +15,12 @@ error.define('TITLE_TOO_LONG', '제목을 줄여 주십시오.', 'title');
 error.define('WRITER_EMPTY', '필명을 입력해 주십시오.', 'writer');
 error.define('WRITER_TOO_LONG', '필명을 줄여 주십시오.', 'writer');
 
-var threadId;
-var postId;
+let threadId;
+let postId;
 
 init.add(
   (done) => {
-    mysql2.query(`
+    db.query(`
       create table if not exists thread(
         id int not null,
         cid smallint not null,
@@ -37,17 +35,17 @@ init.add(
     `, done);
   },
   (done) => {
-    mysql2.query(`
+    db.query(`
       create index thread_cid_udate on thread(cid, udate desc);
     `, () => { done(); });
   },
   (done) => {
-    mysql2.query(`
+    db.query(`
       create index thread_udate on thread(udate desc);
     `, () => { done(); });
   },
   (done) => {
-    mysql2.query(`
+    db.query(`
       create table if not exists post (
         id int not null,
         tid int not null,
@@ -61,12 +59,12 @@ init.add(
     `, done);
   },
   (done) => {
-    mysql2.query(`
+    db.query(`
       create index post_tid_cdate on post(tid, cdate)
     `, () => { done(); });
   },
   (done) => {
-    mysql2.query(`
+    db.query(`
       create table if not exists threadmerged (
         id int not null,
         cid smallint not null,
@@ -84,14 +82,14 @@ init.add(
     `, done);
   },
   (done) => {
-    mysql2.getMaxId('thread', (err, id) => {
+    db.getMaxId('thread', (err, id) => {
       if (err) return done(err);
       threadId = id;
       done();
     });
   },
   (done) => {
-    mysql2.getMaxId('post', (err, id) => {
+    db.getMaxId('post', (err, id) => {
       if (err) return done(err);
       postId = id;
       done();
@@ -99,58 +97,63 @@ init.add(
   }
 );
 
-postb.getNewThreadId = function () {
+export function getNewThreadId() {
   return ++threadId;
-};
+}
 
-postb.getNewPostId = function () {
+export function getNewPostId() {
   return ++postId;
-};
+}
 
-postb.packPost= function (post) {
+export function packPost(post) {
   post.files = JSON.stringify(post.files || null);
-};
+}
 
-postb.unpackPost= function (post) {
+export function unpackPost(post) {
   post.files = JSON.parse(post.files);
   post.visible = !!post.visible;
-};
+}
 
 // files
 
+let uploadDir;
+
+export function emptyDir(done) {
+  if (config.prop.dev) {
+    fs2.emptyDir(uploadDir, done);
+  } else {
+    done();
+  }
+}
+
+export function getFileDir(id) {
+  return uploadDir + '/' + Math.floor(id / 10000) + '/' + id;
+}
+
+export function getFilePath(id, fname) {
+  return getFileDir(id) + '/' + fname;
+}
+
+export function getFileUrl(id, fname) {
+  return config.prop.uploadSite + '/post/' + Math.floor(id / 10000) + '/' + id + '/' + encodeURIComponent(fname);
+}
+
 init.add((done) => {
-  fs2.makeDir(config.uploadDir + '/public/post', function (err, dir) {
+  fs2.makeDir(config.prop.uploadDir + '/public/post', function (err, dir) {
     if (err) return done(err);
-
-    if (config.dev) {
-      postb.emptyDir = function (done) {
-        fs2.emptyDir(dir, done);
-      }
-    }
-
-    postb.getFileDir = function (id) {
-      return dir + '/' + Math.floor(id / 10000) + '/' + id;
-    };
-
-    postb.getFilePath = function (id, fname) {
-      return postb.getFileDir(id) + '/' + fname;
-    };
+    uploadDir = dir;
     done();
   });
 });
 
-var getFileUrl = postb.getFileUrl = function (id, fname) {
-  return config.uploadSite + '/post/' + Math.floor(id / 10000) + '/' + id + '/' + encodeURIComponent(fname);
-};
-
 // category
 
 init.add((done) => {
-  for (var name in userb.users) {
-    var user = userb.users[name];
+  for (let name in userb.users) {
+    const user = userb.users[name];
     user.categories = []; // Array 와 Object 는 용도별로 확실히 구분해 쓴다.
     user.categoryIndex = {};
-    config.categories.forEach(function (category) {
+    config.prop.categories.forEach(function (category) {
       if (user.admin || ~category.users.indexOf(user.name)) {
         user.categories.push(category);
         user.categoryIndex[category.id] = category;
@@ -160,10 +163,10 @@ init.add((done) => {
   done();
 });
 
-postb.checkCategory = function (user, cid, done) {
-  var category = user.categoryIndex[cid];
+export function checkCategory(user, cid, done) {
+  const category = user.categoryIndex[cid];
   if (!category) {
-    done(error('INVALID_CATEGORY'));
+    done(error.newError('INVALID_CATEGORY'));
   } else {
     done(null, category);
   }
@@ -171,18 +174,18 @@ postb.checkCategory = function (user, cid, done) {
 
 // support
 
-postb.isHead = function(thread, post) {
+export function isHead(thread, post) {
   return thread.cdate.getTime() === post.cdate.getTime();
-};
+}
 
-postb.isEditable = function (user, pid, pids) {
+export function isEditable(user, pid, pids) {
   return user.admin || !!(pids && ~pids.indexOf(pid));
 }
 
-postb.addFilesUrl = function (post) {
+export function addFilesUrl(post) {
   if (post.files) {
-    for (var i = 0; i < post.files.length; i++) {
-      var file = post.files[i];
+    for (let i = 0; i < post.files.length; i++) {
+      const file = post.files[i];
       file.url = getFileUrl(post.id, file.name);
     }
   }

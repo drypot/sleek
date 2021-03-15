@@ -23,7 +23,7 @@ block content
                 | #{thread.title}
                 if thread.length > 1
                   | &nbsp;&nbsp;[!{thread.length - 1}]
-            if category.id == 0
+            if category.id === 0
               td
                 a(href='/posts?c=' + thread.category.id) #{thread.category.name}
             td #{thread.writer}

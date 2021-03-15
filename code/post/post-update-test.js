@@ -1,21 +1,18 @@
-'use strict';
-
-const init = require('../base/init');
-const error = require('../base/error');
-const config = require('../base/config');
-const mysql2 = require('../mysql/mysql2');
-const expb = require('../express/express-base');
-const userb = require('../user/user-base');
-const userf = require('../user/user-fixture');
-const postb = require('../post/post-base');
-const postu = require('../post/post-update');
-const expl = require('../express/express-local');
-const assert = require('assert');
-const assert2 = require('../base/assert2');
+import * as assert2 from "../base/assert2.js";
+import * as init from '../base/init.js';
+import * as error from '../base/error.js';
+import * as config from '../base/config.js';
+import * as db from '../db/db.js';
+import * as expb from '../express/express-base.js';
+import * as expl from "../express/express-local.js";
+import * as userb from "../user/user-base.js";
+import * as userf from "../user/user-fixture.js";
+import * as postb from "../post/post-base.js";
+import * as postu from "../post/post-update.js";
 
 before(function (done) {
-  config.path = 'config/test.json';
-  mysql2.dropDatabase = true;
+  config.setPath('config/test.json');
+  db.setDropDatabase(true);
   init.run(done);
 });
 
@@ -31,8 +28,8 @@ describe('updating', function () {
   });
   it('should fail', function (done) {
     expl.put('/api/posts/0/0', function (err, res) {
-      assert.ifError(err);
-      assert(error.find(res.body.err, 'NOT_AUTHENTICATED'));
+      assert2.ifError(err);
+      assert2.ok(error.find(res.body.err, 'NOT_AUTHENTICATED'));
       done();
     });
   });
@@ -42,7 +39,7 @@ describe('updating', function () {
   it('given thread and posts', function (done) {
     var form = { cid: 100, writer: 'snowman', title: 'title', text: 'text' };
     expl.post('/api/posts').send(form).end(function (err, res) {
-      assert.ifError(err);
+      assert2.ifError(err);
       assert2.empty(res.body.err);
       tid = res.body.tid;
       pid = res.body.pid;
@@ -52,10 +49,10 @@ describe('updating', function () {
   it('updating head should success', function (done) {
     var form = { cid: 100, writer: 'snowman2', title: 'title2', text: 'text2' };
     expl.put('/api/posts/' + tid + '/' + pid).send(form).end(function (err, res) {
-      assert.ifError(err);
+      assert2.ifError(err);
       assert2.empty(res.body.err);
-      mysql2.queryOne('select * from thread where id = ?', tid, (err, thread) => {
-        assert.ifError(err);
+      db.queryOne('select * from thread where id = ?', tid, (err, thread) => {
+        assert2.ifError(err);
         assert2.e(thread.cid, 100);
         assert2.e(thread.hit, 0);
         assert2.e(thread.length, 1);
@@ -63,8 +60,8 @@ describe('updating', function () {
         assert2.ne(thread.udate, undefined);
         assert2.e(thread.writer, 'snowman2');
         assert2.e(thread.title, 'title2');
-        mysql2.queryOne('select * from post where id = ?', pid, (err, post) => {
-          assert.ifError(err);
+        db.queryOne('select * from post where id = ?', pid, (err, post) => {
+          assert2.ifError(err);
           postb.unpackPost(post);
           assert2.e(post.tid, tid);
           assert2.ne(post.cdate, undefined);
@@ -79,7 +76,7 @@ describe('updating', function () {
   it('given reply', function (done) {
     var form = { writer: 'snowman', text: 'text2' };
     expl.post('/api/posts/' + tid).send(form).end(function (err, res) {
-      assert.ifError(err);
+      assert2.ifError(err);
       assert2.empty(res.body.err);
       pid2 = res.body.pid;
       done();
@@ -88,10 +85,10 @@ describe('updating', function () {
   it('updating reply should success', function (done) {
     var form = { writer: 'snowman3', text: 'text3' };
     expl.put('/api/posts/' + tid + '/' + pid2).send(form).end(function (err, res) {
-      assert.ifError(err);
+      assert2.ifError(err);
       assert2.empty(res.body.err);
-      mysql2.queryOne('select * from thread where id = ?', tid, (err, thread) => {
-        assert.ifError(err);
+      db.queryOne('select * from thread where id = ?', tid, (err, thread) => {
+        assert2.ifError(err);
         assert2.e(thread.cid, 100);
         assert2.e(thread.hit, 0);
         assert2.e(thread.length, 2);
@@ -99,8 +96,8 @@ describe('updating', function () {
         assert2.ne(thread.udate, undefined);
         assert2.e(thread.writer, 'snowman2');
         assert2.e(thread.title, 'title2');
-        mysql2.queryOne('select * from post where id = ?', pid2, (err, post) => {
-          assert.ifError(err);
+        db.queryOne('select * from post where id = ?', pid2, (err, post) => {
+          assert2.ifError(err);
           postb.unpackPost(post);
           assert2.e(post.tid, tid);
           assert2.ne(post.cdate, undefined);
@@ -119,7 +116,7 @@ describe('updating', function () {
     var form = { writer: 'snowman', text: 'post with files' };
     expl.post('/api/posts/' + tid).fields(form)
       .attach('files', f1).attach('files', f2).attach('files', f3).end(function (err, res) {
-      assert.ifError(err);
+      assert2.ifError(err);
       assert2.empty(res.body.err);
       pid3 = res.body.pid;
       done();
@@ -131,10 +128,10 @@ describe('updating', function () {
     var form = { writer: 'snowman', text: 'post with files', dfiles: ['nofile.txt', 'express-upload-f2.txt'] };
     expl.put('/api/posts/' + tid + '/' + pid3).fields(form)
       .attach('files', f3).attach('files', f4).end(function (err, res) {
-      assert.ifError(err);
+      assert2.ifError(err);
       assert2.empty(res.body.err);
-      mysql2.queryOne('select * from post where id = ?', pid3, (err, post) => {
-        assert.ifError(err);
+      db.queryOne('select * from post where id = ?', pid3, (err, post) => {
+        assert2.ifError(err);
         postb.unpackPost(post);
         assert2.de(post.files, [
           { name : 'express-upload-f1.txt'},
@@ -152,10 +149,10 @@ describe('updating', function () {
   it('deleting one file should success', function (done) {
     var form = { writer: 'snowman', text: 'post with files', dfiles: 'express-upload-f3.txt' };
     expl.put('/api/posts/' + tid + '/' + pid3).fields(form).end(function (err, res) {
-      assert.ifError(err);
+      assert2.ifError(err);
       assert2.empty(res.body.err);
-      mysql2.queryOne('select * from post where id = ?', pid3, (err, post) => {
-        assert.ifError(err);
+      db.queryOne('select * from post where id = ?', pid3, (err, post) => {
+        assert2.ifError(err);
         postb.unpackPost(post);
         assert2.de(post.files, [
           { name : 'express-upload-f1.txt'},
@@ -171,10 +168,10 @@ describe('updating', function () {
   it('updating category should success', function (done) {
     var form = { cid: 102, writer: 'snowman', title: 'title', text: 'text' };
     expl.put('/api/posts/' + tid + '/' + pid).send(form).end(function (err, res) {
-      assert.ifError(err);
+      assert2.ifError(err);
       assert2.empty(res.body.err);
-      mysql2.queryOne('select * from thread where id = ?', tid, (err, thread) => {
-        assert.ifError(err);
+      db.queryOne('select * from thread where id = ?', tid, (err, thread) => {
+        assert2.ifError(err);
         assert2.e(thread.cid, 102);
         done();
       });
@@ -183,26 +180,26 @@ describe('updating', function () {
   it('emtpy title should fail', function (done) {
     var form = { cid: 100, writer: 'snowman', title: ' ', text: 'text'};
     expl.put('/api/posts/' + tid + '/' + pid).send(form).end(function (err, res) {
-      assert.ifError(err);
-      assert(error.find(res.body.err, 'TITLE_EMPTY'));
+      assert2.ifError(err);
+      assert2.ok(error.find(res.body.err, 'TITLE_EMPTY'));
       done();
     });
   });
   it('emtpy writer should fail', function (done) {
     var form = { cid: 100, writer: ' ', title: 'title', text: 'text'};
     expl.put('/api/posts/' + tid + '/' + pid).send(form).end(function (err, res) {
-      assert.ifError(err);
-      assert(error.find(res.body.err, 'WRITER_EMPTY'));
+      assert2.ifError(err);
+      assert2.ok(error.find(res.body.err, 'WRITER_EMPTY'));
       done();
     });
   });
   it('user can not change visible', function (done) {
     var form = { cid: 100, writer: 'snowman', title: 'title', text: 'text', visible: false };
     expl.put('/api/posts/' + tid + '/' + pid).send(form).end(function (err, res) {
-      assert.ifError(err);
+      assert2.ifError(err);
       assert2.empty(res.body.err);
-      mysql2.queryOne('select * from post where id = ?', pid, (err, post) => {
-        assert.ifError(err);
+      db.queryOne('select * from post where id = ?', pid, (err, post) => {
+        assert2.ifError(err);
         postb.unpackPost(post);
         assert2.e(post.visible, true);
         done();
@@ -215,10 +212,10 @@ describe('updating', function () {
   it('admin can change visible', function (done) {
     var form = { cid: 100, writer: 'snowman', title: 'title', text: 'text', visible: false };
     expl.put('/api/posts/' + tid + '/' + pid).send(form).end(function (err, res) {
-      assert.ifError(err);
+      assert2.ifError(err);
       assert2.empty(res.body.err);
-      mysql2.queryOne('select * from post where id = ?', pid, (err, post) => {
-        assert.ifError(err);
+      db.queryOne('select * from post where id = ?', pid, (err, post) => {
+        assert2.ifError(err);
         postb.unpackPost(post);
         assert2.e(post.visible, false);
         done();
@@ -232,8 +229,8 @@ describe('updating', function () {
   it('should fail', function (done) {
     var form = { cid: 100, writer: 'snowman', title: 'title', text: 'text' };
     expl.put('/api/posts/' + tid + '/' + pid).send(form).end(function (err, res) {
-      assert.ifError(err);
-      assert(error.find(res.body.err, 'NOT_AUTHORIZED'));
+      assert2.ifError(err);
+      assert2.ok(error.find(res.body.err, 'NOT_AUTHORIZED'));
       done();
     });
   });

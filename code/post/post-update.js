@@ -1,36 +1,34 @@
-'use strict';
-
-const fs = require('fs');
-const path = require('path');
-
-const init = require('../base/init');
-const error = require('../base/error');
-const config = require('../base/config');
-const fs2 = require('../base/fs2');
-const async2 = require('../base/async2');
-const date2 = require('../base/date2');
-const mysql2 = require('../mysql/mysql2');
-const expb = require('../express/express-base');
-const expu = require('../express/express-upload');
-const userb = require('../user/user-base');
-const postb = require('../post/post-base');
-const postn = require('../post/post-new');
-const postsr = require('./post-search');
+import fs from "fs";
+import path from "path";
+import * as assert2 from "../base/assert2.js";
+import * as init from '../base/init.js';
+import * as error from '../base/error.js';
+import * as config from '../base/config.js';
+import * as fs2 from "../base/fs2.js";
+import * as async2 from "../base/async2.js";
+import * as date2 from "../base/date2.js";
+import * as db from '../db/db.js';
+import * as expb from '../express/express-base.js';
+import * as expu from "../express/express-upload.js";
+import * as userb from "../user/user-base.js";
+import * as postb from "../post/post-base.js";
+import * as postn from "../post/post-new.js";
+import * as postsr from "../post/post-search.js";
 
 // api edit view 는 삭제. 앱용 서비스가 아니니 필요 없을 듯.
 
 expb.core.get('/posts/:tid([0-9]+)/:pid([0-9]+/edit)', function (req, res, done) {
   userb.checkUser(res, function (err, user) {
     if (err) return done(err);
-    var tid = parseInt(req.params.tid) || 0;
-    var pid = parseInt(req.params.pid) || 0;
-    mysql2.queryOne('select * from thread where id = ?', tid, (err, thread) => {
+    const tid = parseInt(req.params.tid) || 0;
+    const pid = parseInt(req.params.pid) || 0;
+    db.queryOne('select * from thread where id = ?', tid, (err, thread) => {
       if (err) return done(err);
-      if (!thread) return done(error('INVALID_THREAD'));
-      mysql2.queryOne('select * from post where id = ?', pid, (err, post) => {
+      if (!thread) return done(error.newError('INVALID_THREAD'));
+      db.queryOne('select * from post where id = ?', pid, (err, post) => {
         if (err) return done(err);
         postb.unpackPost(post);
-        if (!post || post.tid !== thread.id) return done(error('INVALID_POST'));
+        if (!post || post.tid !== thread.id) return done(error.newError('INVALID_POST'));
         postb.checkCategory(user, thread.cid, function (err, category) {
           if (err) return done(err);
           postb.addFilesUrl(post);
@@ -51,18 +49,18 @@ expb.core.get('/posts/:tid([0-9]+)/:pid([0-9]+/edit)', function (req, res, done)
 expb.core.put('/api/posts/:tid([0-9]+)/:pid([0-9]+)', expu.handler(function (req, res, done) {
   userb.checkUser(res, function (err, user) {
     if (err) return done(err);
-    var form = postn.getForm(req);
-    mysql2.queryOne('select * from thread where id = ?', form.tid, (err, thread) => {
+    const form = postn.getForm(req);
+    db.queryOne('select * from thread where id = ?', form.tid, (err, thread) => {
       if (err) return done(err);
-      if (!thread) return done(error('INVALID_THREAD'));
-      mysql2.queryOne('select * from post where id = ?', form.pid, (err, post) => {
+      if (!thread) return done(error.newError('INVALID_THREAD'));
+      db.queryOne('select * from post where id = ?', form.pid, (err, post) => {
         if (err) return done(err);
         postb.unpackPost(post);
-        if (!post || post.tid !== thread.id) return done(error('INVALID_POST'));
+        if (!post || post.tid !== thread.id) return done(error.newError('INVALID_POST'));
         postb.checkCategory(user, thread.cid, function (err, category) {
           if (err) return done(err);
-          if (!postb.isEditable(user, post.id, req.session.pids)) return done(error('NOT_AUTHORIZED'));
-          var head = postb.isHead(thread, post);
+          if (!postb.isEditable(user, post.id, req.session.pids)) return done(error.newError('NOT_AUTHORIZED'));
+          const head = postb.isHead(thread, post);
           async2.waterfall(
             (done) => {
               if (head) {
@@ -85,7 +83,7 @@ expb.core.put('/api/posts/:tid([0-9]+)/:pid([0-9]+)', expu.handler(function (req
                       post.visible = form.visible;
                     }
                     postb.packPost(post);
-                    mysql2.query('update post set ? where id = ?', [post, post.id], (err) => {
+                    db.query('update post set ? where id = ?', [post, post.id], (err) => {
                       if (err) return done(err);
                       async2.waterfall(
                         (done) => {
@@ -93,7 +91,7 @@ expb.core.put('/api/posts/:tid([0-9]+)/:pid([0-9]+)', expu.handler(function (req
                             thread.cid = form.cid;
                             thread.title = form.title;
                             thread.writer = form.writer;
-                            mysql2.query('update thread set ? where id = ?', [thread, thread.id], done);
+                            db.query('update thread set ? where id = ?', [thread, thread.id], done);
                           } else {
                             done()
                           }
@@ -120,12 +118,12 @@ function deleteFiles(form, post, done) {
   if (!Array.isArray(form.dfiles)) {
     form.dfiles = [form.dfiles];
   }
-  var dir = postb.getFileDir(form.pid);
-  var deleted = [];
-  var i = 0;
+  const dir = postb.getFileDir(form.pid);
+  const deleted = [];
+  let i = 0;
   (function del() {
     if (i < form.dfiles.length) {
-      var fname = path.basename(form.dfiles[i++]);
+      const fname = path.basename(form.dfiles[i++]);
       deleted.push(fname);
       fs.unlink(dir + '/' + fname, function (err) {
         if (err && err.code !== 'ENOENT') return done(err);
@@ -134,7 +132,7 @@ function deleteFiles(form, post, done) {
       return;
     }
     post.files = post.files.filter(function (file) {
-      return deleted.indexOf(file.name) == -1;
+      return deleted.indexOf(file.name) === -1;
     });
     if (!post.files.length) delete post.files;
     done();

@@ -1,16 +1,14 @@
-'use strict';
-
-const init = require('../base/init');
-const error = require('../base/error');
-const config = require('../base/config');
-const async2 = require('../base/async2');
-const date2 = require('../base/date2');
-const url2 = require('../base/url2');
-const mysql2 = require('../mysql/mysql2');
-const expb = require('../express/express-base');
-const userb = require('../user/user-base');
-const postb = require('../post/post-base');
-const postl = exports;
+import * as assert2 from "../base/assert2.js";
+import * as init from "../base/init.js";
+import * as error from "../base/error.js";
+import * as config from "../base/config.js";
+import * as async2 from "../base/async2.js";
+import * as date2 from "../base/date2.js";
+import * as url2 from "../base/url2.js";
+import * as db from "../db/db.js";
+import * as expb from "../express/express-base.js";
+import * as userb from "../user/user-base.js";
+import * as postb from "../post/post-base.js";
 
 expb.core.get('/', function (req, res, done) {
   res.redirect('/posts');
@@ -27,31 +25,31 @@ expb.core.get('/api/posts', function (req, res, done) {
 function getThreads(req, res, api, done) {
   userb.checkUser(res, function (err, user) {
     if (err) return done(err);
-    var cid = parseInt(req.query.c) || 0;
-    var p = Math.max(parseInt(req.query.p) || 1, 1);
-    var ps = Math.min(Math.max(parseInt(req.query.ps) || 16, 1), 128);
+    const cid = parseInt(req.query.c) || 0;
+    const p = Math.max(parseInt(req.query.p) || 1, 1);
+    const ps = Math.min(Math.max(parseInt(req.query.ps) || 16, 1), 128);
     async2.waterfall(
       (done) => {
         if (cid) {
           postb.checkCategory(user, cid, function (err, category) {
             if (err) return done(err);
-            mysql2.query('select * from thread where cid = ? order by udate desc limit ?, ?', [cid, (p-1)*ps, ps], (err, r) => {
+            db.query('select * from thread where cid = ? order by udate desc limit ?, ?', [cid, (p-1)*ps, ps], (err, r) => {
               done(err, category, r);
             });
-          });    
+          });
         } else {
-          mysql2.query('select * from thread order by udate desc limit ?, ?', [(p-1)*ps, ps], (err, r) => {
+          db.query('select * from thread order by udate desc limit ?, ?', [(p-1)*ps, ps], (err, r) => {
             done(err, { id: 0, name: 'all' }, r);
           });
-        }      
+        }
       },
       (err, category, r) => {
         if (err) return done(err);
-        var categoryIndex = user.categoryIndex;
-        var threads = [];
+        const categoryIndex = user.categoryIndex;
+        const threads = [];
         r.forEach((thread) => {
           if (!cid) {
-            var c = categoryIndex[thread.cid];
+            const c = categoryIndex[thread.cid];
             if (!c) {
               return;
             }
@@ -60,7 +58,7 @@ function getThreads(req, res, api, done) {
               name: c.name
             };
           }
-          thread.udateStr = date2.dateTimeString(thread.udate),
+          thread.udateStr = date2.dateTimeString(thread.udate);
           threads.push(thread);
         });
         if (api) {

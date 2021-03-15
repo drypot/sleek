@@ -1,21 +1,19 @@
-'use strict';
-
-const init = require('../base/init');
-const error = require('../base/error');
-const config = require('../base/config');
-const mysql2 = require('../mysql/mysql2');
-const expb = require('../express/express-base');
-const userf = require('../user/user-fixture');
-const postb = require('./post-base');
-const postn = require('./post-new');
-const postsr = require('./post-search');
-const expl = require('../express/express-local');
-const assert = require('assert');
-const assert2 = require('../base/assert2');
+import * as assert2 from "../base/assert2.js";
+import * as init from '../base/init.js';
+import * as error from '../base/error.js';
+import * as config from '../base/config.js';
+import * as db from '../db/db.js';
+import * as expb from '../express/express-base.js';
+import * as expl from "../express/express-local.js";
+import * as userb from "../user/user-base.js";
+import * as userf from "../user/user-fixture.js";
+import * as postb from "./post-base.js";
+import * as postn from "./post-new.js"; // express 핸들러가 테스트에서 사용된다.
+import * as postsr from "./post-search.js";
 
 before(function (done) {
-  config.path = 'config/test.json';
-  mysql2.dropDatabase = true;
+  config.setPath('config/test.json');
+  db.setDropDatabase(true);
   init.run(done);
 });
 
@@ -25,27 +23,27 @@ before((done) => {
 });
 
 describe('searching', function () {
-  var docs = [
-    { cid: 100, writer: 'snowman', title: 'title 1', text: 'apple orange banana' },
-    { cid: 100, writer: 'snowman', title: 'title 2', text: 'apple orange pine' },
-    { cid: 100, writer: 'snowman', title: 'title 3', text: '둥글게 네모나게' },
-    { cid: 100, writer: 'santa',   title: 'title 4', text: '둥글게 세모나게' },
-    { cid: 300, writer: 'santa',   title: 'title 5', text: '둥글게 동그랗게' },
-    { cid: 300, writer: 'rudolph', title: 'title 6', text: 'text 6' },
-    { cid: 100, writer: 'rudolph', title: 'title 7', text: 'text 7' },
-    { cid:  40, writer: 'admin',   title: 'title 8', text: 'text 8' }
+  const docs = [
+    {cid: 100, writer: 'snowman', title: 'title 1', text: 'apple orange banana'},
+    {cid: 100, writer: 'snowman', title: 'title 2', text: 'apple orange pine'},
+    {cid: 100, writer: 'snowman', title: 'title 3', text: '둥글게 네모나게'},
+    {cid: 100, writer: 'santa', title: 'title 4', text: '둥글게 세모나게'},
+    {cid: 300, writer: 'santa', title: 'title 5', text: '둥글게 동그랗게'},
+    {cid: 300, writer: 'rudolph', title: 'title 6', text: 'text 6'},
+    {cid: 100, writer: 'rudolph', title: 'title 7', text: 'text 7'},
+    {cid: 40, writer: 'admin', title: 'title 8', text: 'text 8'}
   ];
   it('given admin', function (done) {
     userf.login('admin', done);
   });
   it('given posts', function (done) {
-    var i = 0;
-    var len = docs.length;
+    let i = 0;
+    const len = docs.length;
     (function insert() {
       if (i < len) {
-        var doc = docs[i++];
+        const doc = docs[i++];
         expl.post('/api/posts').send(doc).end(function (err, res) {
-          assert.ifError(err);
+          assert2.ifError(err);
           assert2.empty(res.body.err);
           doc.pid = res.body.pid;
           doc.tid = res.body.tid;
@@ -61,8 +59,8 @@ describe('searching', function () {
   });
   it('should fail', function (done) {
     expl.get('/api/posts/search', function (err, res) {
-      assert.ifError(err);
-      assert(error.find(res.body.err, 'NOT_AUTHENTICATED'));
+      assert2.ifError(err);
+      assert2.ok(error.find(res.body.err, 'NOT_AUTHENTICATED'));
       done();
     });
   });
@@ -71,9 +69,9 @@ describe('searching', function () {
   });
   it('should success', function (done) {
     expl.get('/api/posts/search').query({ q: 'text' }).end(function (err, res) {
-      assert.ifError(err);
+      assert2.ifError(err);
       assert2.empty(res.body.err);
-      var r = res.body.threads;
+      const r = res.body.threads;
       assert2.e(r.length, 3);
       assert2.e(r[0].title, 'title 8');
       assert2.e(r[1].title, 'title 7');
@@ -86,9 +84,9 @@ describe('searching', function () {
   });
   it('should success', function (done) {
     expl.get('/api/posts/search').query({ q: 'text' }).end(function (err, res) {
-      assert.ifError(err);
+      assert2.ifError(err);
       assert2.empty(res.body.err);
-      var r = res.body.threads;
+      const r = res.body.threads;
       assert2.e(r.length, 2);
       assert2.e(r[0].title, 'title 7');
       assert2.e(r[1].title, 'title 6');
@@ -97,9 +95,9 @@ describe('searching', function () {
   });
   it('user name should success', function (done) {
     expl.get('/api/posts/search').query({ q: 'snowman' }).end(function (err, res) {
-      assert.ifError(err);
+      assert2.ifError(err);
       assert2.empty(res.body.err);
-      var r = res.body.threads;
+      const r = res.body.threads;
       assert2.e(r.length, 3);
       assert2.e(r[0].title, 'title 3');
       assert2.e(r[1].title, 'title 2');
@@ -109,9 +107,9 @@ describe('searching', function () {
   });
   it('title should success', function (done) {
     expl.get('/api/posts/search').query({ q: '+title +4' }).end(function (err, res) {
-      assert.ifError(err);
+      assert2.ifError(err);
       assert2.empty(res.body.err);
-      var r = res.body.threads;
+      const r = res.body.threads;
       assert2.e(r.length, 1);
       assert2.e(r[0].title, 'title 4');
       done();
@@ -119,9 +117,9 @@ describe('searching', function () {
   });
   it('OR op should success ', function (done) {
     expl.get('/api/posts/search').query({ q: 'apple banana' }).end(function (err, res) {
-      assert.ifError(err);
+      assert2.ifError(err);
       assert2.empty(res.body.err);
-      var r = res.body.threads;
+      const r = res.body.threads;
       assert2.e(r.length, 2);
       assert2.e(r[0].title, 'title 2');
       assert2.e(r[1].title, 'title 1');
@@ -130,9 +128,9 @@ describe('searching', function () {
   });
   it('AND op should success', function (done) {
     expl.get('/api/posts/search').query({ q: 'apple +banana' }).end(function (err, res) {
-      assert.ifError(err);
+      assert2.ifError(err);
       assert2.empty(res.body.err);
-      var r = res.body.threads;
+      const r = res.body.threads;
       assert2.e(r.length, 1);
       assert2.e(r[0].title, 'title 1');
       done();
@@ -140,9 +138,9 @@ describe('searching', function () {
   });
   it('hangul should success', function (done) {
     expl.get('/api/posts/search').query({ q: '둥글' }).end(function (err, res) {
-      assert.ifError(err);
+      assert2.ifError(err);
       assert2.empty(res.body.err);
-      var r = res.body.threads;
+      const r = res.body.threads;
       assert2.e(r.length, 3);
       assert2.e(r[0].title, 'title 5');
       assert2.e(r[1].title, 'title 4');

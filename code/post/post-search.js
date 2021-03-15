@@ -1,21 +1,19 @@
-'use strict';
+import * as assert2 from "../base/assert2.js";
+import * as init from '../base/init.js';
+import * as error from '../base/error.js';
+import * as config from '../base/config.js';
+import * as url2 from "../base/url2.js";
+import * as date2 from "../base/date2.js";
+import * as db from '../db/db.js';
+import * as expb from '../express/express-base.js';
+import * as postb from "./post-base.js";
+import * as userb from "../user/user-base.js";
 
-const init = require('../base/init');
-const error = require('../base/error');
-const config = require('../base/config');
-const date2 = require('../base/date2');
-const url2 = require('../base/url2');
-const mysql2 = require('../mysql/mysql2');
-const expb = require('../express/express-base');
-const userb = require('../user/user-base');
-const postb = require('./post-base');
-const postsr = exports;
-
-postsr.updateThread = function (tid, done) {
-  mysql2.queryOne('select * from thread where id = ?', tid, (err, thread) => {
+export function updateThread(tid, done) {
+  db.queryOne('select * from thread where id = ?', tid, (err, thread) => {
     if (err) return done(err);
     thread.merged = thread.writer + ' ' + thread.title + ' ';
-    mysql2.query('select * from post where tid = ?', tid, (err, r) => {
+    db.query('select * from post where tid = ?', tid, (err, r) => {
       if (err) return done(err);
         r.forEach((post) => {
         thread.merged += post.text + " " + post.writer + " ";
@@ -23,31 +21,29 @@ postsr.updateThread = function (tid, done) {
           thread.text = post.text.slice(0, 255);
         }
       });
-      mysql2.query(
+      db.query(
         'delete from threadmerged where id = ?;' +
-        'insert into threadmerged set ?', 
+        'insert into threadmerged set ?',
         [tid, thread],
         done);
     });
   });
-};
+}
 
-var updateThread = postsr.updateThread;
-
-postsr.updateAll = function (done) {
+export function updateAll(done) {
   let offset = 0;
   let ps = 100;
   (function loop1() {
-    mysql2.query('select id from thread order by id limit ?, ?', [offset, ps], (err, threads) => {
+    db.query('select id from thread order by id limit ?, ?', [offset, ps], (err, threads) => {
       if (err) return done(err);
       if (!threads.length) return done();
-      if (postsr.updateAll.showProgress) {
+      if (updateAll.showProgress) {
         process.stdout.write(offset + ' ');
       }
       offset += ps;
       let i = 0;
       (function loop2() {
-        if (i == threads.length) {
+        if (i === threads.length) {
           return setImmediate(loop1);
         }
         updateThread(threads[i++].id, (err) => {
@@ -57,7 +53,7 @@ postsr.updateAll = function (done) {
       })();
     });
   })();
-};
+}
 
 expb.core.get('/posts/search', function (req, res, done) {
   search(req, res, false, done);
@@ -70,15 +66,15 @@ expb.core.get('/api/posts/search', function (req, res, done) {
 function search(req, res, api, done) {
   userb.checkUser(res, function (err, user) {
     if (err) return done(err);
-    var q = req.query.q || '';
-    var p = Math.max(parseInt(req.query.p) || 1, 1);
-    var ps = Math.min(Math.max(parseInt(req.query.ps) || 16, 1), 128);
-    var categoryIndex = user.categoryIndex;
-    var threads = [];
-    mysql2.query('select id, cid, cdate, title, writer, text from threadmerged where match(merged) against(? in boolean mode) order by id desc limit ?, ?', [q, (p-1)*ps, ps], (err, r) => {
+    const q = req.query.q || '';
+    const p = Math.max(parseInt(req.query.p) || 1, 1);
+    const ps = Math.min(Math.max(parseInt(req.query.ps) || 16, 1), 128);
+    const categoryIndex = user.categoryIndex;
+    const threads = [];
+    db.query('select id, cid, cdate, title, writer, text from threadmerged where match(merged) against(? in boolean mode) order by id desc limit ?, ?', [q, (p-1)*ps, ps], (err, r) => {
       if (err) return done(err);
       r.forEach((thread) => {
-        var category = categoryIndex[thread.cid];
+        const category = categoryIndex[thread.cid];
         if (category) {
           thread.category = {
             id: category.id,

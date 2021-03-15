@@ -1,14 +1,12 @@
-'use strict';
-
-const init = require('../base/init');
-const error = require('../base/error');
-const config = require('../base/config');
-const date2 = require('../base/date2');
-const mysql2 = require('../mysql/mysql2');
-const expb = require('../express/express-base');
-const userb = require('../user/user-base');
-const postb = require('../post/post-base');
-const postv = exports;
+import * as assert2 from "../base/assert2.js";
+import * as init from '../base/init.js';
+import * as error from '../base/error.js';
+import * as config from '../base/config.js';
+import * as date2 from "../base/date2.js";
+import * as db from '../db/db.js';
+import * as expb from '../express/express-base.js';
+import * as userb from "../user/user-base.js";
+import * as postb from "../post/post-base.js";
 
 expb.core.get('/posts/:tid([0-9]+)', function (req, res, done) {
   view(req, res, false, done);
@@ -21,16 +19,16 @@ expb.core.get('/api/posts/:tid([0-9]+)', function (req, res, done) {
 function view(req, res, api, done) {
   userb.checkUser(res, function (err, user) {
     if (err) return done(err);
-    var tid = parseInt(req.params.tid) || 0;
-    mysql2.queryOne('select * from thread where id = ?', tid, (err, thread) => {
+    const tid = parseInt(req.params.tid) || 0;
+    db.queryOne('select * from thread where id = ?', tid, (err, thread) => {
       if (err) return done(err);
-      if (!thread) { return done(error('INVALID_THREAD')); }
+      if (!thread) { return done(error.newError('INVALID_THREAD')); }
       postb.checkCategory(user, thread.cid, function (err, category) {
         if (err) return done(err);
-        mysql2.query('update thread set hit = hit + 1 where id = ?', tid, (err) => {
+        db.query('update thread set hit = hit + 1 where id = ?', tid, (err) => {
           if (err) return done(err);
-          mysql2.query('select * from post where tid = ? order by cdate', tid, (err, r) => {
-            var posts = [];
+          db.query('select * from post where tid = ? order by cdate', tid, (err, r) => {
+            const posts = [];
             r.forEach((post) => {
               postb.unpackPost(post);
               if (post.visible || user.admin) {
@@ -39,7 +37,7 @@ function view(req, res, api, done) {
                 post.cdateStr = date2.dateTimeString(post.cdate),
                 post.cdate = post.cdate.getTime(),
                 posts.push(post);
-              }         
+              }
             });
             if (api) {
               res.json({

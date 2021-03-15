@@ -1,20 +1,17 @@
-'use strict';
-
-const init = require('../base/init');
-const error = require('../base/error');
-const config = require('../base/config');
-const mysql2 = require('../mysql/mysql2');
-const expb = require('../express/express-base');
-const userf = require('../user/user-fixture');
-const postn = require('../post/post-new');
-const postv = require('../post/post-view');
-const expl = require('../express/express-local');
-const assert = require('assert');
-const assert2 = require('../base/assert2');
+import * as assert2 from "../base/assert2.js";
+import * as init from '../base/init.js';
+import * as error from '../base/error.js';
+import * as config from '../base/config.js';
+import * as db from '../db/db.js';
+import * as expb from '../express/express-base.js';
+import * as expl from "../express/express-local.js";
+import * as userf from "../user/user-fixture.js";
+import * as postn from "../post/post-new.js";
+import * as postv from "../post/post-view.js";
 
 before(function (done) {
-  config.path = 'config/test.json';
-  mysql2.dropDatabase = true;
+  config.setPath('config/test.json');
+  db.setDropDatabase(true);
   init.run(done);
 });
 
@@ -24,23 +21,23 @@ before((done) => {
 });
 
 describe('thread and posts', function () {
-  var tid;
+  let tid;
   it('given user', function (done) {
     userf.login('user', done);
   });
   it('given thread', function (done) {
-    var form = { cid: 100, writer: 'snowman', title: 'title', text: 'post1' };
+    const form = {cid: 100, writer: 'snowman', title: 'title', text: 'post1'};
     expl.post('/api/posts').send(form).end(function (err, res) {
-      assert.ifError(err);
+      assert2.ifError(err);
       assert2.empty(res.body.err);
       tid = res.body.tid;
       done();
     });
   });
   it('given reply', function (done) {
-    var form = { writer: 'snowman2', text: 'post2' };
+    const form = {writer: 'snowman2', text: 'post2'};
     expl.post('/api/posts/' + tid).send(form).end(function (err, res) {
-      assert.ifError(err);
+      assert2.ifError(err);
       assert2.empty(res.body.err);
       done();
     });
@@ -49,9 +46,9 @@ describe('thread and posts', function () {
     userf.login('admin', done);
   });
   it('given invisible reply', function (done) {
-    var form = { writer: 'admin', text: 'post3', visible: false };
+    const form = {writer: 'admin', text: 'post3', visible: false};
     expl.post('/api/posts/' + tid).send(form).end(function (err, res) {
-      assert.ifError(err);
+      assert2.ifError(err);
       assert2.empty(res.body.err);
       done();
     });
@@ -61,8 +58,8 @@ describe('thread and posts', function () {
   });
   it('should fail', function (done) {
     expl.get('/api/posts/0', function (err, res) {
-      assert.ifError(err);
-      assert(error.find(res.body.err, 'NOT_AUTHENTICATED'));
+      assert2.ifError(err);
+      assert2.ok(error.find(res.body.err, 'NOT_AUTHENTICATED'));
       done();
     });
   });
@@ -71,7 +68,7 @@ describe('thread and posts', function () {
   });
   it('should return 2 posts', function (done) {
     expl.get('/api/posts/' + tid, function (err, res) {
-      assert.ifError(err);
+      assert2.ifError(err);
       assert2.empty(res.body.err);
       assert2.e(res.body.posts.length, 2);
       done();
@@ -82,7 +79,7 @@ describe('thread and posts', function () {
   });
   it('should return 3 posts', function (done) {
     expl.get('/api/posts/' + tid, function (err, res) {
-      assert.ifError(err);
+      assert2.ifError(err);
       assert2.empty(res.body.err);
       assert2.e(res.body.posts.length, 3);
       done();
@@ -91,14 +88,14 @@ describe('thread and posts', function () {
 });
 
 describe('post editable', function () {
-  var tid, pid;
+  let tid, pid;
   it('given user', function (done) {
     userf.login('user', done);
   });
   it('given thread', function (done) {
-    var form = { cid: 100, writer: 'snowman', title: 'title 1', text: 'post 1' };
-      expl.post('/api/posts').send(form).end(function (err, res) {
-        assert.ifError(err);
+    const form = {cid: 100, writer: 'snowman', title: 'title 1', text: 'post 1'};
+    expl.post('/api/posts').send(form).end(function (err, res) {
+        assert2.ifError(err);
         assert2.empty(res.body.err);
         tid = res.body.tid;
         pid = res.body.pid;
@@ -108,7 +105,7 @@ describe('post editable', function () {
   });
   it('should be true', function (done) {
     expl.get('/api/posts/' + tid, function (err, res) {
-      assert.ifError(err);
+      assert2.ifError(err);
       assert2.empty(res.body.err);
       assert2.e(res.body.posts[0].editable, true);
       done();
@@ -120,7 +117,7 @@ describe('post editable', function () {
   });
   it('should be false', function (done) {
     expl.get('/api/posts/' + tid, function (err, res) {
-      assert.ifError(err);
+      assert2.ifError(err);
       assert2.empty(res.body.err);
       assert2.e(res.body.posts[0].editable, false);
       done();
@@ -131,7 +128,7 @@ describe('post editable', function () {
   });
   it('should be true', function (done) {
     expl.get('/api/posts/' + tid, function (err, res) {
-      assert.ifError(err);
+      assert2.ifError(err);
       assert2.empty(res.body.err);
       assert2.e(res.body.posts[0].editable, true);
       done();
@@ -149,7 +146,7 @@ describe('redirects', function () {
   });
   it('should success', function (done) {
     expl.get('/threads/10').redirects(0).end(function (err, res) {
-      assert2.ne(err, undefined); 
+      assert2.ne(err, undefined);
       assert2.redirect(res, '/posts/10');
       done();
     });
