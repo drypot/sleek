@@ -1,6 +1,5 @@
-
-import * as url2 from "../base/url2.js";
 import * as assert2 from "../base/assert2.js";
+import * as url2 from "../base/url2.js";
 
 describe('url', function () {
   it('should succeed', function () {

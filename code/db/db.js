@@ -1,9 +1,10 @@
 import mysql from "mysql";
+import * as assert2 from "../base/assert2.js";
 import * as init from '../base/init.js';
 import * as config from '../base/config.js';
 import * as async2 from "../base/async2.js";
 
-export let conn;
+let conn;
 
 // 작업 종료후 pool을 닫으면 큐잉된 쿼리는 실행되지 못하고 'Pool is closed' 를 뿜는다.
 // 이 문제가 해결되기 전까지 pool 사용을 피한다.

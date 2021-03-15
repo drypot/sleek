@@ -1,9 +1,9 @@
+import * as assert2 from "../base/assert2.js";
 import * as init from '../base/init.js';
 import * as error from '../base/error.js';
 import * as config from '../base/config.js';
 import * as expb from '../express/express-base.js';
 import * as expl from "../express/express-local.js";
-import * as assert2 from "../base/assert2.js";
 
 before(function (done) {
   config.setPath('config/test.json');
@@ -66,7 +66,7 @@ describe('api res.json', function () {
 describe('api done(error)', function () {
   before(function () {
     expb.core.get('/api/test/invalid-data', function (req, res, done) {
-       done(error.from('INVALID_DATA'));
+       done(error.newError('INVALID_DATA'));
     });
   });
   it('should return json', function (done) {
@@ -124,7 +124,7 @@ describe('html res.send', function () {
 describe('html done(error)', function () {
   before(function () {
     expb.core.get('/test/invalid-data', function (req, res, done) {
-      done(error.from('INVALID_DATA'));
+      done(error.newError('INVALID_DATA'));
     });
   });
   it('should return html', function (done) {

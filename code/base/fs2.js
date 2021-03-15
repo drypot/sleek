@@ -1,5 +1,6 @@
 import fs from "fs";
 import * as path from "path";
+import * as assert2 from "../base/assert2.js";
 
 export function removeDir(p, done) {
   fs.stat(p, function (err, stat) {

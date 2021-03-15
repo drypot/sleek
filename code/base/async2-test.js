@@ -1,5 +1,5 @@
+import * as assert2 from "./assert2.js";
 import * as async2 from "../base/async2.js";
-import * as assert2 from "../base/assert2.js";
 
 describe('waterfall', () => {
   it('should succeed', (done) => {

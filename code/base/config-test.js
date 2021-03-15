@@ -1,6 +1,6 @@
+import * as assert2 from "../base/assert2.js";
 import * as init from "../base/init.js";
 import * as config from "../base/config.js";
-import * as assert2 from "../base/assert2.js";
 
 before(() => {
   config.setPath('config/test.json');

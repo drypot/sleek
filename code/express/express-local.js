@@ -1,6 +1,6 @@
 import superagent from "superagent";
-import * as config from '../base/config.js';
 import * as assert2 from "../base/assert2.js";
+import * as config from '../base/config.js';
 
 // user-fixture 와 같이 여러 테스트 모듈이 세션을 공유할 필요가 있다.
 // 각 모듈별로 supertest 류의 라이브러리를 각자 생성해서 사용하면 세션 공유에 문제가 발생한다.
@@ -10,7 +10,7 @@ import * as assert2 from "../base/assert2.js";
 // multipart/form-data 타입으로 첨부 파일을 보낼 때
 // 폼 필드 전달을 쉽게 할 수 있다.
 
-assert2.strictEqual(superagent.Request.prototype.fields, undefined);
+assert2.e(superagent.Request.prototype.fields, undefined);
 
 superagent.Request.prototype.fields = function(obj){
   for (let key in obj) {

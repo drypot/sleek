@@ -1,3 +1,4 @@
+import * as assert2 from "./assert2.js";
 
 export function waterfall(...funcs) {
   let i = 0;

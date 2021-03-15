@@ -1,5 +1,5 @@
-import * as init from "../base/init.js";
 import * as assert2 from "../base/assert2.js";
+import * as init from "../base/init.js";
 
 describe('init', () => {
   it('should succeed with 3 adds', (done) => {

@@ -1,6 +1,6 @@
 import fs from "fs";
-import * as fs2 from "../base/fs2.js";
 import * as assert2 from "../base/assert2.js";
+import * as fs2 from "../base/fs2.js";
 
 const testDir = 'tmp/fs-test';
 

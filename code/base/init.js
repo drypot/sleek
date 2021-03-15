@@ -1,3 +1,4 @@
+import * as assert2 from "../base/assert2.js";
 
 process.on('uncaughtException', function (err) {
   console.error(err.stack);

@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import redis from "redis";
 import session from "express-session";
 import connectRedis from "connect-redis";
+import * as assert2 from "../base/assert2.js";
 import * as config from "../base/config.js";
 
 const redisStore = connectRedis(session);

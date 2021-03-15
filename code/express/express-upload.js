@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import * as assert2 from "../base/assert2.js";
 import * as init from '../base/init.js';
 import * as config from '../base/config.js';
 import * as expb from '../express/express-base.js';

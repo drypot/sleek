@@ -1,3 +1,4 @@
+import * as assert2 from "./assert2.js";
 
 export function find(a, fn) {
   for (let i = 0; i < a.length; i++) {
