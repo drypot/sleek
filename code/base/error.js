@@ -4,14 +4,14 @@ const list = {};
 
 export function define(code, msg, field) {
   assert2.e(list[code], undefined);
-  const err = {
+  const ec = {
     code: code,
     message: msg
   };
   if (field) {
-    err.field = field;
+    ec.field = field;
   }
-  list[code] = err;
+  list[code] = ec;
 }
 
 export function get(code) {
@@ -23,14 +23,8 @@ define('INVALID_FORM', '*');
 
 const INVALID_FORM = get('INVALID_FORM');
 
-export function from(obj) {
+export function newError(obj) {
   let err;
-  if (Array.isArray(obj)) {
-    err = new Error(INVALID_FORM.message);
-    err.code = INVALID_FORM.code;
-    err.errors = obj;
-    return err;
-  }
   const ec = get(obj);
   if (!ec) {
     err = new Error('unknown error');
@@ -39,14 +33,24 @@ export function from(obj) {
     }
     return err;
   }
-  if (ec.field) {
-    err = new Error(INVALID_FORM.message);
-    err.code = INVALID_FORM.code;
-    err.errors = [ec];
-    return err;
-  }
   err = new Error(ec.message);
   err.code = ec.code;
+  return err;
+}
+
+export function newFormError(obj) {
+  let err;
+  if (Array.isArray(obj)) {
+    err = new Error(INVALID_FORM.message);
+    err.code = INVALID_FORM.code;
+    err.errors = obj;
+    return err;
+  }
+  const ec = get(obj);
+  assert2.ok(ec.field);
+  err = new Error(INVALID_FORM.message);
+  err.code = INVALID_FORM.code;
+  err.errors = [ec];
   return err;
 }
 
