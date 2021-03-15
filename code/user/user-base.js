@@ -46,7 +46,7 @@ function findByPassword(password) {
 export function checkUser(res, done) {
   const user = res.locals.user;
   if (!user) {
-    return done(error.from('NOT_AUTHENTICATED'));
+    return done(error.newError('NOT_AUTHENTICATED'));
   }
   done(null, user);
 }
@@ -54,10 +54,10 @@ export function checkUser(res, done) {
 export function checkAdmin(res, done) {
   const user = res.locals.user;
   if (!user) {
-    return done(error.from('NOT_AUTHENTICATED'));
+    return done(error.newError('NOT_AUTHENTICATED'));
   }
   if (!user.admin) {
-    return done(error.from('NOT_AUTHORIZED'));
+    return done(error.newError('NOT_AUTHORIZED'));
   }
   done(null, user);
 }
@@ -79,7 +79,7 @@ expb.core.get('/users/login', function (req, res, done) {
 expb.core.post('/api/users/login', function (req, res, done) {
   const user = findByPassword(req.body.password || '');
   if (!user) {
-    return done(error.from('PASSWORD_WRONG'));
+    return done(error.newFormError('PASSWORD_WRONG'));
   }
   if (req.body.remember) {
     res.cookie('password', req.body.password, {
@@ -95,7 +95,7 @@ expb.core.post('/api/users/login', function (req, res, done) {
         admin: user.admin,
         categories: user.categories
       },
-      uploadSite: config.uploadSite
+      uploadSite: config.prop.uploadSite
     });
   });
 });
@@ -137,7 +137,7 @@ expb.core.get('/api/users/login', function (req, res, done) {
         admin: user.admin,
         categories: user.categories
       },
-      uploadSite: config.uploadSite
+      uploadSite: config.prop.uploadSite
     });
   });
 });

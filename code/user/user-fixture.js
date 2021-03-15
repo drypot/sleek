@@ -1,7 +1,6 @@
-
+import * as assert2 from "../base/assert2.js";
 import * as init from '../base/init.js';
 import * as expl from "../express/express-local.js";
-import * as assert2 from "../base/assert2.js";
 
 export function login(name, remember, done) {
   if (typeof remember == 'function') {
