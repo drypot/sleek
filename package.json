@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "개인적인 기술 실험용 게시판 시스템",
   "type": "module",
-  "main": "code/main/main.js",
+  "main": "code/main/main.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

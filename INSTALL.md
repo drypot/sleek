@@ -48,7 +48,7 @@ MariaDB 쉘에서 Mroonga 검색 엔진을 활성화 한다.
 
 실행.
 
-    $ node code/main/main.js -c config/sleek-dev.json
+    $ bin/run
 
 ## 서비스로 등록
 
@@ -64,7 +64,7 @@ MariaDB 쉘에서 Mroonga 검색 엔진을 활성화 한다.
     Restart=always
     RestartSec=15
     WorkingDirectory=/data/web/sleek
-    ExecStart=/usr/bin/node code/main/main.js -c config/sleek-live.json
+    ExecStart=/usr/bin/node code/main/main.mjs -c config/sleek-live.json
     Environment=NODE_ENV=production
 
     [Install]

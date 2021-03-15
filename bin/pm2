@@ -1,7 +1,7 @@
 #!/bin/bash
 args=(
     start
-    code/main/main.js
+    code/main/main.mjs
     --name sleek
     --exp-backoff-restart-delay=2000
     --

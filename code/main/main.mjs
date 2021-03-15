@@ -11,6 +11,11 @@ import "../post/post-view.js";
 import "../post/post-list.js";
 import "../user/user-base.js";
 
+// 2021-03-16
+// pm2 에서 *.js 파일은 es 모듈로 인식하지 못한다.
+// 이 문제를 해결하기 위해 main.js를 main.mjs로 변경.
+//
+
 process.on('SIGINT', function() {
   db.close(function(err) {
     console.log("SIGINT caught");

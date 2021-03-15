@@ -36,7 +36,7 @@ Arch 서비스 Fail 나면
 
 ## 테스트 런
 
-    $ node code/main/main.js -c config/sleek-live.json
+    $ bin-live/run
 
 ## 재부팅
 
