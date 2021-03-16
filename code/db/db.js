@@ -17,6 +17,10 @@ export function setDropDatabase(b) {
   dropDatabase = b;
 }
 
+// 광역 typeCast 는 안 하기로 한다.
+// JSON 이 JSON 으로 오지 않고 BLOB 으로 온다.
+// 다른 정보가 BLOB 으로 오면 구분할 수가 없다.
+
 init.add(
   (done) => {
     conn = mysql.createConnection({
@@ -25,6 +29,7 @@ init.add(
       password: config.prop.mysqlPassword,
       charset: 'utf8mb4',
       multipleStatements: true,
+      //typeCast: typeCast,
     });
     done();
   },

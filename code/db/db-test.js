@@ -24,15 +24,14 @@ describe('queryOne', (done) => {
   it('should succeed when result exists.', done => {
     db.queryOne('select * from (select 1 as id) dummy where id = 1', (err, r) => {
       assert2.ifError(err);
-      assert2.ok(r.id === 1);
+      assert2.e(r.id, 1);
       done();
     });
   });
   it('should succeed when result does not exists.', done => {
     db.queryOne('select * from (select 1 as id) dummy where id = 2', (err, r) => {
       assert2.ifError(err);
-      console.log(r);
-      assert2.ok(r === undefined);
+      assert2.e(r, undefined);
       done();
     });
   });
