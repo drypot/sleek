@@ -25,8 +25,8 @@ describe('api res.json', function () {
     it('should return object', function (done) {
       expl.get('/api/test/object').end(function (err, res) {
         assert2.ifError(err);
-        assert2.strictEqual(res.type, 'application/json');
-        assert2.strictEqual(res.body.msg, 'valid json');
+        assert2.e(res.type, 'application/json');
+        assert2.e(res.body.msg, 'valid json');
         done();
       });
     });
@@ -40,8 +40,8 @@ describe('api res.json', function () {
     it('should return string', function (done) {
       expl.get('/api/test/string').end(function (err, res) {
         assert2.ifError(err);
-        assert2.strictEqual(res.type, 'application/json');
-        assert2.strictEqual(res.body, 'hi');
+        assert2.e(res.type, 'application/json');
+        assert2.e(res.body, 'hi');
         done();
       });
     });
@@ -55,8 +55,8 @@ describe('api res.json', function () {
     it('should return null', function (done) {
       expl.get('/api/test/null').end(function (err, res) {
         assert2.ifError(err);
-        assert2.strictEqual(res.type, 'application/json');
-        assert2.strictEqual(res.body, null);
+        assert2.e(res.type, 'application/json');
+        assert2.e(res.body, null);
         done();
       });
     });
@@ -72,7 +72,7 @@ describe('api done(error)', function () {
   it('should return json', function (done) {
     expl.get('/api/test/invalid-data').end(function (err, res) {
       assert2.ifError(err);
-      assert2.strictEqual(res.type, 'application/json');
+      assert2.e(res.type, 'application/json');
       assert2.ok(res.body.err);
       assert2.ok(error.find(res.body.err, 'INVALID_DATA'));
       done();
@@ -89,7 +89,7 @@ describe('api no-action', function () {
   it('should return 404', function (done) {
     expl.get('/api/test/no-action').end(function (err, res) {
       assert2.ok(err !== null);
-      assert2.strictEqual(res.status, 404); // Not Found
+      assert2.e(res.status, 404); // Not Found
       done();
     });
   });
@@ -99,7 +99,7 @@ describe('undefined api', function () {
   it('should return 404', function (done) {
     expl.get('/api/test/undefined-url').end(function (err, res) {
       assert2.ok(err !== null);
-      assert2.strictEqual(res.status, 404); // Not Found
+      assert2.e(res.status, 404); // Not Found
       done();
     });
   });
@@ -114,8 +114,8 @@ describe('html res.send', function () {
   it('should return html', function (done) {
     expl.get('/test/html').end(function (err, res) {
       assert2.ifError(err);
-      assert2.strictEqual(res.type, 'text/html');
-      assert2.strictEqual(res.text, '<p>some text</p>');
+      assert2.e(res.type, 'text/html');
+      assert2.e(res.text, '<p>some text</p>');
       done();
     });
   });
@@ -130,7 +130,7 @@ describe('html done(error)', function () {
   it('should return html', function (done) {
     expl.get('/test/invalid-data').end(function (err, res) {
       assert2.ifError(err);
-      assert2.strictEqual(res.type, 'text/html');
+      assert2.e(res.type, 'text/html');
       assert2.ok(/.*INVALID_DATA.*/.test(res.text));
       done();
     });
@@ -147,7 +147,7 @@ describe('cache control', function () {
     it('should return Cache-Control: private', function (done) {
       expl.get('/test/cache-test').end(function (err, res) {
         assert2.ifError(err);
-        assert2.strictEqual(res.get('Cache-Control'), 'private');
+        assert2.e(res.get('Cache-Control'), 'private');
         done();
       });
     });
@@ -156,7 +156,7 @@ describe('cache control', function () {
     it('should return Cache-Control: no-cache', function (done) {
       expl.get('/api/hello').end(function (err, res) {
         assert2.ifError(err);
-        assert2.strictEqual(res.get('Cache-Control'), 'no-cache');
+        assert2.e(res.get('Cache-Control'), 'no-cache');
         done();
       });
     });
@@ -186,8 +186,8 @@ describe('session var', function () {
       assert2.ifError(res.body.err);
       expl.get('/api/test/session').send([ 'book', 'price' ]).end(function (err, res) {
         assert2.ifError(err);
-        assert2.strictEqual(res.body.book, 'book1');
-        assert2.strictEqual(res.body.price, 11);
+        assert2.e(res.body.book, 'book1');
+        assert2.e(res.body.price, 11);
         done();
       });
     });
@@ -201,8 +201,8 @@ describe('session var', function () {
         assert2.ifError(res.body.err);
         expl.get('/api/test/session').send([ 'book', 'price' ]).end(function (err, res) {
           assert2.ifError(err);
-          assert2.strictEqual(res.body.book, undefined);
-          assert2.strictEqual(res.body.price, undefined);
+          assert2.e(res.body.book, undefined);
+          assert2.e(res.body.price, undefined);
           done();
         });
       });
@@ -242,9 +242,9 @@ describe('middleware', function () {
       result = {};
       expl.get('/api/test/mw-1-2').end(function (err, res) {
         assert2.ifError(err);
-        assert2.notStrictEqual(result.mid1, undefined);
-        assert2.notStrictEqual(result.mid2, undefined);
-        assert2.notStrictEqual(result.mid3, undefined);
+        assert2.ne(result.mid1, undefined);
+        assert2.ne(result.mid2, undefined);
+        assert2.ne(result.mid3, undefined);
         done();
       });
     });
@@ -254,9 +254,9 @@ describe('middleware', function () {
       result = {};
       expl.get('/api/test/mw-1-err-2').end(function (err, res) {
         assert2.ifError(err);
-        assert2.notStrictEqual(result.mid1, undefined);
-        assert2.strictEqual(result.mid2, undefined);
-        assert2.strictEqual(result.mid3, undefined);
+        assert2.ne(result.mid1, undefined);
+        assert2.e(result.mid2, undefined);
+        assert2.e(result.mid3, undefined);
         done();
       });
     });
@@ -267,12 +267,12 @@ describe('hello', function () {
   it('should return appName', function (done) {
     expl.get('/api/hello').end(function (err, res) {
       assert2.ifError(err);
-      assert2.strictEqual(res.type, 'application/json');
-      assert2.strictEqual(res.body.name, config.prop.appName);
+      assert2.e(res.type, 'application/json');
+      assert2.e(res.body.name, config.prop.appName);
       const stime = parseInt(res.body.time || 0);
       const ctime = Date.now();
-      assert2.strictEqual(stime <= ctime, true);
-      assert2.strictEqual(stime >= ctime - 100, true);
+      assert2.e(stime <= ctime, true);
+      assert2.e(stime >= ctime - 100, true);
       done();
     });
   });
@@ -283,7 +283,7 @@ describe('echo', function () {
     it('should succeed', function (done) {
       expl.get('/api/echo?p1&p2=123').end(function (err, res) {
         assert2.ifError(err);
-        assert2.strictEqual(res.body.method, 'GET');
+        assert2.e(res.body.method, 'GET');
         assert2.deepStrictEqual(res.body.query, { p1: '', p2: '123' });
         done();
       });
@@ -293,7 +293,7 @@ describe('echo', function () {
     it('should succeed', function (done) {
       expl.post('/api/echo').send({ p1: '', p2: '123' }).end(function (err, res) {
         assert2.ifError(err);
-        assert2.strictEqual(res.body.method, 'POST');
+        assert2.e(res.body.method, 'POST');
         assert2.deepStrictEqual(res.body.body, { p1: '', p2: '123' });
         done();
       });
@@ -303,7 +303,7 @@ describe('echo', function () {
     it('should succeed', function (done) {
       expl.del('/api/echo').end(function (err, res) {
         assert2.ifError(err);
-        assert2.strictEqual(res.body.method, 'DELETE');
+        assert2.e(res.body.method, 'DELETE');
         done();
       });
     });
